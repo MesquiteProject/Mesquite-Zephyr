@@ -1,0 +1,28 @@
+Bosque
+
+Gaipya:  beaver
+
+General Acquirer of Inferred Phylogenies 
+
+First, when choosing "use codon positions" on the "characters models" tab it automatically assumes that a "noncoding" subset exists, which it did not in my case.  So, it wrote the config file as if there were four models, despite there only being 3 sets in the charpartition.
+
+
+
+pre-Beta
+	better stopping mechanisms
+	allow user to choose folder for output files
+	- from Wayne: don't write taxa that are all missing/gaps
+	- put name of matrix in tree block / tree name
+	current typeset, wtset should probably be stored to temp file for parsimony run with PAUP?
+	
+	have links to web site of programs in error message and in main dialog boxes
+	support for COAL
+	support for PHYLIP
+
+	
+Possible:
+	- have detachable runs
+	prominently have helper programs displayed
+
+Eventual:
+	use XML for building GUIs for Bosque
