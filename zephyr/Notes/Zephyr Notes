@@ -1,8 +1,5 @@
-Bosque
+Zephyr
 
-Gaipya:  beaver
-
-General Acquirer of Inferred Phylogenies 
 
 First, when choosing "use codon positions" on the "characters models" tab it automatically assumes that a "noncoding" subset exists, which it did not in my case.  So, it wrote the config file as if there were four models, despite there only being 3 sets in the charpartition.
 
@@ -25,4 +22,4 @@ Possible:
 	prominently have helper programs displayed
 
 Eventual:
-	use XML for building GUIs for Bosque
+	use XML for building GUIs
