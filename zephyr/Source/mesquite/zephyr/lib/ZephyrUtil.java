@@ -26,7 +26,7 @@ import mesquite.lib.duties.TreesManager;
 
 
 
-public class BosqueUtil {
+public class ZephyrUtil {
 
 
 
@@ -57,8 +57,8 @@ public class BosqueUtil {
 		MesquiteFile file = new MesquiteFile();
 		file.writeTaxaWithAllMissing = false;
 		if (exporter!=null) {
-			if (module instanceof BosqueFilePreparer)
-				((BosqueFilePreparer)module).prepareExportFile(exporter);
+			if (module instanceof ZephyrFilePreparer)
+				((ZephyrFilePreparer)module).prepareExportFile(exporter);
 			StringBuffer sb = exporter.getDataAsFileText(file, data);
 			if (sb!=null) {
 				MesquiteFile.putFileContents(path, sb.toString(), true);
@@ -426,8 +426,8 @@ public class BosqueUtil {
 		File f = new File(dir, fileName);
 		FileWriter w = new FileWriter(f);
 		w.write("#NEXUS" + StringUtil.lineEnding());
-		BosqueUtil.writeTaxaBlock(w, taxa, true, false);
-		BosqueUtil.writeTreesBlock(w, tv, true, true);
+		ZephyrUtil.writeTaxaBlock(w, taxa, true, false);
+		ZephyrUtil.writeTreesBlock(w, tv, true, true);
 		w.close();
 	}
 	
@@ -441,7 +441,7 @@ public class BosqueUtil {
 				Tree iTree = treeSource.getTree(taxa, i);
 				tv.addElement(iTree, false);
 			}
-			BosqueUtil.writeNEXUSTreeFile(taxa, tv, dir, fileName);
+			ZephyrUtil.writeNEXUSTreeFile(taxa, tv, dir, fileName);
 		}
 	}
 
@@ -449,7 +449,7 @@ public class BosqueUtil {
 		if (dir != null && fileName != null ) {
 			TreeVector tv = new TreeVector(taxa);
 			tv.addElement(tree, false);
-			BosqueUtil.writeNEXUSTreeFile(taxa, tv, dir, fileName);
+			ZephyrUtil.writeNEXUSTreeFile(taxa, tv, dir, fileName);
 		}
 	}
 

@@ -41,7 +41,7 @@ import mesquite.io.lib.*;
 
  */
 
-public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, ShellScriptWatcher, ActionListener, ItemListener, BosqueFilePreparer  {
+public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, ShellScriptWatcher, ActionListener, ItemListener, ZephyrFilePreparer  {
 	public static final String SCORENAME = "TNTScore";
 
 
@@ -328,7 +328,7 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 		data.setEditorInhibition(true);
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 
-		String rootDir = BosqueUtil.createDirectoryForFiles(this, false, "TNT");
+		String rootDir = ZephyrUtil.createDirectoryForFiles(this, false, "TNT");
 		if (rootDir==null)
 			return null;
 
@@ -337,7 +337,7 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 
 		boolean fileSaved = false;
 
-		fileSaved = BosqueUtil.saveExportFile(this,"#InterpretTNT", taxa, rootDir,  fileName,  filePath,  data);
+		fileSaved = ZephyrUtil.saveExportFile(this,"#InterpretTNT", taxa, rootDir,  fileName,  filePath,  data);
 
 		if (!fileSaved) return null;
 
@@ -451,9 +451,9 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 			MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 			//TreeVector tv = new TreeVector(taxa);
 			if (bootstrap())
-				t =BosqueUtil.readTNTTreeFile(this,trees, taxa,treeFilePath, "TNTBootstrap Rep", 0, readSuccess, false);  // set first tree number as 0 as will remove the first one later.
+				t =ZephyrUtil.readTNTTreeFile(this,trees, taxa,treeFilePath, "TNTBootstrap Rep", 0, readSuccess, false);  // set first tree number as 0 as will remove the first one later.
 			else
-				t =BosqueUtil.readTNTTreeFile(this,trees, taxa,treeFilePath, "TNTTree", 1, readSuccess, false);
+				t =ZephyrUtil.readTNTTreeFile(this,trees, taxa,treeFilePath, "TNTTree", 1, readSuccess, false);
 			success = t!=null;
 			if (success && bootstrap()) {
 				t = t.cloneTree();
@@ -571,11 +571,11 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 
 	public void processCompletedOutputFiles(String[] outputFilePaths) {
 		if (outputFilePaths.length>1 && !StringUtil.blank(outputFilePaths[1])) {
-			BosqueUtil.copyLogFile(this, "TNT", outputFilePaths[1]);
+			ZephyrUtil.copyLogFile(this, "TNT", outputFilePaths[1]);
 
 		}
 		if (outputFilePaths.length>2 && !StringUtil.blank(outputFilePaths[2])) {
-			BosqueUtil.copyOutputText(this,outputFilePaths[2], commands);
+			ZephyrUtil.copyOutputText(this,outputFilePaths[2], commands);
 		}
 	}
 

@@ -1,7 +1,7 @@
 /* Adapted from the CIPRES java library class */
 package mesquite.zephyr.lib;
 
-public class BStringUtil {
+public class ZephyrStringUtil {
 
 	public static String escapeBackslashes(final String s) {
 		return s.replaceAll("\\\\", "\\\\\\\\");
@@ -44,7 +44,7 @@ public class BStringUtil {
 	 * @return true if el equals any of the elements in the array ar.
 	 */
 	public static boolean inArray(final String el, final String[] ar) {
-		return BStringUtil.index(el, ar) != -1;
+		return ZephyrStringUtil.index(el, ar) != -1;
 	}
 
 	/**

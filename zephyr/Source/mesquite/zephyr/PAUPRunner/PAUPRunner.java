@@ -112,7 +112,7 @@ public class PAUPRunner extends MesquiteModule implements OutputFileProcessor , 
 
 		data.setEditorInhibition(true);
 
-		String rootDir = BosqueUtil.createDirectoryForFiles(this, false, "PAUP*");
+		String rootDir = ZephyrUtil.createDirectoryForFiles(this, false, "PAUP*");
 		if (rootDir==null)
 			return null;
 
@@ -120,7 +120,7 @@ public class PAUPRunner extends MesquiteModule implements OutputFileProcessor , 
 		fileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".nex";   //replace this with actual file name?
 		String filePath = rootDir +  fileName;
 
-	  	BosqueUtil.writeNEXUSFile(taxa,  rootDir,  fileName,  filePath,  data,false, writeOnlySelectedTaxa, true, false);
+	  	ZephyrUtil.writeNEXUSFile(taxa,  rootDir,  fileName,  filePath,  data,false, writeOnlySelectedTaxa, true, false);
 	  		 
 
 		String runningFilePath = rootDir + "running" + MesquiteFile.massageStringToFilePathSafe(unique);

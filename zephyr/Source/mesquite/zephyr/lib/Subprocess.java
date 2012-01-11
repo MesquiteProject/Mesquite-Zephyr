@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.StringTokenizer;
 import mesquite.lib.MesquiteTrunk;
-import mesquite.zephyr.lib.BStringUtil;
+import mesquite.zephyr.lib.ZephyrStringUtil;
 
 public class Subprocess extends Observable {
 	// enumeration of exit codes
@@ -44,7 +44,7 @@ public class Subprocess extends Observable {
 	}
 	public static String stdOutFromCommand(final String executable, final String[] args, SimpleLogger lg) throws IOException, InterruptedException {
 		if (lg != null)
-			lg.debug("Invoking " + executable + ", " + BStringUtil.join(args, ", "));
+			lg.debug("Invoking " + executable + ", " + ZephyrStringUtil.join(args, ", "));
 		final Subprocess runner = new Subprocess(executable, args, lg);
 		runner.setWaitForExecution(true);
 		final int rc = runner.execute();
@@ -396,7 +396,7 @@ public class Subprocess extends Observable {
 
 		this.exitCode.set(Subprocess.RUNNING);
 		try {
-			logger.debug(BStringUtil.join(cArr, " "));
+			logger.debug(ZephyrStringUtil.join(cArr, " "));
 			logger.debug("with working dir = " + this.workingDirectory);
 			this._subprocess = rt.exec(cArr, env, workingDirPath);
 		} catch (final IOException e) {

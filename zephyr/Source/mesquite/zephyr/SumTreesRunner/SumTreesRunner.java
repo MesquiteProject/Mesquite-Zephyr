@@ -10,7 +10,7 @@ import mesquite.lib.duties.FileCoordinator;
 import mesquite.lib.duties.TreeSource;
 import mesquite.lib.duties.TreesManager;
 import mesquite.lib.ProgressIndicator;
-import mesquite.zephyr.lib.BosqueUtil;
+import mesquite.zephyr.lib.ZephyrUtil;
 import mesquite.zephyr.lib.SimpleLogger;
 import mesquite.zephyr.lib.Subprocess;
 
@@ -87,17 +87,17 @@ public class SumTreesRunner extends MesquiteModule implements ActionListener {
 	
 	public Tree invokeSumTrees(Tree tree) throws Exception {
 		
-		String rootDir = BosqueUtil.createDirectoryForFiles(this, false, "SumTrees");
+		String rootDir = ZephyrUtil.createDirectoryForFiles(this, false, "SumTrees");
 		if (rootDir == null)
 			return null;
 
 		supportFileName = "tempSupportTrees.nex";
-	  	BosqueUtil.writeNEXUSTreeFile(taxa, this.treeSource, rootDir, supportFileName);
+	  	ZephyrUtil.writeNEXUSTreeFile(taxa, this.treeSource, rootDir, supportFileName);
 	  	
 	  	this.targetFileName = null;
 	  	if (tree != null) {
 	  		targetFileName = "tempTargetTrees.nex";
-	  		BosqueUtil.writeNEXUSTreeFile(taxa, tree, rootDir, targetFileName);
+	  		ZephyrUtil.writeNEXUSTreeFile(taxa, tree, rootDir, targetFileName);
 	  	}
 	  	
 	  	this.outputFileName = "out.nex";

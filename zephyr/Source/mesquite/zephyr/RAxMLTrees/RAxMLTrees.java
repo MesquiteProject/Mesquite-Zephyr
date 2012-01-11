@@ -119,7 +119,7 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 		latestTree = null;
 
 		String s = MesquiteFile.getFileLastContents(path);
-		latestTree = BosqueUtil.readPhylipTree(s,taxa,false);
+		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false);
 
 		if (latestTree!=null && latestTree.isValid()) {
 			rerootNode = latestTree.nodeOfTaxonNumber(0);

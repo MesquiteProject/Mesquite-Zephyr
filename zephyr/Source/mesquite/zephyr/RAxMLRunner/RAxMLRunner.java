@@ -33,7 +33,7 @@ outgroups
 
  */
 
-public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor, ShellScriptWatcher, ActionListener, BosqueFilePreparer  {
+public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor, ShellScriptWatcher, ActionListener, ZephyrFilePreparer  {
 	public static final String SCORENAME = "RAxMLScore";
 
 
@@ -321,7 +321,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		Tree t =null;
 		if (lastTree) {
 			String s = MesquiteFile.getFileLastContents(treeFilePath);
-			t = BosqueUtil.readPhylipTree(s,taxa,false);
+			t = ZephyrUtil.readPhylipTree(s,taxa,false);
 
 			if (t!=null) {
 				if (success!=null)
@@ -340,7 +340,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 			String s = parser.getRawNextDarkLine();
 
 			while (!StringUtil.blank(s)) {
-				t = BosqueUtil.readPhylipTree(s,taxa,false);
+				t = ZephyrUtil.readPhylipTree(s,taxa,false);
 
 				if (t!=null) {
 					if (success!=null)
@@ -561,7 +561,7 @@ WAG, gene2 = 501-1000
 		data.setEditorInhibition(true);
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 Debugg.println("RETAIN FILES " + retainFiles);
-		String rootDir = BosqueUtil.createDirectoryForFiles(this, retainFiles, "RAxML");
+		String rootDir = ZephyrUtil.createDirectoryForFiles(this, retainFiles, "RAxML");
 		if (rootDir==null)
 			return null;
 		
@@ -571,9 +571,9 @@ Debugg.println("RETAIN FILES " + retainFiles);
 		boolean fileSaved = false;
 		
 		if (data instanceof DNAData)
-			 fileSaved = BosqueUtil.saveExportFile(this,"#InterpretPhylipDNA", taxa, rootDir,  fileName,  filePath,  data);
+			 fileSaved = ZephyrUtil.saveExportFile(this,"#InterpretPhylipDNA", taxa, rootDir,  fileName,  filePath,  data);
 		else if (data instanceof ProteinData)
-			 fileSaved = BosqueUtil.saveExportFile(this,"#InterpretPhylipProtein", taxa, rootDir,  fileName,  filePath,  data);
+			 fileSaved = ZephyrUtil.saveExportFile(this,"#InterpretPhylipProtein", taxa, rootDir,  fileName,  filePath,  data);
 
 		if (!fileSaved) return null;
 
@@ -689,11 +689,11 @@ Debugg.println("RETAIN FILES " + retainFiles);
 			MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 			if (bootstrap()) {
 				t =readRAxMLTreeFile(trees, treeFilePath, "RAxML Bootstrap Tree", readSuccess, false);
-				BosqueUtil.adjustTree(t, outgroupSet);
+				ZephyrUtil.adjustTree(t, outgroupSet);
 			}
 			else if (numRuns==1) {
 				t =readRAxMLTreeFile(trees, treeFilePath, "RAxMLTree", readSuccess, true);
-				BosqueUtil.adjustTree(t, outgroupSet);
+				ZephyrUtil.adjustTree(t, outgroupSet);
 			}
 			else if (numRuns>1) {
 				TreeVector tv = new TreeVector(taxa);
@@ -737,7 +737,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 					int bestRun = MesquiteInteger.unassigned;
 					for (int i=0; i<trees.getNumberOfTrees(); i++) {
 						Tree newTree = trees.getTree(i);
-						BosqueUtil.adjustTree(newTree, outgroupSet);
+						ZephyrUtil.adjustTree(newTree, outgroupSet);
 						if (MesquiteDouble.isCombinable(finalValues[i])){
 							MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
 							s.setName(RAxMLRunner.SCORENAME);
@@ -758,7 +758,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 					}
 					if (MesquiteInteger.isCombinable(bestRun)) {
 						t = trees.getTree(bestRun);
-						BosqueUtil.adjustTree(t, outgroupSet);
+						ZephyrUtil.adjustTree(t, outgroupSet);
 
 						String newName = t.getName() + " BEST";
 						if (t instanceof AdjustableTree )
@@ -954,7 +954,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 					finalValue = MesquiteDouble.fromString(parser.getNextToken());
 				}
 			}
-			BosqueUtil.copyLogFile(this, "RAxML", outputFilePaths[2]);
+			ZephyrUtil.copyLogFile(this, "RAxML", outputFilePaths[2]);
 
 		}
 	}

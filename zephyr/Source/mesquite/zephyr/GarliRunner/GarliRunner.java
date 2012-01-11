@@ -259,7 +259,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 
 		switch (partitionScheme) {
 		case partitionByCharacterGroups : 
-			BosqueUtil.setPartitionChoice(data, partitionChoice);
+			ZephyrUtil.setPartitionChoice(data, partitionChoice);
 			break;
 		case partitionByCodonPosition : 
 			partitionChoice.addItem(codpos1Subset);
@@ -658,7 +658,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 		data.setEditorInhibition(true);
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 
-		String rootDir = BosqueUtil.createDirectoryForFiles(this, false, "GARLI");
+		String rootDir = ZephyrUtil.createDirectoryForFiles(this, false, "GARLI");
 		if (rootDir==null)
 			return null;
 
@@ -666,11 +666,11 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 		String filePath = rootDir +  fileName;
 
 		if (partitionScheme==noPartition)
-			BosqueUtil.writeNEXUSFile(taxa,  rootDir,  fileName,  filePath,  data, true, false, false);
+			ZephyrUtil.writeNEXUSFile(taxa,  rootDir,  fileName,  filePath,  data, true, false, false);
 		else if (partitionScheme==partitionByCharacterGroups)
-			BosqueUtil.writeNEXUSFile(taxa,  rootDir,  fileName,  filePath,  data, true, true, false);
+			ZephyrUtil.writeNEXUSFile(taxa,  rootDir,  fileName,  filePath,  data, true, true, false);
 		else if (partitionScheme==partitionByCodonPosition)
-			BosqueUtil.writeNEXUSFile(taxa,  rootDir,  fileName,  filePath,  data, true, true, true);
+			ZephyrUtil.writeNEXUSFile(taxa,  rootDir,  fileName,  filePath,  data, true, true, true);
 		setDataFName(fileName);
 
 
@@ -771,7 +771,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 			TreeVector tv = manager.getTreeBlock(taxa,numTB-1);
 			if (tv!=null) {
 				t = tv.getTree(0);
-				BosqueUtil.adjustTree(t, outgroupSet);
+				ZephyrUtil.adjustTree(t, outgroupSet);
 
 				if (t!=null)
 					success=true;
@@ -779,7 +779,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 					double bestScore =MesquiteDouble.unassigned;
 					for (int i=0; i<tv.getNumberOfTrees(); i++) {
 						Tree newTree = tv.getTree(i);
-						BosqueUtil.adjustTree(newTree, outgroupSet);
+						ZephyrUtil.adjustTree(newTree, outgroupSet);
 
 						if (i<finalValues.length && MesquiteDouble.isCombinable(finalValues[i])){
 							MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
@@ -946,7 +946,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 					finalValue = MesquiteDouble.fromString(parser.getNextToken());
 				}
 			}
-			BosqueUtil.copyLogFile(this, getProgramName(), outputFilePaths[2]);
+			ZephyrUtil.copyLogFile(this, getProgramName(), outputFilePaths[2]);
 
 		}
 	}
@@ -1072,7 +1072,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 					setCharacterModels();
 				}
 			} else if (partitionScheme == partitionByCharacterGroups) {
-				currentPartitionSubset = BosqueUtil.getPartitionSubset(data, (String)e.getItem());
+				currentPartitionSubset = ZephyrUtil.getPartitionSubset(data, (String)e.getItem());
 				setCharacterModels();
 			} else
 				setCharacterModels();
