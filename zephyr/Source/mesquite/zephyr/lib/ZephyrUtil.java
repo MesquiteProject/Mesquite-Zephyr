@@ -73,12 +73,12 @@ public class ZephyrUtil {
 	}	
 
 	/*.................................................................................................................*/
-	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge) {
+	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, SimpleTaxonNamer namer) {
 		if (StringUtil.blank(line))
 			return null;
 		MesquiteTree t = new MesquiteTree(taxa);
 		t.setPermitTaxaBlockEnlargement(permitTaxaBlockEnlarge);
-		t.readTree(line);
+		t.readTree(line, namer);
 		return t;
 	}
 	/*.................................................................................................................*/
@@ -351,7 +351,7 @@ public class ZephyrUtil {
 			taxonName = taxa.getTaxon(it).getName();
 			if (taxonName != null) {
 				if (useStandardizedTaxonNames)
-					w.write("t" + it);
+					w.write(taxa.getStandardizedTaxonName(it));
 				else
 					w.write(StringUtil.simplifyIfNeededForOutput(taxonName, false) + " ");
 			}

@@ -64,6 +64,8 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 	static String proteinModel = "PROTGAMMAJTT";
 	static String otherOptions = "";
 
+	SimpleTaxonNamer namer = new SimpleTaxonNamer();
+
 
 	long  randseed = -1;
 	static String constraintfile = "none";
@@ -285,6 +287,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 
 	public void prepareExportFile(FileInterpreterI exporter) {
 		((InterpretPhylip)exporter).setTaxonNameLength(100);
+		((InterpretPhylip)exporter).setTaxonNamer(namer);
 
 	}
 	/*.................................................................................................................*
@@ -321,7 +324,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		Tree t =null;
 		if (lastTree) {
 			String s = MesquiteFile.getFileLastContents(treeFilePath);
-			t = ZephyrUtil.readPhylipTree(s,taxa,false);
+			t =  ZephyrUtil.readPhylipTree(s,taxa,false, namer);
 
 			if (t!=null) {
 				if (success!=null)
@@ -340,7 +343,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 			String s = parser.getRawNextDarkLine();
 
 			while (!StringUtil.blank(s)) {
-				t = ZephyrUtil.readPhylipTree(s,taxa,false);
+				t = ZephyrUtil.readPhylipTree(s,taxa,false, namer);
 
 				if (t!=null) {
 					if (success!=null)
