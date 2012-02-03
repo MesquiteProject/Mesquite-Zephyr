@@ -22,6 +22,7 @@ import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
+import mesquite.lib.system.SystemUtil;
 import mesquite.zephyr.RAxMLTrees.*;
 import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
@@ -42,7 +43,13 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 	String raxmlPath;
 	boolean onlyBest = true;
 	
-	boolean MPIversion = true;
+	static final int threadingOther =0;
+	static final int threadingMPI = 1;
+	static final int threadingPThreads = 2;
+	int threadingVersion = threadingOther;
+	
+	long randomSeed = System.currentTimeMillis();
+	
 	boolean retainFiles = false;
 	String MPIsetupCommand = "";
 	int numProcessors = 2;
@@ -110,8 +117,9 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		if ("onlyBest".equalsIgnoreCase(tag))
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
 
-		if ("MPIversion".equalsIgnoreCase(tag))
-			MPIversion = MesquiteBoolean.fromTrueFalseString(content);
+	       if ("threadingVersion".equalsIgnoreCase(tag))
+	    	   threadingVersion = MesquiteInteger.fromString(content);
+
 		if ("MPIsetupCommand".equalsIgnoreCase(tag)) 
 			MPIsetupCommand = StringUtil.cleanXMLEscapeCharacters(content);
        if ("numProcessors".equalsIgnoreCase(tag))
@@ -126,7 +134,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
-		StringUtil.appendXMLTag(buffer, 2, "MPIversion", MPIversion);  
+		StringUtil.appendXMLTag(buffer, 2, "threadingVersion", threadingVersion);  
 		StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
 
@@ -167,6 +175,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 		bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
+		seedField = dialog.addLongField("Random number seed: ", randomSeed, 20);
 
 		dialog.addHorizontalLine(1);
 		//cardPanels[2] = cardPanel.addNewCard("Character Models");
@@ -178,7 +187,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		raxMLPathField = dialog.addTextField("Path to RAxML:", raxmlPath, 40);
 		Button RAxMLBrowseButton = dialog.addAListenedButton("Browse...",null, this);
 		dialog.addHorizontalLine(1);
-		MPIcheckBox = dialog.addCheckBox("Run with MPI", MPIversion);
+		threadingRadioButtons= dialog.addRadioButtons(new String[] {"other", "MPI version", "PThreads version"}, threadingVersion);
 		MPISetupField = dialog.addTextField("MPI setup command: ", MPIsetupCommand, 20);
 		numProcessorsFiled = dialog.addIntegerField("Number of Processors for MPI", numProcessors, 8, 1, MesquiteInteger.infinite);
 		RAxMLBrowseButton.setActionCommand("RAxMLBrowse");
@@ -202,10 +211,11 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 			dnaModel = dnaModelField.getText();
 			proteinModel = proteinModelField.getText();
 			numRuns = numRunsField.getValue();
+			randomSeed = seedField.getValue();
 			bootstrapreps = bootStrapRepsField.getValue();
 			onlyBest = onlyBestBox.getState();
 			otherOptions = otherOptionsField.getText();
-			 MPIversion = MPIcheckBox.getState();
+			threadingVersion = threadingRadioButtons.getValue();
 			 MPIsetupCommand = MPISetupField.getText();
 			 numProcessors = numProcessorsFiled.getValue(); //
 			 retainFiles = retainFilescheckBox.getState();
@@ -215,10 +225,13 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		return (buttonPressed.getValue()==0) && !StringUtil.blank(raxmlPath);
 	}
 	SingleLineTextField raxMLPathField, dnaModelField, proteinModelField, otherOptionsField, MPISetupField;
+	LongField seedField;
 	javax.swing.JLabel commandLabel;
 	SingleLineTextArea commandField;
 	IntegerField numProcessorsFiled, numRunsField, bootStrapRepsField;
-	Checkbox onlyBestBox, MPIcheckBox, retainFilescheckBox;
+	Checkbox onlyBestBox, retainFilescheckBox;
+	RadioButtons threadingRadioButtons;
+	
 	/*.................................................................................................................*/
 	public boolean queryTaxaOptions(Taxa taxa) {
 		if (taxa==null)
@@ -231,16 +244,19 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), "RAxML Outgroup Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 		dialog.addLabel("RAxML Outgroup Options");
 
+		boolean specifyOutgroup = false;
 
 		Choice taxonSetChoice = null;
+		Checkbox specifyOutgroupBox = dialog.addCheckBox("specify outgroup", specifyOutgroup);
 		taxonSetChoice = dialog.addPopUpMenu ("Outgroups: ", ssv, 0);
 
 
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
-
+			specifyOutgroup = specifyOutgroupBox.getState();
 			outgroupTaxSetString = taxonSetChoice.getSelectedItem();
-
+			if (!specifyOutgroup)
+				outgroupTaxSetString="";
 		}
 		dialog.dispose();
 		return (buttonPressed.getValue()==0);
@@ -264,7 +280,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 			}
 */
 			String arguments = getArguments("fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null);
-			String command = getProgramCommand(MPIcheckBox.getState(), MPISetupField.getText(), numProcessorsFiled.getValue(), raxMLPathField.getText(), arguments, false);
+			String command = getProgramCommand(threadingRadioButtons.getValue(), MPISetupField.getText(), numProcessorsFiled.getValue(), raxMLPathField.getText(), arguments, false);
 			commandLabel.setText("This command will be used to run RAxML:");
 			commandField.setText(command);
 		}
@@ -514,7 +530,8 @@ WAG, gene2 = 501-1000
 		
 		if (StringUtil.notEmpty(LOCMultipleModelFile))
 			arguments += " -q " + LOCMultipleModelFile;
-
+		
+		arguments += " -p " + randomSeed;
 			
 			
 		if (!StringUtil.blank(LOCotherOptions)) 
@@ -648,7 +665,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 
 		
 		
-		shellScript.append(getProgramCommand(MPIversion, MPIsetupCommand,numProcessors, raxmlPath, arguments, true)+ StringUtil.lineEnding());
+		shellScript.append(getProgramCommand(threadingVersion, MPIsetupCommand,numProcessors, raxmlPath, arguments, true)+ StringUtil.lineEnding());
 
 		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
 		
@@ -767,7 +784,8 @@ Debugg.println("RETAIN FILES " + retainFiles);
 						if (t instanceof AdjustableTree )
 							((AdjustableTree)t).setName(newName);
 					}
-					logln("Best score: " + bestScore);
+					if (MesquiteDouble.isCombinable(bestScore))
+						logln("Best score: " + bestScore);
 
 				} 
 
@@ -788,20 +806,26 @@ Debugg.println("RETAIN FILES " + retainFiles);
 	}	
 
 	/*.................................................................................................................*/
-	String getProgramCommand(boolean LOCMPIversion, String LOCMPIsetupCommand, int LOCnumProcessors, String LOCraxmlPath, String arguments, boolean protect){
+	String getProgramCommand(int threadingVersion, String LOCMPIsetupCommand, int LOCnumProcessors, String LOCraxmlPath, String arguments, boolean protect){
 		String command = "";
-		if (LOCMPIversion) {
+		if (threadingVersion == threadingMPI) {
 			if (!StringUtil.blank(LOCMPIsetupCommand)) {
 				command += LOCMPIsetupCommand+ "\n";
 			}
 			command += "mpirun -np " + LOCnumProcessors + " ";
 		}
+		
+		String fullArguments = arguments;
+		if (threadingVersion==threadingPThreads) {
+			fullArguments += " -T " + LOCnumProcessors + " ";
+		}
+
 		if (!protect)
-			command += LOCraxmlPath + arguments;
+			command += LOCraxmlPath + fullArguments;
 		else if (MesquiteTrunk.isWindows())
-			command += StringUtil.protectForWindows(LOCraxmlPath)+ arguments;
+			command += StringUtil.protectForWindows(LOCraxmlPath)+ fullArguments;
 		else
-			command += StringUtil.protectForUnix(LOCraxmlPath )+ arguments;
+			command += StringUtil.protectForUnix(LOCraxmlPath )+ fullArguments;
 		return command;
 	}
 
