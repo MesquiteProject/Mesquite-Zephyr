@@ -188,8 +188,8 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		Button RAxMLBrowseButton = dialog.addAListenedButton("Browse...",null, this);
 		dialog.addHorizontalLine(1);
 		threadingRadioButtons= dialog.addRadioButtons(new String[] {"other", "MPI version", "PThreads version"}, threadingVersion);
+		numProcessorsFiled = dialog.addIntegerField("Number of Processors", numProcessors, 8, 1, MesquiteInteger.infinite);
 		MPISetupField = dialog.addTextField("MPI setup command: ", MPIsetupCommand, 20);
-		numProcessorsFiled = dialog.addIntegerField("Number of Processors for MPI", numProcessors, 8, 1, MesquiteInteger.infinite);
 		RAxMLBrowseButton.setActionCommand("RAxMLBrowse");
 		dialog.addHorizontalLine(1);
 		commandLabel = dialog.addLabel("");
