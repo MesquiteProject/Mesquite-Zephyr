@@ -1,7 +1,11 @@
 Zephyr
 
+- RAxML problem with char partitions
 
-First, when choosing "use codon positions" on the "characters models" tab it automatically assumes that a "noncoding" subset exists, which it did not in my case.  So, it wrote the config file as if there were four models, despite there only being 3 sets in the charpartition.
+First, when choosing "use codon positions" on the "characters models" tab it automatically 
+	assumes that a "noncoding" subset exists, which it did not in my case.  
+	So, it wrote the config file as if there were four models, despite there only being 3 sets 
+	in the charpartition.
 
 
 

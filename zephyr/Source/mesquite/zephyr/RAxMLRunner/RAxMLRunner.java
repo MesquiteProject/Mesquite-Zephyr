@@ -48,7 +48,8 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 	static final int threadingPThreads = 2;
 	int threadingVersion = threadingOther;
 	
-	long randomSeed = System.currentTimeMillis();
+//	long randomSeed = System.currentTimeMillis();
+	int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
 	
 	boolean retainFiles = false;
 	String MPIsetupCommand = "";
@@ -81,6 +82,8 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		rng = new Random(System.currentTimeMillis());
+		if (randomIntSeed<0)
+			randomIntSeed = -randomIntSeed;
 		loadPreferences();
 		if (!MesquiteThread.isScripting() && !queryOptions())
 			return false;
@@ -175,7 +178,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 		bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
-		seedField = dialog.addLongField("Random number seed: ", randomSeed, 20);
+		seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
 
 		dialog.addHorizontalLine(1);
 		//cardPanels[2] = cardPanel.addNewCard("Character Models");
@@ -211,7 +214,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 			dnaModel = dnaModelField.getText();
 			proteinModel = proteinModelField.getText();
 			numRuns = numRunsField.getValue();
-			randomSeed = seedField.getValue();
+			randomIntSeed = seedField.getValue();
 			bootstrapreps = bootStrapRepsField.getValue();
 			onlyBest = onlyBestBox.getState();
 			otherOptions = otherOptionsField.getText();
@@ -225,7 +228,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		return (buttonPressed.getValue()==0) && !StringUtil.blank(raxmlPath);
 	}
 	SingleLineTextField raxMLPathField, dnaModelField, proteinModelField, otherOptionsField, MPISetupField;
-	LongField seedField;
+	IntegerField seedField;
 	javax.swing.JLabel commandLabel;
 	SingleLineTextArea commandField;
 	IntegerField numProcessorsFiled, numRunsField, bootStrapRepsField;
@@ -531,7 +534,7 @@ WAG, gene2 = 501-1000
 		if (StringUtil.notEmpty(LOCMultipleModelFile))
 			arguments += " -q " + LOCMultipleModelFile;
 		
-		arguments += " -p " + randomSeed;
+		arguments += " -p " + randomIntSeed;
 			
 			
 		if (!StringUtil.blank(LOCotherOptions)) 
@@ -702,6 +705,8 @@ Debugg.println("RETAIN FILES " + retainFiles);
 
 		if (progIndicator!=null)
 			progIndicator.goAway();
+		if (!success)
+			logln("Execution of RAxML unsuccessful [1]");
 
 		if (success){
 			success = false;
@@ -791,6 +796,8 @@ Debugg.println("RETAIN FILES " + retainFiles);
 
 			}
 			success = readSuccess.getValue();
+			if (!success)
+				logln("Execution of RAxML unsuccessful [2]");
 
 			getProject().decrementProjectWindowSuppression();
 			deleteSupportDirectory();
@@ -798,7 +805,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 			if (success) 
 				return t;
 			return null;
-		}
+		} 
 		deleteSupportDirectory();
 		getProject().decrementProjectWindowSuppression();
 		data.setEditorInhibition(false);
