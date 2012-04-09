@@ -167,7 +167,7 @@ public class PAUPRunner extends MesquiteModule implements OutputFileProcessor , 
 			CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
 			CommandRecord scr = new CommandRecord(true);
 			MesquiteThread.setCurrentCommandRecord(scr);
-			tempDataFile = (MesquiteFile)coord.doCommand("includeTreeFile", StringUtil.tokenize(treeFilePath) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave ", CommandChecker.defaultChecker); //TODO: never scripting???
+			tempDataFile = (MesquiteFile)coord.doCommand("includeTreeFile", StringUtil.tokenize(treeFilePath) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave taxa "+StringUtil.tokenize(taxa.getName()), CommandChecker.defaultChecker); //TODO: never scripting???
 			MesquiteThread.setCurrentCommandRecord(oldCR);
 
 			TreesManager manager = (TreesManager)findElementManager(TreeVector.class);

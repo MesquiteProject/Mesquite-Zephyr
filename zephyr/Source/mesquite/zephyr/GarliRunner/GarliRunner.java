@@ -804,14 +804,14 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 			getProject().decrementProjectWindowSuppression();
 			if (tempDataFile!=null)
 				tempDataFile.close();
-			deleteSupportDirectory();
+			//deleteSupportDirectory();
 			data.setEditorInhibition(false);
 			manager.deleteElement(tv);  // get rid of temporary tree block
 			if (success) 
 				return t;
 			return null;
 		}
-		deleteSupportDirectory();
+		//deleteSupportDirectory();
 		getProject().decrementProjectWindowSuppression();
 		data.setEditorInhibition(false);
 		return null;
