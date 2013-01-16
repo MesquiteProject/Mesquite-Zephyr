@@ -25,7 +25,6 @@ import mesquite.lib.duties.*;
 import mesquite.zephyr.TNTTrees.*;
 import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
-//EGit testing comment
 
 /* TODO:
 
