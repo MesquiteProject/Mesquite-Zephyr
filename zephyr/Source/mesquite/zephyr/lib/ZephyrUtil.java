@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Enumeration;
 
+import cgrb.eta.remote.api.ETAConnection;
+
 import mesquite.categ.lib.CategoricalData;
 import mesquite.categ.lib.DNAData;
 import mesquite.categ.lib.MolecularData;
@@ -42,6 +44,7 @@ public class ZephyrUtil {
 				((AdjustableTree)t).standardize(taxonSet,  false);
 		}
 	}
+	
 	/*.................................................................................................................*/
 	public static boolean saveExportFile(MesquiteModule module, String interpreterModuleName, Taxa taxa, String directoryPath, String fileName, String path, CategoricalData data) {
 		if (data==null)
@@ -50,6 +53,7 @@ public class ZephyrUtil {
 		FileCoordinator coord = module.getFileCoordinator();
 		if (coord == null) 
 			return false;
+		
 
 		module.incrementMenuResetSuppression();
 
