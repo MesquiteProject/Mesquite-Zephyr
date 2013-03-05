@@ -26,7 +26,6 @@ import mesquite.zephyr.TNTTrees.*;
 import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
 
-
 /* TODO:
 
 - displays final bootstrap tree
