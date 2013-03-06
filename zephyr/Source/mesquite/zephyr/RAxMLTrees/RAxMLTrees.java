@@ -26,7 +26,7 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 
 
-		raxmlRunner = (RAxMLRunner)hireNamedEmployee(RAxMLRunner.class, "#mesquite.bosque.RAxMLRunner.RAxMLRunner");//TODO: should this be #mesquite.zephyr.RAxMLRunner.RAxMLRunner (replace 'bosque' with 'zephyr')? Search for bosque to find additional instances of suggested change.
+		raxmlRunner = (RAxMLRunner)hireNamedEmployee(RAxMLRunner.class, "#mesquite.bosque.RAxMLRunner.RAxMLRunner");//TODO: should this be #mesquite.zephyr.RAxMLRunner.RAxMLRunner (replace 'bosque' with 'zephyr')? Search for bosque to find additional instances.
 		if (raxmlRunner ==null)
 			return false;
 		raxmlRunner.initialize(this);
