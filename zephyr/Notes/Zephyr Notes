@@ -1,5 +1,20 @@
 Zephyr
 
+-  Have it so that you can stop the remote process from within Mesquite.
+
+- have the configuration and set up files (e.g., the matrix) saved rather than used to start a remote run
+
+
+
+
+
+
+
+
+
+
+===========
+
 - RAxML problem with char partitions
 - Parametric bootstrapping!!!
 
