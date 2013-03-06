@@ -906,7 +906,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 
 		if (fileNum==2 && outputFilePaths.length>2 && !StringUtil.blank(outputFilePaths[2])) {   // info file
 			if (MesquiteFile.fileExists(filePath)) {
-				String s = MesquiteFile.getFileLastContents(filePath);
+				String s = MesquiteFile.getFileLastContents(filePath,2);
 				if (!StringUtil.blank(s)) {
 					Parser parser = new Parser();
 					parser.allowComments=false;
