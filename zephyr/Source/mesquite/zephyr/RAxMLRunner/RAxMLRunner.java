@@ -210,7 +210,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
-			raxmlPath = raxMLPathField.getText();
+			raxmlPath = raxMLPathField.getText();//TODO: What happens if this field is not left blank, but the 'Browse...' button is used?
 			dnaModel = dnaModelField.getText();
 			proteinModel = proteinModelField.getText();
 			numRuns = numRunsField.getValue();
@@ -285,7 +285,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 			String arguments = getArguments("fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null);
 			String command = getProgramCommand(threadingRadioButtons.getValue(), MPISetupField.getText(), numProcessorsFiled.getValue(), raxMLPathField.getText(), arguments, false);
 			commandLabel.setText("This command will be used to run RAxML:");
-			commandField.setText(command);
+			commandField.setText(command);//TODO: is this command ever actually used?  It does not appear that the text from commandField is incorporated into RAxML analysis...
 		}
 		else	if (e.getActionCommand().equalsIgnoreCase("clearCommand")) {
 			commandField.setText("");
@@ -494,7 +494,7 @@ WAG, gene2 = 501-1000
 				}
 				}
 			}
-		} else if (writeCodPosPartition && partByCodPos) {
+		} else if (writeCodPosPartition && partByCodPos) {//TODO: never accessed because in the only call of this method, partByCodPos is false.
 				//codon positions if nucleotide
 				int numberCharSets = 0;
 				CodonPositionsSet codSet = (CodonPositionsSet)data.getCurrentSpecsSet(CodonPositionsSet.class);
@@ -627,7 +627,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
 		shellScript.append("ls -la"+ StringUtil.lineEnding());
 		
-		String multipleModelFileContents = getMultipleModelFileString(data, false);
+		String multipleModelFileContents = getMultipleModelFileString(data, false);//TODO: why is partByCodPos false?
 		String multipleModelFilePath = null;
 		if (StringUtil.notEmpty(multipleModelFileContents)) {
 			multipleModelFilePath = rootDir + "multipleModelFile.txt";
@@ -686,7 +686,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 		MesquiteMessage.logCurrentTime("Start of RAxML analysis: ");
 
 		if (!bootstrap() && numRuns>1)
-			logln("\nBeginning Run 1");//TODO: Gets to here.
+			logln("\nBeginning Run 1");
 		else
 			logln("");
 
