@@ -27,6 +27,7 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 
 
 		raxmlRunner = (RAxMLRunner)hireNamedEmployee(RAxMLRunner.class, "#mesquite.bosque.RAxMLRunner.RAxMLRunner");//TODO: should this be #mesquite.zephyr.RAxMLRunner.RAxMLRunner (replace 'bosque' with 'zephyr')? Search for bosque to find additional instances.
+//		raxmlRunner = (RAxMLRunner)hireEmployee(RAxMLRunner.class, "RAxMLRunner choice"); //Uncomment if choice is desired.
 		if (raxmlRunner ==null)
 			return false;
 		raxmlRunner.initialize(this);

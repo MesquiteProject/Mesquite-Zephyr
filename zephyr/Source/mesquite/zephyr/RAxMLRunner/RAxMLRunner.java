@@ -273,7 +273,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 			if (StringUtil.notEmpty(raxmlPath))
 				raxMLPathField.setText(raxmlPath);
 		}
-		else	if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
+		else	if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {//TODO: other than displaying (in the dialog window) how the command would look, what does this actually do?
 			
 /*			String multipleModelFileContents = getMultipleModelFileString(data, false);
 			String multipleModelFilePath = null;
@@ -285,7 +285,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 			String arguments = getArguments("fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null);
 			String command = getProgramCommand(threadingRadioButtons.getValue(), MPISetupField.getText(), numProcessorsFiled.getValue(), raxMLPathField.getText(), arguments, false);
 			commandLabel.setText("This command will be used to run RAxML:");
-			commandField.setText(command);//TODO: is this command ever actually used?  It does not appear that the text from commandField is incorporated into RAxML analysis...
+			commandField.setText(command);
 		}
 		else	if (e.getActionCommand().equalsIgnoreCase("clearCommand")) {
 			commandField.setText("");
