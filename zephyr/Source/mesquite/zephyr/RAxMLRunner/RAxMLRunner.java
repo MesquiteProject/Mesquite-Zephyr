@@ -273,7 +273,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 			if (StringUtil.notEmpty(raxmlPath))
 				raxMLPathField.setText(raxmlPath);
 		}
-		else	if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {//TODO: other than displaying (in the dialog window) how the command would look, what does this actually do?
+		else	if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
 			
 /*			String multipleModelFileContents = getMultipleModelFileString(data, false);
 			String multipleModelFilePath = null;
@@ -789,9 +789,15 @@ Debugg.println("RETAIN FILES " + retainFiles);
 						if (t instanceof AdjustableTree )
 							((AdjustableTree)t).setName(newName);
 					}
-					if (MesquiteDouble.isCombinable(bestScore))
+					if (MesquiteDouble.isCombinable(bestScore)){
 						logln("Best score: " + bestScore);
-
+					}
+					//Only retain the best tree in tree block.
+					if(trees.getTree(bestRun) != null && onlyBest){
+						Tree bestTree = trees.getTree(bestRun);
+						trees.removeAllElements(false);
+						trees.addElement(bestTree, false);
+					}
 				} 
 
 			}
