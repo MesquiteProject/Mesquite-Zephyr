@@ -61,6 +61,7 @@ public class ZephyrUtil {
 		FileInterpreterI exporter = (FileInterpreterI)coord.findEmployeeWithName(interpreterModuleName);
 		MesquiteFile file = new MesquiteFile();
 		file.writeTaxaWithAllMissing = false;
+		file.writeExcludedCharacters = false;
 		if (exporter!=null) {
 			if (module instanceof ZephyrFilePreparer)
 				((ZephyrFilePreparer)module).prepareExportFile(exporter);
