@@ -694,7 +694,12 @@ Debugg.println("RETAIN FILES " + retainFiles);
 		numRunsCompleted = 0;
 		boolean success = ShellScriptUtil.executeLogAndWaitForShell(scriptPath, "RAxML Tree", logFilePaths, this, this);
 		logln("RAxML analysis completed at " + getDateAndTime());
-		logln("Total time: " + timer.timeSinceVeryStartInSeconds() + " seconds");
+
+		double totalTime= timer.timeSinceVeryStartInSeconds();
+		if (totalTime>120.0)
+			logln("Total time: " + StringUtil.secondsToHHMMSS((int)totalTime));
+		else
+			logln("Total time: " + totalTime  + " seconds");
 		if (finalScore != null){
 			if (finalScore.length==1)
 				finalScore[0].setValue(finalValue);
@@ -932,6 +937,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 						boolean watchForNumber = false;
 						boolean numberFound = false;
 						runNumber=0;
+						boolean foundRunInfo=false;
 						while (!StringUtil.blank(token) && ! subParser.atEnd()){
 							if (watchForNumber) {
 								runNumber = MesquiteInteger.fromString(token);
@@ -946,14 +952,19 @@ Debugg.println("RETAIN FILES " + retainFiles);
 							if (token.indexOf("likelihood")>=0) {
 								token = subParser.getNextToken();
 
-								if (bootstrap())
-									logln("RAxML Bootstrap Replicate " + (runNumber+1) + " completed");
+								numRunsCompleted++;
+								if (bootstrap()){
+									logln("RAxML bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
+								}
 								else
 									logln("RAxML Run " + (runNumber+1) + ", final score ln L = " +token );
 								//processOutputFile(outputFilePaths,1);
-								numRunsCompleted++;
+								foundRunInfo = true;
 							}
-							token = subParser.getNextToken();
+							if (foundRunInfo)
+								token="";
+							else
+								token = subParser.getNextToken();
 						}
 						if (numRunsCompleted>= numProcessors) {
 							double timePerRep = timer.timeSinceVeryStartInSeconds()/numRunsCompleted;   //this is time per rep
@@ -964,7 +975,15 @@ Debugg.println("RETAIN FILES " + retainFiles);
 							else {
 								timeLeft = (int)((numRuns- numRunsCompleted) * timePerRep);
 							}
-							logln("  Running time so far " +  StringUtil.secondsToHHMMSS((int)timer.timeSinceVeryStartInSeconds())  + ", approximate time remaining " + StringUtil.secondsToHHMMSS(timeLeft));
+							double timeSoFar = timer.timeSinceVeryStartInSeconds();
+							logln("   Running time so far " +  StringUtil.secondsToHHMMSS((int)timeSoFar)  + ", approximate time remaining " + StringUtil.secondsToHHMMSS(timeLeft));
+							logln("    Average time per replicate:  " +  StringUtil.secondsToHHMMSS((int)timePerRep));
+							logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft)));
+ 							//Debugg.println("     numRunsCompleted: " + numRunsCompleted);
+							//Debugg.println("     timer.timeSinceVeryStartInSeconds(): " + timer.timeSinceVeryStartInSeconds());
+							//Debugg.println("     timePerRep: " + timePerRep);
+							//Debugg.println("     bootstrapreps: " + bootstrapreps);
+							//Debugg.println("     timeLeft: " + timeLeft);
 						}
 
 						if (!bootstrap() && runNumber+1<numRuns) {
