@@ -976,9 +976,9 @@ Debugg.println("RETAIN FILES " + retainFiles);
 								timeLeft = (int)((numRuns- numRunsCompleted) * timePerRep);
 							}
 							double timeSoFar = timer.timeSinceVeryStartInSeconds();
-							logln("   Running time so far " +  StringUtil.secondsToHHMMSS((int)timeSoFar)  + ", approximate time remaining " + StringUtil.secondsToHHMMSS(timeLeft));
+							logln("   Run time " +  StringUtil.secondsToHHMMSS((int)timeSoFar)  + ", approximate time remaining " + StringUtil.secondsToHHMMSS(timeLeft));
 							logln("    Average time per replicate:  " +  StringUtil.secondsToHHMMSS((int)timePerRep));
-							logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft)));
+							logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
  							//Debugg.println("     numRunsCompleted: " + numRunsCompleted);
 							//Debugg.println("     timer.timeSinceVeryStartInSeconds(): " + timer.timeSinceVeryStartInSeconds());
 							//Debugg.println("     timePerRep: " + timePerRep);
