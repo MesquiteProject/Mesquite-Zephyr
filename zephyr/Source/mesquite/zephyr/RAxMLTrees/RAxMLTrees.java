@@ -155,14 +155,15 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 
 		if (bootstrap) {
 			raxmlRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
+			trees.setName("RAxML Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
 		} 
 		else {
 			tree = raxmlRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 			if (tree==null)
 				return null;
+			trees.setName("RAxML Trees (Matrix: " + observedStates.getName() + ")");
 		}
 
-		trees.setName("Trees from RAxML Search (Matrix: " + observedStates.getName() + ")");
 		return trees;
 	}
 
@@ -174,6 +175,9 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 		initialize(taxa);
 
 		TreeVector trees = getTrees(taxa);
+		if (trees==null)
+			return;
+		treeList.setName (trees.getName());
 		treeList.setAnnotation ("Parameters: "  + getParameters(), false);
 		if (trees!=null)
 			treeList.addElements(trees, false);

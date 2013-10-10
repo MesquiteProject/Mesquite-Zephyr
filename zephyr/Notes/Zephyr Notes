@@ -1,5 +1,15 @@
 Zephyr
 
+- check box - do you do an autosave upon completion
+- when you hit stop button - offer the user the option to display the current tree  (simple version: put tree description in clipboard)  
+	(or: establishes a treeblock and adds trees to that block; animate tree block)
+- harvest bootstrap trees as it goes, moving it into a treeblock (could then have a live consensus)
+- bootstrap run in Garli, display branch lengths as zero - should just do majrule right away.
+
+
+
+
+
 -  Have it so that you can stop the remote process from within Mesquite.
 
 - have the configuration and set up files (e.g., the matrix) saved rather than used to start a remote run

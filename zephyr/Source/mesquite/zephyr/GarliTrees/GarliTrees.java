@@ -187,6 +187,7 @@ public class GarliTrees extends ExternalTreeSearcher {
 
 		if (bootstrap) {
 			garliRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
+			trees.setName("GARLI Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
 		} 
 		else {
 			for (int run = 0; run<numRunsScriptedByMesquite; run++) {
@@ -235,8 +236,8 @@ public class GarliTrees extends ExternalTreeSearcher {
 				}
 			}
 		//	logln("Best score: " + bestScore);
+			trees.setName("GARLI Trees (Matrix: " + observedStates.getName() + ")");
 		}
-		trees.setName("Trees from GARLI Search (Matrix: " + observedStates.getName() + ")");
 		return trees;
 	}
 
