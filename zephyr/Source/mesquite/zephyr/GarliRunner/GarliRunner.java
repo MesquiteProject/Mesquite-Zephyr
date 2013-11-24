@@ -38,7 +38,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 
 	GarliTrees ownerModule;
 	Random rng;
-	String garliPath;
+	String garliPath = null;
 	boolean onlyBest = true;
 	int numRuns = 5;
 	Taxa taxa;
@@ -128,6 +128,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 	MesquiteTimer timer = new MesquiteTimer();
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
+		garliPath = getPath() +  "garli"; //default; temporary WPM April 2013 Debugg.println
 		rng = new Random(System.currentTimeMillis());
 		loadPreferences();
 		return true;
