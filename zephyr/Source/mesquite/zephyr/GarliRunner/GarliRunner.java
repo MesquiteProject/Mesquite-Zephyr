@@ -733,6 +733,8 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 		MesquiteMessage.logCurrentTime("Start of " + getProgramName() + " analysis: ");
 
 		timer.start();
+		
+		//DISCONNECTABLE: here need to split this and don't wait for shell, but exit and outside here see if it's done
 		boolean success = ShellScriptUtil.executeLogAndWaitForShell(scriptPath, "Garli Tree", logFilePaths, this, this);
 		logln("Garli analysis completed at " + getDateAndTime());
 		logln("Total time: " + timer.timeSinceVeryStartInSeconds() + " seconds");
