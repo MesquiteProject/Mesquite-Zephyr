@@ -1053,7 +1053,6 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 					Debugg.println("*** File does not exist (" + filePath + ") ***");
 			}
 			if (screenFile!=null) {
-				Debugg.println("in processOutputFile " + fileNum);
 				screenFile.openReading();
 				if (!MesquiteLong.isCombinable(screenFilePos))
 					screenFilePos=0;
