@@ -48,6 +48,8 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		Snapshot temp = new Snapshot();
 			temp.addLine("getGarliRunner ", garliRunner);
 			temp.addLine("getMatrixSource ", matrixSourceTask);
+			temp.addLine("setTreeRecoveryTask ", treeRecoveryTask);
+			
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -58,6 +60,11 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		else if (checker.compare(this.getClass(), "Sets the runner", "[module]", commandName, "getMatrixSource")) {
 			return matrixSourceTask;
 		}
+		else if (checker.compare(this.getClass(), "Sets the tree recovery task", "[module]", commandName, "setTreeRecoveryTask")) {
+			treeRecoveryTask = (TreeSource)hireNamedEmployee(TreeSource.class, "$ #ManyTreesFromFile xxx remain useStandardizedTaxonNames");  //xxx used because ManyTreesFromFiles needs exact argument sequence
+			return treeRecoveryTask;
+		}
+
 		return null;
 	}	
 
