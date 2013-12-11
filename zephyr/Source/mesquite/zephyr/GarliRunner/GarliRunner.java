@@ -950,10 +950,6 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 
 		StringBuffer shellScript = new StringBuffer(1000);
 
-		String commandFileName =  "garli.conf";
-		
-		String commandFilePath = rootDir + commandFileName;
-		
 		setFilePaths();
 		
 		if (!StringUtil.blank(constraintfile)) {
@@ -987,9 +983,10 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 
 		MesquiteMessage.logCurrentTime("Start of " + getProgramName() + " analysis: ");
 
+		/*  ============ STARTING THE PROCESS ============  */
+		
 		timer.start();
 
-		//DISCONNECTABLE: here need to split this and don't wait for shell, but exit and outside here see if it's done
 		scriptRunner = new ShellScriptRunner(scriptPath, runningFilePath, null, true, "GARLI Tree", logFilePaths, this, this, true);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
 		boolean success = scriptRunner.executeInShell();
 
@@ -1000,6 +997,8 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 		scriptRunner = null;
 
 		//OLD:  boolean success = ShellScriptUtil.executeLogAndWaitForShell(scriptPath, "GARLI Tree", logFilePaths, this, this);
+
+		
 		logln("GARLI analysis completed at " + getDateAndTime());
 		logln("Total time: " + timer.timeSinceVeryStartInSeconds() + " seconds");
 		//executeAndWaitForGarli(scriptPath, runningFilePath, outFilePath);
