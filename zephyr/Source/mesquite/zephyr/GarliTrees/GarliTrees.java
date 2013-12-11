@@ -30,7 +30,7 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 
 
-		garliRunner = (GarliRunner)hireNamedEmployee(GarliRunner.class, "#mesquite.bosque.GarliRunner.GarliRunner");
+		garliRunner = (GarliRunner)hireNamedEmployee(GarliRunner.class, "#mesquite.zephyr.GarliRunner.GarliRunner");
 		if (garliRunner ==null)
 			return false;
 		garliRunner.initialize(this);
@@ -129,20 +129,20 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
 		}
 		if (garliRunner ==null) {
-			garliRunner = (GarliRunner)hireNamedEmployee(GarliRunner.class, "#mesquite.bosque.GarliRunner.GarliRunner");
+			garliRunner = (GarliRunner)hireNamedEmployee(GarliRunner.class, "#mesquite.zephyr.GarliRunner.GarliRunner");
 		}
 		if (garliRunner !=null)
 			garliRunner.initializeTaxa(taxa);
 	}
 
 	public String getExplanation() {
-		return "If Garli is installed, will save a copy of a character matrix and script Garli to conduct one or more searches, and harvest the resulting trees, including their scores.";
+		return "If GARLI is installed, will save a copy of a character matrix and script GARLI to conduct one or more searches, and harvest the resulting trees, including their scores.";
 	}
 	public String getName() {
-		return "Garli Trees";
+		return "GARLI Trees";
 	}
 	public String getNameForMenuItem() {
-		return "Garli Trees...";
+		return "GARLI Trees...";
 	}
 
 	/*.................................................................................................................*/
@@ -204,7 +204,7 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		MesquiteTree initialTree = new MesquiteTree(taxa);
 		initialTree.setToDefaultBush(2, false);
 
-		CommandRecord.tick("Garli Tree Search in progress " );
+		CommandRecord.tick("GARLI Tree Search in progress " );
 		boolean bootstrap = garliRunner.getBootstrapreps()>0;
 
 		Random rng = new Random(System.currentTimeMillis());
@@ -216,7 +216,7 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 
 		double bestScore = MesquiteDouble.unassigned;
 		MesquiteDouble[] finalScores = null;
-		if (garliRunner.isGarli96())
+		if (garliRunner.isGarli96orGreater())
 			finalScores = new MesquiteDouble[1];
 		else
 			finalScores = new MesquiteDouble[garliRunner.getNumRuns()];
@@ -224,7 +224,7 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 			finalScores[i] = new MesquiteDouble();
 		
 		int numRunsScriptedByMesquite;
-		if (garliRunner.isGarli96())
+		if (garliRunner.isGarli96orGreater())
 			numRunsScriptedByMesquite = 1;
 		else
 			numRunsScriptedByMesquite = garliRunner.getNumRuns();
@@ -240,9 +240,9 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 				tree = garliRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 				if (tree==null)
 					return null;
-				if (!garliRunner.isGarli96()) {
+				if (!garliRunner.isGarli96orGreater()) {
 					if (tree instanceof AdjustableTree )
-						((AdjustableTree)tree).setName("Garli Run " + (run+1));
+						((AdjustableTree)tree).setName("GARLI Run " + (run+1));
 
 					MesquiteDouble s = new MesquiteDouble(-finalScores[0].getValue());
 					s.setName(GarliRunner.SCORENAME);
@@ -250,18 +250,18 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 
 					if (MesquiteDouble.isUnassigned(bestScore)) {
 						bestScore = finalScores[0].getValue();
-						logln("\nGarli run " + (run+1) + ", ln L = " + finalScores[0].getValue() + " * \n");
+						logln("\nGARLI run " + (run+1) + ", ln L = " + finalScores[0].getValue() + " * \n");
 						trees.addElement(tree, false);
 					}
 					else
 						if (bestScore<finalScores[0].getValue()) {
 							bestScore = finalScores[0].getValue();
-							logln("\nGarli run " + (run+1) + ", ln L = " + finalScores[0].getValue() + " * \n");
+							logln("\nGARLI run " + (run+1) + ", ln L = " + finalScores[0].getValue() + " * \n");
 							if (garliRunner.getOnlyBest())
 								trees.removeElementAt(0, false);
 							trees.addElement(tree, false);
 						} else {
-							logln("\nGarli run " + (run+1) + ", ln L = " + finalScores[0].getValue()+ "\n");
+							logln("\nGARLI run " + (run+1) + ", ln L = " + finalScores[0].getValue()+ "\n");
 							if (!garliRunner.getOnlyBest())
 								trees.addElement(tree, false);
 
