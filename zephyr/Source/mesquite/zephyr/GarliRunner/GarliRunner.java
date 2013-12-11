@@ -722,7 +722,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 		data.setEditorInhibition(true);
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 
-		rootDir = ZephyrUtil.createDirectoryForFiles(this, false, "GARLI");
+		rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.BESIDE_HOME_FILE, "GARLI");
 		if (rootDir==null)
 			return null;
 
@@ -784,7 +784,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 		timer.start();
 
 		//DISCONNECTABLE: here need to split this and don't wait for shell, but exit and outside here see if it's done
-		scriptRunner = new ShellScriptRunner(scriptPath, null, null, true, "GARLI Tree", logFilePaths, this, this, true);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
+		scriptRunner = new ShellScriptRunner(scriptPath, runningFilePath, null, true, "GARLI Tree", logFilePaths, this, this, true);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
 		boolean success = scriptRunner.executeInShell();
 
 		if (success)

@@ -87,7 +87,7 @@ public class SumTreesRunner extends MesquiteModule implements ActionListener {
 	
 	public Tree invokeSumTrees(Tree tree) throws Exception {
 		
-		String rootDir = ZephyrUtil.createDirectoryForFiles(this, false, "SumTrees");
+		String rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.BESIDE_HOME_FILE, "SumTrees");
 		if (rootDir == null)
 			return null;
 

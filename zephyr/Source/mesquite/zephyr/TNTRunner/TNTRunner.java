@@ -327,7 +327,7 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 		data.setEditorInhibition(true);
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 
-		String rootDir = ZephyrUtil.createDirectoryForFiles(this, false, "TNT");
+		String rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.BESIDE_HOME_FILE, "TNT");
 		if (rootDir==null)
 			return null;
 
