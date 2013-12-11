@@ -48,7 +48,7 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		Snapshot temp = new Snapshot();
 			temp.addLine("getGarliRunner ", garliRunner);
 			temp.addLine("getMatrixSource ", matrixSourceTask);
-			temp.addLine("setTreeRecoveryTask ", treeRecoveryTask);
+			temp.addLine("setTreeRecoveryTask ", treeRecoveryTask); //
 			
 		return temp;
 	}
