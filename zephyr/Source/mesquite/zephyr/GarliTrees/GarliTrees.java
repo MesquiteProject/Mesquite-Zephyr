@@ -39,8 +39,27 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 
    	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
    	public void reconnectToRequester(MesquiteCommand command){
-   		Debugg.println("Reconnect request received " + command);
+		if (garliRunner ==null)
+			return;
+		garliRunner.reconnectToRequester(command);
    	}
+	/*.................................................................................................................*/
+	public Snapshot getSnapshot(MesquiteFile file) { 
+		Snapshot temp = new Snapshot();
+			temp.addLine("getGarliRunner ", garliRunner);
+			temp.addLine("getMatrixSource ", matrixSourceTask);
+		return temp;
+	}
+	/*.................................................................................................................*/
+	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
+		if (checker.compare(this.getClass(), "Sets the runner", "[module]", commandName, "getGarliRunner")) {
+			return garliRunner;
+		}
+		else if (checker.compare(this.getClass(), "Sets the runner", "[module]", commandName, "getMatrixSource")) {
+			return matrixSourceTask;
+		}
+		return null;
+	}	
 
 	
 	public String getExtraTreeWindowCommands (){
@@ -262,6 +281,11 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		return trees;
 	}
 
+	//TEMPORARY Debugg.println  Should be only in disconnectable tree block fillers
+	public void retrieveTreeBlock(TreeVector treeList){
+		if (garliRunner != null)
+			garliRunner.retrieveTreeBlock(treeList);
+	}
 	/*.................................................................................................................*/
 	public void fillTreeBlock(TreeVector treeList){
 		if (treeList==null || garliRunner==null)
