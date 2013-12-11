@@ -323,7 +323,7 @@ public class ZephyrUtil {
 	}
 	/*.................................................................................................................*/
 	public static void copyLogFile(MesquiteModule ownerModule, String programName, String originalLogFilePath) {
-
+		try {
 		String logFilePath = ownerModule.getProject().getHomeDirectoryName();
 		if (!StringUtil.blank(logFilePath))
 			logFilePath += MesquiteFile.getAvailableFileName(logFilePath, programName,".log");
@@ -331,6 +331,10 @@ public class ZephyrUtil {
 			logFilePath = MesquiteFile.saveFileAsDialog("Save copy of "+programName+" log to file");
 		if (!StringUtil.blank(logFilePath)) {
 			MesquiteFile.copyFileFromPaths(originalLogFilePath, logFilePath, true);
+		}
+		}
+		catch (NullPointerException e){
+			// used to avoid error if user quite mesquite mid-calculation
 		}
 	}
 	/*.................................................................................................................*/
@@ -473,10 +477,7 @@ public class ZephyrUtil {
 			String dir = module.getProject().getHomeFile().getDirectoryName();
 	
 			String path = dir + name + "-" + StringUtil.getDateDayOnly() + "-Run.";
-			if (MesquiteFile.fileExists(path + "1"))
-				path = MesquiteFile.getUniqueModifiedPath(path);
-			else
-				path = path + "1";
+				path = MesquiteFile.getUniqueNumberedPath(path);
 			File f = new File(path);
 			boolean b = f.mkdir();
 			directoryCreated.setValue(b);

@@ -770,7 +770,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 		timer.start();
 		
 		//DISCONNECTABLE: here need to split this and don't wait for shell, but exit and outside here see if it's done
-		scriptRunner = new ShellScriptRunner(scriptPath, null, null, true, "Garli Tree", logFilePaths, this, this, true);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
+		scriptRunner = new ShellScriptRunner(scriptPath, runningFilePath, null, true, "Garli Tree", logFilePaths, this, this, true);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
 		boolean success = scriptRunner.executeInShell();
 		
 		if (success)
