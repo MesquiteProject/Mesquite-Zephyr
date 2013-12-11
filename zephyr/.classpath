@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="Source"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Mesquite Project"/>
 	<classpathentry kind="lib" path="jars/eAPI.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MesquiteCore"/>
 	<classpathentry kind="output" path="Mesquite_Folder"/>
 </classpath>

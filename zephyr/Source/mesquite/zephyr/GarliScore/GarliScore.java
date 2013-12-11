@@ -28,7 +28,7 @@ public class GarliScore extends NumberForTree {
         	Object obj = ((Attachable)tree).getAttachment(GarliRunner.SCORENAME);
         	if (obj == null){
         			if (resultString != null)
-        				resultString.setValue("No Garli score is associated with this tree.  To obtain a score, use as tree source \"Garli Trees\".");
+        				resultString.setValue("No GARLI score is associated with this tree.  To obtain a score, use as tree source \"GARLI Trees\".");
         			return;
         	}
         	if (obj instanceof MesquiteDouble)
@@ -38,7 +38,7 @@ public class GarliScore extends NumberForTree {
         }
        
         if (resultString != null) {
-            resultString.setValue("Garli score : " + result.toString());
+            resultString.setValue("GARLI score : " + result.toString());
         }
 		saveLastResult(result);
 		saveLastResultString(resultString);
@@ -55,12 +55,12 @@ public class GarliScore extends NumberForTree {
     /** Explains what the module does. */
 
     public String getExplanation() {
-        return "Supplies - ln L score from Garli";
+        return "Supplies - ln L score from GARLI";
     }
 
     /* ................................................................................................................. */
     /** Name of module */
     public String getName() {
-        return "Garli Score";
+        return "GARLI Score";
     }
 }
