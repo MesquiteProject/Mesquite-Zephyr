@@ -44,7 +44,7 @@ public class ZephyrUtil {
 				((AdjustableTree)t).standardize(taxonSet,  false);
 		}
 	}
-	
+
 	/*.................................................................................................................*/
 	//TODO: Many unused variables in method call (taxa, directoryPath, fileName)?
 	public static boolean saveExportFile(MesquiteModule module, String interpreterModuleName, Taxa taxa, String directoryPath, String fileName, String path, CategoricalData data) {
@@ -54,7 +54,7 @@ public class ZephyrUtil {
 		FileCoordinator coord = module.getFileCoordinator();
 		if (coord == null) 
 			return false;
-		
+
 
 		module.incrementMenuResetSuppression();
 
@@ -156,7 +156,7 @@ public class ZephyrUtil {
 		if (data instanceof DNAData && ((DNAData)data).someCoding()) {
 			return true;
 		}
-		
+
 		CharacterPartition characterPartition = (CharacterPartition)data.getCurrentSpecsSet(CharacterPartition.class);
 		if (characterPartition!=null) {
 			return true;
@@ -259,13 +259,13 @@ public class ZephyrUtil {
 
 	public static  String getNEXUSSetsBlock(CategoricalData data, boolean useCodPosIfAvailable){
 		StringBuffer sb = new StringBuffer();
-		
+
 		String partitions = "";
 		if (useCodPosIfAvailable && data instanceof DNAData && ((DNAData)data).someCoding())
 			partitions = getCodPosPartitionNEXUSCommands(data);
 		else
 			partitions = getStandardPartitionNEXUSCommands(data);
-		
+
 		if (StringUtil.notEmpty(partitions)) {
 			sb.append("begin sets;\n");
 			sb.append(partitions);
@@ -312,7 +312,7 @@ public class ZephyrUtil {
 				extension = "."+StringUtil.getLastItem(fileName, ".");
 				fileName = StringUtil.getAllButLastItem(fileName, ".");
 			}
-				
+
 			outputFilePath += MesquiteFile.getAvailableFileName(outputFilePath, fileName, extension);
 		}
 		else
@@ -350,7 +350,7 @@ public class ZephyrUtil {
 			w.write("\tTITLE " + StringUtil.tokenize(taxa.getName()) + ";" + end);
 		if (taxa.getAnnotation()!=null) 
 			w.write("[!" + taxa.getAnnotation() + "]" + StringUtil.lineEnding());
-		
+
 		w.write("\tDIMENSIONS NTAX=" + taxa.getNumTaxa() + ";" + end + "\tTAXLABELS" + end + "\t\t");
 		String taxonName = "";
 		for (int it=0; it<taxa.getNumTaxa(); it++) {
@@ -368,7 +368,7 @@ public class ZephyrUtil {
 		w.write("END;" + end + end);
 	}
 
-		
+
 	/// Copied from ManageTrees.getTreeBlock and refactored to remove project-wide dependencies
 	public static void writeTreesBlock(Writer w, TreeVector trees, boolean suppressTitle, boolean suppressLink) throws IOException{
 		if (trees == null || trees.size() == 0)
@@ -423,7 +423,7 @@ public class ZephyrUtil {
 			if (trees.getWriteWeights()&& weightObject!=null && weightObject instanceof MesquiteString)
 				w.write("[&W " + ((MesquiteString)weightObject).getValue() + "] ");
 			w.write(t.writeTree(writeMode) + StringUtil.lineEnding());
-			
+
 		}
 		w.write("END;" + StringUtil.lineEnding()+ StringUtil.lineEnding());
 	}
@@ -436,7 +436,7 @@ public class ZephyrUtil {
 		ZephyrUtil.writeTreesBlock(w, tv, true, true);
 		w.close();
 	}
-	
+
 	public static void writeNEXUSTreeFile(Taxa taxa, TreeSource treeSource, String dir, String fileName) throws Exception, IOException {
 		if (dir != null && fileName != null ) {
 			int nt = treeSource.getNumberOfTrees(taxa);
@@ -458,13 +458,31 @@ public class ZephyrUtil {
 			ZephyrUtil.writeNEXUSTreeFile(taxa, tv, dir, fileName);
 		}
 	}
-
+	
+	
+	public static final int IN_SUPPORT_DIR = 0;
+	public static final int BESIDE_HOME_FILE = 1;
+	public static final int ASK_FOR_LOCATION = 2;
 	/*.................................................................................................................*/
-	public static String createDirectoryForFiles(MesquiteModule module, boolean askForLocation, String name) {
+	public static String createDirectoryForFiles(MesquiteModule module, int location, String name) {
 		MesquiteBoolean directoryCreated = new MesquiteBoolean(false);
 		String rootDir = null;
-		if (!askForLocation)
+		if (location == IN_SUPPORT_DIR)
 			rootDir = module.createEmptySupportDirectory(directoryCreated) + MesquiteFile.fileSeparator;  //replace this with current directory of file
+		else if (location == BESIDE_HOME_FILE) {
+			String dir = module.getProject().getHomeFile().getDirectoryName();
+	
+			String path = dir + name + "-" + StringUtil.getDateDayOnly() + "-Run.";
+			if (MesquiteFile.fileExists(path + "1"))
+				path = MesquiteFile.getUniqueModifiedPath(path);
+			else
+				path = path + "1";
+			File f = new File(path);
+			boolean b = f.mkdir();
+			directoryCreated.setValue(b);
+			if (b)
+				rootDir = path + MesquiteFile.fileSeparator;
+		}
 		if (!directoryCreated.getValue()) {
 			rootDir = MesquiteFile.chooseDirectory("Choose folder for storing "+name+" files");
 			if (rootDir==null) {

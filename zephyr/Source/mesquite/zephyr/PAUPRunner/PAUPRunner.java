@@ -112,7 +112,7 @@ public class PAUPRunner extends MesquiteModule implements OutputFileProcessor , 
 
 		data.setEditorInhibition(true);
 
-		String rootDir = ZephyrUtil.createDirectoryForFiles(this, false, "PAUP*");
+		String rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.BESIDE_HOME_FILE, "PAUP*");
 		if (rootDir==null)
 			return null;
 

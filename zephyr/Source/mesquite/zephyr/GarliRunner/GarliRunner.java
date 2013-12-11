@@ -694,7 +694,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 		data.setEditorInhibition(true);
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 
-		rootDir = ZephyrUtil.createDirectoryForFiles(this, false, "GARLI");
+		rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.BESIDE_HOME_FILE, "GARLI");
 		if (rootDir==null)
 			return null;
 
