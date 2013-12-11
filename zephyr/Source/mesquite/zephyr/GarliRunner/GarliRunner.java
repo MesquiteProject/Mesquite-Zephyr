@@ -1085,7 +1085,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 	}	
 	/*.................................................................................................................*/
 	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
-		Debugg.println("continueMonitoring@@@@@@@@@@@@@@@@@@@");
+		Debugg.println("continueMonitoring@@@@@@@@@@@@@@@@@@");
 		getProject().incrementProjectWindowSuppression();
 
 		initializeMonitoring();
