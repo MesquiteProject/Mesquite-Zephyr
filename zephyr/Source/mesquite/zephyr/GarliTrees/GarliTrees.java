@@ -37,19 +37,19 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		return true;
 	}
 
-   	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
-   	public void reconnectToRequester(MesquiteCommand command){
+	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
+	public void reconnectToRequester(MesquiteCommand command){
 		if (garliRunner ==null)
 			return;
 		garliRunner.reconnectToRequester(command);
-   	}
+	}
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
-			temp.addLine("getGarliRunner ", garliRunner);
-			temp.addLine("getMatrixSource ", matrixSourceTask);
-			temp.addLine("setTreeRecoveryTask ", treeRecoveryTask); //
-			
+		temp.addLine("getGarliRunner ", garliRunner);
+		temp.addLine("getMatrixSource ", matrixSourceTask);
+		temp.addLine("setTreeRecoveryTask ", treeRecoveryTask); //
+
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -68,7 +68,7 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		return null;
 	}	
 
-	
+
 	public String getExtraTreeWindowCommands (){
 		String commands = "setSize 400 600; ";
 		if (garliRunner.getBootstrapreps()>0){
@@ -88,11 +88,11 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		}
 		commands += " endTell; ";
 		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
-		
+
 		if (garliRunner.getBootstrapreps()>0){
 			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; toggleShow consensusFrequency; endTell; endTell; ";
 		}		
-		
+
 		commands += eachTreeCommands();
 		return commands;
 	}
@@ -215,19 +215,8 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		Tree tree = null;
 
 		double bestScore = MesquiteDouble.unassigned;
-		MesquiteDouble[] finalScores = null;
-		if (garliRunner.isGarli96orGreater())
-			finalScores = new MesquiteDouble[1];
-		else
-			finalScores = new MesquiteDouble[garliRunner.getNumRuns()];
-		for (int i=0; i<finalScores.length; i++)
-			finalScores[i] = new MesquiteDouble();
-		
-		int numRunsScriptedByMesquite;
-		if (garliRunner.isGarli96orGreater())
-			numRunsScriptedByMesquite = 1;
-		else
-			numRunsScriptedByMesquite = garliRunner.getNumRuns();
+		MesquiteDouble finalScores = new MesquiteDouble();
+
 
 		if (bootstrap) {
 			//DISCONNECTABLE: here need to split this exit and outside here see if it's done
@@ -235,53 +224,13 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 			trees.setName("GARLI Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
 		} 
 		else {
-			for (int run = 0; run<numRunsScriptedByMesquite; run++) {
-				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
-				tree = garliRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
-				if (tree==null)
-					return null;
-				if (!garliRunner.isGarli96orGreater()) {
-					if (tree instanceof AdjustableTree )
-						((AdjustableTree)tree).setName("GARLI Run " + (run+1));
+			//DISCONNECTABLE: here need to split this exit and outside here see if it's done
+			tree = garliRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
+			if (tree==null)
+				return null;
+			bestScore = finalScores.getValue();
 
-					MesquiteDouble s = new MesquiteDouble(-finalScores[0].getValue());
-					s.setName(GarliRunner.SCORENAME);
-					((Attachable)tree).attachIfUniqueName(s);
-
-					if (MesquiteDouble.isUnassigned(bestScore)) {
-						bestScore = finalScores[0].getValue();
-						logln("\nGARLI run " + (run+1) + ", ln L = " + finalScores[0].getValue() + " * \n");
-						trees.addElement(tree, false);
-					}
-					else
-						if (bestScore<finalScores[0].getValue()) {
-							bestScore = finalScores[0].getValue();
-							logln("\nGARLI run " + (run+1) + ", ln L = " + finalScores[0].getValue() + " * \n");
-							if (garliRunner.getOnlyBest())
-								trees.removeElementAt(0, false);
-							trees.addElement(tree, false);
-						} else {
-							logln("\nGARLI run " + (run+1) + ", ln L = " + finalScores[0].getValue()+ "\n");
-							if (!garliRunner.getOnlyBest())
-								trees.addElement(tree, false);
-
-						}
-				} else {  // associate numbers
-					if (trees !=null) {
-						for (int i=0; i<trees.getNumberOfTrees() && i<finalScores.length; i++) {
-							Tree newTree = trees.getTree(i);
-							//MesquiteDouble s = new MesquiteDouble(-finalScores[i].getValue());
-							//s.setName(GarliRunner.SCORENAME);
-							//((Attachable)newTree).attachIfUniqueName(s);
-							if (MesquiteDouble.isUnassigned(bestScore))
-								bestScore = finalScores[i].getValue();
-							else if (bestScore>finalScores[i].getValue()) 
-								bestScore = finalScores[i].getValue();
-						}
-					} 
-				}
-			}
-		//	logln("Best score: " + bestScore);
+			//	logln("Best score: " + bestScore);
 			trees.setName("GARLI Trees (Matrix: " + observedStates.getName() + ")");
 		}
 		treesInferred = trees.getID();
@@ -290,8 +239,13 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 
 	//TEMPORARY Debugg.println  Should be only in disconnectable tree block fillers
 	public void retrieveTreeBlock(TreeVector treeList){
-		if (garliRunner != null)
-			garliRunner.retrieveTreeBlock(treeList);
+		if (garliRunner != null){
+			MesquiteDouble finalScores = new MesquiteDouble();
+			garliRunner.retrieveTreeBlock(treeList, finalScores);
+			double bestScore = finalScores.getValue();
+		}
+
+
 	}
 	/*.................................................................................................................*/
 	public void fillTreeBlock(TreeVector treeList){
