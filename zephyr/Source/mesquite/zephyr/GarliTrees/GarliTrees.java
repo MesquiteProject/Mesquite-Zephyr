@@ -84,15 +84,19 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		}
 
 		commands += "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
-		commands += "setTreeDrawer  #mesquite.trees.SquareTree.SquareTree; tell It; orientRight; ";
+		commands += "setTreeDrawer  #mesquite.trees.SquareLineTree.SquareLineTree; tell It; orientRight; showEdgeLines off;";
+		
+		
 		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
 		if (garliRunner.getBootstrapreps()<=0)
 			commands += " tell It; branchLengthsToggle on; endTell; ";
-		commands += " setEdgeWidth 3; endTell; ";
+		commands += " setEdgeWidth 3; endTell; ";  // endTell is for SquareLineTree
 		if (garliRunner.getBootstrapreps()>0){
 			commands += "labelBranchLengths off;";
 		}
-		commands += " endTell; ";
+		commands += "getEmployee #mesquite.trees.BasicDrawTaxonNames.BasicDrawTaxonNames; tell It; toggleColorPartition on; endTell ";		
+
+		commands += " endTell; "; //endTell for BasicTreeDrawCoordinator
 		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
 
 		if (garliRunner.getBootstrapreps()>0){
