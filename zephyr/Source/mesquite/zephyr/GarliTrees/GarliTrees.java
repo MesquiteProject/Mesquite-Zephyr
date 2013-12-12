@@ -121,13 +121,19 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		return null;
 	}
 
+	private void initializeObservedStates(Taxa taxa) {
+		if (matrixSourceTask!=null) {
+			if (observedStates ==null)
+				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
+		}
+	}
+	
 	public void initialize(Taxa taxa) {
 		this.taxa = taxa;
 		if (matrixSourceTask!=null) {
 			matrixSourceTask.initialize(taxa);
-			if (observedStates ==null)
-				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
 		}
+		initializeObservedStates(taxa);
 		if (garliRunner ==null) {
 			garliRunner = (GarliRunner)hireNamedEmployee(GarliRunner.class, "#mesquite.zephyr.GarliRunner.GarliRunner");
 		}
@@ -242,7 +248,16 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		if (garliRunner != null){
 			MesquiteDouble finalScores = new MesquiteDouble();
 			garliRunner.retrieveTreeBlock(treeList, finalScores);
-			double bestScore = finalScores.getValue();
+			taxa = treeList.getTaxa();
+			initializeObservedStates(taxa);
+			boolean bootstrap = garliRunner.getBootstrapreps()>0;
+			if (bootstrap) {
+				treeList.setName("GARLI Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
+			} 
+			else {
+				treeList.setName("GARLI Trees (Matrix: " + observedStates.getName() + ")");
+				double bestScore = finalScores.getValue();
+			}
 		}
 
 
