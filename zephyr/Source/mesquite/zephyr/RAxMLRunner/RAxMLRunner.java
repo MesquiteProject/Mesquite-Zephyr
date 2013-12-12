@@ -385,12 +385,12 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 	 * -q multipleModelFileName
 	 * 
 	 *
-If you have a pure DNA alignment with 1,000bp from two genes gene1 (positions 1�500) and gene2 (positions 501�1,000) the information in the multiple model file should look as follows:
+If you have a pure DNA alignment with 1,000bp from two genes gene1 (positions 1���500) and gene2 (positions 501���1,000) the information in the multiple model file should look as follows:
 
 DNA, gene1 = 1-500 
 DNA, gene2 = 501-1000
 
-If gene1 is scattered through the alignment, e.g. positions 1�200, and 800�1,000 you specify this with: 
+If gene1 is scattered through the alignment, e.g. positions 1���200, and 800���1,000 you specify this with: 
 
 DNA, gene1 = 1-200, 800-1,000
 DNA, gene2 = 201-799
@@ -415,7 +415,7 @@ WAGF, gene2 = 501-800
 WAG, gene3 = 801-1000
 
 The AA substitution model must be the first entry in each line and must be separated by a comma from the gene name, just like the DNA token above. You can not assign different models of rate heterogeneity to different partitions, i.e., it will be either CAT, GAMMA, GAMMAI etc. for all partitions, as specified with -m.
-Finally, if you have a concatenated DNA and AA alignment, with DNA data at positions 1�500 and AA data at 501-1,000 with the WAG model the partition file should look as follows:
+Finally, if you have a concatenated DNA and AA alignment, with DNA data at positions 1���500 and AA data at 501-1,000 with the WAG model the partition file should look as follows:
 
 DNA, gene1 = 1-500 
 WAG, gene2 = 501-1000
@@ -584,7 +584,7 @@ WAG, gene2 = 501-1000
 		data.setEditorInhibition(true);
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 Debugg.println("RETAIN FILES " + retainFiles);
-		String rootDir = ZephyrUtil.createDirectoryForFiles(this, retainFiles, "RAxML");
+		String rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.BESIDE_HOME_FILE, "RAxML");  //NOTE: retains files now always
 		if (rootDir==null)
 			return null;
 		

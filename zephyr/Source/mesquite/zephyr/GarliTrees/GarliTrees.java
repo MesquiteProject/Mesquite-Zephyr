@@ -30,19 +30,51 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 
 
-		garliRunner = (GarliRunner)hireNamedEmployee(GarliRunner.class, "#mesquite.bosque.GarliRunner.GarliRunner");
+		garliRunner = (GarliRunner)hireNamedEmployee(GarliRunner.class, "#mesquite.zephyr.GarliRunner.GarliRunner");
 		if (garliRunner ==null)
 			return false;
 		garliRunner.initialize(this);
 		return true;
 	}
+	/*.................................................................................................................*/
+	/** Notifies all employees that a file is about to be closed.*/
+	public void fileCloseRequested () {
+		if (!MesquiteThread.isScripting() && getProject().getHomeFile().isDirty())
+			alert("There is a run of GARLI underway.  If you save the file now, you will be able to reconnect to it by reopening this file, as long as you haven't moved the file or those files involved in the GARLI search");
+		super.fileCloseRequested();
+	}
+	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
+	public void reconnectToRequester(MesquiteCommand command){
+		if (garliRunner ==null)
+			return;
+		garliRunner.reconnectToRequester(command);
+	}
+	/*.................................................................................................................*/
+	public Snapshot getSnapshot(MesquiteFile file) { 
+		Snapshot temp = new Snapshot();
+		temp.addLine("getGarliRunner ", garliRunner);
+		temp.addLine("getMatrixSource ", matrixSourceTask);
+		temp.addLine("setTreeRecoveryTask ", treeRecoveryTask); //
 
-   	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
-   	public void reconnectToRequester(MesquiteCommand command){
-   		Debugg.println("Reconnect request received " + command);
-   	}
+		return temp;
+	}
+	/*.................................................................................................................*/
+	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
+		if (checker.compare(this.getClass(), "Sets the runner", "[module]", commandName, "getGarliRunner")) {
+			return garliRunner;
+		}
+		else if (checker.compare(this.getClass(), "Sets the runner", "[module]", commandName, "getMatrixSource")) {
+			return matrixSourceTask;
+		}
+		else if (checker.compare(this.getClass(), "Sets the tree recovery task", "[module]", commandName, "setTreeRecoveryTask")) {
+			treeRecoveryTask = (TreeSource)hireNamedEmployee(TreeSource.class, "$ #ManyTreesFromFile xxx remain useStandardizedTaxonNames");  //xxx used because ManyTreesFromFiles needs exact argument sequence
+			return treeRecoveryTask;
+		}
 
-	
+		return null;
+	}	
+
+
 	public String getExtraTreeWindowCommands (){
 		String commands = "setSize 400 600; ";
 		if (garliRunner.getBootstrapreps()>0){
@@ -52,21 +84,25 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		}
 
 		commands += "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
-		commands += "setTreeDrawer  #mesquite.trees.SquareTree.SquareTree; tell It; orientRight; ";
+		commands += "setTreeDrawer  #mesquite.trees.SquareLineTree.SquareLineTree; tell It; orientRight; showEdgeLines off;";
+		
+		
 		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
 		if (garliRunner.getBootstrapreps()<=0)
 			commands += " tell It; branchLengthsToggle on; endTell; ";
-		commands += " setEdgeWidth 3; endTell; ";
+		commands += " setEdgeWidth 3; endTell; ";  // endTell is for SquareLineTree
 		if (garliRunner.getBootstrapreps()>0){
 			commands += "labelBranchLengths off;";
 		}
-		commands += " endTell; ";
+		commands += "getEmployee #mesquite.trees.BasicDrawTaxonNames.BasicDrawTaxonNames; tell It; toggleColorPartition on; endTell ";		
+
+		commands += " endTell; "; //endTell for BasicTreeDrawCoordinator
 		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
-		
+
 		if (garliRunner.getBootstrapreps()>0){
 			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; toggleShow consensusFrequency; endTell; endTell; ";
 		}		
-		
+
 		commands += eachTreeCommands();
 		return commands;
 	}
@@ -95,28 +131,34 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		return null;
 	}
 
+	private void initializeObservedStates(Taxa taxa) {
+		if (matrixSourceTask!=null) {
+			if (observedStates ==null)
+				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
+		}
+	}
+	
 	public void initialize(Taxa taxa) {
 		this.taxa = taxa;
 		if (matrixSourceTask!=null) {
 			matrixSourceTask.initialize(taxa);
-			if (observedStates ==null)
-				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
 		}
+		initializeObservedStates(taxa);
 		if (garliRunner ==null) {
-			garliRunner = (GarliRunner)hireNamedEmployee(GarliRunner.class, "#mesquite.bosque.GarliRunner.GarliRunner");
+			garliRunner = (GarliRunner)hireNamedEmployee(GarliRunner.class, "#mesquite.zephyr.GarliRunner.GarliRunner");
 		}
 		if (garliRunner !=null)
 			garliRunner.initializeTaxa(taxa);
 	}
 
 	public String getExplanation() {
-		return "If Garli is installed, will save a copy of a character matrix and script Garli to conduct one or more searches, and harvest the resulting trees, including their scores.";
+		return "If GARLI is installed, will save a copy of a character matrix and script GARLI to conduct one or more searches, and harvest the resulting trees, including their scores.";
 	}
 	public String getName() {
-		return "Garli Trees";
+		return "GARLI Trees";
 	}
 	public String getNameForMenuItem() {
-		return "Garli Trees...";
+		return "GARLI Trees...";
 	}
 
 	/*.................................................................................................................*/
@@ -178,7 +220,7 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		MesquiteTree initialTree = new MesquiteTree(taxa);
 		initialTree.setToDefaultBush(2, false);
 
-		CommandRecord.tick("Garli Tree Search in progress " );
+		CommandRecord.tick("GARLI Tree Search in progress " );
 		boolean bootstrap = garliRunner.getBootstrapreps()>0;
 
 		Random rng = new Random(System.currentTimeMillis());
@@ -189,19 +231,8 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		Tree tree = null;
 
 		double bestScore = MesquiteDouble.unassigned;
-		MesquiteDouble[] finalScores = null;
-		if (garliRunner.isGarli96())
-			finalScores = new MesquiteDouble[1];
-		else
-			finalScores = new MesquiteDouble[garliRunner.getNumRuns()];
-		for (int i=0; i<finalScores.length; i++)
-			finalScores[i] = new MesquiteDouble();
-		
-		int numRunsScriptedByMesquite;
-		if (garliRunner.isGarli96())
-			numRunsScriptedByMesquite = 1;
-		else
-			numRunsScriptedByMesquite = garliRunner.getNumRuns();
+		MesquiteDouble finalScores = new MesquiteDouble();
+
 
 		if (bootstrap) {
 			//DISCONNECTABLE: here need to split this exit and outside here see if it's done
@@ -209,63 +240,43 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 			trees.setName("GARLI Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
 		} 
 		else {
-			for (int run = 0; run<numRunsScriptedByMesquite; run++) {
-				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
-				tree = garliRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
-				if (tree==null)
-					return null;
-				if (!garliRunner.isGarli96()) {
-					if (tree instanceof AdjustableTree )
-						((AdjustableTree)tree).setName("Garli Run " + (run+1));
+			//DISCONNECTABLE: here need to split this exit and outside here see if it's done
+			tree = garliRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
+			if (tree==null)
+				return null;
+			bestScore = finalScores.getValue();
 
-					MesquiteDouble s = new MesquiteDouble(-finalScores[0].getValue());
-					s.setName(GarliRunner.SCORENAME);
-					((Attachable)tree).attachIfUniqueName(s);
-
-					if (MesquiteDouble.isUnassigned(bestScore)) {
-						bestScore = finalScores[0].getValue();
-						logln("\nGarli run " + (run+1) + ", ln L = " + finalScores[0].getValue() + " * \n");
-						trees.addElement(tree, false);
-					}
-					else
-						if (bestScore<finalScores[0].getValue()) {
-							bestScore = finalScores[0].getValue();
-							logln("\nGarli run " + (run+1) + ", ln L = " + finalScores[0].getValue() + " * \n");
-							if (garliRunner.getOnlyBest())
-								trees.removeElementAt(0, false);
-							trees.addElement(tree, false);
-						} else {
-							logln("\nGarli run " + (run+1) + ", ln L = " + finalScores[0].getValue()+ "\n");
-							if (!garliRunner.getOnlyBest())
-								trees.addElement(tree, false);
-
-						}
-				} else {  // associate numbers
-					if (trees !=null) {
-						for (int i=0; i<trees.getNumberOfTrees() && i<finalScores.length; i++) {
-							Tree newTree = trees.getTree(i);
-							//MesquiteDouble s = new MesquiteDouble(-finalScores[i].getValue());
-							//s.setName(GarliRunner.SCORENAME);
-							//((Attachable)newTree).attachIfUniqueName(s);
-							if (MesquiteDouble.isUnassigned(bestScore))
-								bestScore = finalScores[i].getValue();
-							else if (bestScore>finalScores[i].getValue()) 
-								bestScore = finalScores[i].getValue();
-						}
-					} 
-				}
-			}
-		//	logln("Best score: " + bestScore);
+			//	logln("Best score: " + bestScore);
 			trees.setName("GARLI Trees (Matrix: " + observedStates.getName() + ")");
 		}
 		treesInferred = trees.getID();
 		return trees;
 	}
 
+	//TEMPORARY Debugg.println  Should be only in disconnectable tree block fillers
+	public void retrieveTreeBlock(TreeVector treeList){
+		if (garliRunner != null){
+			MesquiteDouble finalScores = new MesquiteDouble();
+			garliRunner.retrieveTreeBlock(treeList, finalScores);
+			taxa = treeList.getTaxa();
+			initializeObservedStates(taxa);
+			boolean bootstrap = garliRunner.getBootstrapreps()>0;
+			if (bootstrap) {
+				treeList.setName("GARLI Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
+			} 
+			else {
+				treeList.setName("GARLI Trees (Matrix: " + observedStates.getName() + ")");
+				double bestScore = finalScores.getValue();
+			}
+		}
+
+
+	}
 	/*.................................................................................................................*/
 	public void fillTreeBlock(TreeVector treeList){
 		if (treeList==null || garliRunner==null)
 			return;
+		getProject().getHomeFile().setDirtiedByCommand(true);
 		taxa = treeList.getTaxa();
 		initialize(taxa);
 
