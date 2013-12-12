@@ -16,6 +16,7 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 	private MatrixSourceCoord matrixSourceTask;
 	protected MCharactersDistribution observedStates;
 	int rerootNode = 0;
+	long treesInferred;
 
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
@@ -24,7 +25,6 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 		matrixSourceTask = (MatrixSourceCoord)hireCompatibleEmployee(MatrixSourceCoord.class, getCharacterClass(), "Source of matrix (for " + getName() + ")");
 		if (matrixSourceTask == null)
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
-
 
 		raxmlRunner = (RAxMLRunner)hireNamedEmployee(RAxMLRunner.class, "#mesquite.bosque.RAxMLRunner.RAxMLRunner");//TODO: should this be #mesquite.zephyr.RAxMLRunner.RAxMLRunner (replace 'bosque' with 'zephyr')? Search for bosque to find additional instances.
 //		raxmlRunner = (RAxMLRunner)hireEmployee(RAxMLRunner.class, "RAxMLRunner choice"); //Uncomment if choice is desired.
@@ -35,18 +35,26 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 	}
 
 
-
 	public String getExtraTreeWindowCommands (){
-		String commands = "setSize 400 600; getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
+		String commands = "setSize 400 600; ";
+		if (raxmlRunner.getBootstrapreps()>0){
+			commands += "getOwnerModule; tell It; setTreeSource  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";
+			commands += " setTreeBlockByID " + treesInferred + ";";
+			commands += " toggleUseWeights off; endTell; setConsenser  #mesquite.consensus.MajRuleTree.MajRuleTree; endTell; endTell;";
+		}
+		commands += "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
 		commands += "setTreeDrawer  #mesquite.trees.SquareTree.SquareTree; tell It; orientRight; ";
 		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
 		if (raxmlRunner.getBootstrapreps()<=0)
 			commands += " tell It; branchLengthsToggle on; endTell; ";
 		commands += " setEdgeWidth 3; endTell; ";
 		if (raxmlRunner.getBootstrapreps()>0)
-			commands += "labelBranchLengths on; setNumBrLenDecimals 0; showBrLenLabelsOnTerminals off; showBrLensUnspecified off; setBrLenLabelColor 0 0 0;";
+			commands += "labelBranchLengths off;";
 		commands += " endTell; ";
 		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
+		if (raxmlRunner.getBootstrapreps()>0){
+			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; toggleShow consensusFrequency; endTell; endTell; ";
+		}		
 		commands += eachTreeCommands();
 		return commands;
 	}
@@ -164,6 +172,7 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 			trees.setName("RAxML Trees (Matrix: " + observedStates.getName() + ")");
 		}
 
+		treesInferred = trees.getID();
 		return trees;
 	}
 
@@ -181,6 +190,7 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 		treeList.setAnnotation ("Parameters: "  + getParameters(), false);
 		if (trees!=null)
 			treeList.addElements(trees, false);
+		treesInferred = treeList.getID();
 	}
 
 

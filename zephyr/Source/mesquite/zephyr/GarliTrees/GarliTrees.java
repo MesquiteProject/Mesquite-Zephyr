@@ -8,10 +8,11 @@ import mesquite.lib.duties.*;
 import mesquite.zephyr.GarliRunner.GarliRunner;
 
 
-public class GarliTrees extends ExternalTreeSearcher {
+public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 	GarliRunner garliRunner;
 	TreeSource treeRecoveryTask;
 	Taxa taxa;
+	long treesInferred;
 	private MatrixSourceCoord matrixSourceTask;
 	protected MCharactersDistribution observedStates;
 	int rerootNode = 0;
@@ -36,19 +37,36 @@ public class GarliTrees extends ExternalTreeSearcher {
 		return true;
 	}
 
+   	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
+   	public void reconnectToRequester(MesquiteCommand command){
+   		Debugg.println("Reconnect request received " + command);
+   	}
 
 	
 	public String getExtraTreeWindowCommands (){
-		String commands = "setSize 400 600; getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
+		String commands = "setSize 400 600; ";
+		if (garliRunner.getBootstrapreps()>0){
+			commands += "getOwnerModule; tell It; setTreeSource  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";
+			commands += " setTreeBlockByID " + treesInferred + ";";
+			commands += " toggleUseWeights off; endTell; setConsenser  #mesquite.consensus.MajRuleTree.MajRuleTree; endTell; endTell;";
+		}
+
+		commands += "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
 		commands += "setTreeDrawer  #mesquite.trees.SquareTree.SquareTree; tell It; orientRight; ";
 		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
 		if (garliRunner.getBootstrapreps()<=0)
 			commands += " tell It; branchLengthsToggle on; endTell; ";
 		commands += " setEdgeWidth 3; endTell; ";
-		if (garliRunner.getBootstrapreps()>0)
-			commands += "labelBranchLengths on; setNumBrLenDecimals 0; showBrLenLabelsOnTerminals off; showBrLensUnspecified off; setBrLenLabelColor 0 0 0;";
+		if (garliRunner.getBootstrapreps()>0){
+			commands += "labelBranchLengths off;";
+		}
 		commands += " endTell; ";
 		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
+		
+		if (garliRunner.getBootstrapreps()>0){
+			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; toggleShow consensusFrequency; endTell; endTell; ";
+		}		
+		
 		commands += eachTreeCommands();
 		return commands;
 	}
@@ -186,11 +204,13 @@ public class GarliTrees extends ExternalTreeSearcher {
 			numRunsScriptedByMesquite = garliRunner.getNumRuns();
 
 		if (bootstrap) {
+			//DISCONNECTABLE: here need to split this exit and outside here see if it's done
 			garliRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 			trees.setName("GARLI Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
 		} 
 		else {
 			for (int run = 0; run<numRunsScriptedByMesquite; run++) {
+				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
 				tree = garliRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 				if (tree==null)
 					return null;
@@ -238,6 +258,7 @@ public class GarliTrees extends ExternalTreeSearcher {
 		//	logln("Best score: " + bestScore);
 			trees.setName("GARLI Trees (Matrix: " + observedStates.getName() + ")");
 		}
+		treesInferred = trees.getID();
 		return trees;
 	}
 
@@ -248,6 +269,7 @@ public class GarliTrees extends ExternalTreeSearcher {
 		taxa = treeList.getTaxa();
 		initialize(taxa);
 
+		//DISCONNECTABLE
 		TreeVector trees = getTrees(taxa);
 		if (trees == null)
 			return;
@@ -255,6 +277,7 @@ public class GarliTrees extends ExternalTreeSearcher {
 		treeList.setAnnotation ("Parameters: "  + getParameters(), false);
 		if (trees!=null)
 			treeList.addElements(trees, false);
+		treesInferred = treeList.getID();
 	}
 
 
