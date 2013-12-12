@@ -3,6 +3,7 @@
 	<name>Zephyr</name>
 	<comment></comment>
 	<projects>
+		<project>MesquiteCore</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

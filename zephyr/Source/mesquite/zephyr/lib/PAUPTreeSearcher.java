@@ -28,7 +28,7 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 
 
-		paupRunner = (PAUPRunner)hireNamedEmployee(PAUPRunner.class, "#mesquite.bosque.PAUPRunner.PAUPRunner");
+		paupRunner = (PAUPRunner)hireNamedEmployee(PAUPRunner.class, "#mesquite.zephyr.PAUPRunner.PAUPRunner");
 		if (paupRunner ==null)
 			return false;
 		paupRunner.setPAUPPath(PAUPPath);
