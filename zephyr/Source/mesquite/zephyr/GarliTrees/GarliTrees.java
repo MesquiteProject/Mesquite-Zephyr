@@ -36,7 +36,13 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 		garliRunner.initialize(this);
 		return true;
 	}
-
+	/*.................................................................................................................*/
+	/** Notifies all employees that a file is about to be closed.*/
+	public void fileCloseRequested () {
+		if (!MesquiteThread.isScripting() && getProject().getHomeFile().isDirty())
+			alert("There is a run of GARLI underway.  If you save the file now, you will be able to reconnect to it by reopening this file, as long as you haven't moved the file or those files involved in the GARLI search");
+		super.fileCloseRequested();
+	}
 	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
 	public void reconnectToRequester(MesquiteCommand command){
 		if (garliRunner ==null)
@@ -266,6 +272,7 @@ public class GarliTrees extends ExternalTreeSearcher implements Reconnectable {
 	public void fillTreeBlock(TreeVector treeList){
 		if (treeList==null || garliRunner==null)
 			return;
+		getProject().getHomeFile().setDirtiedByCommand(true);
 		taxa = treeList.getTaxa();
 		initialize(taxa);
 
