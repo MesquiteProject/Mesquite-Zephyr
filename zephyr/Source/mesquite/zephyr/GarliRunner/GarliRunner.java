@@ -22,6 +22,7 @@ import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
+import mesquite.molec.lib.Blaster;
 import mesquite.zephyr.GarliTrees.*;
 import mesquite.zephyr.lib.*;
 
@@ -123,12 +124,18 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 	Choice rateHetChoice= null;
 	IntegerField numRateCatField = null;
 	String rootDir;
+	ExternalProcessRunner externalProcRunner;
 
 	MesquiteTimer timer = new MesquiteTimer();
+	
+	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
+		EmployeeNeed e = registerEmployeeNeed(ExternalProcessRunner.class, getName() + "  needs a module to run an external process.","");
+	}
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		garliPath = getPath() +  "garli"; //default; temporary WPM April 2013 Debugg.println
 		rng = new Random(System.currentTimeMillis());
+		
 		loadPreferences();
 		return true;
 	}

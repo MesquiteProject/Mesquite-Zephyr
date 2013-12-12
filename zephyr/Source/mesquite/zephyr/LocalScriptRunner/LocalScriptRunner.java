@@ -9,7 +9,8 @@ public class LocalScriptRunner extends ExternalProcessRunner {
 	ShellScriptRunner scriptRunner;
 	Random rng;
 	String rootDir;
-	String garliPath;
+	String executablePath;
+	String executableName;
 
 	public String getName() {
 		return "Local Script Runner";
@@ -40,14 +41,14 @@ public class LocalScriptRunner extends ExternalProcessRunner {
 		super.endJob();
 	}
 	/*.................................................................................................................*/
-	public void processSingleXMLPreference (String tag, String content) {
-		if ("garliPath".equalsIgnoreCase(tag)) 
-			garliPath = StringUtil.cleanXMLEscapeCharacters(content);
+	public void processSingleXMLPreference (String tag, String flavor, String content) {
+		if ("executablePath".equalsIgnoreCase(tag))   /// check to see if flavor is correct!!!
+			executablePath = StringUtil.cleanXMLEscapeCharacters(content);
 	}
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "garliPath", garliPath);  
+		StringUtil.appendXMLTag(buffer, 2, "executablePath", executableName, executablePath);  
 		return buffer.toString();
 	}
 
