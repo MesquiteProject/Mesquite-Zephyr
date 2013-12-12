@@ -180,10 +180,6 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 		return true;
 	}
 
-	public boolean isGarli96orGreater() {
-		return garli96orGreater;
-	}
-
 	public String getGarliConf(){
 		StringBuffer sb = new StringBuffer();
 		//sb.append("\n = " + nnnnn);
@@ -192,8 +188,6 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 		sb.append("\nofprefix=" + ofprefix);
 		sb.append("\noutputcurrentbesttree = 1");
 		//sb.append("\noutputcurrentbesttree = 1");
-
-
 
 		if (StringUtil.blank(constraintfile))
 			sb.append("\nconstraintfile = none");  
@@ -1001,6 +995,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 			progIndicator.goAway();
 
 		if (success){
+			getProject().decrementProjectWindowSuppression();
 			return retrieveTreeBlock(trees, finalScore);
 		}
 		
@@ -1175,7 +1170,7 @@ public class GarliRunner extends MesquiteModule  implements OutputFileProcessor,
 			else ownerModule.newTreeAvailable(treeFilePath, null);
 		}
 
-		if (isGarli96orGreater() && fileNum==2 && outputFilePaths.length>2 && !StringUtil.blank(outputFilePaths[2])) {
+		if (fileNum==2 && outputFilePaths.length>2 && !StringUtil.blank(outputFilePaths[2])) {
 			if (screenFile==null) {   //this is the output file
 				if (MesquiteFile.fileExists(filePath))
 					screenFile = MesquiteFile.open(true, filePath);
