@@ -146,10 +146,20 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
+		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
+		if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner", "[name of module]", commandName, "setExternalProcessRunner")) {
+			ExternalProcessRunner temp = (ExternalProcessRunner)replaceEmployee(ExternalProcessRunner.class, arguments, "External Process Runner", externalProcRunner);
+			if (temp != null) {
+				externalProcRunner = temp;
+				parametersChanged();
+			}
+			externalProcRunner.setProcessRequester(this);
+			return externalProcRunner;
+		}
 		return null;
 	}	
 
@@ -190,8 +200,6 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		String garliGeneralOptions = "\nstreefname = random \navailablememory = 512 \nlogevery = 10 \nsaveevery = 100 \nrefinestart = 1 \noutputeachbettertopology = 1"
 				+ "\nenforcetermconditions = 1 \ngenthreshfortopoterm = 10000 \nscorethreshforterm = 0.05 \nsignificanttopochange = 0.01 \noutputphyliptree = 0 \noutputmostlyuselessfiles = 0 \nwritecheckpoints = 0 \nrestart = 0";
 		sb.append(garliGeneralOptions);
-
-
 
 		sb.append("\n");
 
@@ -555,9 +563,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 
 				//garliOptions = garliOptionsField.getText();
 
-
 				processCharacterModels();
-
 
 				storePreferences();
 				externalProcRunner.storePreferences();
@@ -608,7 +614,6 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 	}
 
 	/*.................................................................................................................*/
-
 	public void setGarliSeed(long seed){
 		this.randseed = seed;
 	}
@@ -638,6 +643,11 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 			DoubleArray.deassignArray(finalValues);
 		}
 	}
+	static final int MAINLOGFILE =0;
+	static final int CURRENTTREEFILEPATH=1;
+	static final int SCREENLOG=2;
+	static final int TREEFILE=3;
+	static final int BESTTREEFILE=4;
 	/*.................................................................................................................*/
 	private void setFilePaths () {
 		configFileName =  "garli.conf";
@@ -650,7 +660,8 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		currentTreeFilePath =  ofprefix+".best.current.tre";
 		allBestTreeFilePath = ofprefix+".best.all.tre";
 		String mainLogFileName = ofprefix+".log00.log";
-		String[] logFileNamesLocal = {mainLogFileName, currentTreeFilePath, ofprefix+".screen.log"};
+		
+		String[] logFileNamesLocal = {mainLogFileName, currentTreeFilePath, ofprefix+".screen.log", treeFileName, allBestTreeFilePath};
 		logFileNames = logFileNamesLocal;
 
 		constraintFilePath = "constraint";
@@ -685,7 +696,6 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		getProject().incrementProjectWindowSuppression();
 		data.setEditorInhibition(true);
 
-
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 
 		// create the data file
@@ -700,7 +710,6 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 			ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data, true, true, false);
 		else if (partitionScheme==partitionByCodonPosition)
 			ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data, true, true, true);
-
 
 		setFilePaths();
 		//setting up the GARLI config file
@@ -726,8 +735,6 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		}
 		fileContents[2] = config;
 		fileNames[2] = configFileName;
-		
-		
 
 		String GARLIcommand = externalProcRunner.getExecutableCommand()+StringUtil.lineEnding();
 
@@ -748,11 +755,10 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
-
 		/*  ============ STARTING THE PROCESS ============  */
 		timer.start();
 		success = externalProcRunner.startExecution();
-
+		
 		/*  ============ THE PROCESS RUNS ============  */
 
 		if (success)
@@ -782,6 +788,8 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		getProject().incrementProjectWindowSuppression();
 
 		initializeMonitoring();
+		setFilePaths();
+		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
 		/*	MesquiteModule inferer = findEmployerWithDuty(TreeInferer.class);
 		if (inferer != null)
@@ -819,12 +827,13 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		// define file paths and set tree files as needed. 
 		setFilePaths();
 
-		if (onlyBest || numRuns==1 || bootstrap())
-			tempDataFile = (MesquiteFile)coord.doCommand("includeTreeFile", StringUtil.tokenize(treeFilePath) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); //TODO: never scripting???
-		else
-			tempDataFile = (MesquiteFile)coord.doCommand("includeTreeFile", StringUtil.tokenize(allBestTreeFilePath) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); //TODO: never scripting???
+		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
 
-		
+		if (onlyBest || numRuns==1 || bootstrap())
+			tempDataFile = (MesquiteFile)coord.doCommand("includeTreeFile", StringUtil.tokenize(outputFilePaths[TREEFILE]) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); //TODO: never scripting???
+		else
+			tempDataFile = (MesquiteFile)coord.doCommand("includeTreeFile", StringUtil.tokenize(outputFilePaths[BESTTREEFILE]) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); //TODO: never scripting???
+
 		runFilesAvailable();
 
 		MesquiteThread.setCurrentCommandRecord(oldCR);
@@ -925,7 +934,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 			filePath = outputFilePaths[fileNum];
 */
 		
-		if (filesAvailable[0] && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0]) && !bootstrap()) {   // screen log
+		if (filesAvailable[MAINLOGFILE] && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[MAINLOGFILE]) && !bootstrap()) {   // screen log
 			if (MesquiteFile.fileExists(filePath)) {
 				String s = MesquiteFile.getFileLastContents(filePath);
 				if (!StringUtil.blank(s))
@@ -941,7 +950,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 				Debugg.println("*** File does not exist (" + filePath + ") ***");
 		}
 
-		if (filesAvailable[1] && outputFilePaths.length>1 && !StringUtil.blank(outputFilePaths[1]) && !bootstrap()) {
+		if (filesAvailable[CURRENTTREEFILEPATH] && outputFilePaths.length>1 && !StringUtil.blank(outputFilePaths[CURRENTTREEFILEPATH]) && !bootstrap()) {
 			String treeFilePath = filePath;
 			if (taxa != null) {
 				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
@@ -950,7 +959,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 			else ownerModule.newTreeAvailable(treeFilePath, null);
 		}
 
-		if (filesAvailable[2] && outputFilePaths.length>2 && !StringUtil.blank(outputFilePaths[2])) {
+		if (filesAvailable[SCREENLOG] && outputFilePaths.length>2 && !StringUtil.blank(outputFilePaths[SCREENLOG])) {
 			if (screenFile==null) {   //this is the output file
 				if (MesquiteFile.fileExists(filePath))
 					screenFile = MesquiteFile.open(true, filePath);
@@ -1006,16 +1015,16 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 	public void processCompletedOutputFiles(String[] outputFilePaths) {
 		runNumber=0;
 		screenFilePos = 0;
-		if (outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0])) {
+		if (outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[MAINLOGFILE])) {
 			if (!bootstrap()) {
-				String s = MesquiteFile.getFileLastContents(outputFilePaths[0]);
+				String s = MesquiteFile.getFileLastContents(outputFilePaths[MAINLOGFILE]);
 				if (!StringUtil.blank(s)) {
 					parser.setString(s);
 					parser.getFirstToken();
 					finalValue = MesquiteDouble.fromString(parser.getNextToken());
 				}
 			}
-			ZephyrUtil.copyLogFile(this, getExecutableName(), outputFilePaths[2]);
+			ZephyrUtil.copyLogFile(this, getExecutableName(), outputFilePaths[SCREENLOG]);
 
 		}
 	}

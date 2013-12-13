@@ -82,8 +82,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		if (checker.compare(this.getClass(), "Sets the running file path", "[file path]", commandName, "reviveScriptRunner")) {
 			Debugg.println("ReviveScriptRunner");
 			scriptRunner = new ShellScriptRunner();
-			//scriptRunner.setOutputProcessor(this);
-			//scriptRunner.setWatcher(this);
+			scriptRunner.setOutputProcessor(this);
+			scriptRunner.setWatcher(this);
 			return scriptRunner;
 		}
 		else if (checker.compare(this.getClass(), "Sets root directory", null, commandName, "setRootDir")) {
@@ -171,6 +171,10 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			return outputFilePaths[fileNumber];
 		return null;
 	}
+	/*.................................................................................................................*/
+	public String[] getOutputFilePaths(){
+		return outputFilePaths;
+	}
 	
 	/*.................................................................................................................*/
 	public String getLastLineOfOutputFile(String fileName){
@@ -189,7 +193,9 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 
 	public boolean monitorExecution(){
-		return scriptRunner.monitorAndCleanUpShell();
+		 if (scriptRunner!=null)
+			 return scriptRunner.monitorAndCleanUpShell();
+		 return false;
 	}
 
 	public String checkStatus(){
