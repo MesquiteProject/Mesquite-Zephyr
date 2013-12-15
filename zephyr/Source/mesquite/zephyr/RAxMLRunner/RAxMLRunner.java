@@ -534,7 +534,7 @@ WAG, gene2 = 501-1000
 			arguments += LOCdnaModel;
 		
 		if (StringUtil.notEmpty(LOCMultipleModelFile))
-			arguments += " -q " + LOCMultipleModelFile;
+			arguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
 		
 		arguments += " -p " + randomIntSeed;
 			
