@@ -147,6 +147,8 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
+		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
+			return true;
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
 		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), "RAxML Options & Locations",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 		dialog.addLabel("RAxML - Options and Locations");
@@ -559,7 +561,7 @@ WAG, gene2 = 501-1000
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble[] finalScore) {
 		if (matrix==null )
 			return null;
-		if (StringUtil.blank(raxmlPath))
+	if (StringUtil.blank(raxmlPath))
 			return null;
 		if (!(matrix.getParentData() != null && matrix.getParentData() instanceof MolecularData)){
 			MesquiteMessage.discreetNotifyUser("Sorry, RAxMLTree works only if given a full MolecularData object");
@@ -580,6 +582,7 @@ WAG, gene2 = 501-1000
 
 		getProject().incrementProjectWindowSuppression();
 		
+		Debugg.println(this.getName() + " using data matrix " + data.getID());
 
 		data.setEditorInhibition(true);
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());

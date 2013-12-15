@@ -172,6 +172,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		this.ownerModule= ownerModule;
 	}
 	public boolean initializeTaxa (Taxa taxa) {
+		Debugg.println(this.getName() + " using taxa " + taxa.getID());
 		Taxa currentTaxa = this.taxa;
 		this.taxa = taxa;
 		if (taxa!=currentTaxa && taxa!=null) {
@@ -471,6 +472,9 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
+		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
+				return true;
+				
 		boolean closeWizard = false;
 
 		if ((MesquiteTrunk.isMacOSXBeforeSnowLeopard()) && MesquiteDialog.currentWizard == null) {
@@ -578,6 +582,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 
 	/*.................................................................................................................*/
 	public boolean queryTaxaOptions(Taxa taxa) {
+		Debugg.println(this.getName() + " using taxa " + taxa.getID());
 		if (taxa==null)
 			return true;
 		SpecsSetVector ssv  = taxa.getSpecSetsVector(TaxaSelectionSet.class);

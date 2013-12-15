@@ -144,6 +144,7 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 	}
 	/*.................................................................................................................*/
 	private TreeVector getTrees(Taxa taxa) {
+		Debugg.println(this.getName() + " using taxa " + taxa.getID());
 		TreeVector trees = new TreeVector(taxa);
 		MesquiteTree initialTree = new MesquiteTree(taxa);
 		initialTree.setToDefaultBush(2, false);
@@ -181,6 +182,8 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 		if (treeList==null || raxmlRunner==null)
 			return;
 		taxa = treeList.getTaxa();
+		if (observedStates != null && observedStates.getTaxa() != taxa)  //Debugg.println add to GARLITrees etc
+			observedStates = null;
 		initialize(taxa);
 
 		TreeVector trees = getTrees(taxa);
