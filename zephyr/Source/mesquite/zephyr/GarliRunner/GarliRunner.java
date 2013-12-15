@@ -1036,17 +1036,12 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 
 		}
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 
 	public boolean continueShellProcess(Process proc){
 		if (progIndicator!=null && progIndicator.isAborted()) {
 			try {
 				proc.destroy();
-				/*Writer stream;
-				stream = new OutputStreamWriter((BufferedOutputStream)proc.getOutputStream());
-				stream.write((char)3);
-				stream.flush();
-				stream.close();*/
 			}
 			catch (Exception e) {
 				MesquiteMessage.warnProgrammer("EXCEPTION ");
@@ -1056,6 +1051,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		}
 		return true;
 	}
+	/*.................................................................................................................*/
 
 
 	private boolean bootstrap() {
