@@ -1013,10 +1013,8 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 	}
 	/*.................................................................................................................*/
 	public void runFilesAvailable(){   // this should really only do the ones needed, not all of them.
-		boolean[] filesAvailable= new boolean[logFileNames.length];
-		for (int i = 0; i<filesAvailable.length; i++){
-			filesAvailable[i]=true;
-			runFilesAvailable(filesAvailable);
+		for (int i = 0; i<logFileNames.length; i++){
+			runFilesAvailable(i);
 		}
 	}
 
