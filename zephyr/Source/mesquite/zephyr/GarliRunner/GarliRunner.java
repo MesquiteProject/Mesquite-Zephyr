@@ -785,7 +785,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 	}	
 	/*.................................................................................................................*/
 	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
-		logln("Monitoring a GARLI run begun.");
+		logln("Monitoring GARLI run begun.");
 		getProject().incrementProjectWindowSuppression();
 
 		initializeMonitoring();
@@ -811,7 +811,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 
 	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore){
-		logln("GARLI trees are being received.");
+		logln("Preparing to receive GARLI trees.");
 		boolean success = false;
 		taxa = treeList.getTaxa();
 		finalScore.setValue(finalValue);
