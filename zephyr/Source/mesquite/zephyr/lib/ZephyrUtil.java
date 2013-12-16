@@ -8,7 +8,6 @@ import java.io.Writer;
 import java.util.Enumeration;
 
 import cgrb.eta.remote.api.ETAConnection;
-
 import mesquite.categ.lib.CategoricalData;
 import mesquite.categ.lib.DNAData;
 import mesquite.categ.lib.MolecularData;
@@ -463,6 +462,38 @@ public class ZephyrUtil {
 		}
 	}
 	
+	
+	public static String getStandardExtraTreeWindowCommands (boolean isBootstrap, long treeBlockID){
+		String commands = "setSize 400 600; ";
+		if (isBootstrap){
+			commands += "getOwnerModule; tell It; setTreeSource  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";
+			commands += " setTreeBlockByID " + treeBlockID + ";";
+			commands += " toggleUseWeights off; endTell; setConsenser  #mesquite.consensus.MajRuleTree.MajRuleTree; endTell; endTell;";
+		}
+
+		commands += "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
+		commands += "setTreeDrawer  #mesquite.trees.SquareLineTree.SquareLineTree; tell It; orientRight; showEdgeLines off; ";
+		
+		
+		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
+		if (!isBootstrap)
+			commands += " tell It; branchLengthsToggle on; endTell; ";
+		commands += " setEdgeWidth 3; endTell; ";  // endTell is for SquareLineTree
+		if (isBootstrap){
+			commands += "labelBranchLengths off;";
+		}
+		commands += "getEmployee #mesquite.trees.BasicDrawTaxonNames.BasicDrawTaxonNames; tell It; toggleColorPartition on; setFontSize 10; endTell; ";		
+
+		commands += " endTell; "; //endTell for BasicTreeDrawCoordinator
+		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
+
+		if (isBootstrap){
+			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; toggleShow consensusFrequency; endTell; endTell; ";
+		}		
+
+		return commands;
+	}
+
 	
 	public static final int IN_SUPPORT_DIR = 0;
 	public static final int BESIDE_HOME_FILE = 1;

@@ -36,27 +36,7 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 
 
 	public String getExtraTreeWindowCommands (){
-		String commands = "setSize 400 600; ";
-		if (raxmlRunner.getBootstrapreps()>0){
-			commands += "getOwnerModule; tell It; setTreeSource  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";
-			commands += " setTreeBlockByID " + treesInferred + ";";
-			commands += " toggleUseWeights off; endTell; setConsenser  #mesquite.consensus.MajRuleTree.MajRuleTree; endTell; endTell;";
-		}
-		commands += "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
-		commands += "setTreeDrawer  #mesquite.trees.SquareTree.SquareTree; tell It; orientRight; ";
-		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
-		if (raxmlRunner.getBootstrapreps()<=0)
-			commands += " tell It; branchLengthsToggle on; endTell; ";
-		commands += " setEdgeWidth 3; endTell; ";
-		if (raxmlRunner.getBootstrapreps()>0)
-			commands += "labelBranchLengths off;";
-		commands += " endTell; ";
-		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
-		if (raxmlRunner.getBootstrapreps()>0){
-			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; toggleShow consensusFrequency; endTell; endTell; ";
-		}		
-		commands += eachTreeCommands();
-		return commands;
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(raxmlRunner.getBootstrapreps()>0, treesInferred)+ eachTreeCommands();
 	}
 
 
