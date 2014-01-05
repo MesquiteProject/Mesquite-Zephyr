@@ -116,6 +116,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 	RadioButtons charPartitionButtons = null;
 	Choice partitionChoice = null;
 	Choice rateMatrixChoice = null;
+	SingleLineTextField customMatrix;
 	Choice invarSitesChoice= null;
 	Choice rateHetChoice= null;
 	IntegerField numRateCatField = null;
@@ -367,6 +368,17 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		if (rateMatrixChoice!=null) {
 			rateMatrixChoice.select(charModel.getRatematrixIndex());
 		}
+		if (customMatrix!=null){
+			customMatrix.setText(charModel.getRatematrix());
+			if (rateMatrixChoice.getSelectedIndex() == 3){
+				customMatrix.setEditable(true);
+				customMatrix.setBackground(Color.white);
+			}
+			else {
+				customMatrix.setEditable(false);
+				customMatrix.setBackground(ColorDistribution.veryLightGray);
+			}
+		}
 
 		if (rateHetChoice!=null) {
 			rateHetChoice.select(charModel.getRatehetmodelIndex());
@@ -417,8 +429,11 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 			case 2 : 
 				charModel.setRatematrix("6rate");
 				break;
-			case 3 : 
+				/*case 3 : 
 				charModel.setRatematrix("fixed");
+				break;*/
+			case 3 :  //Custom
+				charModel.setRatematrix(customMatrix.getText());
 				break;
 			default:
 				charModel.setRatematrix("6rate");
@@ -473,8 +488,8 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
-				return true;
-				
+			return true;
+
 		boolean closeWizard = false;
 
 		if ((MesquiteTrunk.isMacOSXBeforeSnowLeopard()) && MesquiteDialog.currentWizard == null) {
@@ -536,7 +551,12 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		preparePartitionChoice(partitionChoice, partitionScheme);
 		partitionChoice.addItemListener(this);
 
-		rateMatrixChoice = dialog.addPopUpMenu ("Rate Matrix",  new String[] {"Equal Rates", "2-Parameter", "GTR       "}, 2);
+		rateMatrixChoice = dialog.addPopUpMenu ("Rate Matrix",  new String[] {"Equal Rates", "2-Parameter", "GTR       ", "Custom"}, 2);
+		rateMatrixChoice.addItemListener(this);
+		customMatrix = dialog.addTextField("6rate", 20); //since 2 is selected as default in previous
+		customMatrix.setEditable(false);
+		customMatrix.setBackground(ColorDistribution.veryLightGray);
+
 		invarSitesChoice= dialog.addPopUpMenu ("Invariant Sites",  new String[] {"none", "Estimate Proportion"}, 1);
 		rateHetChoice= dialog.addPopUpMenu ("Gamma Site-to-Site Rate Model",  new String[] {"none", "Estimate Shape Parameter"}, 1);
 		numRateCatField = dialog.addIntegerField("Number of Rate Categories for Gamma", numratecats, 4, 1, 20);
@@ -665,7 +685,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		currentTreeFilePath =  ofprefix+".best.current.tre";
 		allBestTreeFilePath = ofprefix+".best.all.tre";
 		String mainLogFileName = ofprefix+".log00.log";
-		
+
 		String[] logFileNamesLocal = {mainLogFileName, currentTreeFilePath, ofprefix+".screen.log", treeFileName, allBestTreeFilePath};
 		logFileNames = logFileNamesLocal;
 
@@ -714,7 +734,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 			ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data, true, true, true);
 
 		setFilePaths();
-		
+
 		//setting up the GARLI config file
 		String config = getGARLIConfigurationFile();
 		if (!MesquiteThread.isScripting() && showConfigDetails) {
@@ -722,7 +742,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 			if (StringUtil.blank(config))
 				return null;
 		}
-		
+
 		//setting up the arrays of input file names and contents
 		int numInputFiles = 3;
 		String[] fileContents = new String[numInputFiles];
@@ -749,7 +769,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 			// give message about failure
 			return null;
 		}
-		
+
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
 
@@ -761,10 +781,10 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		MesquiteMessage.logCurrentTime("Start of " + getExecutableName() + " analysis: ");
 		timer.start();
 
-		
+
 		/*  ============ STARTING THE PROCESS ============  */
 		success = externalProcRunner.startExecution();
-		
+
 		/*  ============ THE PROCESS RUNS ============  */
 
 		if (success)
@@ -915,15 +935,15 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		if ((progIndicator!=null && progIndicator.isAborted()))
 			return;
 		String[] outputFilePaths = new String[logFileNames.length];
-				outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
-				String filePath=outputFilePaths[fileNum];
+		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
+		String filePath=outputFilePaths[fileNum];
 
-/*		if (fileNum==1)
+		/*		if (fileNum==1)
 			filePath = getOutputFileToReadPath(outputFilePaths[fileNum]);
 		else 
 			filePath = outputFilePaths[fileNum];
-*/
-		
+		 */
+
 		if (fileNum==MAINLOGFILE && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[MAINLOGFILE]) && !bootstrap()) {   // screen log
 			if (MesquiteFile.fileExists(filePath)) {
 				String s = MesquiteFile.getFileLastContents(filePath);
@@ -1161,6 +1181,37 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 			} else
 				setCharacterModels();
 
+		}
+		else if (e.getItemSelectable() == rateMatrixChoice){
+			String matrix = "";
+			int choiceValue = rateMatrixChoice.getSelectedIndex();
+			switch (choiceValue) {
+			case 0 : 
+				matrix = "1rate";
+				break;
+			case 1 : 
+				matrix = "2rate";
+				break;
+			case 2 : 
+				matrix = "6rate";
+				break;
+			case 3 :  //Custom  
+				matrix = customMatrix.getText();
+				if (matrix == null || "1rate 2rate 6rate".indexOf(matrix)>=0)  //Debugg.println  keep previous custom matrices remembered for users who switch back to them?
+					matrix = "(a a a a a a)";  
+				break;
+			default:
+				matrix = "6rate";
+			}
+			customMatrix.setText(matrix);
+			if (choiceValue == 3){
+				customMatrix.setEditable(true);
+				customMatrix.setBackground(Color.white);
+			}
+			else {
+				customMatrix.setEditable(false);
+				customMatrix.setBackground(ColorDistribution.veryLightGray);
+			}
 		}
 
 	}
