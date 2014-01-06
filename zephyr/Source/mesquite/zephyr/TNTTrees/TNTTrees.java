@@ -26,7 +26,7 @@ public class TNTTrees extends ExternalTreeSearcher {
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 
 
-		tntRunner = (TNTRunner)hireNamedEmployee(TNTRunner.class, "#mesquite.bosque.TNTRunner.TNTRunner");
+		tntRunner = (TNTRunner)hireNamedEmployee(TNTRunner.class, "#mesquite.zephyr.TNTRunner.TNTRunner");
 		if (tntRunner ==null)
 			return false;
 		tntRunner.initialize(this);
@@ -72,7 +72,7 @@ public class TNTTrees extends ExternalTreeSearcher {
 				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
 		}
 		if (tntRunner ==null) {
-			tntRunner = (TNTRunner)hireNamedEmployee(TNTRunner.class, "#mesquite.bosque.TNTRunner.TNTRunner");
+			tntRunner = (TNTRunner)hireNamedEmployee(TNTRunner.class, "#mesquite.zephyr.TNTRunner.TNTRunner");
 		}
 		if (tntRunner !=null)
 			tntRunner.initializeTaxa(taxa);

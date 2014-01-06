@@ -23,7 +23,7 @@ public class SumTreesTrees extends TreeSource {
 	private boolean hireSumTreesRunner() {
 		if (this.sumTreesRunner != null)
 			return true;
-		this.sumTreesRunner = (SumTreesRunner)hireNamedEmployee(SumTreesRunner.class, "#mesquite.bosque.SumTreesRunner.SumTreesRunner");
+		this.sumTreesRunner = (SumTreesRunner)hireNamedEmployee(SumTreesRunner.class, "#mesquite.zephyr.SumTreesRunner.SumTreesRunner");
 		return (this.sumTreesRunner != null);
 	}
 	

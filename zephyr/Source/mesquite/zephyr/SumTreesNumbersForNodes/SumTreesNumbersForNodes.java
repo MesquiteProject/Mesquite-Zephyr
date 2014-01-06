@@ -10,7 +10,7 @@ public class SumTreesNumbersForNodes extends NumbersForNodes {
     public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 
 		
-		sumTreesRunner = (SumTreesRunner)hireNamedEmployee(SumTreesRunner.class, "#mesquite.bosque.SumTreesRunner.SumTreesRunner");
+		sumTreesRunner = (SumTreesRunner)hireNamedEmployee(SumTreesRunner.class, "#mesquite.zephyr.SumTreesRunner.SumTreesRunner");
 		if (sumTreesRunner == null)
 			return false;
 		return true;

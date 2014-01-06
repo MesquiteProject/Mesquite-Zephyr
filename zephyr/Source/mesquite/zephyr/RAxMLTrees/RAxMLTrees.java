@@ -26,7 +26,7 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 		if (matrixSourceTask == null)
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 
-		raxmlRunner = (RAxMLRunner)hireNamedEmployee(RAxMLRunner.class, "#mesquite.bosque.RAxMLRunner.RAxMLRunner");//TODO: should this be #mesquite.zephyr.RAxMLRunner.RAxMLRunner (replace 'bosque' with 'zephyr')? Search for bosque to find additional instances.
+		raxmlRunner = (RAxMLRunner)hireNamedEmployee(RAxMLRunner.class, "#mesquite.zephyr.RAxMLRunner.RAxMLRunner");
 //		raxmlRunner = (RAxMLRunner)hireEmployee(RAxMLRunner.class, "RAxMLRunner choice"); //Uncomment if choice is desired.
 		if (raxmlRunner ==null)
 			return false;
@@ -61,7 +61,7 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
 		}
 		if (raxmlRunner ==null) {
-			raxmlRunner = (RAxMLRunner)hireNamedEmployee(RAxMLRunner.class, "#mesquite.bosque.RAxMLRunner.RAxMLRunner");
+			raxmlRunner = (RAxMLRunner)hireNamedEmployee(RAxMLRunner.class, "#mesquite.zephyr.RAxMLRunner.RAxMLRunner");
 		}
 		if (raxmlRunner !=null)
 			raxmlRunner.initializeTaxa(taxa);
