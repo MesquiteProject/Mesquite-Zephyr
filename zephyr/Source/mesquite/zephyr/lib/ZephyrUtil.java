@@ -28,7 +28,7 @@ import mesquite.lib.duties.TreesManager;
 
 
 public class ZephyrUtil {
-
+	public static final String VERSION_FILE = "fileToDetermineVersion";
 
 
 	/*.................................................................................................................*/

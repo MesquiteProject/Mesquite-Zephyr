@@ -593,6 +593,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 		
 		String fileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".phy";   //replace this with actual file name?
 		String filePath = rootDir +  fileName;
+		String versionFilePath = rootDir   + MesquiteFile.fileSeparator + ZephyrUtil.VERSION_FILE;
 
 		boolean fileSaved = false;
 		
@@ -629,7 +630,8 @@ Debugg.println("RETAIN FILES " + retainFiles);
 
 		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
 		shellScript.append("ls -la"+ StringUtil.lineEnding());
-		
+		shellScript.append(getVersionCommand(raxmlPath) + " > "+ZephyrUtil.VERSION_FILE+"\n");
+
 		String multipleModelFileContents = getMultipleModelFileString(data, false);//TODO: why is partByCodPos false?
 		String multipleModelFilePath = null;
 		if (StringUtil.notEmpty(multipleModelFileContents)) {
@@ -696,7 +698,15 @@ Debugg.println("RETAIN FILES " + retainFiles);
 		timer.start();
 		numRunsCompleted = 0;
 		boolean success = ShellScriptUtil.executeLogAndWaitForShell(scriptPath, "RAxML Tree", logFilePaths, this, this);
+		
+		
+
 		logln("RAxML analysis completed at " + getDateAndTime());
+		if (MesquiteFile.fileExists(versionFilePath)) {   // get phredVersion
+			String versionString = MesquiteFile.getFileContentsAsString(versionFilePath);
+			if (StringUtil.notEmpty(versionString))
+				logln(versionString);
+		}
 
 		double totalTime= timer.timeSinceVeryStartInSeconds();
 		if (totalTime>120.0)
@@ -826,6 +836,10 @@ Debugg.println("RETAIN FILES " + retainFiles);
 		return null;
 	}	
 
+	/*.................................................................................................................*/
+	String getVersionCommand(String LOCraxmlPath) {
+		return LOCraxmlPath + " -v";
+	}
 	/*.................................................................................................................*/
 	String getProgramCommand(int threadingVersion, String LOCMPIsetupCommand, int LOCnumProcessors, String LOCraxmlPath, String arguments, boolean protect){
 		String command = "";
