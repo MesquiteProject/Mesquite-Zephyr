@@ -657,13 +657,6 @@ WAG, gene2 = 501-1000
 		rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.BESIDE_HOME_FILE, "RAxML");  //NOTE: retains files now always
 		if (rootDir==null)
 			return null;
-<<<<<<< HEAD
-		
-		String fileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".phy";   //replace this with actual file name?
-		String filePath = rootDir +  fileName;
-		String versionFilePath = rootDir   + MesquiteFile.fileSeparator + ZephyrUtil.VERSION_FILE;
-=======
->>>>>>> origin/RAxML.Upgrade
 
 		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".phy";   //replace this with actual file name?
 		String dataFilePath = rootDir +  dataFileName;
@@ -682,13 +675,6 @@ WAG, gene2 = 501-1000
 
 		//./raxmlHPC -s infile.phy -n outfile.out -m GTRGAMMA -o outgroup1,outgroup2
 
-<<<<<<< HEAD
-		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
-		shellScript.append("ls -la"+ StringUtil.lineEnding());
-		shellScript.append(getVersionCommand(raxmlPath) + " > "+ZephyrUtil.VERSION_FILE+"\n");
-
-=======
->>>>>>> origin/RAxML.Upgrade
 		String multipleModelFileContents = getMultipleModelFileString(data, false);//TODO: why is partByCodPos false?
 		if (StringUtil.notEmpty(multipleModelFileContents)) {
 			MesquiteFile.putFileContents(multipleModelFilePath, multipleModelFileContents, true);
@@ -747,21 +733,6 @@ WAG, gene2 = 501-1000
 		else
 			logln("");
 		timer.start();
-<<<<<<< HEAD
-		numRunsCompleted = 0;
-		boolean success = ShellScriptUtil.executeLogAndWaitForShell(scriptPath, "RAxML Tree", logFilePaths, this, this);
-		
-		
-
-		logln("RAxML analysis completed at " + getDateAndTime());
-		if (MesquiteFile.fileExists(versionFilePath)) {   // get phredVersion
-			String versionString = MesquiteFile.getFileContentsAsString(versionFilePath);
-			if (StringUtil.notEmpty(versionString))
-				logln(versionString);
-		}
-=======
->>>>>>> origin/RAxML.Upgrade
-
 
 		/*  ============ STARTING THE PROCESS ============  */
 		success = externalProcRunner.startExecution();
@@ -963,15 +934,7 @@ WAG, gene2 = 501-1000
 		return null;
 	}	
 
-<<<<<<< HEAD
-	/*.................................................................................................................*/
-	String getVersionCommand(String LOCraxmlPath) {
-		return LOCraxmlPath + " -v";
-	}
-	/*.................................................................................................................*/
-=======
 	/*.................................................................................................................*
->>>>>>> origin/RAxML.Upgrade
 	String getProgramCommand(int threadingVersion, String LOCMPIsetupCommand, int LOCnumProcessors, String LOCraxmlPath, String arguments, boolean protect){
 		String command = "";
 		if (threadingVersion == threadingMPI) {
