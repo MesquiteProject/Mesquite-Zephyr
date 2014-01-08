@@ -25,6 +25,13 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public abstract String getExecutableCommand();
 
 
+	public  boolean canCalculateTimeRemaining(int repsCompleted){
+		return true;
+	}
+
+	
+	public abstract boolean isWindows();
+	public abstract boolean isLinux();
 
 
 	// setting the requester, to whom this runner will communicate about the run
