@@ -760,7 +760,11 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		fileContents[2] = config;
 		fileNames[2] = configFileName;
 
-		String GARLIcommand = externalProcRunner.getExecutableCommand()+StringUtil.lineEnding();  // GARLI command is very simple as all of the arguments are in the config file
+		String GARLIcommand = externalProcRunner.getExecutableCommand();
+		if (externalProcRunner.isWindows())
+			GARLIcommand += " --batch " + configFileName+StringUtil.lineEnding();  
+		else
+			GARLIcommand += StringUtil.lineEnding();  // GARLI command is very simple as all of the arguments are in the config file
 
 
 		/*  ============ Setting up the run ============  */
@@ -808,6 +812,8 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 		data.setEditorInhibition(false);
 		return null;
 	}	
+	
+	
 	/*.................................................................................................................*/
 	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
 		logln("Monitoring GARLI run begun.");

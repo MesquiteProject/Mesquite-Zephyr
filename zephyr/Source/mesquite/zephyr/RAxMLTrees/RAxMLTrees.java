@@ -136,18 +136,18 @@ public class RAxMLTrees extends ExternalTreeSearcher {
 
 		Tree tree = null;
 
-		MesquiteDouble[] finalScores = null;
-		finalScores = new MesquiteDouble[raxmlRunner.getNumRuns()];
+		MesquiteDouble finalScore =new MesquiteDouble();
+/*		finalScores = new MesquiteDouble[raxmlRunner.getNumRuns()];
 		for (int i=0; i<finalScores.length; i++)
 			finalScores[i] = new MesquiteDouble();
-
+*/
 
 		if (bootstrap) {
-			raxmlRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
+			raxmlRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScore);
 			trees.setName("RAxML Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
 		} 
 		else {
-			tree = raxmlRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
+			tree = raxmlRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScore);
 			if (tree==null)
 				return null;
 			trees.setName("RAxML Trees (Matrix: " + observedStates.getName() + ")");
