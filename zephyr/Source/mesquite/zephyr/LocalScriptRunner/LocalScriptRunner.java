@@ -59,8 +59,10 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		if (StringUtil.notEmpty(flavor) && "executablePath".equalsIgnoreCase(tag)){   // it is one with the flavor attribute
 			if (flavor.equalsIgnoreCase(getExecutableName()))   /// check to see if flavor is correct!!!
 				executablePath = StringUtil.cleanXMLEscapeCharacters(content);
-			else
-				StringUtil.appendXMLTag(extraPreferences, 2, "executablePath", flavor, executablePath);  		
+			else {
+				String path = StringUtil.cleanXMLEscapeCharacters(content);
+				StringUtil.appendXMLTag(extraPreferences, 2, "executablePath", flavor, path);  		// store for next time
+			}
 		}
 	}
 	/*.................................................................................................................*/

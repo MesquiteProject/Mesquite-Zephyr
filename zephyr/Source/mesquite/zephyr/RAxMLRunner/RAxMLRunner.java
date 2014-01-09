@@ -35,7 +35,7 @@ outgroups
 
  */
 
-public class RAxMLRunner extends MesquiteModule  implements ActionListener, ItemListener, ExternalProcessRequester  {
+public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
 	public static final String SCORENAME = "RAxMLScore";
 
 	String rootDir;
@@ -93,13 +93,15 @@ public class RAxMLRunner extends MesquiteModule  implements ActionListener, Item
 		}
 		externalProcRunner.setProcessRequester(this);
 
-		if (!MesquiteThread.isScripting() && !queryOptions())
+		if (!MesquiteThread.isScripting() && !queryOptions()){
+			fireEmployee(externalProcRunner);
 			return false;
+		}
 		return true;
 	}
 
-	public void initialize (RAxMLTrees ownerModule) {
-		this.ownerModule= ownerModule;
+	public void initialize (ZephyrTreeSearcher ownerModule) {
+		this.ownerModule= (RAxMLTrees)ownerModule;
 	}
 	public boolean initializeTaxa (Taxa taxa) {
 		Taxa currentTaxa = this.taxa;
@@ -132,6 +134,7 @@ public class RAxMLRunner extends MesquiteModule  implements ActionListener, Item
 	public void reconnectToRequester(MesquiteCommand command){
 		continueMonitoring(command);
 	}
+
 
 
 	public boolean getPreferencesSet() {
@@ -177,6 +180,18 @@ public class RAxMLRunner extends MesquiteModule  implements ActionListener, Item
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
 			return true;
+		
+		boolean closeWizard = false;
+
+		if ((MesquiteTrunk.isMacOSXBeforeSnowLeopard()) && MesquiteDialog.currentWizard == null) {
+			CommandRecord cRec = null;
+			cRec = MesquiteThread.getCurrentCommandRecordDefIfNull(null);
+			if (cRec != null){
+				cRec.requestEstablishWizard(true);
+				closeWizard = true;
+			}
+		}
+
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
 		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), "RAxML Options & Locations",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 	//	dialog.addLabel("RAxML - Options and Locations");
@@ -328,11 +343,6 @@ public class RAxMLRunner extends MesquiteModule  implements ActionListener, Item
 	double[] finalValues = null;
 	int runNumber = 0;
 
-	public void prepareExportFile(FileInterpreterI exporter) {
-		((InterpretPhylip)exporter).setTaxonNameLength(100);
-		((InterpretPhylip)exporter).setTaxonNamer(namer);
-
-	}
 	/*.................................................................................................................*
 	private boolean saveExportFile(Taxa taxa, String directoryPath, String fileName, String path, MolecularData data) {
 		if (data==null)
@@ -606,6 +616,7 @@ WAG, gene2 = 501-1000
 	String unique;
 	MolecularData data;
 
+	static final int TREEFILE = 1;
 	/*.................................................................................................................*/
 	private void setFilePaths () {
 		runningFilePath = rootDir + "running" + MesquiteFile.massageStringToFilePathSafe(unique);
@@ -654,21 +665,32 @@ WAG, gene2 = 501-1000
 
 
 		// create the data file
-		rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.BESIDE_HOME_FILE, "RAxML");  //NOTE: retains files now always
+		rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.IN_SUPPORT_DIR, "RAxML");  
 		if (rootDir==null)
 			return null;
 
 		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".phy";   //replace this with actual file name?
 		String dataFilePath = rootDir +  dataFileName;
+	
+		FileInterpreterI exporter = null;
+		if (data instanceof DNAData)
+			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipDNA");
+		else if (data instanceof ProteinData)
+			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipProtein");
+		if (exporter==null)
+			return null;
+		((InterpretPhylip)exporter).setTaxonNameLength(100);
+		((InterpretPhylip)exporter).setTaxonNamer(namer);
+
 		boolean fileSaved = false;
 		if (data instanceof DNAData)
-			fileSaved = ZephyrUtil.saveExportFile(this,"#InterpretPhylipDNA", taxa, rootDir,  dataFileName,  dataFilePath,  data);
+			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data);
 		else if (data instanceof ProteinData)
-			fileSaved = ZephyrUtil.saveExportFile(this,"#InterpretPhylipProtein", taxa, rootDir,  dataFileName,  dataFilePath,  data);
+			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data);
 		if (!fileSaved) return null;
 		setFilePaths();
 
-
+	
 		//String outFilePath = rootDir + "tempTree" + MesquiteFile.massageStringToFilePathSafe(unique) + ".tre";
 
 
@@ -824,7 +846,9 @@ WAG, gene2 = 501-1000
 		setFilePaths();
 		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
 
-
+		treeFilePath = outputFilePaths[TREEFILE];
+		
+		runFilesAvailable();
 
 		// read in the tree files
 
@@ -995,11 +1019,12 @@ WAG, gene2 = 501-1000
 	}
 	/*.................................................................................................................*/
 
-	public void processOutputFile(String[] outputFilePaths, int fileNum) {
+	public void runFilesAvailable(int fileNum) {
 		if (progIndicator.isAborted())
 			return;
-		String filePath = null;
-		filePath = getOutputFileToReadPath(outputFilePaths[fileNum]);
+		String[] outputFilePaths = new String[logFileNames.length];
+		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
+		String filePath=outputFilePaths[fileNum];
 
 		if (fileNum==0 && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0]) && !bootstrap()) {   // screen log
 			if (MesquiteFile.fileExists(filePath)) {
@@ -1110,9 +1135,31 @@ WAG, gene2 = 501-1000
 		}
 
 	}
-
-
 	/*.................................................................................................................*/
+
+	public void runFilesAvailable(boolean[] filesAvailable) {
+		if ((progIndicator!=null && progIndicator.isAborted()))
+			return;
+		String filePath = null;
+		int fileNum=-1;
+		String[] outputFilePaths = new String[filesAvailable.length];
+		for (int i=0; i<outputFilePaths.length; i++)
+			if (filesAvailable[i]){
+				fileNum= i;
+				break;
+			}
+		if (fileNum<0) return;
+		runFilesAvailable(fileNum);
+	}
+	/*.................................................................................................................*/
+	public void runFilesAvailable(){   // this should really only do the ones needed, not all of them.
+		for (int i = 0; i<logFileNames.length; i++){
+			runFilesAvailable(i);
+		}
+	}
+
+
+	/*.................................................................................................................*
 
 	public void processCompletedOutputFiles(String[] outputFilePaths) {
 		runNumber=0;
@@ -1130,6 +1177,7 @@ WAG, gene2 = 501-1000
 
 		}
 	}
+	/*.................................................................................................................*
 
 	public boolean continueShellProcess(Process proc){
 		if (progIndicator.isAborted()) {
@@ -1146,6 +1194,7 @@ WAG, gene2 = 501-1000
 		}
 		return true;
 	}
+	/*.................................................................................................................*/
 
 
 	public boolean bootstrap() {
@@ -1177,10 +1226,6 @@ WAG, gene2 = 501-1000
 		return onlyBest;
 	}
 
-	public void runFilesAvailable(boolean[] filesAvailable) {
-		// TODO Auto-generated method stub
-
-	}
 
 	public void intializeAfterExternalProcessRunnerHired() {
 		loadPreferences();

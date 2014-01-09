@@ -30,7 +30,7 @@ import mesquite.zephyr.lib.*;
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
  */
 
-public class GarliRunner extends MesquiteModule  implements ActionListener, ItemListener, ExternalProcessRequester {
+public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester {
 	public static final String SCORENAME = "GARLIScore";
 
 	GarliTrees ownerModule;
@@ -136,7 +136,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 			return sorry("Couldn't find an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
-
+		
 		return true;
 	}
 
@@ -169,8 +169,8 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 	}
 
 
-	public void initialize (GarliTrees ownerModule) {
-		this.ownerModule= ownerModule;
+	public void initialize (ZephyrTreeSearcher ownerModule) {
+		this.ownerModule= (GarliTrees)ownerModule;
 	}
 	public boolean initializeTaxa (Taxa taxa) {
 		Debugg.println(this.getName() + " using taxa " + taxa.getID());
@@ -704,15 +704,17 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 
 		setUpCharModels(data);
 
-		if (!MesquiteThread.isScripting())
-			if (!queryOptions()) {
-				return null;
-			} 
-
 		if (this.taxa != taxa) {
 			if (!initializeTaxa(taxa))
 				return null;
 		}
+		
+		if (!MesquiteThread.isScripting() && !queryOptions()){
+			return null;
+		}
+
+
+	
 		initializeMonitoring();
 		setGarliSeed(seed);
 		getProject().incrementProjectWindowSuppression();
@@ -1085,7 +1087,7 @@ public class GarliRunner extends MesquiteModule  implements ActionListener, Item
 	/*.................................................................................................................*/
 
 
-	private boolean bootstrap() {
+	public boolean bootstrap() {
 		return bootstrapreps>0;
 	}
 	public int getBootstrapreps() {

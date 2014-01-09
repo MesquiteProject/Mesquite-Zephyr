@@ -334,11 +334,14 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 		String fileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".ss";   //replace this with actual file name?
 		String filePath = rootDir +  fileName;
 
+		FileInterpreterI exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretTNT");
+		if (exporter==null)
+			return null;
+		
 		boolean fileSaved = false;
-
-		fileSaved = ZephyrUtil.saveExportFile(this,"#InterpretTNT", taxa, rootDir,  fileName,  filePath,  data);
-
+		fileSaved = ZephyrUtil.saveExportFile(this,exporter,  filePath,  data);
 		if (!fileSaved) return null;
+
 
 
 		String runningFilePath = rootDir + "running" + MesquiteFile.massageStringToFilePathSafe(unique);
