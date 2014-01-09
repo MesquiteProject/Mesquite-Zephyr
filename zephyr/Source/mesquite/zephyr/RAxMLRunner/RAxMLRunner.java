@@ -945,6 +945,7 @@ WAG, gene2 = 501-1000
 			} 
 
 		}
+		MesquiteThread.setCurrentCommandRecord(oldCR);
 		success = readSuccess.getValue();
 		if (!success)
 			logln("Execution of RAxML unsuccessful [2]");
