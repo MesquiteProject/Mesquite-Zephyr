@@ -23,6 +23,7 @@ import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
 import mesquite.lib.system.SystemUtil;
+import mesquite.zephyr.GarliRunner.GarliRunner;
 import mesquite.zephyr.RAxMLTrees.*;
 import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
@@ -34,29 +35,30 @@ outgroups
 
  */
 
-public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor, ShellScriptWatcher, ActionListener, ZephyrFilePreparer  {
+public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
 	public static final String SCORENAME = "RAxMLScore";
 
-
+	String rootDir;
 	RAxMLTrees ownerModule;
 	Random rng;
-	String raxmlPath;
+	//	String raxmlPath;
 	boolean onlyBest = true;
-	
-	static final int threadingOther =0;
+
+/*	static final int threadingOther =0;
 	static final int threadingMPI = 1;
 	static final int threadingPThreads = 2;
 	int threadingVersion = threadingOther;
+*/
 	
-//	long randomSeed = System.currentTimeMillis();
+	//	long randomSeed = System.currentTimeMillis();
 	int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
-	
-	boolean retainFiles = false;
-	String MPIsetupCommand = "";
-	int numProcessors = 2;
+
+//	boolean retainFiles = false;
+//	String MPIsetupCommand = "";
+//	int numProcessors = 2;
 	boolean showIntermediateTrees = true;
-	
-	
+
+
 	int numRuns = 5;
 	int numRunsCompleted = 0;
 	int run = 0;
@@ -78,20 +80,28 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 	long  randseed = -1;
 	static String constraintfile = "none";
 	MesquiteTimer timer = new MesquiteTimer();
+	ExternalProcessRunner externalProcRunner;
 
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		rng = new Random(System.currentTimeMillis());
 		if (randomIntSeed<0)
 			randomIntSeed = -randomIntSeed;
-		loadPreferences();
-		if (!MesquiteThread.isScripting() && !queryOptions())
+		externalProcRunner = (ExternalProcessRunner)hireEmployee(ExternalProcessRunner.class, "External Process Runner (for " + getName() + ")"); 
+		if (externalProcRunner==null){
+			return sorry("Couldn't find an external process runner");
+		}
+		externalProcRunner.setProcessRequester(this);
+
+		if (!MesquiteThread.isScripting() && !queryOptions()){
+			fireEmployee(externalProcRunner);
 			return false;
+		}
 		return true;
 	}
 
-	public void initialize (RAxMLTrees ownerModule) {
-		this.ownerModule= ownerModule;
+	public void initialize (ZephyrTreeSearcher ownerModule) {
+		this.ownerModule= (RAxMLTrees)ownerModule;
 	}
 	public boolean initializeTaxa (Taxa taxa) {
 		Taxa currentTaxa = this.taxa;
@@ -102,6 +112,30 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		}
 		return true;
 	}
+	/*.................................................................................................................*/
+	public Snapshot getSnapshot(MesquiteFile file) { 
+		Snapshot temp = new Snapshot();
+		temp.addLine("setExternalProcessRunner", externalProcRunner);
+		return temp;
+	}
+	/*.................................................................................................................*/
+	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
+		if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner", "[name of module]", commandName, "setExternalProcessRunner")) {
+			ExternalProcessRunner temp = (ExternalProcessRunner)replaceEmployee(ExternalProcessRunner.class, arguments, "External Process Runner", externalProcRunner);
+			if (temp != null) {
+				externalProcRunner = temp;
+				parametersChanged();
+			}
+			externalProcRunner.setProcessRequester(this);
+			return externalProcRunner;
+		}
+		return null;
+	}	
+	public void reconnectToRequester(MesquiteCommand command){
+		continueMonitoring(command);
+	}
+
+
 
 	public boolean getPreferencesSet() {
 		return preferencesSet;
@@ -111,8 +145,6 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 	}
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
-		if ("raxmlPath".equalsIgnoreCase(tag)) 
-			raxmlPath = StringUtil.cleanXMLEscapeCharacters(content);
 		if ("numRuns".equalsIgnoreCase(tag))
 			numRuns = MesquiteInteger.fromString(content);
 		if ("bootStrapReps".equalsIgnoreCase(tag))
@@ -120,27 +152,26 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		if ("onlyBest".equalsIgnoreCase(tag))
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
 
-	       if ("threadingVersion".equalsIgnoreCase(tag))
-	    	   threadingVersion = MesquiteInteger.fromString(content);
+/*		if ("threadingVersion".equalsIgnoreCase(tag))
+			threadingVersion = MesquiteInteger.fromString(content);
 
 		if ("MPIsetupCommand".equalsIgnoreCase(tag)) 
 			MPIsetupCommand = StringUtil.cleanXMLEscapeCharacters(content);
-       if ("numProcessors".equalsIgnoreCase(tag))
-    	   numProcessors = MesquiteInteger.fromString(content);
-
+		if ("numProcessors".equalsIgnoreCase(tag))
+			numProcessors = MesquiteInteger.fromString(content);
+*/
 		preferencesSet = true;
 	}
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "raxmlPath", raxmlPath);  
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
-		StringUtil.appendXMLTag(buffer, 2, "threadingVersion", threadingVersion);  
+/*		StringUtil.appendXMLTag(buffer, 2, "threadingVersion", threadingVersion);  
 		StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
-
+*/
 		preferencesSet = true;
 		return buffer.toString();
 	}
@@ -149,46 +180,58 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
 			return true;
+		
+		boolean closeWizard = false;
+
+		if ((MesquiteTrunk.isMacOSXBeforeSnowLeopard()) && MesquiteDialog.currentWizard == null) {
+			CommandRecord cRec = null;
+			cRec = MesquiteThread.getCurrentCommandRecordDefIfNull(null);
+			if (cRec != null){
+				cRec.requestEstablishWizard(true);
+				closeWizard = true;
+			}
+		}
+
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
 		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), "RAxML Options & Locations",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
-		dialog.addLabel("RAxML - Options and Locations");
+	//	dialog.addLabel("RAxML - Options and Locations");
 		String helpString = "This module will prepare a matrix for RAxML, and ask RAxML do to an analysis.  A command-line version of RAxML must be installed. "
-			+ "You can ask it to do multiple searches for optimal trees, OR to do a bootstrap analysis (but not both). "
-			+ "Mesquite will read in the trees found by RAxML, and, for non-bootstrap analyses, also read in the value of the RAxML score (-ln L) of the tree. " 
-			+ "You can see the RAxML score by choosing Taxa&Trees>List of Trees, and then in the List of Trees for that trees block, choose "
-			+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose RAxML Score.";
+				+ "You can ask it to do multiple searches for optimal trees, OR to do a bootstrap analysis (but not both). "
+				+ "Mesquite will read in the trees found by RAxML, and, for non-bootstrap analyses, also read in the value of the RAxML score (-ln L) of the tree. " 
+				+ "You can see the RAxML score by choosing Taxa&Trees>List of Trees, and then in the List of Trees for that trees block, choose "
+				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose RAxML Score.";
 
 		dialog.appendToHelpString(helpString);
 
-		//PopUpPanelOfCards cardPanel = dialog.addPopUpPanelOfCards("");
-		//Panel[] cardPanels = new Panel[3];
 
-		//dialog.setAddPanel(cardPanel);
-
-		//cardPanels[0] = cardPanel.addNewCard("RAxML Location");
-		//dialog.setAddPanel(cardPanels[0]); 
+		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 
 
-		//if (!isProtein)
-			dnaModelField = dialog.addTextField("DNA Model:", dnaModel, 20);
-		//else
-			proteinModelField = dialog.addTextField("Protein Model:", proteinModel, 20);
-		dialog.addHorizontalLine(1);
+		tabbedPanel.addPanel("RAxML Program Details", true);
+		externalProcRunner.addItemsToDialogPanel(dialog);
 
-		//cardPanels[1] = cardPanel.addNewCard("Search Replicates & Bootstrap");
-		//dialog.setAddPanel(cardPanels[1]);
+		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
 		numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 		bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
 		seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
 
-		dialog.addHorizontalLine(1);
+		tabbedPanel.addPanel("Character Models", true);
+		//if (!isProtein)
+		dnaModelField = dialog.addTextField("DNA Model:", dnaModel, 20);
+		//else
+		proteinModelField = dialog.addTextField("Protein Model:", proteinModel, 20);
+		//		dialog.addHorizontalLine(1);
+
+		//cardPanels[1] = cardPanel.addNewCard("Search Replicates & Bootstrap");
+		//dialog.setAddPanel(cardPanels[1]);
+
+		//		dialog.addHorizontalLine(1);
 		//cardPanels[2] = cardPanel.addNewCard("Character Models");
 		//dialog.setAddPanel(cardPanels[2]);
 		//dialog.addHorizontalLine(1);
-		otherOptionsField = dialog.addTextField("Other RAxML options:", otherOptions, 40);
 
-		dialog.addHorizontalLine(1);
+		/*		dialog.addHorizontalLine(1);
 		raxMLPathField = dialog.addTextField("Path to RAxML:", raxmlPath, 40);
 		Button RAxMLBrowseButton = dialog.addAListenedButton("Browse...",null, this);
 		dialog.addHorizontalLine(1);
@@ -196,7 +239,12 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		numProcessorsFiled = dialog.addIntegerField("Number of Processors", numProcessors, 8, 1, MesquiteInteger.infinite);
 		MPISetupField = dialog.addTextField("MPI setup command: ", MPIsetupCommand, 20);
 		RAxMLBrowseButton.setActionCommand("RAxMLBrowse");
-		dialog.addHorizontalLine(1);
+		 */
+
+		tabbedPanel.addPanel("Other options", true);
+		otherOptionsField = dialog.addTextField("Other RAxML options:", otherOptions, 40);
+
+
 		commandLabel = dialog.addLabel("");
 		commandField = dialog.addSingleLineTextArea("", 2);
 		dialog.addBlankLine();
@@ -205,38 +253,41 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		Button clearCommand = dialog.addAListenedButton("Clear",null, this);
 		clearCommand.setActionCommand("clearCommand");
 
-//		dialog.nullifyAddPanel();
+		tabbedPanel.cleanup();
+		dialog.nullifyAddPanel();
 
 		dialog.addHorizontalLine(1);
-		retainFilescheckBox = dialog.addCheckBox("Retain Files", retainFiles);
+//		retainFilescheckBox = dialog.addCheckBox("Retain Files", retainFiles);
 
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
-			raxmlPath = raxMLPathField.getText();//TODO: What happens if this field is not left blank, but the 'Browse...' button is used?
-			dnaModel = dnaModelField.getText();
-			proteinModel = proteinModelField.getText();
-			numRuns = numRunsField.getValue();
-			randomIntSeed = seedField.getValue();
-			bootstrapreps = bootStrapRepsField.getValue();
-			onlyBest = onlyBestBox.getState();
-			otherOptions = otherOptionsField.getText();
-			threadingVersion = threadingRadioButtons.getValue();
-			 MPIsetupCommand = MPISetupField.getText();
-			 numProcessors = numProcessorsFiled.getValue(); //
-			 retainFiles = retainFilescheckBox.getState();
-			storePreferences();
+			if (externalProcRunner.optionsChosen()) {
+				dnaModel = dnaModelField.getText();
+				proteinModel = proteinModelField.getText();
+				numRuns = numRunsField.getValue();
+				randomIntSeed = seedField.getValue();
+				bootstrapreps = bootStrapRepsField.getValue();
+				onlyBest = onlyBestBox.getState();
+				otherOptions = otherOptionsField.getText();
+//				threadingVersion = threadingRadioButtons.getValue();
+//				MPIsetupCommand = MPISetupField.getText();
+//				numProcessors = numProcessorsFiled.getValue(); //
+//				retainFiles = retainFilescheckBox.getState();
+				storePreferences();
+				externalProcRunner.storePreferences();
+			}
 		}
 		dialog.dispose();
-		return (buttonPressed.getValue()==0) && !StringUtil.blank(raxmlPath);
+		return (buttonPressed.getValue()==0);
 	}
-	SingleLineTextField raxMLPathField, dnaModelField, proteinModelField, otherOptionsField, MPISetupField;
+	SingleLineTextField dnaModelField, proteinModelField, otherOptionsField, MPISetupField;
 	IntegerField seedField;
 	javax.swing.JLabel commandLabel;
 	SingleLineTextArea commandField;
 	IntegerField numProcessorsFiled, numRunsField, bootStrapRepsField;
 	Checkbox onlyBestBox, retainFilescheckBox;
 	RadioButtons threadingRadioButtons;
-	
+
 	/*.................................................................................................................*/
 	public boolean queryTaxaOptions(Taxa taxa) {
 		if (taxa==null)
@@ -268,24 +319,10 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 	}
 	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase("RAxMLBrowse")) {
-			MesquiteString directoryName = new MesquiteString();
-			MesquiteString fileName = new MesquiteString();
-			raxmlPath = MesquiteFile.openFileDialog("Choose RAxML", directoryName, fileName);
-			if (StringUtil.notEmpty(raxmlPath))
-				raxMLPathField.setText(raxmlPath);
-		}
-		else	if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
-			
-/*			String multipleModelFileContents = getMultipleModelFileString(data, false);
-			String multipleModelFilePath = null;
-			if (StringUtil.notEmpty(multipleModelFileContents)) {
-				multipleModelFilePath = rootDir + "multipleModelFile.txt";
-				MesquiteFile.putFileContents(multipleModelFilePath, multipleModelFileContents, true);
-			}
-*/
+			if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
+
 			String arguments = getArguments("fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null);
-			String command = getProgramCommand(threadingRadioButtons.getValue(), MPISetupField.getText(), numProcessorsFiled.getValue(), raxMLPathField.getText(), arguments, false);
+			String command = externalProcRunner.getExecutableCommand() + arguments;
 			commandLabel.setText("This command will be used to run RAxML:");
 			commandField.setText(command);
 		}
@@ -306,11 +343,6 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 	double[] finalValues = null;
 	int runNumber = 0;
 
-	public void prepareExportFile(FileInterpreterI exporter) {
-		((InterpretPhylip)exporter).setTaxonNameLength(100);
-		((InterpretPhylip)exporter).setTaxonNamer(namer);
-
-	}
 	/*.................................................................................................................*
 	private boolean saveExportFile(Taxa taxa, String directoryPath, String fileName, String path, MolecularData data) {
 		if (data==null)
@@ -381,7 +413,7 @@ public class RAxMLRunner extends MesquiteModule  implements OutputFileProcessor,
 		return t;
 
 	}
-	
+
 	/*
 	 * 
 	 * -q multipleModelFileName
@@ -497,23 +529,23 @@ WAG, gene2 = 501-1000
 				}
 			}
 		} else if (writeCodPosPartition && partByCodPos) {//TODO: never accessed because in the only call of this method, partByCodPos is false.
-				//codon positions if nucleotide
-				int numberCharSets = 0;
-				CodonPositionsSet codSet = (CodonPositionsSet)data.getCurrentSpecsSet(CodonPositionsSet.class);
-				for (int iw = 0; iw<4; iw++){
-					String locs = codSet.getListOfMatches(iw);
-					if (!StringUtil.blank(locs)) {
-						String charSetName = "";
-						if (iw==0) 
-							charSetName = StringUtil.tokenize("nonCoding");
-						else 
-							charSetName = StringUtil.tokenize("codonPos" + iw);			
-						numberCharSets++;
-						sb.append( "DNA, " + charSetName + " = " +  locs + "\n");
-					}
+			//codon positions if nucleotide
+			int numberCharSets = 0;
+			CodonPositionsSet codSet = (CodonPositionsSet)data.getCurrentSpecsSet(CodonPositionsSet.class);
+			for (int iw = 0; iw<4; iw++){
+				String locs = codSet.getListOfMatches(iw);
+				if (!StringUtil.blank(locs)) {
+					String charSetName = "";
+					if (iw==0) 
+						charSetName = StringUtil.tokenize("nonCoding");
+					else 
+						charSetName = StringUtil.tokenize("codonPos" + iw);			
+					numberCharSets++;
+					sb.append( "DNA, " + charSetName + " = " +  locs + "\n");
 				}
-			//	String codPos = ((DNAData)data).getCodonsAsNexusCharSets(numberCharSets, charSetList); // equivalent to list
 			}
+			//	String codPos = ((DNAData)data).getCodonsAsNexusCharSets(numberCharSets, charSetList); // equivalent to list
+		}
 
 		return sb.toString();
 	}
@@ -532,13 +564,13 @@ WAG, gene2 = 501-1000
 			arguments += "GTRGAMMA";
 		else
 			arguments += LOCdnaModel;
-		
+
 		if (StringUtil.notEmpty(LOCMultipleModelFile))
 			arguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
-		
+
 		arguments += " -p " + randomIntSeed;
-			
-			
+
+
 		if (!StringUtil.blank(LOCotherOptions)) 
 			arguments += " " + LOCotherOptions;
 
@@ -547,7 +579,7 @@ WAG, gene2 = 501-1000
 		}
 		else if (LOCnumRuns>1)
 			arguments += " -# " + LOCnumRuns;
-		
+
 		TaxaSelectionSet outgroupSet =null;
 		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
 			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(LOCoutgroupTaxSetString,TaxaSelectionSet.class);
@@ -558,10 +590,59 @@ WAG, gene2 = 501-1000
 		return arguments;
 	}
 	/*.................................................................................................................*/
-	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble[] finalScore) {
+	private void initializeMonitoring(){
+		if (finalValues==null) {
+			if (bootstrap())
+				finalValues = new double[getBootstrapreps()];
+			else
+				finalValues = new double[numRuns];
+			DoubleArray.deassignArray(finalValues);
+		}
+		outgroupSet =null;
+		if (!StringUtil.blank(outgroupTaxSetString)) {
+			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
+		}
+	}
+
+	String runningFilePath;
+	String multipleModelFilePath = null;
+	String treeFileName;
+	String treeFilePath;
+	String currentTreeFilePath =null;
+	String[] logFilePaths;
+	String[] logFileNames;
+	String summaryFilePath;
+	String logFileName;
+	String unique;
+	MolecularData data;
+
+	static final int TREEFILE = 1;
+	/*.................................................................................................................*/
+	private void setFilePaths () {
+		runningFilePath = rootDir + "running" + MesquiteFile.massageStringToFilePathSafe(unique);
+		if (bootstrap())
+			treeFileName = "RAxML_bootstrap.file.out";
+		else 
+			treeFileName = "RAxML_result.file.out";
+		logFileName = "RAxML_log.file.out";
+		summaryFilePath = rootDir+"RAxML_info.file.out";
+		if (!bootstrap() && numRuns>1) {
+			treeFileName+=".RUN.";
+			logFileName+=".RUN.";
+		}
+		treeFilePath = rootDir + treeFileName;
+		currentTreeFilePath = treeFilePath;
+		logFilePaths = new String[]{rootDir + logFileName, currentTreeFilePath, summaryFilePath};
+		logFileNames = new String[]{logFileName, treeFileName, "RAxML_info.file.out"};
+
+		multipleModelFilePath = rootDir + "multipleModelFile.txt";
+
+	}
+
+	TaxaSelectionSet outgroupSet;
+	/*.................................................................................................................*/
+	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		if (matrix==null )
-			return null;
-	if (StringUtil.blank(raxmlPath))
 			return null;
 		if (!(matrix.getParentData() != null && matrix.getParentData() instanceof MolecularData)){
 			MesquiteMessage.discreetNotifyUser("Sorry, RAxMLTree works only if given a full MolecularData object");
@@ -572,261 +653,312 @@ WAG, gene2 = 501-1000
 				return null;
 		}
 
-		finalValues = new double[numRuns];
-		DoubleArray.deassignArray(finalValues);
-
-		setRAxMLSeed(seed);
-
-		MolecularData data = (MolecularData)matrix.getParentData();
+		initializeMonitoring();
+		data = (MolecularData)matrix.getParentData();
 		isProtein = data instanceof ProteinData;
-
-		getProject().incrementProjectWindowSuppression();
-		
-		Debugg.println(this.getName() + " using data matrix " + data.getID());
-
+		setRAxMLSeed(seed);
 		data.setEditorInhibition(true);
-		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
-Debugg.println("RETAIN FILES " + retainFiles);
-		String rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.BESIDE_HOME_FILE, "RAxML");  //NOTE: retains files now always
+		unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
+		getProject().incrementProjectWindowSuppression();
+
+		logln(this.getName() + " using data matrix " + data.getID());
+
+
+		// create the data file
+		rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.IN_SUPPORT_DIR, "RAxML");  
 		if (rootDir==null)
 			return null;
-		
-		String fileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".phy";   //replace this with actual file name?
-		String filePath = rootDir +  fileName;
+
+		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".phy";   //replace this with actual file name?
+		String dataFilePath = rootDir +  dataFileName;
+	
+		FileInterpreterI exporter = null;
+		if (data instanceof DNAData)
+			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipDNA");
+		else if (data instanceof ProteinData)
+			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipProtein");
+		if (exporter==null)
+			return null;
+		((InterpretPhylip)exporter).setTaxonNameLength(100);
+		((InterpretPhylip)exporter).setTaxonNamer(namer);
 
 		boolean fileSaved = false;
-		
 		if (data instanceof DNAData)
-			 fileSaved = ZephyrUtil.saveExportFile(this,"#InterpretPhylipDNA", taxa, rootDir,  fileName,  filePath,  data);
+			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data);
 		else if (data instanceof ProteinData)
-			 fileSaved = ZephyrUtil.saveExportFile(this,"#InterpretPhylipProtein", taxa, rootDir,  fileName,  filePath,  data);
-
+			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data);
 		if (!fileSaved) return null;
+		setFilePaths();
 
-
-		String runningFilePath = rootDir + "running" + MesquiteFile.massageStringToFilePathSafe(unique);
+	
 		//String outFilePath = rootDir + "tempTree" + MesquiteFile.massageStringToFilePathSafe(unique) + ".tre";
 
-		StringBuffer shellScript = new StringBuffer(1000);
 
-		String treeFileName;
-		if (bootstrap())
-			treeFileName = "RAxML_bootstrap.file.out";
-		else 
-			treeFileName = "RAxML_result.file.out";
-		String logFileName = "RAxML_log.file.out";
-		String summaryFilePath = rootDir+"RAxML_info.file.out";
-		if (!bootstrap() && numRuns>1) {
-			treeFileName+=".RUN.";
-			logFileName+=".RUN.";
-		}
-		String treeFilePath = rootDir + treeFileName;
-		String currentTreeFilePath =null;
-		currentTreeFilePath = treeFilePath;
-		String[] logFilePaths = {rootDir + logFileName, currentTreeFilePath, summaryFilePath};
 
 		//./raxmlHPC -s infile.phy -n outfile.out -m GTRGAMMA -o outgroup1,outgroup2
 
+		String multipleModelFileContents = getMultipleModelFileString(data, false);//TODO: why is partByCodPos false?
+		if (StringUtil.notEmpty(multipleModelFileContents)) {
+			MesquiteFile.putFileContents(multipleModelFilePath, multipleModelFileContents, true);
+		} else
+			multipleModelFilePath=null;
+
+		StringBuffer shellScript = new StringBuffer(1000);
 		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
 		shellScript.append("ls -la"+ StringUtil.lineEnding());
-		
-		String multipleModelFileContents = getMultipleModelFileString(data, false);//TODO: why is partByCodPos false?
-		String multipleModelFilePath = null;
-		if (StringUtil.notEmpty(multipleModelFileContents)) {
-			multipleModelFilePath = rootDir + "multipleModelFile.txt";
-			MesquiteFile.putFileContents(multipleModelFilePath, multipleModelFileContents, true);
-		}
-			
 
-		String arguments = getArguments(fileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFilePath);
-		/*" -s " + fileName + " -n file.out -m "; 
 
-		if (isProtein) {
-			if (StringUtil.blank(proteinModel))
-				arguments += "PROTGAMMAJTT";
-			else
-				arguments += proteinModel;
-		}
-		else if (StringUtil.blank(dnaModel))
-			arguments += "GTRGAMMA";
-		else
-			arguments += dnaModel;
+		String arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFilePath);
 
-		if (!StringUtil.blank(otherOptions)) 
-			arguments += " " + otherOptions;
-
-		if (bootstrap()) {
-			arguments += " -# " + bootstrapreps + " -b " + bootstrapSeed;
-		}
-		else if (numRuns>1)
-			arguments += " -# " + numRuns;
-*/		
-		TaxaSelectionSet outgroupSet =null;
-		if (!StringUtil.blank(outgroupTaxSetString)) {
-			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-		//	if (outgroupSet!=null) 
-		//		arguments += " -o " + outgroupSet.getStringList(",", true);
-		}
-		
-
-		
-		
-		shellScript.append(getProgramCommand(threadingVersion, MPIsetupCommand,numProcessors, raxmlPath, arguments, true)+ StringUtil.lineEnding());
-
+		String programCommand = externalProcRunner.getExecutableCommand()+arguments+" -T 2" + StringUtil.lineEnding();  
+		shellScript.append(programCommand);
 		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
-		
+
 
 		String scriptPath = rootDir + "raxmlScript" + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
 		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
 
+
+		//setting up the arrays of input file names and contents
+		int numInputFiles = 1;
+		String[] fileContents = new String[numInputFiles];
+		String[] fileNames = new String[numInputFiles];
+		for (int i=0; i<numInputFiles; i++){
+			fileContents[i]="";
+			fileNames[i]="";
+		}
+		fileContents[0] = MesquiteFile.getFileContentsAsString(dataFilePath);
+		fileNames[0] = dataFileName;
+
+
+		/*  ============ Setting up the run ============  */
+		boolean success = externalProcRunner.setInputFiles(programCommand,fileContents, fileNames);
+		if (!success){
+			// give message about failure
+			return null;
+		}
+
+		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
 		progIndicator = new ProgressIndicator(getProject(),ownerModule.getName(), "RAxML Search", 0, true);
 		if (progIndicator!=null){
 			count = 0;
 			progIndicator.start();
 		}
+		numRunsCompleted = 0;
+
+
 
 		MesquiteMessage.logCurrentTime("Start of RAxML analysis: ");
-
 		if (!bootstrap() && numRuns>1)
 			logln("\nBeginning Run 1");
 		else
 			logln("");
-
 		timer.start();
-		numRunsCompleted = 0;
-		boolean success = ShellScriptUtil.executeLogAndWaitForShell(scriptPath, "RAxML Tree", logFilePaths, this, this);
-		logln("RAxML analysis completed at " + getDateAndTime());
 
+		/*  ============ STARTING THE PROCESS ============  */
+		success = externalProcRunner.startExecution();
+
+		
+		/*  ============ THE PROCESS RUNS ============  */
+
+		if (success)
+			success = externalProcRunner.monitorExecution();
+		else
+			alert("The RAxML run encountered problems. ");  // better error message!
+
+
+
+		/*  ============ THE PROCESS COMPLETES ============  */
+
+		logln("RAxML analysis completed at " + getDateAndTime());
 		double totalTime= timer.timeSinceVeryStartInSeconds();
 		if (totalTime>120.0)
 			logln("Total time: " + StringUtil.secondsToHHMMSS((int)totalTime));
 		else
 			logln("Total time: " + totalTime  + " seconds");
-		if (finalScore != null){
+		/*		if (finalScore != null){
 			if (finalScore.length==1)
 				finalScore[0].setValue(finalValue);
 			else
 				for (int i=0; i<finalScore.length && i<finalValues.length; i++)
 					finalScore[i].setValue(finalValues[i]);
 		}
-
+		 */
 		if (progIndicator!=null)
 			progIndicator.goAway();
 		if (!success)
 			logln("Execution of RAxML unsuccessful [1]");
 
+
+
 		if (success){
-			success = false;
-			Tree t= null;
-			MesquiteBoolean readSuccess = new MesquiteBoolean(false);
-			if (bootstrap()) {
-				t =readRAxMLTreeFile(trees, treeFilePath, "RAxML Bootstrap Tree", readSuccess, false);
-				ZephyrUtil.adjustTree(t, outgroupSet);
-			}
-			else if (numRuns==1) {
-				t =readRAxMLTreeFile(trees, treeFilePath, "RAxMLTree", readSuccess, true);
-				ZephyrUtil.adjustTree(t, outgroupSet);
-			}
-			else if (numRuns>1) {
-				TreeVector tv = new TreeVector(taxa);
-				for (int run=0; run<numRuns; run++)
-					if (MesquiteFile.fileExists(treeFilePath+run)) {
-						String path =treeFilePath+run;
-						t = readRAxMLTreeFile(tv, path, "RAxMLTree Run " + (run+1), readSuccess, true);
-						if (trees!= null)
-							trees.addElement(t, false);
-					}
-				if (trees !=null) {
-					String summary = MesquiteFile.getFileContentsAsString(summaryFilePath);
-					Parser parser = new Parser(summary);
-					parser.setAllowComments(false);
-					parser.allowComments = false;
-
-					String line = parser.getRawNextDarkLine();
-					int count = 0;
-					logln("\nSummary of RAxML Search");
-
-					while (!StringUtil.blank(line) && count < finalValues.length) {
-						if (line.startsWith("Inference[")) {
-							Parser subParser = new Parser();
-							subParser.setString(line);
-							String token = subParser.getFirstToken();
-							while (!StringUtil.blank(token) && ! subParser.atEnd()){
-								if (token.indexOf("likelihood")>=0) {
-									token = subParser.getNextToken();
-									finalValues[count] = -MesquiteDouble.fromString(token);
-									finalScore[count].setValue(finalValues[count]);
-									logln("RAxML Run " + (count+1) + " ln L = -" + finalValues[count]);
-								}
-								token = subParser.getNextToken();
-							}
-							count++;
-						}
-						parser.setAllowComments(false);
-						line = parser.getRawNextDarkLine();
-					}
-					double bestScore =MesquiteDouble.unassigned;
-					int bestRun = MesquiteInteger.unassigned;
-					for (int i=0; i<trees.getNumberOfTrees(); i++) {
-						Tree newTree = trees.getTree(i);
-						ZephyrUtil.adjustTree(newTree, outgroupSet);
-						if (MesquiteDouble.isCombinable(finalValues[i])){
-							MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
-							s.setName(RAxMLRunner.SCORENAME);
-							((Attachable)newTree).attachIfUniqueName(s);
-						}
-
-						//trees.addElement(newTree, false);
-
-						if (MesquiteDouble.isCombinable(finalValues[i]))
-							if (MesquiteDouble.isUnassigned(bestScore)) {
-								bestScore = finalValues[i];
-								bestRun = i;
-							}
-							else if (bestScore>finalValues[i]) {
-								bestScore = finalValues[i];
-								bestRun = i;
-							}
-					}
-					if (MesquiteInteger.isCombinable(bestRun)) {
-						t = trees.getTree(bestRun);
-						ZephyrUtil.adjustTree(t, outgroupSet);
-
-						String newName = t.getName() + " BEST";
-						if (t instanceof AdjustableTree )
-							((AdjustableTree)t).setName(newName);
-					}
-					if (MesquiteDouble.isCombinable(bestScore)){
-						logln("Best score: " + bestScore);
-					}
-					//Only retain the best tree in tree block.
-					if(trees.getTree(bestRun) != null && onlyBest){
-						Tree bestTree = trees.getTree(bestRun);
-						trees.removeAllElements(false);
-						trees.addElement(bestTree, false);
-					}
-				} 
-
-			}
-			success = readSuccess.getValue();
-			if (!success)
-				logln("Execution of RAxML unsuccessful [2]");
-
 			getProject().decrementProjectWindowSuppression();
-			deleteSupportDirectory();
-			data.setEditorInhibition(false);
-			if (success) 
-				return t;
-			return null;
-		} 
-		deleteSupportDirectory();
+			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
+		}
 		getProject().decrementProjectWindowSuppression();
 		data.setEditorInhibition(false);
+		return null;
+
+	}	
+
+	/*.................................................................................................................*/
+	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
+		logln("Monitoring RAxML run begun.");
+		getProject().incrementProjectWindowSuppression();
+
+		initializeMonitoring();
+		setFilePaths();
+		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
+
+		/*	MesquiteModule inferer = findEmployerWithDuty(TreeInferer.class);
+		if (inferer != null)
+			((TreeInferer)inferer).bringIntermediatesWindowToFront();*/
+		boolean success = externalProcRunner.monitorExecution();
+
+		if (progIndicator!=null)
+			progIndicator.goAway();
+
+		//deleteSupportDirectory();
+		getProject().decrementProjectWindowSuppression();
+		if (data != null)
+			data.setEditorInhibition(false);
+		if (callBackCommand != null)
+			callBackCommand.doItMainThread(null,  null,  this);
 		return null;
 	}	
 
 	/*.................................................................................................................*/
+	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore){
+		logln("Preparing to receive RAxML trees.");
+		boolean success = false;
+		taxa = treeList.getTaxa();
+		finalScore.setValue(finalValue);
+
+		getProject().incrementProjectWindowSuppression();
+		FileCoordinator coord = getFileCoordinator();
+		MesquiteFile tempDataFile = null;
+		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
+		CommandRecord scr = new CommandRecord(true);
+		MesquiteThread.setCurrentCommandRecord(scr);
+
+		// define file paths and set tree files as needed. 
+		setFilePaths();
+		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
+
+		treeFilePath = outputFilePaths[TREEFILE];
+		
+		runFilesAvailable();
+
+		// read in the tree files
+
+		success = false;
+		Tree t= null;
+		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
+		if (bootstrap()) {
+			t =readRAxMLTreeFile(treeList, treeFilePath, "RAxML Bootstrap Tree", readSuccess, false);
+			ZephyrUtil.adjustTree(t, outgroupSet);
+		}
+		else if (numRuns==1) {
+			t =readRAxMLTreeFile(treeList, treeFilePath, "RAxMLTree", readSuccess, true);
+			ZephyrUtil.adjustTree(t, outgroupSet);
+		}
+		else if (numRuns>1) {
+			TreeVector tv = new TreeVector(taxa);
+			for (int run=0; run<numRuns; run++)
+				if (MesquiteFile.fileExists(treeFilePath+run)) {
+					String path =treeFilePath+run;
+					t = readRAxMLTreeFile(tv, path, "RAxMLTree Run " + (run+1), readSuccess, true);
+					if (treeList!= null)
+						treeList.addElement(t, false);
+				}
+			if (treeList !=null) {
+				String summary = MesquiteFile.getFileContentsAsString(summaryFilePath);
+				Parser parser = new Parser(summary);
+				parser.setAllowComments(false);
+				parser.allowComments = false;
+
+				String line = parser.getRawNextDarkLine();
+				int count = 0;
+				logln("\nSummary of RAxML Search");
+
+				while (!StringUtil.blank(line) && count < finalValues.length) {
+					if (line.startsWith("Inference[")) {
+						Parser subParser = new Parser();
+						subParser.setString(line);
+						String token = subParser.getFirstToken();
+						while (!StringUtil.blank(token) && ! subParser.atEnd()){
+							if (token.indexOf("likelihood")>=0) {
+								token = subParser.getNextToken();
+								finalValues[count] = -MesquiteDouble.fromString(token);
+								//	finalScore[count].setValue(finalValues[count]);
+								logln("RAxML Run " + (count+1) + " ln L = -" + finalValues[count]);
+							}
+							token = subParser.getNextToken();
+						}
+						count++;
+					}
+					parser.setAllowComments(false);
+					line = parser.getRawNextDarkLine();
+				}
+				double bestScore =MesquiteDouble.unassigned;
+				int bestRun = MesquiteInteger.unassigned;
+				for (int i=0; i<treeList.getNumberOfTrees(); i++) {
+					Tree newTree = treeList.getTree(i);
+					ZephyrUtil.adjustTree(newTree, outgroupSet);
+					if (MesquiteDouble.isCombinable(finalValues[i])){
+						MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
+						s.setName(RAxMLRunner.SCORENAME);
+						((Attachable)newTree).attachIfUniqueName(s);
+					}
+
+					//trees.addElement(newTree, false);
+
+					if (MesquiteDouble.isCombinable(finalValues[i]))
+						if (MesquiteDouble.isUnassigned(bestScore)) {
+							bestScore = finalValues[i];
+							bestRun = i;
+						}
+						else if (bestScore>finalValues[i]) {
+							bestScore = finalValues[i];
+							bestRun = i;
+						}
+				}
+				if (MesquiteInteger.isCombinable(bestRun)) {
+					t = treeList.getTree(bestRun);
+					ZephyrUtil.adjustTree(t, outgroupSet);
+
+					String newName = t.getName() + " BEST";
+					if (t instanceof AdjustableTree )
+						((AdjustableTree)t).setName(newName);
+				}
+				if (MesquiteDouble.isCombinable(bestScore)){
+					logln("Best score: " + bestScore);
+					finalScore.setValue(bestScore);
+				}
+				//Only retain the best tree in tree block.
+				if(treeList.getTree(bestRun) != null && onlyBest){
+					Tree bestTree = treeList.getTree(bestRun);
+					treeList.removeAllElements(false);
+					treeList.addElement(bestTree, false);
+				}
+			} 
+
+		}
+		success = readSuccess.getValue();
+		if (!success)
+			logln("Execution of RAxML unsuccessful [2]");
+
+		getProject().decrementProjectWindowSuppression();
+		if (data!=null)
+			data.setEditorInhibition(false);
+		//	manager.deleteElement(tv);  // get rid of temporary tree block
+		if (success) 
+			return t;
+		return null;
+	}	
+
+	/*.................................................................................................................*
 	String getProgramCommand(int threadingVersion, String LOCMPIsetupCommand, int LOCnumProcessors, String LOCraxmlPath, String arguments, boolean protect){
 		String command = "";
 		if (threadingVersion == threadingMPI) {
@@ -835,11 +967,12 @@ Debugg.println("RETAIN FILES " + retainFiles);
 			}
 			command += "mpirun -np " + LOCnumProcessors + " ";
 		}
-		
+
 		String fullArguments = arguments;
 		if (threadingVersion==threadingPThreads) {
 			fullArguments += " -T " + LOCnumProcessors + " ";
 		}
+
 
 		if (!protect)
 			command += LOCraxmlPath + fullArguments;
@@ -849,6 +982,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 			command += StringUtil.protectForUnix(LOCraxmlPath )+ fullArguments;
 		return command;
 	}
+	/*.................................................................................................................*/
 
 	Parser parser = new Parser();
 	long screenFilePos = 0;
@@ -877,7 +1011,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 		//File fileCopy = new File(originalPath + "2");
 		String newPath = originalPath + "2";
 		MesquiteFile.copyFileFromPaths(originalPath, newPath, false);
-//		if (file.renameTo(fileCopy))
+		//		if (file.renameTo(fileCopy))
 		if (MesquiteFile.fileExists(newPath)) {
 			return newPath;
 		}
@@ -885,11 +1019,12 @@ Debugg.println("RETAIN FILES " + retainFiles);
 	}
 	/*.................................................................................................................*/
 
-	public void processOutputFile(String[] outputFilePaths, int fileNum) {
+	public void runFilesAvailable(int fileNum) {
 		if (progIndicator.isAborted())
 			return;
-		String filePath = null;
-		filePath = getOutputFileToReadPath(outputFilePaths[fileNum]);
+		String[] outputFilePaths = new String[logFileNames.length];
+		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
+		String filePath=outputFilePaths[fileNum];
 
 		if (fileNum==0 && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0]) && !bootstrap()) {   // screen log
 			if (MesquiteFile.fileExists(filePath)) {
@@ -913,7 +1048,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 			if (taxa != null) {
 				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
 				ownerModule.newTreeAvailable(treeFilePath, outgroupSet);
-				
+
 			}
 			else ownerModule.newTreeAvailable(treeFilePath, null);
 		}
@@ -969,7 +1104,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 							else
 								token = subParser.getNextToken();
 						}
-						if (numRunsCompleted>= numProcessors) {
+						if (externalProcRunner.canCalculateTimeRemaining(numRunsCompleted)) {
 							double timePerRep = timer.timeSinceVeryStartInSeconds()/numRunsCompleted;   //this is time per rep
 							int timeLeft = 0;
 							if (bootstrap()) {
@@ -982,7 +1117,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 							logln("   Run time " +  StringUtil.secondsToHHMMSS((int)timeSoFar)  + ", approximate time remaining " + StringUtil.secondsToHHMMSS(timeLeft));
 							logln("    Average time per replicate:  " +  StringUtil.secondsToHHMMSS((int)timePerRep));
 							logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
- 							//Debugg.println("     numRunsCompleted: " + numRunsCompleted);
+							//Debugg.println("     numRunsCompleted: " + numRunsCompleted);
 							//Debugg.println("     timer.timeSinceVeryStartInSeconds(): " + timer.timeSinceVeryStartInSeconds());
 							//Debugg.println("     timePerRep: " + timePerRep);
 							//Debugg.println("     bootstrapreps: " + bootstrapreps);
@@ -1000,9 +1135,31 @@ Debugg.println("RETAIN FILES " + retainFiles);
 		}
 
 	}
-	
-
 	/*.................................................................................................................*/
+
+	public void runFilesAvailable(boolean[] filesAvailable) {
+		if ((progIndicator!=null && progIndicator.isAborted()))
+			return;
+		String filePath = null;
+		int fileNum=-1;
+		String[] outputFilePaths = new String[filesAvailable.length];
+		for (int i=0; i<outputFilePaths.length; i++)
+			if (filesAvailable[i]){
+				fileNum= i;
+				break;
+			}
+		if (fileNum<0) return;
+		runFilesAvailable(fileNum);
+	}
+	/*.................................................................................................................*/
+	public void runFilesAvailable(){   // this should really only do the ones needed, not all of them.
+		for (int i = 0; i<logFileNames.length; i++){
+			runFilesAvailable(i);
+		}
+	}
+
+
+	/*.................................................................................................................*
 
 	public void processCompletedOutputFiles(String[] outputFilePaths) {
 		runNumber=0;
@@ -1020,6 +1177,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 
 		}
 	}
+	/*.................................................................................................................*
 
 	public boolean continueShellProcess(Process proc){
 		if (progIndicator.isAborted()) {
@@ -1036,6 +1194,7 @@ Debugg.println("RETAIN FILES " + retainFiles);
 		}
 		return true;
 	}
+	/*.................................................................................................................*/
 
 
 	public boolean bootstrap() {
@@ -1049,10 +1208,6 @@ Debugg.println("RETAIN FILES " + retainFiles);
 		this.bootstrapreps = bootstrapreps;
 	}
 
-	/*.................................................................................................................*/
-	public void setRAxMLPath(String RAxMLPath){
-		this.raxmlPath = RAxMLPath;
-	}
 
 	public Class getDutyClass() {
 		return RAxMLRunner.class;
@@ -1069,6 +1224,30 @@ Debugg.println("RETAIN FILES " + retainFiles);
 	/*.................................................................................................................*/
 	public boolean getOnlyBest(){
 		return onlyBest;
+	}
+
+
+	public void intializeAfterExternalProcessRunnerHired() {
+		loadPreferences();
+	}
+
+	public void runFailed(String message) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void runFinished(String message) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public String getExecutableName() {
+		return "RAxML";
+	}
+
+	public void itemStateChanged(ItemEvent arg0) {
+		// TODO Auto-generated method stub
+
 	}
 
 

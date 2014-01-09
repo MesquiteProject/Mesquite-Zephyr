@@ -16,6 +16,18 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	StringBuffer extraPreferences;
 	ExternalProcessRequester processRequester;
 
+	/*.================================================================..*/
+	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
+		MesquiteModule mm = getEmployer();
+		rng = new Random(System.currentTimeMillis());
+		extraPreferences = new StringBuffer();
+		return true;
+	}
+	public void endJob(){
+		storePreferences();  //also after options chosen
+		super.endJob();
+	}
+	
 	public String getName() {
 		return "Local Script Runner";
 	}
@@ -34,24 +46,23 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public boolean requestPrimaryChoice(){
 		return true;
 	}
-	/*.================================================================..*/
-	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
-		MesquiteModule mm = getEmployer();
-		rng = new Random(System.currentTimeMillis());
-		extraPreferences = new StringBuffer();
-		return true;
+
+	public  boolean isWindows() {
+		return MesquiteTrunk.isWindows();
 	}
-	public void endJob(){
-		storePreferences();  //also after options chosen
-		super.endJob();
+	public  boolean isLinux() {
+		return MesquiteTrunk.isLinux();
 	}
+
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String flavor, String content) {
 		if (StringUtil.notEmpty(flavor) && "executablePath".equalsIgnoreCase(tag)){   // it is one with the flavor attribute
 			if (flavor.equalsIgnoreCase(getExecutableName()))   /// check to see if flavor is correct!!!
 				executablePath = StringUtil.cleanXMLEscapeCharacters(content);
-			else
-				StringUtil.appendXMLTag(extraPreferences, 2, "executablePath", flavor, executablePath);  		
+			else {
+				String path = StringUtil.cleanXMLEscapeCharacters(content);
+				StringUtil.appendXMLTag(extraPreferences, 2, "executablePath", flavor, path);  		// store for next time
+			}
 		}
 	}
 	/*.................................................................................................................*/
@@ -145,7 +156,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		StringBuffer shellScript = new StringBuffer(1000);
 		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
 		shellScript.append(script);
-		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
+//		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
 
 		scriptPath = rootDir + "Script" + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
 		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
@@ -237,4 +248,6 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public boolean continueShellProcess(Process proc) {
 		return true;
 	}
+	
+	
 }

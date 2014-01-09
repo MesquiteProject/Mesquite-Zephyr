@@ -2,11 +2,11 @@ package mesquite.zephyr.RAxMLExporter;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+
 import mesquite.categ.lib.*;
 import mesquite.io.lib.InterpretPhylip;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
-import mesquite.lib.characters.CharacterData;
 import mesquite.lib.duties.FileInterpreterI;
 import mesquite.zephyr.RAxMLRunner.*;
 import mesquite.zephyr.lib.*;
@@ -327,17 +327,28 @@ public class RAxMLExporter extends RAxMLRunner {
 		String configFileContents = "# replace <raxml_call> with appropriate command to call RAxML" + StringUtil.lineEnding();
 		configFileContents += getProgramCommand(threadingVersion, MPIsetupCommand,numProcessors, arguments, true)+ StringUtil.lineEnding();
 		
-		boolean fileSaved = false;
 
 		/*Write the phylip file to disk, choosing the appropriate interpreter (DNA or protein).  The interpreter will shorten the name
 		 * according to the format of the 'namer' object.  In this case, it is a TaxonNameShortener (see prepareExportFile method above).
 		 * In RAxMLRunner, the namer is a SimpleTaxonNamer.*/
-		if (data instanceof DNAData){
-			fileSaved = ZephyrUtil.saveExportFile(this,"#InterpretPhylipDNA", taxa, directoryPath,  dataFile,  dataFilePath,  data);
+		
+		FileInterpreterI exporter = null;
+		if (data instanceof DNAData)
+			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipDNA");
+		else if (data instanceof ProteinData)
+			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipProtein");
+		if (exporter==null)
+			return null;
+		((InterpretPhylip)exporter).setTaxonNameLength(100);
+		((InterpretPhylip)exporter).setTaxonNamer(namer);
 
-		} else if (data instanceof ProteinData){
-			 fileSaved = ZephyrUtil.saveExportFile(this,"#InterpretPhylipProtein", taxa, directoryPath,  dataFile,  dataFilePath,  data);
-		}
+		boolean fileSaved = false;
+		if (data instanceof DNAData)
+			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data);
+		else if (data instanceof ProteinData)
+			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data);
+
+	
 		MesquiteFile.putFileContents(configFilePath, configFileContents, true);//TODO: why ascii = true?
 		
 		if (!fileSaved){

@@ -28,7 +28,7 @@ import mesquite.lib.duties.TreesManager;
 
 
 public class ZephyrUtil {
-
+	public static final String VERSION_FILE = "fileToDetermineVersion";
 
 
 	/*.................................................................................................................*/
@@ -46,18 +46,20 @@ public class ZephyrUtil {
 
 	/*.................................................................................................................*/
 	//TODO: Many unused variables in method call (taxa, directoryPath, fileName)?
-	public static boolean saveExportFile(MesquiteModule module, String interpreterModuleName, Taxa taxa, String directoryPath, String fileName, String path, CategoricalData data) {
+	public static FileInterpreterI getFileInterpreter(MesquiteModule module, String interpreterModuleName) {
+		FileCoordinator coord = module.getFileCoordinator();
+		if (coord == null) 
+			return null;
+		FileInterpreterI exporter = (FileInterpreterI)coord.findEmployeeWithName(interpreterModuleName);
+		return exporter;
+	}	
+	/*.................................................................................................................*/
+	//TODO: Many unused variables in method call (taxa, directoryPath, fileName)?
+	public static boolean saveExportFile(MesquiteModule module, FileInterpreterI exporter, String path, CategoricalData data) {
 		if (data==null)
 			return false;
 
-		FileCoordinator coord = module.getFileCoordinator();
-		if (coord == null) 
-			return false;
-
-
 		module.incrementMenuResetSuppression();
-
-		FileInterpreterI exporter = (FileInterpreterI)coord.findEmployeeWithName(interpreterModuleName);
 		MesquiteFile file = new MesquiteFile();
 		file.writeTaxaWithAllMissing = false;
 		file.writeExcludedCharacters = false;

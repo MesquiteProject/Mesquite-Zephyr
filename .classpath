@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="zephyr/Source"/>
+	<classpathentry kind="lib" path="zephyr/jars/eAPI.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MesquiteCore"/>
+	<classpathentry kind="output" path="Mesquite_Folder"/>
+</classpath>
