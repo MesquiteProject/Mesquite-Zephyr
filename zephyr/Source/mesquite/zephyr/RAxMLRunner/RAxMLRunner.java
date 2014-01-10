@@ -38,7 +38,7 @@ outgroups
 public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
 	public static final String SCORENAME = "RAxMLScore";
 
-	String rootDir;
+//	String rootDir;
 	RAxMLTrees ownerModule;
 	Random rng;
 	//	String raxmlPath;
@@ -604,39 +604,30 @@ WAG, gene2 = 501-1000
 		}
 	}
 
-	String runningFilePath;
-	String multipleModelFilePath = null;
 	String treeFileName;
-	String treeFilePath;
-	String currentTreeFilePath =null;
-	String[] logFilePaths;
+	String multipleModelFileName;
 	String[] logFileNames;
-	String summaryFilePath;
 	String logFileName;
 	String unique;
 	MolecularData data;
-
-	static final int TREEFILE = 1;
+	
+	static final int OUT_LOGFILE=0;
+	static final int OUT_TREEFILE=1;
+	static final int OUT_SUMMARYFILE=2;
 	/*.................................................................................................................*/
 	private void setFilePaths () {
-		runningFilePath = rootDir + "running" + MesquiteFile.massageStringToFilePathSafe(unique);
+		multipleModelFileName = "multipleModelFile.txt";
+	
 		if (bootstrap())
 			treeFileName = "RAxML_bootstrap.file.out";
 		else 
 			treeFileName = "RAxML_result.file.out";
 		logFileName = "RAxML_log.file.out";
-		summaryFilePath = rootDir+"RAxML_info.file.out";
 		if (!bootstrap() && numRuns>1) {
 			treeFileName+=".RUN.";
 			logFileName+=".RUN.";
 		}
-		treeFilePath = rootDir + treeFileName;
-		currentTreeFilePath = treeFilePath;
-		logFilePaths = new String[]{rootDir + logFileName, currentTreeFilePath, summaryFilePath};
 		logFileNames = new String[]{logFileName, treeFileName, "RAxML_info.file.out"};
-
-		multipleModelFilePath = rootDir + "multipleModelFile.txt";
-
 	}
 
 	TaxaSelectionSet outgroupSet;
@@ -665,12 +656,12 @@ WAG, gene2 = 501-1000
 
 
 		// create the data file
-		rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.IN_SUPPORT_DIR, "RAxML");  
-		if (rootDir==null)
+		String tempDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.IN_SUPPORT_DIR, "RAxML");  
+		if (tempDir==null)
 			return null;
 
 		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".phy";   //replace this with actual file name?
-		String dataFilePath = rootDir +  dataFileName;
+		String dataFilePath = tempDir +  dataFileName;
 	
 		FileInterpreterI exporter = null;
 		if (data instanceof DNAData)
@@ -688,39 +679,19 @@ WAG, gene2 = 501-1000
 		else if (data instanceof ProteinData)
 			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data);
 		if (!fileSaved) return null;
+		
 		setFilePaths();
 
-	
-		//String outFilePath = rootDir + "tempTree" + MesquiteFile.massageStringToFilePathSafe(unique) + ".tre";
-
-
-
-		//./raxmlHPC -s infile.phy -n outfile.out -m GTRGAMMA -o outgroup1,outgroup2
-
 		String multipleModelFileContents = getMultipleModelFileString(data, false);//TODO: why is partByCodPos false?
-		if (StringUtil.notEmpty(multipleModelFileContents)) {
-			MesquiteFile.putFileContents(multipleModelFilePath, multipleModelFileContents, true);
-		} else
-			multipleModelFilePath=null;
+		if (StringUtil.blank(multipleModelFileContents)) 
+			multipleModelFileName=null;
 
-		StringBuffer shellScript = new StringBuffer(1000);
-		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
-		shellScript.append("ls -la"+ StringUtil.lineEnding());
-
-
-		String arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFilePath);
+		String arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName);
 
 		String programCommand = externalProcRunner.getExecutableCommand()+arguments+" -T 2" + StringUtil.lineEnding();  
-		shellScript.append(programCommand);
-		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
-
-
-		String scriptPath = rootDir + "raxmlScript" + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
-		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
-
 
 		//setting up the arrays of input file names and contents
-		int numInputFiles = 1;
+		int numInputFiles = 2;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -729,6 +700,8 @@ WAG, gene2 = 501-1000
 		}
 		fileContents[0] = MesquiteFile.getFileContentsAsString(dataFilePath);
 		fileNames[0] = dataFileName;
+		fileContents[1] = multipleModelFileContents;
+		fileNames[1] = multipleModelFileName;
 
 
 		/*  ============ Setting up the run ============  */
@@ -747,8 +720,6 @@ WAG, gene2 = 501-1000
 		}
 		numRunsCompleted = 0;
 
-
-
 		MesquiteMessage.logCurrentTime("Start of RAxML analysis: ");
 		if (!bootstrap() && numRuns>1)
 			logln("\nBeginning Run 1");
@@ -761,17 +732,15 @@ WAG, gene2 = 501-1000
 
 		
 		/*  ============ THE PROCESS RUNS ============  */
-
 		if (success)
 			success = externalProcRunner.monitorExecution();
 		else
 			alert("The RAxML run encountered problems. ");  // better error message!
 
 
-
 		/*  ============ THE PROCESS COMPLETES ============  */
 
-		logln("RAxML analysis completed at " + getDateAndTime());
+		logln("\nRAxML analysis completed at " + getDateAndTime());
 		double totalTime= timer.timeSinceVeryStartInSeconds();
 		if (totalTime>120.0)
 			logln("Total time: " + StringUtil.secondsToHHMMSS((int)totalTime));
@@ -791,7 +760,6 @@ WAG, gene2 = 501-1000
 			logln("Execution of RAxML unsuccessful [1]");
 
 
-
 		if (success){
 			getProject().decrementProjectWindowSuppression();
 			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
@@ -799,7 +767,6 @@ WAG, gene2 = 501-1000
 		getProject().decrementProjectWindowSuppression();
 		data.setEditorInhibition(false);
 		return null;
-
 	}	
 
 	/*.................................................................................................................*/
@@ -846,7 +813,7 @@ WAG, gene2 = 501-1000
 		setFilePaths();
 		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
 
-		treeFilePath = outputFilePaths[TREEFILE];
+		String treeFilePath = outputFilePaths[OUT_TREEFILE];
 		
 		runFilesAvailable();
 
@@ -854,6 +821,7 @@ WAG, gene2 = 501-1000
 
 		success = false;
 		Tree t= null;
+		int count =0;
 		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 		if (bootstrap()) {
 			t =readRAxMLTreeFile(treeList, treeFilePath, "RAxML Bootstrap Tree", readSuccess, false);
@@ -873,13 +841,12 @@ WAG, gene2 = 501-1000
 						treeList.addElement(t, false);
 				}
 			if (treeList !=null) {
-				String summary = MesquiteFile.getFileContentsAsString(summaryFilePath);
+				String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);
 				Parser parser = new Parser(summary);
 				parser.setAllowComments(false);
 				parser.allowComments = false;
 
 				String line = parser.getRawNextDarkLine();
-				int count = 0;
 				logln("\nSummary of RAxML Search");
 
 				while (!StringUtil.blank(line) && count < finalValues.length) {
@@ -1021,7 +988,7 @@ WAG, gene2 = 501-1000
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
-		if (progIndicator.isAborted())
+		if (progIndicator!=null && progIndicator.isAborted())
 			return;
 		String[] outputFilePaths = new String[logFileNames.length];
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);

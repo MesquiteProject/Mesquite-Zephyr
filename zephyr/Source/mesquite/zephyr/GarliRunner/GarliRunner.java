@@ -120,7 +120,7 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	Choice invarSitesChoice= null;
 	Choice rateHetChoice= null;
 	IntegerField numRateCatField = null;
-	String rootDir;
+//	String rootDir;
 	ExternalProcessRunner externalProcRunner;
 
 	MesquiteTimer timer = new MesquiteTimer();

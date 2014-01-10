@@ -90,7 +90,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-		if (checker.compare(this.getClass(), "Sets the running file path", "[file path]", commandName, "reviveScriptRunner")) {
+		if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveScriptRunner")) {
 			Debugg.println("ReviveScriptRunner");
 			scriptRunner = new ShellScriptRunner();
 			scriptRunner.setOutputProcessor(this);
@@ -156,7 +156,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		StringBuffer shellScript = new StringBuffer(1000);
 		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
 		shellScript.append(script);
-//		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
+		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
 
 		scriptPath = rootDir + "Script" + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
 		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
@@ -199,7 +199,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	/*.................................................................................................................*/
 	// starting the run
 	public boolean startExecution(){  //do we assume these are disconnectable?
-		scriptRunner = new ShellScriptRunner(scriptPath, runningFilePath, null, true, getExecutableName(), outputFilePaths, this, this, true);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
+		scriptRunner = new ShellScriptRunner(scriptPath, runningFilePath, null, false, getExecutableName(), outputFilePaths, this, this, true);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
 		return scriptRunner.executeInShell();
 	}
 
