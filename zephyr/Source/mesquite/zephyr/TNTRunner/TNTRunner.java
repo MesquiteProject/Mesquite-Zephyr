@@ -303,6 +303,8 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 	String indentTNTCommand(String command) {
 		return "   " + command;
 	}
+	
+	
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed) {
 		if (matrix==null )

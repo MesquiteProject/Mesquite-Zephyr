@@ -952,11 +952,11 @@ WAG, gene2 = 501-1000
 	}
 	/*.................................................................................................................*/
 
-	Parser parser = new Parser();
-	long screenFilePos = 0;
-	MesquiteFile screenFile = null;
+	//Parser parser = new Parser();
+	//long screenFilePos = 0;
+//	MesquiteFile screenFile = null;
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String[] modifyOutputPaths(String[] outputFilePaths){
 		if (numRuns==1)
 			return outputFilePaths;
@@ -973,7 +973,7 @@ WAG, gene2 = 501-1000
 
 		return paths;
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String getOutputFileToReadPath(String originalPath) {
 		//File file = new File(originalPath);
 		//File fileCopy = new File(originalPath + "2");

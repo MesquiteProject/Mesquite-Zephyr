@@ -778,7 +778,6 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
-
 		progIndicator = new ProgressIndicator(getProject(),ownerModule.getName(), "GARLI Search", 0, true);
 		if (progIndicator!=null){
 			count = 0;
@@ -919,15 +918,15 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		return null;
 	}	
 
-	Parser parser = new Parser();
+//	Parser parser = new Parser();
 	long screenFilePos = 0;
 	MesquiteFile screenFile = null;
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String[] modifyOutputPaths(String[] outputFilePaths){
 		return outputFilePaths;
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String getOutputFileToReadPath(String originalPath) {
 		File file = new File(originalPath);
 		File fileCopy = new File(originalPath + "2");
@@ -935,6 +934,8 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 			return originalPath + "2";
 		return originalPath;
 	}
+
+	/*.................................................................................................................*/
 
 	int numRunsCompleted = 0;
 	/*.................................................................................................................*/
