@@ -44,18 +44,18 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	//	String raxmlPath;
 	boolean onlyBest = true;
 
-/*	static final int threadingOther =0;
-	static final int threadingMPI = 1;
-	static final int threadingPThreads = 2;
-	int threadingVersion = threadingOther;
-*/
+	static final int THREADING_OTHER =0;
+	static final int THREADING_PTHREADS = 1;
+	static final int THREADING_MPI = 2;
+	int threadingVersion = THREADING_OTHER;
+	int numProcessors = 2;
+
 	
 	//	long randomSeed = System.currentTimeMillis();
 	int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
 
 //	boolean retainFiles = false;
 //	String MPIsetupCommand = "";
-//	int numProcessors = 2;
 	boolean showIntermediateTrees = true;
 
 
@@ -152,14 +152,15 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		if ("onlyBest".equalsIgnoreCase(tag))
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
 
-/*		if ("threadingVersion".equalsIgnoreCase(tag))
+		if ("raxmlThreadingVersion".equalsIgnoreCase(tag))
 			threadingVersion = MesquiteInteger.fromString(content);
 
-		if ("MPIsetupCommand".equalsIgnoreCase(tag)) 
+/*		if ("MPIsetupCommand".equalsIgnoreCase(tag)) 
 			MPIsetupCommand = StringUtil.cleanXMLEscapeCharacters(content);
+*/
 		if ("numProcessors".equalsIgnoreCase(tag))
 			numProcessors = MesquiteInteger.fromString(content);
-*/
+
 		preferencesSet = true;
 	}
 	/*.................................................................................................................*/
@@ -168,10 +169,10 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
-/*		StringUtil.appendXMLTag(buffer, 2, "threadingVersion", threadingVersion);  
-		StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
+		StringUtil.appendXMLTag(buffer, 2, "raxmlThreadingVersion", threadingVersion);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
-*/
+		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
+
 		preferencesSet = true;
 		return buffer.toString();
 	}
@@ -209,6 +210,8 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 
 		tabbedPanel.addPanel("RAxML Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
+		threadingRadioButtons= dialog.addRadioButtons(new String[] {"other", "PThreads version"}, threadingVersion);
+		numProcessorsFiled = dialog.addIntegerField("Number of Processors", numProcessors, 8, 1, MesquiteInteger.infinite);
 
 		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
 		numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
@@ -235,8 +238,6 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		raxMLPathField = dialog.addTextField("Path to RAxML:", raxmlPath, 40);
 		Button RAxMLBrowseButton = dialog.addAListenedButton("Browse...",null, this);
 		dialog.addHorizontalLine(1);
-		threadingRadioButtons= dialog.addRadioButtons(new String[] {"other", "MPI version", "PThreads version"}, threadingVersion);
-		numProcessorsFiled = dialog.addIntegerField("Number of Processors", numProcessors, 8, 1, MesquiteInteger.infinite);
 		MPISetupField = dialog.addTextField("MPI setup command: ", MPIsetupCommand, 20);
 		RAxMLBrowseButton.setActionCommand("RAxMLBrowse");
 		 */
@@ -269,9 +270,9 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 				bootstrapreps = bootStrapRepsField.getValue();
 				onlyBest = onlyBestBox.getState();
 				otherOptions = otherOptionsField.getText();
-//				threadingVersion = threadingRadioButtons.getValue();
+				threadingVersion = threadingRadioButtons.getValue();
 //				MPIsetupCommand = MPISetupField.getText();
-//				numProcessors = numProcessorsFiled.getValue(); //
+				numProcessors = numProcessorsFiled.getValue(); //
 //				retainFiles = retainFilescheckBox.getState();
 				storePreferences();
 				externalProcRunner.storePreferences();
@@ -688,7 +689,11 @@ WAG, gene2 = 501-1000
 
 		String arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName);
 
-		String programCommand = externalProcRunner.getExecutableCommand()+arguments+" -T 2" + StringUtil.lineEnding();  
+		String programCommand = externalProcRunner.getExecutableCommand()+arguments;
+		if (threadingVersion==THREADING_PTHREADS) {
+			programCommand += " -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ";   // have to ensure that there are at least two threads requested
+		}
+		programCommand += StringUtil.lineEnding();  
 
 		//setting up the arrays of input file names and contents
 		int numInputFiles = 2;
