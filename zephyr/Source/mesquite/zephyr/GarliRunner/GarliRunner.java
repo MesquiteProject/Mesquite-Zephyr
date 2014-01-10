@@ -918,26 +918,12 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		return null;
 	}	
 
-//	Parser parser = new Parser();
-	long screenFilePos = 0;
-	MesquiteFile screenFile = null;
-
-	/*.................................................................................................................*
-	public String[] modifyOutputPaths(String[] outputFilePaths){
-		return outputFilePaths;
-	}
-	/*.................................................................................................................*
-	public String getOutputFileToReadPath(String originalPath) {
-		File file = new File(originalPath);
-		File fileCopy = new File(originalPath + "2");
-		if (file.renameTo(fileCopy))
-			return originalPath + "2";
-		return originalPath;
-	}
-
 	/*.................................................................................................................*/
 
 	int numRunsCompleted = 0;
+	long screenFilePos = 0;
+	MesquiteFile screenFile = null;
+
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
