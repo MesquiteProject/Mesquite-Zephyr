@@ -236,6 +236,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 	/*.................................................................................................................*/
 	public void processCompletedOutputFiles(String[] outputFilePaths) {
+		if (outputFilePaths==null)
+			return;
 		boolean filesAvailable[] = new boolean[outputFilePaths.length];
 		for (int i=0; i<outputFilePaths.length; i++)
 			filesAvailable[i]=true;

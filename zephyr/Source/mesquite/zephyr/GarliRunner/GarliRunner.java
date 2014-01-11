@@ -30,7 +30,6 @@ import mesquite.zephyr.lib.*;
 public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester {
 	public static final String SCORENAME = "GARLIScore";
 
-	GarliTrees ownerModule;
 	boolean onlyBest = true;
 	int numRuns = 5;
 	String outgroupTaxSetString = "";
@@ -160,9 +159,6 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	}
 
 
-	public void initialize (ZephyrTreeSearcher ownerModule) {
-		this.ownerModule= (GarliTrees)ownerModule;
-	}
 	public String getGARLIConfigurationFile(){
 		StringBuffer sb = new StringBuffer();
 		//sb.append("\n = " + nnnnn);
@@ -698,7 +694,7 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 			GARLIcommand += StringUtil.lineEnding();  // GARLI command is very simple as all of the arguments are in the config file
 
 		
-		boolean success = runProgramOnExternalProcess (GARLIcommand, fileContents, fileNames,  ownerModule.getName(), !bootstrap() && numRuns>1);
+		boolean success = runProgramOnExternalProcess (GARLIcommand, fileContents, fileNames,  ownerModule.getName());
 
 		if (success){
 			getProject().decrementProjectWindowSuppression();

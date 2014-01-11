@@ -40,22 +40,22 @@ import mesquite.io.lib.*;
 
  */
 
-public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, ShellScriptWatcher, ActionListener, ItemListener, ZephyrFilePreparer  {
+public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalProcessRequester  {
 	public static final String SCORENAME = "TNTScore";
 
 
-	TNTTrees ownerModule;
-	Random rng;
-	String TNTPath;
+	//	TNTTrees ownerModule;
+	//	Random rng;
 
 	int mxram = 1000;
 
-	Taxa taxa;
+	/*	Taxa taxa;
 	String outgroupTaxSetString = "";
 	int outgroupTaxSetNumber = 0;
+	 */
 	boolean preferencesSet = false;
 	boolean convertGapsToMissing = true;
-	SingleLineTextField TNTPathField =  null;
+	//	SingleLineTextField TNTPathField =  null;
 	boolean isProtein = false;
 
 	int bootstrapreps = 0;
@@ -70,10 +70,10 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 
 	long  randseed = -1;
 	String constraintfile = "none";
-	MesquiteTimer timer = new MesquiteTimer();
+	//	MesquiteTimer timer = new MesquiteTimer();
 	int totalNumHits = 250;
-	
-	ExternalProcessRunner externalProcRunner;
+
+	//	ExternalProcessRunner externalProcRunner;
 
 	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
 		EmployeeNeed e = registerEmployeeNeed(ExternalProcessRunner.class, getName() + "  needs a module to run an external process.","");
@@ -82,11 +82,10 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
-		rng = new Random(System.currentTimeMillis());
 		bootstrapSearchArguments +=   getTNTCommand("rseed[");   // if showing intermediate trees
 		bootstrapSearchArguments +=   getTNTCommand("hold 3000");   
-	//	bootstrapSearchArguments +=   " sect: slack 5"+getComDelim();   
-	//	bootstrapSearchArguments +=   " xmult: replications 2 hits 2 ratchet 15 verbose drift 10"+getComDelim();  
+		//	bootstrapSearchArguments +=   " sect: slack 5"+getComDelim();   
+		//	bootstrapSearchArguments +=   " xmult: replications 2 hits 2 ratchet 15 verbose drift 10"+getComDelim();  
 		bootstrapSearchArguments +=   getTNTCommand("sect: slack 30");   
 		bootstrapSearchArguments +=   getTNTCommand("sec: xss 4-2+3-1 gocomb 60 fuse 4 drift 5 combstart 5");   
 		bootstrapSearchArguments +=   getTNTCommand("xmult: replications 1 hits 1 ratchet 15 verbose rss xss drift 10 dumpfuse") ;   // actual search
@@ -104,23 +103,11 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 		}
 		externalProcRunner.setProcessRequester(this);
 
-		
-		if (!MesquiteThread.isScripting() && !queryOptions())
-			return false;
 		return true;
 	}
 
 	public void initialize (TNTTrees ownerModule) {
 		this.ownerModule= ownerModule;
-	}
-	public boolean initializeTaxa (Taxa taxa) {
-		Taxa currentTaxa = this.taxa;
-		this.taxa = taxa;
-		if (taxa!=currentTaxa && taxa!=null) {
-			if (!MesquiteThread.isScripting() && !queryTaxaOptions(taxa))
-				return false;
-		}
-		return true;
 	}
 
 	/*.................................................................................................................*/
@@ -155,8 +142,6 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
-		if ("TNTPath".equalsIgnoreCase(tag)) 
-			TNTPath = StringUtil.cleanXMLEscapeCharacters(content);
 		if ("bootStrapReps".equalsIgnoreCase(tag))
 			bootstrapreps = MesquiteInteger.fromString(content);
 		if ("convertGapsToMissing".equalsIgnoreCase(tag))
@@ -168,14 +153,13 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "TNTPath", TNTPath);  
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "convertGapsToMissing", convertGapsToMissing);  
 
 		preferencesSet = true;
 		return buffer.toString();
 	}
-	
+
 	public void reconnectToRequester(MesquiteCommand command){
 		continueMonitoring(command);
 	}
@@ -194,34 +178,41 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 	ExtensibleDialog queryOptionsDialog=null;
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
+		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
+			return true;
+		boolean closeWizard = false;
+
+		if ((MesquiteTrunk.isMacOSXBeforeSnowLeopard()) && MesquiteDialog.currentWizard == null) {
+			CommandRecord cRec = null;
+			cRec = MesquiteThread.getCurrentCommandRecordDefIfNull(null);
+			if (cRec != null){
+				cRec.requestEstablishWizard(true);
+				closeWizard = true;
+			}
+		}
+
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		
+
 		queryOptionsDialog = new ExtensibleDialog(containerOfModule(), "TNT Options & Locations",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
-		queryOptionsDialog.addLabel("TNT - Options and Locations");
+		//		queryOptionsDialog.addLabel("TNT - Options and Locations");
 		String helpString = "This module will prepare a matrix for TNT, and ask TNT do to an analysis.  A command-line version of TNT must be installed. "
-			+ "You can ask it to do a bootstrap analysis or not. "
-			+ "Mesquite will read in the trees found by TNT. ";
+				+ "You can ask it to do a bootstrap analysis or not. "
+				+ "Mesquite will read in the trees found by TNT. ";
 
 		queryOptionsDialog.appendToHelpString(helpString);
 
-		//PopUpPanelOfCards cardPanel = dialog.addPopUpPanelOfCards("");
-		//Panel[] cardPanels = new Panel[3];
+		MesquiteTabbedPanel tabbedPanel = queryOptionsDialog.addMesquiteTabbedPanel();
 
-		//dialog.setAddPanel(cardPanel);
-
-		//cardPanels[0] = cardPanel.addNewCard("TNT Location");
-		//dialog.setAddPanel(cardPanels[0]); 
-
-		Checkbox convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
-
-		queryOptionsDialog.addHorizontalLine(1);
-		
+		tabbedPanel.addPanel("TNT Program Details", true);
+		externalProcRunner.addItemsToDialogPanel(queryOptionsDialog);
 		Checkbox parallelCheckBox = queryOptionsDialog.addCheckBox("use PVM for parallel processing", parallel);
 		parallelCheckBox.addItemListener(this);
 		IntegerField slavesField = queryOptionsDialog.addIntegerField("Number of Slaves", numSlaves, 4, 0, MesquiteInteger.infinite);
 
 
-		queryOptionsDialog.addHorizontalLine(1);
+		tabbedPanel.addPanel("Search Options", true);
+		Checkbox convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
+
 
 		//cardPanels[1] = cardPanel.addNewCard("Search Replicates & Bootstrap");
 		//dialog.setAddPanel(cardPanels[1]);
@@ -237,38 +228,35 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 		//dialog.setAddPanel(cardPanels[2]);
 		//dialog.addHorizontalLine(1);
 		SingleLineTextField otherOptionsField = queryOptionsDialog.addTextField("Other TNT options:", otherOptions, 40);
-	
 
-		queryOptionsDialog.addHorizontalLine(1);
-		TNTPathField = queryOptionsDialog.addTextField("Path to TNT:", TNTPath, 40);
-		Button TNTBrowseButton = queryOptionsDialog.addAListenedButton("Browse...",null, this);
-		TNTBrowseButton.setActionCommand("TNTBrowse");
-		
 		adjustDialogText();
 
-
-//		dialog.nullifyAddPanel();
-
-
+		tabbedPanel.cleanup();
+		queryOptionsDialog.nullifyAddPanel();
 		queryOptionsDialog.completeAndShowDialog(true);
+
 		if (buttonPressed.getValue()==0)  {
-			TNTPath = TNTPathField.getText();
-			bootstrapreps = bootStrapRepsField.getValue();
-			numSlaves = slavesField.getValue();
-			otherOptions = otherOptionsField.getText();
-			convertGapsToMissing = convertGapsBox.getState();
-			parallel = parallelCheckBox.getState();
-			searchArguments = searchField.getText();
-			bootstrapSearchArguments = bootstrapSearchField.getText();
+			if (externalProcRunner.optionsChosen()) {
+				bootstrapreps = bootStrapRepsField.getValue();
+				numSlaves = slavesField.getValue();
+				otherOptions = otherOptionsField.getText();
+				convertGapsToMissing = convertGapsBox.getState();
+				parallel = parallelCheckBox.getState();
+				searchArguments = searchField.getText();
+				bootstrapSearchArguments = bootstrapSearchField.getText();
 
-
-			storePreferences();
+				externalProcRunner.storePreferences();
+				storePreferences();
+			}
 		}
 		queryOptionsDialog.dispose();
-		return (buttonPressed.getValue()==0) && !StringUtil.blank(TNTPath);
+		if (closeWizard) 
+			MesquiteDialog.closeWizard();
+
+		return (buttonPressed.getValue()==0);
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public boolean queryTaxaOptions(Taxa taxa) {
 		if (taxa==null)
 			return true;
@@ -294,20 +282,13 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 		dialog.dispose();
 		return (buttonPressed.getValue()==0);
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public  void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase("TNTBrowse")) {
-			MesquiteString directoryName = new MesquiteString();
-			MesquiteString fileName = new MesquiteString();
-			TNTPath = MesquiteFile.openFileDialog("Choose TNT", directoryName, fileName);
-			if (StringUtil.notEmpty(TNTPath))
-				TNTPathField.setText(TNTPath);
-		}
 	}
+	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent arg0) {
 		if (queryOptionsDialog!=null) {
 			adjustDialogText();	
-		//	queryOptionsDialog.prepareDialogHideFirst();
 		}
 	}
 
@@ -316,7 +297,6 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 		this.randseed = seed;
 	}
 
-	ProgressIndicator progIndicator;
 	int count=0;
 
 	public void prepareExportFile(FileInterpreterI exporter) {
@@ -331,7 +311,7 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 		else
 			return ";"+StringUtil.lineEnding();
 	}
-	
+
 	String commands = "";
 
 	/*.................................................................................................................*
@@ -346,83 +326,16 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 	String indentTNTCommand(String command) {
 		return "   " + command;
 	}
-	
-	
+
+
 	/*.................................................................................................................*/
-	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed) {
-		if (matrix==null )
-			return null;
-		if (StringUtil.blank(TNTPath))
-			return null;
-		if (this.taxa != taxa) {
-			if (!initializeTaxa(taxa))
-				return null;
-		}
-
-		setTNTSeed(seed);
-
-		CategoricalData data = (CategoricalData)matrix.getParentData();
-		isProtein = data instanceof ProteinData;
-
-		if (getProject()==null)
-			return null;
-		
-		getProject().incrementProjectWindowSuppression();
-
-		data.setEditorInhibition(true);
-		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
-
-		String rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.BESIDE_HOME_FILE, "TNT");
-		if (rootDir==null)
-			return null;
-
-		String fileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".ss";   //replace this with actual file name?
-		String filePath = rootDir +  fileName;
-
-		FileInterpreterI exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretTNT");
-		if (exporter==null)
-			return null;
-		
-		boolean fileSaved = false;
-		fileSaved = ZephyrUtil.saveExportFile(this,exporter,  filePath,  data);
-		if (!fileSaved) return null;
-
-
-
-		String runningFilePath = rootDir + "running" + MesquiteFile.massageStringToFilePathSafe(unique);
-		//String outFilePath = rootDir + "tempTree" + MesquiteFile.massageStringToFilePathSafe(unique) + ".tre";
-
-		StringBuffer shellScript = new StringBuffer(1000);
-
-		String treeFileName;
-		if (bootstrap())
-			treeFileName = "TNT_bootstrapTrees.txt";
-		else 
-			treeFileName = "TNT_Trees.txt";  
-		String treeFilePath = rootDir + treeFileName;
-		String currentTreeFilePath =null;
-		String logFileName = "log.out";
-		String commandsFileName = "TNTCommands.txt";
-		currentTreeFilePath = treeFilePath+"-1";
-		String[] logFilePaths = {currentTreeFilePath, rootDir + logFileName, rootDir + commandsFileName};
-
-
-		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
-		//shellScript.append("ls -la"+ StringUtil.lineEnding());
-
-		TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-		int firstOutgroup = 0;
-		if (outgroupSet!=null)
-			firstOutgroup = outgroupSet.firstBitOn();
-		
-		
+	void formCommandFile(String dataFileName, int firstOutgroup) {
 		if (parallel) {
 			commands = "";
 		}
-		
 		commands += getTNTCommand("mxram " + mxram);
 		commands += getTNTCommand("report+0/1/0");
-		commands += getTNTCommand("p " + fileName);
+		commands += getTNTCommand("p " + dataFileName);
 		commands += getTNTCommand("log "+logFileName) ; 
 		commands += getTNTCommand("vversion");
 		if (MesquiteInteger.isCombinable(firstOutgroup) && firstOutgroup>=0)
@@ -445,10 +358,10 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 			commands += getTNTCommand("tsave *" + treeFileName);
 			commands += getTNTCommand("save") ; 
 			//commands += getTNTCommand("proc/") ; 
-			
 
-		//	if (!parallel)
-				commands += getTNTCommand("quit") ; 
+
+			//	if (!parallel)
+			commands += getTNTCommand("quit") ; 
 		}
 		else {
 			commands += getTNTCommand("tsave !5 " + treeFileName) ;   // if showing intermediate trees
@@ -457,99 +370,147 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 			commands += getTNTCommand("save") ; 
 			commands += getTNTCommand("quit") ; 
 		}
+	}
+	String treeFileName;
+	String currentTreeFileName;
+	String logFileName;
+	String commandsFileName;
 
+	static final int OUT_TREEFILE=0;
+	static final int OUT_LOGFILE = 1;
+
+	/*.................................................................................................................*/
+	public void setFileNames(){
+		if (bootstrap())
+			treeFileName = "TNT_bootstrapTrees.txt";
+		else 
+			treeFileName = "TNT_Trees.txt";  
+		currentTreeFileName = treeFileName+"-1";
+
+		logFileName = "log.out";
+		commandsFileName = "TNTCommands.txt";
+		logFileNames = new String[]{treeFileName,  logFileName};
+	}
+	/*.................................................................................................................*/
+	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
+		if (!initializeGetTrees(MolecularData.class, matrix))
+			return null;
+		setTNTSeed(seed);
+		isProtein = data instanceof ProteinData;
+
+
+		//write data file
+		String tempDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.IN_SUPPORT_DIR, "TNT");
+		if (tempDir==null)
+			return null;
+		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".ss";   //replace this with actual file name?
+		String dataFilePath = tempDir +  dataFileName;
+		FileInterpreterI exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretTNT");
+		if (exporter==null)
+			return null;
+		boolean fileSaved = false;
+		fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data);
+		if (!fileSaved) return null;
+
+		setFileNames();
+
+		TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
+		int firstOutgroup = 0;
+		if (outgroupSet!=null)
+			firstOutgroup = outgroupSet.firstBitOn();
+		formCommandFile(dataFileName, firstOutgroup);
 		logln("\n\nCommands given to TNT:");
 		logln(commands);
 		logln("");
-		
-		MesquiteFile.putFileContents(rootDir+commandsFileName, commands, true);
-		
-		String arguments = " proc " + rootDir+commandsFileName;
-		
-		shellScript.append(getProgramCommand(arguments)+ StringUtil.lineEnding());
 
-		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
+		String arguments = " proc " + commandsFileName;
+		String programCommand = externalProcRunner.getExecutableCommand()+arguments;
+		programCommand += StringUtil.lineEnding();  
 
-		String scriptPath = rootDir + "TNTScript" + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
-		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
 
-		progIndicator = new ProgressIndicator(getProject(),ownerModule.getName(), "TNT Search", 0, true);
-		if (progIndicator!=null){
-			count = 0;
-			progIndicator.start();
+		int numInputFiles = 2;
+		String[] fileContents = new String[numInputFiles];
+		String[] fileNames = new String[numInputFiles];
+		for (int i=0; i<numInputFiles; i++){
+			fileContents[i]="";
+			fileNames[i]="";
 		}
-
-		MesquiteMessage.logCurrentTime("Start of TNT analysis: ");
-		logln("");
-
-
-		timer.start();
-		boolean success = ShellScriptUtil.executeLogAndWaitForShell(scriptPath, "TNT Tree", logFilePaths, this, this);
-		logln("TNT analysis completed at " + getDateAndTime());
-		logln("Total time: " + StringUtil.secondsToHHMMSS((int)timer.timeSinceVeryStartInSeconds()));
+		fileContents[0] = MesquiteFile.getFileContentsAsString(dataFilePath);
+		fileNames[0] = dataFileName;
+		fileContents[1] = commands;
+		fileNames[1] = commandsFileName;
 
 
-		if (progIndicator!=null)
-			progIndicator.goAway();
+		//----------//
+		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName());
 
 		if (success){
-			success = false;
-			Tree t= null;
-			MesquiteBoolean readSuccess = new MesquiteBoolean(false);
-			//TreeVector tv = new TreeVector(taxa);
-			if (bootstrap())
-				t =ZephyrUtil.readTNTTreeFile(this,trees, taxa,treeFilePath, "TNTBootstrap Rep", 0, readSuccess, false);  // set first tree number as 0 as will remove the first one later.
-			else
-				t =ZephyrUtil.readTNTTreeFile(this,trees, taxa,treeFilePath, "TNTTree", 1, readSuccess, false);
-			success = t!=null;
-			if (success && bootstrap()) {
-				t = t.cloneTree();
-				trees.removeElementAt(0, false);  // get rid of first one as this is the bootstrap tree
-			}
-			
 			getProject().decrementProjectWindowSuppression();
-			deleteSupportDirectory();
-			data.setEditorInhibition(false);
-			if (success) 
-				return t;
-			return null;
+			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 		}
-		deleteSupportDirectory();
 		getProject().decrementProjectWindowSuppression();
 		data.setEditorInhibition(false);
 		return null;
 	}	
 
-	
-	public void runFilesAvailable(boolean[] filesAvailable) {
-		// TODO Auto-generated method stub
-		
-	}
-	public Tree getTrees(TreeVector trees, Taxa taxa,
-			MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
+	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
-		// TODO Auto-generated method stub
+		logln("Preparing to receive RAxML trees.");
+		boolean success = false;
+		taxa = treeList.getTaxa();
+		//TODO		finalScore.setValue(finalValue);
+
+		getProject().incrementProjectWindowSuppression();
+		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
+		CommandRecord scr = new CommandRecord(true);
+		MesquiteThread.setCurrentCommandRecord(scr);
+
+		// define file paths and set tree files as needed. 
+		setFileNames();
+		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
+
+		String treeFilePath = outputFilePaths[OUT_TREEFILE];
+
+		runFilesAvailable();
+
+		// read in the tree files
+		success = false;
+		Tree t= null;
+
+		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
+		//TreeVector tv = new TreeVector(taxa);
+		if (bootstrap())
+			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTBootstrap Rep", 0, readSuccess, false);  // set first tree number as 0 as will remove the first one later.
+		else
+			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTTree", 1, readSuccess, false);
+		success = t!=null;
+		if (success && bootstrap()) {
+			t = t.cloneTree();
+			treeList.removeElementAt(0, false);  // get rid of first one as this is the bootstrap tree
+		}
+
+		MesquiteThread.setCurrentCommandRecord(oldCR);
+		success = readSuccess.getValue();
+		if (!success)
+			logln("Execution of TNT unsuccessful [2]");
+
+		getProject().decrementProjectWindowSuppression();
+		if (data!=null)
+			data.setEditorInhibition(false);
+		//	manager.deleteElement(tv);  // get rid of temporary tree block
+		if (success) 
+			return t;
 		return null;
 	}
 
-	@Override
-	public void initialize(ZephyrTreeSearcher ownerModule) {
-		// TODO Auto-generated method stub
-		
-	}
 
 
 	public String getProgramName() {
 		return "TNT";
 	}
 
-	
-
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	String getProgramCommand(String arguments){
 		String command = "";
 		if (MesquiteTrunk.isWindows())
@@ -558,22 +519,23 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 			command += StringUtil.protectForUnix(TNTPath )+ arguments;
 		return command;
 	}
-
-	Parser parser = new Parser();
-	long screenFilePos = 0;
-	MesquiteFile screenFile = null;
-
 	/*.................................................................................................................*/
+
+	//	Parser parser = new Parser();
+	//	long screenFilePos = 0;
+	//	MesquiteFile screenFile = null;
+
+	/*.................................................................................................................*
 	public String[] modifyOutputPaths(String[] outputFilePaths){
 		return outputFilePaths;
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String getOutputFileToReadPath(String originalPath) {
 		//File file = new File(originalPath);
 		//File fileCopy = new File(originalPath + "2");
 		String newPath = originalPath + "2";
 		MesquiteFile.copyFileFromPaths(originalPath, newPath, false);
-//		if (file.renameTo(fileCopy))
+		//		if (file.renameTo(fileCopy))
 		if (MesquiteFile.fileExists(newPath)) {
 			return newPath;
 		}
@@ -581,11 +543,13 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 	}
 	/*.................................................................................................................*/
 
-	public void processOutputFile(String[] outputFilePaths, int fileNum) {
-		if (progIndicator.isAborted())
+	public void runFilesAvailable(int fileNum) {
+		if ((progIndicator!=null && progIndicator.isAborted()) || logFileNames==null)
 			return;
-		String filePath = null;
-		filePath = getOutputFileToReadPath(outputFilePaths[fileNum]);
+		String[] outputFilePaths = new String[logFileNames.length];
+		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
+		String filePath=outputFilePaths[fileNum];
+
 
 
 		if (fileNum==0 && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0]) && !bootstrap()) {   // tree file
@@ -683,10 +647,11 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 		this.bootstrapreps = bootstrapreps;
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void setTNTPath(String TNTPath){
 		this.TNTPath = TNTPath;
 	}
+	/*.................................................................................................................*/
 
 	public Class getDutyClass() {
 		return TNTRunner.class;
@@ -703,12 +668,12 @@ public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, She
 
 	public void runFailed(String message) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void runFinished(String message) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 

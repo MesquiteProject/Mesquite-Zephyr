@@ -24,6 +24,7 @@ import mesquite.lib.Tree;
 import mesquite.lib.TreeVector;
 import mesquite.lib.characters.MCharactersDistribution;
 import mesquite.zephyr.GarliTrees.GarliTrees;
+import mesquite.zephyr.RAxMLTrees.RAxMLTrees;
 
 public abstract class ZephyrRunner extends MesquiteModule implements ExternalProcessRequester{
 
@@ -35,6 +36,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected Taxa taxa;
 	protected String unique;
 	protected Random rng;
+	protected ZephyrTreeSearcher ownerModule;
 
 	
 	protected String outgroupTaxSetString = "";
@@ -42,7 +44,6 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	public abstract Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore);
 	public abstract Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore);
-	public abstract void initialize (ZephyrTreeSearcher ownerModule);
 	public abstract boolean bootstrap();
 	public abstract void reconnectToRequester(MesquiteCommand command);
 	public abstract String getProgramName();
@@ -50,6 +51,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	
 	
 	
+	public void initialize (ZephyrTreeSearcher ownerModule) {
+		this.ownerModule= ownerModule;
+	}
 	/*.................................................................................................................*/
 	public boolean initializeTaxa (Taxa taxa) {
 		Taxa currentTaxa = this.taxa;
@@ -102,7 +106,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 
 	/*.................................................................................................................*/
-	public boolean runProgramOnExternalProcess (String programCommand, String[] fileContents, String[] fileNames, String progTitle, boolean logBeginningRun1) {
+	public boolean runProgramOnExternalProcess (String programCommand, String[] fileContents, String[] fileNames, String progTitle) {
 
 		/*  ============ SETTING UP THE RUN ============  */
 		boolean success = externalProcRunner.setInputFiles(programCommand,fileContents, fileNames);
@@ -118,22 +122,18 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 
 		MesquiteMessage.logCurrentTime("\nStart of "+getProgramName()+" analysis: ");
-/*		if (logBeginningRun1)
-			logln("\nBeginning Run 1");
-		else
-			logln("");
-*/		timer.start();
+		timer.start();
 
-		/*  ============ STARTING THE PROCESS ============  */
+		// starting the process
 		success = externalProcRunner.startExecution();
 		
-		/*  ============ THE PROCESS RUNS ============  */
+		// the process runs
 		if (success)
 			success = externalProcRunner.monitorExecution();
 		else
 			alert("The "+getProgramName()+" run encountered problems. ");  // better error message!
 
-		/*  ============ THE PROCESS COMPLETES ============  */
+		// the process completed
 		logln("\n"+getProgramName()+" analysis completed at " + getDateAndTime());
 		double totalTime= timer.timeSinceVeryStartInSeconds();
 		if (totalTime>120.0)

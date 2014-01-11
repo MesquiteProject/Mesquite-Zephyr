@@ -38,7 +38,6 @@ outgroups
 public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
 	public static final String SCORENAME = "RAxMLScore";
 
-	RAxMLTrees ownerModule;
 	boolean onlyBest = true;
 
 	static final int THREADING_OTHER =0;
@@ -103,9 +102,6 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		return true;
 	}
 
-	public void initialize (ZephyrTreeSearcher ownerModule) {
-		this.ownerModule= (RAxMLTrees)ownerModule;
-	}
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
@@ -597,7 +593,7 @@ WAG, gene2 = 501-1000
 		numRunsCompleted = 0;
 		
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName(), !bootstrap() && numRuns>1);
+		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName());
 
 		if (success){
 			getProject().decrementProjectWindowSuppression();
@@ -654,7 +650,6 @@ WAG, gene2 = 501-1000
 		runFilesAvailable();
 
 		// read in the tree files
-
 		success = false;
 		Tree t= null;
 		int count =0;
