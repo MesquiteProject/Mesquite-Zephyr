@@ -58,8 +58,6 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	int numRunsCompleted = 0;
 	int run = 0;
 	Taxa taxa;
-	String outgroupTaxSetString = "";
-	int outgroupTaxSetNumber = 0;
 	boolean preferencesSet = false;
 	boolean isProtein = false;
 
@@ -73,10 +71,23 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 
 	long  randseed = -1;
 	static String constraintfile = "none";
-	MesquiteTimer timer = new MesquiteTimer();
-	ExternalProcessRunner externalProcRunner;
+
+	SingleLineTextField dnaModelField, proteinModelField, otherOptionsField, MPISetupField;
+	IntegerField seedField;
+	javax.swing.JLabel commandLabel;
+	SingleLineTextArea commandField;
+	IntegerField numProcessorsFiled, numRunsField, bootStrapRepsField;
+	Checkbox onlyBestBox, retainFilescheckBox;
+	RadioButtons threadingRadioButtons;
+	int count=0;
+
+	double finalValue = MesquiteDouble.unassigned;
+	double[] finalValues = null;
+	int runNumber = 0;
 
 
+
+	/*.................................................................................................................*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		rng = new Random(System.currentTimeMillis());
 		if (randomIntSeed<0)
@@ -258,43 +269,6 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		dialog.dispose();
 		return (buttonPressed.getValue()==0);
 	}
-	SingleLineTextField dnaModelField, proteinModelField, otherOptionsField, MPISetupField;
-	IntegerField seedField;
-	javax.swing.JLabel commandLabel;
-	SingleLineTextArea commandField;
-	IntegerField numProcessorsFiled, numRunsField, bootStrapRepsField;
-	Checkbox onlyBestBox, retainFilescheckBox;
-	RadioButtons threadingRadioButtons;
-
-	/*.................................................................................................................*/
-	public boolean queryTaxaOptions(Taxa taxa) {
-		if (taxa==null)
-			return true;
-		SpecsSetVector ssv  = taxa.getSpecSetsVector(TaxaSelectionSet.class);
-		if (ssv==null || ssv.size()<=0)
-			return true;
-
-		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), "RAxML Outgroup Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
-		dialog.addLabel("RAxML Outgroup Options");
-
-		boolean specifyOutgroup = false;
-
-		Choice taxonSetChoice = null;
-		Checkbox specifyOutgroupBox = dialog.addCheckBox("specify outgroup", specifyOutgroup);
-		taxonSetChoice = dialog.addPopUpMenu ("Outgroups: ", ssv, 0);
-
-
-		dialog.completeAndShowDialog(true);
-		if (buttonPressed.getValue()==0)  {
-			specifyOutgroup = specifyOutgroupBox.getState();
-			outgroupTaxSetString = taxonSetChoice.getSelectedItem();
-			if (!specifyOutgroup)
-				outgroupTaxSetString="";
-		}
-		dialog.dispose();
-		return (buttonPressed.getValue()==0);
-	}
 	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
 			if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
@@ -314,12 +288,6 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		this.randseed = seed;
 	}
 
-	ProgressIndicator progIndicator;
-	int count=0;
-
-	double finalValue = MesquiteDouble.unassigned;
-	double[] finalValues = null;
-	int runNumber = 0;
 
 	/*.................................................................................................................*/
 	private Tree readRAxMLTreeFile(TreeVector trees, String treeFilePath, String treeName, MesquiteBoolean success, boolean lastTree) {
@@ -539,7 +507,7 @@ WAG, gene2 = 501-1000
 		return arguments;
 	}
 	/*.................................................................................................................*/
-	private void initializeMonitoring(){
+	public void initializeMonitoring(){
 		if (finalValues==null) {
 			if (bootstrap())
 				finalValues = new double[getBootstrapreps()];
@@ -555,16 +523,14 @@ WAG, gene2 = 501-1000
 
 	String treeFileName;
 	String multipleModelFileName;
-	String[] logFileNames;
 	String logFileName;
 	String unique;
-	MolecularData data;
 	
 	static final int OUT_LOGFILE=0;
 	static final int OUT_TREEFILE=1;
 	static final int OUT_SUMMARYFILE=2;
 	/*.................................................................................................................*/
-	private void setFilePaths () {
+	public void setFilePaths () {
 		multipleModelFileName = "multipleModelFile.txt";
 	
 		if (bootstrap())
@@ -673,7 +639,7 @@ WAG, gene2 = 501-1000
 		}
 		numRunsCompleted = 0;
 
-		MesquiteMessage.logCurrentTime("Start of RAxML analysis: ");
+		MesquiteMessage.logCurrentTime("\nStart of RAxML analysis: ");
 		if (!bootstrap() && numRuns>1)
 			logln("\nBeginning Run 1");
 		else
@@ -714,7 +680,7 @@ WAG, gene2 = 501-1000
 		return null;
 	}	
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
 		logln("Monitoring RAxML run begun.");
 		getProject().incrementProjectWindowSuppression();
@@ -723,9 +689,6 @@ WAG, gene2 = 501-1000
 		setFilePaths();
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
-		/*	MesquiteModule inferer = findEmployerWithDuty(TreeInferer.class);
-		if (inferer != null)
-			((TreeInferer)inferer).bringIntermediatesWindowToFront();*/
 		boolean success = externalProcRunner.monitorExecution();
 
 		if (progIndicator!=null)
@@ -895,7 +858,7 @@ WAG, gene2 = 501-1000
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
-		if (progIndicator!=null && progIndicator.isAborted())
+		if ((progIndicator!=null && progIndicator.isAborted()) || logFileNames==null)
 			return;
 		String[] outputFilePaths = new String[logFileNames.length];
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
@@ -1076,7 +1039,7 @@ WAG, gene2 = 501-1000
 
 	}
 
-	public String getExecutableName() {
+	public String getProgramName() {
 		return "RAxML";
 	}
 

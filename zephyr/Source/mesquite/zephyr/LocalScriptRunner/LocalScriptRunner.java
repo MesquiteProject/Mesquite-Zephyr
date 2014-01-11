@@ -105,7 +105,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 
 	// setting the requester, to whom this runner will communicate about the run
 	public  void setProcessRequester(ExternalProcessRequester processRequester){
-		setExecutableName(processRequester.getExecutableName());
+		setExecutableName(processRequester.getProgramName());
 		this.processRequester = processRequester;
 		loadPreferences();
 		processRequester.intializeAfterExternalProcessRunnerHired();

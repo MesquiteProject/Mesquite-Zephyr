@@ -33,17 +33,11 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		return true;
 	}
 	/*.................................................................................................................*/
-	public String getRunnerModuleName() {
-		return null;
-	}
+	abstract public String getRunnerModuleName();
 	/*.................................................................................................................*/
-	public Class getRunnerClass() {
-		return null;
-	}
+	abstract public Class getRunnerClass();
 	/*.................................................................................................................*/
-	public String getProgramName() {
-		return null;
-	}
+	abstract public String getProgramName();
 
 	/*.................................................................................................................*/
 	/** Notifies all employees that a file is about to be closed.*/

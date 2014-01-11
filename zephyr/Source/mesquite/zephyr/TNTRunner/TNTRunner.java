@@ -40,7 +40,7 @@ import mesquite.io.lib.*;
 
  */
 
-public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, ShellScriptWatcher, ActionListener, ItemListener, ZephyrFilePreparer  {
+public class TNTRunner extends ZephyrRunner  implements OutputFileProcessor, ShellScriptWatcher, ActionListener, ItemListener, ZephyrFilePreparer  {
 	public static final String SCORENAME = "TNTScore";
 
 
@@ -72,6 +72,14 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 	String constraintfile = "none";
 	MesquiteTimer timer = new MesquiteTimer();
 	int totalNumHits = 250;
+	
+	ExternalProcessRunner externalProcRunner;
+
+	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
+		EmployeeNeed e = registerEmployeeNeed(ExternalProcessRunner.class, getName() + "  needs a module to run an external process.","");
+	}
+
+
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		rng = new Random(System.currentTimeMillis());
@@ -90,7 +98,13 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 		searchArguments +=   getTNTCommand("xmult") ;   // actual search
 		searchArguments +=   getTNTCommand("bbreak=fillonly") ;   // actual search
 
-		loadPreferences();
+		externalProcRunner = (ExternalProcessRunner)hireEmployee(ExternalProcessRunner.class, "External Process Runner (for " + getName() + ")"); 
+		if (externalProcRunner==null){
+			return sorry("Couldn't find an external process runner");
+		}
+		externalProcRunner.setProcessRequester(this);
+
+		
 		if (!MesquiteThread.isScripting() && !queryOptions())
 			return false;
 		return true;
@@ -109,12 +123,36 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 		return true;
 	}
 
+	/*.................................................................................................................*/
+	public Snapshot getSnapshot(MesquiteFile file) { 
+		Snapshot temp = new Snapshot();
+		temp.addLine("setExternalProcessRunner", externalProcRunner);
+		return temp;
+	}
+	/*.................................................................................................................*/
+	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
+		if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner", "[name of module]", commandName, "setExternalProcessRunner")) {
+			ExternalProcessRunner temp = (ExternalProcessRunner)replaceEmployee(ExternalProcessRunner.class, arguments, "External Process Runner", externalProcRunner);
+			if (temp != null) {
+				externalProcRunner = temp;
+				parametersChanged();
+			}
+			externalProcRunner.setProcessRequester(this);
+			return externalProcRunner;
+		}
+		return null;
+	}	
+
 	public boolean getPreferencesSet() {
 		return preferencesSet;
 	}
 	public void setPreferencesSet(boolean b) {
 		preferencesSet = b;
 	}
+	public void intializeAfterExternalProcessRunnerHired() {
+		loadPreferences();
+	}
+
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("TNTPath".equalsIgnoreCase(tag)) 
@@ -137,6 +175,11 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 		preferencesSet = true;
 		return buffer.toString();
 	}
+	
+	public void reconnectToRequester(MesquiteCommand command){
+		continueMonitoring(command);
+	}
+
 
 	IntegerField bootStrapRepsField = null;
 
@@ -477,6 +520,35 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 		return null;
 	}	
 
+	
+	public void runFilesAvailable(boolean[] filesAvailable) {
+		// TODO Auto-generated method stub
+		
+	}
+	public Tree getTrees(TreeVector trees, Taxa taxa,
+			MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void initialize(ZephyrTreeSearcher ownerModule) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	public String getProgramName() {
+		return "TNT";
+	}
+
+	
+
 	/*.................................................................................................................*/
 	String getProgramCommand(String arguments){
 		String command = "";
@@ -626,6 +698,17 @@ public class TNTRunner extends MesquiteModule  implements OutputFileProcessor, S
 
 	public String getName() {
 		return "TNT Runner";
+	}
+
+
+	public void runFailed(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void runFinished(String message) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

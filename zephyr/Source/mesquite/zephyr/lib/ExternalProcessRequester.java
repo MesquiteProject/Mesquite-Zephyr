@@ -12,6 +12,6 @@ public interface ExternalProcessRequester {
 	
 	public void runFinished(String message);
 	
-	public String getExecutableName();
+	public String getProgramName();
 	
 }

@@ -26,9 +26,6 @@ import mesquite.molec.lib.Blaster;
 import mesquite.zephyr.GarliTrees.*;
 import mesquite.zephyr.lib.*;
 
-/* TODO:
- * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
- */
 
 public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester {
 	public static final String SCORENAME = "GARLIScore";
@@ -121,9 +118,7 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	Choice rateHetChoice= null;
 	IntegerField numRateCatField = null;
 //	String rootDir;
-	ExternalProcessRunner externalProcRunner;
 
-	MesquiteTimer timer = new MesquiteTimer();
 
 	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
 		EmployeeNeed e = registerEmployeeNeed(ExternalProcessRunner.class, getName() + "  needs a module to run an external process.","");
@@ -601,33 +596,6 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	}
 
 	/*.................................................................................................................*/
-	public boolean queryTaxaOptions(Taxa taxa) {
-		Debugg.println(this.getName() + " using taxa " + taxa.getID());
-		if (taxa==null)
-			return true;
-		SpecsSetVector ssv  = taxa.getSpecSetsVector(TaxaSelectionSet.class);
-		if (ssv==null || ssv.size()<=0)
-			return true;
-
-		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), "GARLI Outgroup Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
-		dialog.addLabel("GARLI Outgroup Options");
-
-
-		Choice taxonSetChoice = null;
-		taxonSetChoice = dialog.addPopUpMenu ("Outgroups: ", ssv, 0);
-
-
-		dialog.completeAndShowDialog(true);
-		if (buttonPressed.getValue()==0)  {
-
-			outgroupTaxSetString = taxonSetChoice.getSelectedItem();
-
-		}
-		dialog.dispose();
-		return (buttonPressed.getValue()==0);
-	}
-	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equalsIgnoreCase("constraintBrowse")) {
 			MesquiteString directoryName = new MesquiteString();
@@ -643,7 +611,6 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		this.randseed = seed;
 	}
 
-	ProgressIndicator progIndicator;
 	int count=0;
 
 	double finalValue = MesquiteDouble.unassigned;
@@ -654,12 +621,11 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	String treeFilePath;
 	String currentTreeFilePath;
 	String allBestTreeFilePath;
-	String[] logFileNames;
 	String constraintFilePath;
 	String configFileName;
 
 	/*.................................................................................................................*/
-	private void initializeMonitoring(){
+	public void initializeMonitoring(){
 		if (finalValues==null) {
 			if (bootstrap())
 				finalValues = new double[getBootstrapreps()];
@@ -674,7 +640,7 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	static final int TREEFILE=3;
 	static final int BESTTREEFILE=4;
 	/*.................................................................................................................*/
-	private void setFilePaths () {
+	public void setFilePaths () {
 		configFileName =  "garli.conf";
 
 		if (bootstrap())
@@ -783,7 +749,7 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 			count = 0;
 			progIndicator.start();
 		}
-		MesquiteMessage.logCurrentTime("Start of " + getExecutableName() + " analysis: ");
+		MesquiteMessage.logCurrentTime("\nStart of " + getProgramName() + " analysis: ");
 		timer.start();
 
 
@@ -799,7 +765,7 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 
 		/*  ============ THE PROCESS COMPLETES ============  */
 
-		logln("GARLI analysis completed at " + getDateAndTime());
+		logln("\nGARLI analysis completed at " + getDateAndTime());
 		logln("Total time: " + timer.timeSinceVeryStartInSeconds() + " seconds");
 		if (progIndicator!=null)
 			progIndicator.goAway();
@@ -815,7 +781,7 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	}	
 	
 	
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
 		logln("Monitoring GARLI run begun.");
 		getProject().incrementProjectWindowSuppression();
@@ -824,9 +790,6 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		setFilePaths();
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
-		/*	MesquiteModule inferer = findEmployerWithDuty(TreeInferer.class);
-		if (inferer != null)
-			((TreeInferer)inferer).bringIntermediatesWindowToFront();*/
 		boolean success = externalProcRunner.monitorExecution();
 
 		if (progIndicator!=null)
@@ -1212,7 +1175,7 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	}
 
 
-	public String getExecutableName() {
+	public String getProgramName() {
 		return "GARLI";
 	}
 
