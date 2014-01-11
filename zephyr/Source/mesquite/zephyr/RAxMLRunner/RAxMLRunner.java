@@ -79,7 +79,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	IntegerField numProcessorsFiled, numRunsField, bootStrapRepsField;
 	Checkbox onlyBestBox, retainFilescheckBox;
 	RadioButtons threadingRadioButtons;
-	int count=0;
+//	int count=0;
 
 	double finalValue = MesquiteDouble.unassigned;
 	double[] finalValues = null;
@@ -530,7 +530,7 @@ WAG, gene2 = 501-1000
 	static final int OUT_TREEFILE=1;
 	static final int OUT_SUMMARYFILE=2;
 	/*.................................................................................................................*/
-	public void setFilePaths () {
+	public void setFileNames () {
 		multipleModelFileName = "multipleModelFile.txt";
 	
 		if (bootstrap())
@@ -595,7 +595,7 @@ WAG, gene2 = 501-1000
 			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data);
 		if (!fileSaved) return null;
 		
-		setFilePaths();
+		setFileNames();
 
 		String multipleModelFileContents = getMultipleModelFileString(data, false);//TODO: why is partByCodPos false?
 		if (StringUtil.blank(multipleModelFileContents)) 
@@ -622,54 +622,9 @@ WAG, gene2 = 501-1000
 		fileContents[1] = multipleModelFileContents;
 		fileNames[1] = multipleModelFileName;
 
-
-		/*  ============ Setting up the run ============  */
-		boolean success = externalProcRunner.setInputFiles(programCommand,fileContents, fileNames);
-		if (!success){
-			// give message about failure
-			return null;
-		}
-
-		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
-
-		progIndicator = new ProgressIndicator(getProject(),ownerModule.getName(), "RAxML Search", 0, true);
-		if (progIndicator!=null){
-			count = 0;
-			progIndicator.start();
-		}
 		numRunsCompleted = 0;
-
-		MesquiteMessage.logCurrentTime("\nStart of RAxML analysis: ");
-		if (!bootstrap() && numRuns>1)
-			logln("\nBeginning Run 1");
-		else
-			logln("");
-		timer.start();
-
-		/*  ============ STARTING THE PROCESS ============  */
-		success = externalProcRunner.startExecution();
-
 		
-		/*  ============ THE PROCESS RUNS ============  */
-		if (success)
-			success = externalProcRunner.monitorExecution();
-		else
-			alert("The RAxML run encountered problems. ");  // better error message!
-
-
-		/*  ============ THE PROCESS COMPLETES ============  */
-
-		logln("\nRAxML analysis completed at " + getDateAndTime());
-		double totalTime= timer.timeSinceVeryStartInSeconds();
-		if (totalTime>120.0)
-			logln("Total time: " + StringUtil.secondsToHHMMSS((int)totalTime));
-		else
-			logln("Total time: " + totalTime  + " seconds");
-		if (progIndicator!=null)
-			progIndicator.goAway();
-		if (!success)
-			logln("Execution of RAxML unsuccessful [1]");
-
+		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName(), !bootstrap() && numRuns>1);
 
 		if (success){
 			getProject().decrementProjectWindowSuppression();
@@ -678,6 +633,8 @@ WAG, gene2 = 501-1000
 		getProject().decrementProjectWindowSuppression();
 		data.setEditorInhibition(false);
 		return null;
+		
+
 	}	
 
 	/*.................................................................................................................*
@@ -716,7 +673,7 @@ WAG, gene2 = 501-1000
 		MesquiteThread.setCurrentCommandRecord(scr);
 
 		// define file paths and set tree files as needed. 
-		setFilePaths();
+		setFileNames();
 		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
 
 		String treeFilePath = outputFilePaths[OUT_TREEFILE];
@@ -877,7 +834,7 @@ WAG, gene2 = 501-1000
 						progIndicator.spin();		
 
 					}
-				count++;
+//				count++;
 			} 
 		}
 
@@ -968,29 +925,6 @@ WAG, gene2 = 501-1000
 		}
 
 	}
-	/*.................................................................................................................*/
-
-	public void runFilesAvailable(boolean[] filesAvailable) {
-		if ((progIndicator!=null && progIndicator.isAborted()))
-			return;
-		String filePath = null;
-		int fileNum=-1;
-		String[] outputFilePaths = new String[filesAvailable.length];
-		for (int i=0; i<outputFilePaths.length; i++)
-			if (filesAvailable[i]){
-				fileNum= i;
-				break;
-			}
-		if (fileNum<0) return;
-		runFilesAvailable(fileNum);
-	}
-	/*.................................................................................................................*/
-	public void runFilesAvailable(){   // this should really only do the ones needed, not all of them.
-		for (int i = 0; i<logFileNames.length; i++){
-			runFilesAvailable(i);
-		}
-	}
-
 
 	/*.................................................................................................................*/
 

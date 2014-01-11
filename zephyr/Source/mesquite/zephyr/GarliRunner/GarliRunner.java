@@ -612,17 +612,10 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	}
 
 	int count=0;
-
 	double finalValue = MesquiteDouble.unassigned;
 	double[] finalValues = null;
 	int runNumber = 0;
 
-	String treeFileName;
-	String treeFilePath;
-	String currentTreeFilePath;
-	String allBestTreeFilePath;
-	String constraintFilePath;
-	String configFileName;
 
 	/*.................................................................................................................*/
 	public void initializeMonitoring(){
@@ -634,32 +627,34 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 			DoubleArray.deassignArray(finalValues);
 		}
 	}
+	
+	String configFileName;
 	static final int MAINLOGFILE =0;
 	static final int CURRENTTREEFILEPATH=1;
 	static final int SCREENLOG=2;
 	static final int TREEFILE=3;
 	static final int BESTTREEFILE=4;
-	/*.................................................................................................................*/
-	public void setFilePaths () {
-		configFileName =  "garli.conf";
 
+	/*.................................................................................................................*/
+	public void setFileNames () {
+		configFileName =  "garli.conf";
+		
+		String treeFileName;
 		if (bootstrap())
 			treeFileName = ofprefix+".boot.tre";
 		else
 			treeFileName = ofprefix+".best.tre";
-		treeFilePath = treeFileName;
-		currentTreeFilePath =  ofprefix+".best.current.tre";
-		allBestTreeFilePath = ofprefix+".best.all.tre";
+		String currentTreeFilePath =  ofprefix+".best.current.tre";
+		String allBestTreeFilePath = ofprefix+".best.all.tre";
 		String mainLogFileName = ofprefix+".log00.log";
 
 		String[] logFileNamesLocal = {mainLogFileName, currentTreeFilePath, ofprefix+".screen.log", treeFileName, allBestTreeFilePath};
 		logFileNames = logFileNamesLocal;
-
-		constraintFilePath = "constraint";
 	}
+	
+	
 	/*=================================================*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-
 		if (matrix==null )
 			return null;
 		if (!(matrix.getParentData() != null && matrix.getParentData() instanceof MolecularData)){
@@ -667,7 +662,6 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 			return null;
 		}
 		data = (MolecularData)matrix.getParentData();
-
 		setUpCharModels(data);
 
 		if (this.taxa != taxa) {
@@ -678,8 +672,6 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		if (!MesquiteThread.isScripting() && !queryOptions()){
 			return null;
 		}
-
-
 	
 		initializeMonitoring();
 		setGarliSeed(seed);
@@ -701,7 +693,7 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		else if (partitionScheme==partitionByCodonPosition)
 			ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data, true, true, true);
 
-		setFilePaths();
+		setFileNames();
 
 		//setting up the GARLI config file
 		String config = getGARLIConfigurationFile();
@@ -734,41 +726,8 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		else
 			GARLIcommand += StringUtil.lineEnding();  // GARLI command is very simple as all of the arguments are in the config file
 
-
-		/*  ============ Setting up the run ============  */
-		boolean success = externalProcRunner.setInputFiles(GARLIcommand,fileContents, fileNames);
-		if (!success){
-			// give message about failure
-			return null;
-		}
-
-		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
-
-		progIndicator = new ProgressIndicator(getProject(),ownerModule.getName(), "GARLI Search", 0, true);
-		if (progIndicator!=null){
-			count = 0;
-			progIndicator.start();
-		}
-		MesquiteMessage.logCurrentTime("\nStart of " + getProgramName() + " analysis: ");
-		timer.start();
-
-
-		/*  ============ STARTING THE PROCESS ============  */
-		success = externalProcRunner.startExecution();
-
-		/*  ============ THE PROCESS RUNS ============  */
-
-		if (success)
-			success = externalProcRunner.monitorExecution();
-		else
-			alert("The GARLI run encountered problems. ");  // better error message!
-
-		/*  ============ THE PROCESS COMPLETES ============  */
-
-		logln("\nGARLI analysis completed at " + getDateAndTime());
-		logln("Total time: " + timer.timeSinceVeryStartInSeconds() + " seconds");
-		if (progIndicator!=null)
-			progIndicator.goAway();
+		
+		boolean success = runProgramOnExternalProcess (GARLIcommand, fileContents, fileNames,  ownerModule.getName(), !bootstrap() && numRuns>1);
 
 		if (success){
 			getProject().decrementProjectWindowSuppression();
@@ -819,7 +778,7 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		MesquiteThread.setCurrentCommandRecord(scr);
 
 		// define file paths and set tree files as needed. 
-		setFilePaths();
+		setFileNames();
 		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
 
 		// read in the tree files
@@ -978,28 +937,6 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		}
 
 	}	
-	/*.................................................................................................................*/
-
-	public void runFilesAvailable(boolean[] filesAvailable) {
-		if ((progIndicator!=null && progIndicator.isAborted()))
-			return;
-		String filePath = null;
-		int fileNum=-1;
-		String[] outputFilePaths = new String[filesAvailable.length];
-		for (int i=0; i<outputFilePaths.length; i++)
-			if (filesAvailable[i]){
-				fileNum= i;
-				break;
-			}
-		if (fileNum<0) return;
-		runFilesAvailable(fileNum);
-	}
-	/*.................................................................................................................*/
-	public void runFilesAvailable(){   // this should really only do the ones needed, not all of them.
-		for (int i = 0; i<logFileNames.length; i++){
-			runFilesAvailable(i);
-		}
-	}
 
 	/*.................................................................................................................*
 

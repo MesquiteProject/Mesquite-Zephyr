@@ -9,10 +9,12 @@ import mesquite.lib.ExtensibleDialog;
 import mesquite.lib.MesquiteCommand;
 import mesquite.lib.MesquiteDouble;
 import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteMessage;
 import mesquite.lib.MesquiteModule;
 import mesquite.lib.MesquiteTimer;
 import mesquite.lib.ProgressIndicator;
 import mesquite.lib.SpecsSetVector;
+import mesquite.lib.StringUtil;
 import mesquite.lib.Taxa;
 import mesquite.lib.TaxaSelectionSet;
 import mesquite.lib.Tree;
@@ -44,12 +46,56 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract String getProgramName();
 	
 	
-	public void setFilePaths () {
+	public void setFileNames () {
 	}
 	public void initializeMonitoring () {
 	}
 
-	
+	/*.................................................................................................................*/
+	public boolean runProgramOnExternalProcess (String programCommand, String[] fileContents, String[] fileNames, String progTitle, boolean logBeginningRun1) {
+
+		/*  ============ SETTING UP THE RUN ============  */
+		boolean success = externalProcRunner.setInputFiles(programCommand,fileContents, fileNames);
+		if (!success){
+			// give message about failure
+			return false;
+		}
+		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
+
+		progIndicator = new ProgressIndicator(getProject(),progTitle, getProgramName() + " Search", 0, true);
+		if (progIndicator!=null){
+			progIndicator.start();
+		}
+
+		MesquiteMessage.logCurrentTime("\nStart of "+getProgramName()+" analysis: ");
+		if (logBeginningRun1)
+			logln("\nBeginning Run 1");
+		else
+			logln("");
+		timer.start();
+
+		/*  ============ STARTING THE PROCESS ============  */
+		success = externalProcRunner.startExecution();
+		
+		/*  ============ THE PROCESS RUNS ============  */
+		if (success)
+			success = externalProcRunner.monitorExecution();
+		else
+			alert("The "+getProgramName()+" run encountered problems. ");  // better error message!
+
+		/*  ============ THE PROCESS COMPLETES ============  */
+		logln("\n"+getProgramName()+" analysis completed at " + getDateAndTime());
+		double totalTime= timer.timeSinceVeryStartInSeconds();
+		if (totalTime>120.0)
+			logln("Total time: " + StringUtil.secondsToHHMMSS((int)totalTime));
+		else
+			logln("Total time: " + totalTime  + " seconds");
+		if (progIndicator!=null)
+			progIndicator.goAway();
+		if (!success)
+			logln("Execution of "+getProgramName()+" unsuccessful [1]");
+		return success;
+	}
 	
 
 	/*.................................................................................................................*/
@@ -58,7 +104,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		getProject().incrementProjectWindowSuppression();
 
 		initializeMonitoring();
-		setFilePaths();
+		setFileNames();
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
 		/*	MesquiteModule inferer = findEmployerWithDuty(TreeInferer.class);
@@ -107,5 +153,30 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return (buttonPressed.getValue()==0);
 	}
 
+	public void runFilesAvailable(int fileNum) {
+	}
+
+	/*.................................................................................................................*/
+
+	public void runFilesAvailable(boolean[] filesAvailable) {
+		if ((progIndicator!=null && progIndicator.isAborted()))
+			return;
+		String filePath = null;
+		int fileNum=-1;
+		String[] outputFilePaths = new String[filesAvailable.length];
+		for (int i=0; i<outputFilePaths.length; i++)
+			if (filesAvailable[i]){
+				fileNum= i;
+				break;
+			}
+		if (fileNum<0) return;
+		runFilesAvailable(fileNum);
+	}
+	/*.................................................................................................................*/
+	public void runFilesAvailable(){   // this should really only do the ones needed, not all of them.
+		for (int i = 0; i<logFileNames.length; i++){
+			runFilesAvailable(i);
+		}
+	}
 
 }
