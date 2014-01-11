@@ -39,7 +39,6 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	public static final String SCORENAME = "RAxMLScore";
 
 	RAxMLTrees ownerModule;
-	Random rng;
 	boolean onlyBest = true;
 
 	static final int THREADING_OTHER =0;
@@ -57,7 +56,6 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	int numRuns = 5;
 	int numRunsCompleted = 0;
 	int run = 0;
-	Taxa taxa;
 	boolean preferencesSet = false;
 	boolean isProtein = false;
 
@@ -89,7 +87,6 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 
 	/*.................................................................................................................*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
-		rng = new Random(System.currentTimeMillis());
 		if (randomIntSeed<0)
 			randomIntSeed = -randomIntSeed;
 		externalProcRunner = (ExternalProcessRunner)hireEmployee(ExternalProcessRunner.class, "External Process Runner (for " + getName() + ")"); 
@@ -98,24 +95,16 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		}
 		externalProcRunner.setProcessRequester(this);
 
-		if (!MesquiteThread.isScripting() && !queryOptions()){
+/*		if (!MesquiteThread.isScripting() && !queryOptions()){
 			fireEmployee(externalProcRunner);
 			return false;
 		}
+		*/
 		return true;
 	}
 
 	public void initialize (ZephyrTreeSearcher ownerModule) {
 		this.ownerModule= (RAxMLTrees)ownerModule;
-	}
-	public boolean initializeTaxa (Taxa taxa) {
-		Taxa currentTaxa = this.taxa;
-		this.taxa = taxa;
-		if (taxa!=currentTaxa && taxa!=null) {
-			if (!MesquiteThread.isScripting() && !queryTaxaOptions(taxa))
-				return false;
-		}
-		return true;
 	}
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
@@ -524,7 +513,6 @@ WAG, gene2 = 501-1000
 	String treeFileName;
 	String multipleModelFileName;
 	String logFileName;
-	String unique;
 	
 	static final int OUT_LOGFILE=0;
 	static final int OUT_TREEFILE=1;
@@ -546,38 +534,23 @@ WAG, gene2 = 501-1000
 	}
 
 	TaxaSelectionSet outgroupSet;
+	
+	
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (matrix==null )
+		if (!initializeGetTrees(MolecularData.class, matrix))
 			return null;
-		if (!(matrix.getParentData() != null && matrix.getParentData() instanceof MolecularData)){
-			MesquiteMessage.discreetNotifyUser("Sorry, RAxMLTree works only if given a full MolecularData object");
-			return null;
-		}
-		if (this.taxa != taxa) {
-			if (!initializeTaxa(taxa))
-				return null;
-		}
-
-		initializeMonitoring();
-		data = (MolecularData)matrix.getParentData();
-		isProtein = data instanceof ProteinData;
+		
+		//RAxML setup
 		setRAxMLSeed(seed);
-		data.setEditorInhibition(true);
-		unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
-		getProject().incrementProjectWindowSuppression();
-
-		logln(this.getName() + " using data matrix " + data.getID());
-
+		isProtein = data instanceof ProteinData;
 
 		// create the data file
 		String tempDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.IN_SUPPORT_DIR, "RAxML");  
 		if (tempDir==null)
 			return null;
-
 		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".phy";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
-	
 		FileInterpreterI exporter = null;
 		if (data instanceof DNAData)
 			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipDNA");
@@ -587,20 +560,19 @@ WAG, gene2 = 501-1000
 			return null;
 		((InterpretPhylip)exporter).setTaxonNameLength(100);
 		((InterpretPhylip)exporter).setTaxonNamer(namer);
-
 		boolean fileSaved = false;
 		if (data instanceof DNAData)
 			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data);
 		else if (data instanceof ProteinData)
 			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data);
 		if (!fileSaved) return null;
-		
 		setFileNames();
 
 		String multipleModelFileContents = getMultipleModelFileString(data, false);//TODO: why is partByCodPos false?
 		if (StringUtil.blank(multipleModelFileContents)) 
 			multipleModelFileName=null;
 
+		//now establish the commands for invoking RAxML
 		String arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName);
 
 		String programCommand = externalProcRunner.getExecutableCommand()+arguments;
@@ -608,7 +580,7 @@ WAG, gene2 = 501-1000
 			programCommand += " -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ";   // have to ensure that there are at least two threads requested
 		}
 		programCommand += StringUtil.lineEnding();  
-
+		
 		//setting up the arrays of input file names and contents
 		int numInputFiles = 2;
 		String[] fileContents = new String[numInputFiles];
@@ -624,6 +596,7 @@ WAG, gene2 = 501-1000
 
 		numRunsCompleted = 0;
 		
+		//----------//
 		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName(), !bootstrap() && numRuns>1);
 
 		if (success){

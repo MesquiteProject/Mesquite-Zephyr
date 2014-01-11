@@ -31,10 +31,8 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	public static final String SCORENAME = "GARLIScore";
 
 	GarliTrees ownerModule;
-	Random rng;
 	boolean onlyBest = true;
 	int numRuns = 5;
-	Taxa taxa;
 	String outgroupTaxSetString = "";
 	int outgroupTaxSetNumber = 0;
 	boolean preferencesSet = false;
@@ -109,7 +107,6 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	 */
 
 
-	MolecularData data = null;
 	RadioButtons charPartitionButtons = null;
 	Choice partitionChoice = null;
 	Choice rateMatrixChoice = null;
@@ -125,7 +122,6 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	}
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
-		rng = new Random(System.currentTimeMillis());
 		externalProcRunner = (ExternalProcessRunner)hireEmployee(ExternalProcessRunner.class, "External Process Runner (for " + getName() + ")"); 
 		if (externalProcRunner==null){
 			return sorry("Couldn't find an external process runner");
@@ -167,17 +163,6 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	public void initialize (ZephyrTreeSearcher ownerModule) {
 		this.ownerModule= (GarliTrees)ownerModule;
 	}
-	public boolean initializeTaxa (Taxa taxa) {
-		Debugg.println(this.getName() + " using taxa " + taxa.getID());
-		Taxa currentTaxa = this.taxa;
-		this.taxa = taxa;
-		if (taxa!=currentTaxa && taxa!=null) {
-			if (!MesquiteThread.isScripting() && !queryTaxaOptions(taxa))
-				return false;
-		}
-		return true;
-	}
-
 	public String getGARLIConfigurationFile(){
 		StringBuffer sb = new StringBuffer();
 		//sb.append("\n = " + nnnnn);
@@ -295,7 +280,7 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	}
 
 	/*.................................................................................................................*/
-	private void setUpCharModels(MolecularData data) {
+	private void setUpCharModels(CategoricalData data) {
 		if (data==null)
 			return;
 		CharactersGroup[] parts =null;
@@ -653,32 +638,18 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	}
 	
 	
+	/*.................................................................................................................*/
+	public boolean initializeJustBeforeQueryOptions(){
+		setUpCharModels(data);
+		return true;
+	}
+	
 	/*=================================================*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (matrix==null )
+		if (!initializeGetTrees(MolecularData.class, matrix))
 			return null;
-		if (!(matrix.getParentData() != null && matrix.getParentData() instanceof MolecularData)){
-			MesquiteMessage.discreetNotifyUser("Sorry, GARLI Tree inference works only if given a full MolecularData object");
-			return null;
-		}
-		data = (MolecularData)matrix.getParentData();
-		setUpCharModels(data);
-
-		if (this.taxa != taxa) {
-			if (!initializeTaxa(taxa))
-				return null;
-		}
 		
-		if (!MesquiteThread.isScripting() && !queryOptions()){
-			return null;
-		}
-	
-		initializeMonitoring();
 		setGarliSeed(seed);
-		getProject().incrementProjectWindowSuppression();
-		data.setEditorInhibition(true);
-
-		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 
 		// create the data file
 		String tempDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.IN_SUPPORT_DIR, "GARLI");

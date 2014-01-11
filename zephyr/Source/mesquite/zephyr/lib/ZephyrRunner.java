@@ -2,6 +2,7 @@ package mesquite.zephyr.lib;
 
 import java.awt.Checkbox;
 import java.awt.Choice;
+import java.util.Random;
 
 import mesquite.categ.lib.CategoricalData;
 import mesquite.categ.lib.MolecularData;
@@ -11,7 +12,9 @@ import mesquite.lib.MesquiteDouble;
 import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteMessage;
 import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteThread;
 import mesquite.lib.MesquiteTimer;
+import mesquite.lib.MesquiteTrunk;
 import mesquite.lib.ProgressIndicator;
 import mesquite.lib.SpecsSetVector;
 import mesquite.lib.StringUtil;
@@ -29,7 +32,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected ProgressIndicator progIndicator;
 	protected CategoricalData data;
 	protected MesquiteTimer timer = new MesquiteTimer();
-
+	protected Taxa taxa;
+	protected String unique;
+	protected Random rng;
 
 	
 	protected String outgroupTaxSetString = "";
@@ -38,17 +43,62 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore);
 	public abstract Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore);
 	public abstract void initialize (ZephyrTreeSearcher ownerModule);
-	public abstract boolean initializeTaxa (Taxa taxa);
 	public abstract boolean bootstrap();
-
-
 	public abstract void reconnectToRequester(MesquiteCommand command);
 	public abstract String getProgramName();
+	public abstract boolean queryOptions();
 	
 	
+	
+	/*.................................................................................................................*/
+	public boolean initializeTaxa (Taxa taxa) {
+		Taxa currentTaxa = this.taxa;
+		this.taxa = taxa;
+		if (taxa!=currentTaxa && taxa!=null) {
+			if (!MesquiteThread.isScripting() && !queryTaxaOptions(taxa))
+				return false;
+		}
+		return true;
+	}
+
 	public void setFileNames () {
 	}
 	public void initializeMonitoring () {
+	}
+	
+
+	/*.................................................................................................................*/
+	/** Override this to provide any subclass-specific initialization code needed before QueryOptions is called. */
+	public boolean initializeJustBeforeQueryOptions(){
+		return true;
+	}
+	/*.................................................................................................................*/
+	public boolean initializeGetTrees(Class requiredClassOfData, MCharactersDistribution matrix) {
+		if (matrix==null )
+			return false;
+		if (!(matrix.getParentData() != null && requiredClassOfData.isInstance(matrix.getParentData()))){
+			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " works only if given a full MolecularData object");
+			return false;
+		}
+
+		if (this.taxa != taxa) {
+			if (!initializeTaxa(taxa))
+				return false;
+		}
+		data = (CategoricalData)matrix.getParentData();
+		if (!initializeJustBeforeQueryOptions())
+			return false;
+		
+		if (!MesquiteThread.isScripting() && !queryOptions()){
+			return false;
+		}
+		initializeMonitoring();
+		data.setEditorInhibition(true);
+		rng = new Random(System.currentTimeMillis());
+		unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
+		getProject().incrementProjectWindowSuppression();
+		logln(getProgramName() + " analysis using data matrix " + data.getName());
+		return true;
 	}
 
 	/*.................................................................................................................*/
@@ -68,11 +118,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 
 		MesquiteMessage.logCurrentTime("\nStart of "+getProgramName()+" analysis: ");
-		if (logBeginningRun1)
+/*		if (logBeginningRun1)
 			logln("\nBeginning Run 1");
 		else
 			logln("");
-		timer.start();
+*/		timer.start();
 
 		/*  ============ STARTING THE PROCESS ============  */
 		success = externalProcRunner.startExecution();
