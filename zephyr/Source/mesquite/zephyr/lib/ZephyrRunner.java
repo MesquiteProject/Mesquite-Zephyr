@@ -28,7 +28,7 @@ import mesquite.zephyr.RAxMLTrees.RAxMLTrees;
 
 public abstract class ZephyrRunner extends MesquiteModule implements ExternalProcessRequester{
 
-	protected String[] logFileNames;
+	String[] logFileNames;
 	protected ExternalProcessRunner externalProcRunner;
 	protected ProgressIndicator progIndicator;
 	protected CategoricalData data;
@@ -49,7 +49,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract String getProgramName();
 	public abstract boolean queryOptions();
 	
-	
+	public abstract String[] getLogFileNames();
+
 	
 	public void initialize (ZephyrTreeSearcher ownerModule) {
 		this.ownerModule= ownerModule;
@@ -67,6 +68,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	public void setFileNames () {
 	}
+	
+	
 	public void initializeMonitoring () {
 	}
 	
@@ -114,6 +117,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			// give message about failure
 			return false;
 		}
+		logFileNames = getLogFileNames();
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
 		progIndicator = new ProgressIndicator(getProject(),progTitle, getProgramName() + " Search", 0, true);
@@ -155,6 +159,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 		initializeMonitoring();
 		setFileNames();
+		logFileNames = getLogFileNames();
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
 		/*	MesquiteModule inferer = findEmployerWithDuty(TreeInferer.class);
@@ -224,6 +229,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	/*.................................................................................................................*/
 	public void runFilesAvailable(){   // this should really only do the ones needed, not all of them.
+		if (logFileNames==null)
+			logFileNames = getLogFileNames();
+		if (logFileNames==null)
+			return;
 		for (int i = 0; i<logFileNames.length; i++){
 			runFilesAvailable(i);
 		}

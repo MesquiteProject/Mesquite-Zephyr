@@ -44,18 +44,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 	public static final String SCORENAME = "TNTScore";
 
 
-	//	TNTTrees ownerModule;
-	//	Random rng;
-
 	int mxram = 1000;
 
-	/*	Taxa taxa;
-	String outgroupTaxSetString = "";
-	int outgroupTaxSetNumber = 0;
-	 */
 	boolean preferencesSet = false;
 	boolean convertGapsToMissing = true;
-	//	SingleLineTextField TNTPathField =  null;
 	boolean isProtein = false;
 
 	int bootstrapreps = 0;
@@ -70,33 +62,13 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 
 	long  randseed = -1;
 	String constraintfile = "none";
-	//	MesquiteTimer timer = new MesquiteTimer();
 	int totalNumHits = 250;
-
-	//	ExternalProcessRunner externalProcRunner;
 
 	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
 		EmployeeNeed e = registerEmployeeNeed(ExternalProcessRunner.class, getName() + "  needs a module to run an external process.","");
 	}
 
-
-
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
-		bootstrapSearchArguments +=   getTNTCommand("rseed[");   // if showing intermediate trees
-		bootstrapSearchArguments +=   getTNTCommand("hold 3000");   
-		//	bootstrapSearchArguments +=   " sect: slack 5"+getComDelim();   
-		//	bootstrapSearchArguments +=   " xmult: replications 2 hits 2 ratchet 15 verbose drift 10"+getComDelim();  
-		bootstrapSearchArguments +=   getTNTCommand("sect: slack 30");   
-		bootstrapSearchArguments +=   getTNTCommand("sec: xss 4-2+3-1 gocomb 60 fuse 4 drift 5 combstart 5");   
-		bootstrapSearchArguments +=   getTNTCommand("xmult: replications 1 hits 1 ratchet 15 verbose rss xss drift 10 dumpfuse") ;   // actual search
-
-		searchArguments +=   getTNTCommand("rseed[") ;   // if showing intermediate trees
-		searchArguments +=   getTNTCommand("hold 10000");   
-		searchArguments +=   getTNTCommand("sec: xss 4-2+3-1 gocomb 60 fuse 4 drift 5 combstart 5");   
-		searchArguments +=   getTNTCommand("xmult: replications 10 hits " + totalNumHits + " ratchet 15 verbose rss xss drift 10");
-		searchArguments +=   getTNTCommand("xmult") ;   // actual search
-		searchArguments +=   getTNTCommand("bbreak=fillonly") ;   // actual search
-
 		externalProcRunner = (ExternalProcessRunner)hireEmployee(ExternalProcessRunner.class, "External Process Runner (for " + getName() + ")"); 
 		if (externalProcRunner==null){
 			return sorry("Couldn't find an external process runner");
@@ -104,10 +76,6 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		externalProcRunner.setProcessRequester(this);
 
 		return true;
-	}
-
-	public void initialize (TNTTrees ownerModule) {
-		this.ownerModule= ownerModule;
 	}
 
 	/*.................................................................................................................*/
@@ -136,9 +104,6 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 	public void setPreferencesSet(boolean b) {
 		preferencesSet = b;
 	}
-	public void intializeAfterExternalProcessRunnerHired() {
-		loadPreferences();
-	}
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
@@ -159,13 +124,28 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		preferencesSet = true;
 		return buffer.toString();
 	}
+	public void intializeAfterExternalProcessRunnerHired() {
+		bootstrapSearchArguments +=   getTNTCommand("rseed[");   // if showing intermediate trees
+		bootstrapSearchArguments +=   getTNTCommand("hold 3000");   
+		//	bootstrapSearchArguments +=   " sect: slack 5"+getComDelim();   
+		//	bootstrapSearchArguments +=   " xmult: replications 2 hits 2 ratchet 15 verbose drift 10"+getComDelim();  
+		bootstrapSearchArguments +=   getTNTCommand("sect: slack 30");   
+		bootstrapSearchArguments +=   getTNTCommand("sec: xss 4-2+3-1 gocomb 60 fuse 4 drift 5 combstart 5");   
+		bootstrapSearchArguments +=   getTNTCommand("xmult: replications 1 hits 1 ratchet 15 verbose rss xss drift 10 dumpfuse") ;   // actual search
+
+		searchArguments +=   getTNTCommand("rseed[") ;   // if showing intermediate trees
+		searchArguments +=   getTNTCommand("hold 10000");   
+		searchArguments +=   getTNTCommand("sec: xss 4-2+3-1 gocomb 60 fuse 4 drift 5 combstart 5");   
+		searchArguments +=   getTNTCommand("xmult: replications 10 hits " + totalNumHits + " ratchet 15 verbose rss xss drift 10");
+		searchArguments +=   getTNTCommand("xmult") ;   // actual search
+		searchArguments +=   getTNTCommand("bbreak=fillonly") ;   // actual search
+
+		loadPreferences();
+	}
 
 	public void reconnectToRequester(MesquiteCommand command){
 		continueMonitoring(command);
 	}
-
-
-	IntegerField bootStrapRepsField = null;
 
 	/*.................................................................................................................*/
 	void adjustDialogText() {
@@ -176,6 +156,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 				bootStrapRepsField.setLabelText("Bootstrap Replicates");
 	}
 	ExtensibleDialog queryOptionsDialog=null;
+	IntegerField bootStrapRepsField = null;
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
@@ -213,10 +194,6 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		tabbedPanel.addPanel("Search Options", true);
 		Checkbox convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
 
-
-		//cardPanels[1] = cardPanel.addNewCard("Search Replicates & Bootstrap");
-		//dialog.setAddPanel(cardPanels[1]);
-
 		queryOptionsDialog.addLabel("Regular Search Options");
 		TextArea searchField = queryOptionsDialog.addTextAreaSmallFont(searchArguments, 7,30);
 		bootStrapRepsField = queryOptionsDialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
@@ -224,9 +201,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		queryOptionsDialog.addLabel("Bootstrap Search Options");
 		TextArea bootstrapSearchField = queryOptionsDialog.addTextAreaSmallFont(bootstrapSearchArguments, 7,30);
 		queryOptionsDialog.addHorizontalLine(1);
-		//cardPanels[2] = cardPanel.addNewCard("Character Models");
-		//dialog.setAddPanel(cardPanels[2]);
-		//dialog.addHorizontalLine(1);
+
 		SingleLineTextField otherOptionsField = queryOptionsDialog.addTextField("Other TNT options:", otherOptions, 40);
 
 		adjustDialogText();
@@ -282,9 +257,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		dialog.dispose();
 		return (buttonPressed.getValue()==0);
 	}
-	/*.................................................................................................................*
-	public  void actionPerformed(ActionEvent e) {
-	}
+
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent arg0) {
 		if (queryOptionsDialog!=null) {
@@ -306,7 +279,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 
 	/*.................................................................................................................*/
 	String getComDelim(){
-		if (MesquiteTrunk.isWindows())
+		if (externalProcRunner.isWindows())
 			return ";"+StringUtil.lineEnding();
 		else
 			return ";"+StringUtil.lineEnding();
@@ -371,13 +344,12 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 			commands += getTNTCommand("quit") ; 
 		}
 	}
+
 	String treeFileName;
-	String currentTreeFileName;
+//	String currentTreeFileName;
 	String logFileName;
 	String commandsFileName;
 
-	static final int OUT_TREEFILE=0;
-	static final int OUT_LOGFILE = 1;
 
 	/*.................................................................................................................*/
 	public void setFileNames(){
@@ -385,12 +357,18 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 			treeFileName = "TNT_bootstrapTrees.txt";
 		else 
 			treeFileName = "TNT_Trees.txt";  
-		currentTreeFileName = treeFileName+"-1";
-
+//		currentTreeFileName = treeFileName+"-1";
 		logFileName = "log.out";
 		commandsFileName = "TNTCommands.txt";
-		logFileNames = new String[]{treeFileName,  logFileName};
 	}
+	/*.................................................................................................................*/
+	
+	static final int OUT_TREEFILE=0;
+	static final int OUT_LOGFILE = 1;
+	public String[] getLogFileNames(){
+		return new String[]{treeFileName,  logFileName};
+	}
+
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		if (!initializeGetTrees(MolecularData.class, matrix))
@@ -544,6 +522,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
+		String[] logFileNames = getLogFileNames();
 		if ((progIndicator!=null && progIndicator.isAborted()) || logFileNames==null)
 			return;
 		String[] outputFilePaths = new String[logFileNames.length];

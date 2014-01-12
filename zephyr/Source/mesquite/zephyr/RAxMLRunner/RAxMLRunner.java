@@ -506,17 +506,21 @@ WAG, gene2 = 501-1000
 		}
 	}
 
-	String treeFileName;
 	String multipleModelFileName;
-	String logFileName;
 	
-	static final int OUT_LOGFILE=0;
-	static final int OUT_TREEFILE=1;
-	static final int OUT_SUMMARYFILE=2;
 	/*.................................................................................................................*/
 	public void setFileNames () {
 		multipleModelFileName = "multipleModelFile.txt";
 	
+	}
+
+	static final int OUT_LOGFILE=0;
+	static final int OUT_TREEFILE=1;
+	static final int OUT_SUMMARYFILE=2;
+	/*.................................................................................................................*/
+	public String[] getLogFileNames(){
+		String treeFileName;
+		String logFileName;
 		if (bootstrap())
 			treeFileName = "RAxML_bootstrap.file.out";
 		else 
@@ -526,9 +530,11 @@ WAG, gene2 = 501-1000
 			treeFileName+=".RUN.";
 			logFileName+=".RUN.";
 		}
-		logFileNames = new String[]{logFileName, treeFileName, "RAxML_info.file.out"};
+		return new String[]{logFileName, treeFileName, "RAxML_info.file.out"};
 	}
 
+	
+	
 	TaxaSelectionSet outgroupSet;
 	
 	
@@ -783,6 +789,7 @@ WAG, gene2 = 501-1000
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
+		String[] logFileNames = getLogFileNames();
 		if ((progIndicator!=null && progIndicator.isAborted()) || logFileNames==null)
 			return;
 		String[] outputFilePaths = new String[logFileNames.length];

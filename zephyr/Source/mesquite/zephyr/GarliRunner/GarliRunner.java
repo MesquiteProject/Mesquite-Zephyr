@@ -610,16 +610,19 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	}
 	
 	String configFileName;
+
+	/*.................................................................................................................*/
+	public void setFileNames () {
+		configFileName =  "garli.conf";
+	}
+	
 	static final int MAINLOGFILE =0;
 	static final int CURRENTTREEFILEPATH=1;
 	static final int SCREENLOG=2;
 	static final int TREEFILE=3;
 	static final int BESTTREEFILE=4;
-
 	/*.................................................................................................................*/
-	public void setFileNames () {
-		configFileName =  "garli.conf";
-		
+	public String[] getLogFileNames(){
 		String treeFileName;
 		if (bootstrap())
 			treeFileName = ofprefix+".boot.tre";
@@ -629,11 +632,9 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		String allBestTreeFilePath = ofprefix+".best.all.tre";
 		String mainLogFileName = ofprefix+".log00.log";
 
-		String[] logFileNamesLocal = {mainLogFileName, currentTreeFilePath, ofprefix+".screen.log", treeFileName, allBestTreeFilePath};
-		logFileNames = logFileNamesLocal;
+		return new String[] {mainLogFileName, currentTreeFilePath, ofprefix+".screen.log", treeFileName, allBestTreeFilePath};
 	}
-	
-	
+
 	/*.................................................................................................................*/
 	public boolean initializeJustBeforeQueryOptions(){
 		setUpCharModels(data);
@@ -816,7 +817,8 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
-		if ((progIndicator!=null && progIndicator.isAborted()))
+		String[] logFileNames = getLogFileNames();
+		if ((progIndicator!=null && progIndicator.isAborted())|| logFileNames==null)
 			return;
 		String[] outputFilePaths = new String[logFileNames.length];
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
