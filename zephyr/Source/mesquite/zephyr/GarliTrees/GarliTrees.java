@@ -49,34 +49,34 @@ public class GarliTrees extends ZephyrTreeSearcher {
 	}
 
 	public void newTreeAvailable(String path, TaxaSelectionSet outgroupTaxSet){
-	CommandRecord cr = MesquiteThread.getCurrentCommandRecord();  		
-	MesquiteThread.setCurrentCommandRecord(new CommandRecord(true));
-	latestTree = null;
-	if (treeRecoveryTask == null){
-		treeRecoveryTask = (TreeSource)hireNamedEmployee(TreeSource.class, "$ #ManyTreesFromFile " + StringUtil.tokenize(path) + " remain useStandardizedTaxonNames");
-		treeRecoveryTask.initialize(taxa);
-		treeRecoveryTask.doCommand("quietOperation", null, CommandChecker.defaultChecker);
-	}
-	else {
-		treeRecoveryTask.initialize(taxa);
-		treeRecoveryTask.doCommand("quietOperation", null, CommandChecker.defaultChecker);
-		treeRecoveryTask.doCommand("setFilePath", StringUtil.tokenize(path) + " remain useStandardizedTaxonNames", CommandChecker.defaultChecker);
-	}
-
-	if (treeRecoveryTask != null) {
-		latestTree =  treeRecoveryTask.getTree(taxa, 0);
-		if (latestTree!=null && latestTree.isValid()) {
-			rerootNode = latestTree.nodeOfTaxonNumber(0);
+		CommandRecord cr = MesquiteThread.getCurrentCommandRecord();  		
+		MesquiteThread.setCurrentCommandRecord(new CommandRecord(true));
+		latestTree = null;
+		if (treeRecoveryTask == null){
+			treeRecoveryTask = (TreeSource)hireNamedEmployee(TreeSource.class, "$ #ManyTreesFromFile " + StringUtil.tokenize(path) + " remain useStandardizedTaxonNames");
+			treeRecoveryTask.initialize(taxa);
+			treeRecoveryTask.doCommand("quietOperation", null, CommandChecker.defaultChecker);
+		}
+		else {
+			treeRecoveryTask.initialize(taxa);
+			treeRecoveryTask.doCommand("quietOperation", null, CommandChecker.defaultChecker);
+			treeRecoveryTask.doCommand("setFilePath", StringUtil.tokenize(path) + " remain useStandardizedTaxonNames", CommandChecker.defaultChecker);
 		}
 
-		MesquiteThread.setCurrentCommandRecord(cr);
+		if (treeRecoveryTask != null) {
+			latestTree =  treeRecoveryTask.getTree(taxa, 0);
+			if (latestTree!=null && latestTree.isValid()) {
+				rerootNode = latestTree.nodeOfTaxonNumber(0);
+			}
 
-		//Wayne: get tree here from file
-		if (latestTree!=null && latestTree.isValid()) {
-			newResultsAvailable(outgroupTaxSet);
+			MesquiteThread.setCurrentCommandRecord(cr);
+
+			//Wayne: get tree here from file
+			if (latestTree!=null && latestTree.isValid()) {
+				newResultsAvailable(outgroupTaxSet);
+			}
 		}
 	}
-}
 
 
 }

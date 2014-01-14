@@ -176,7 +176,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		MesquiteDouble finalScores = new MesquiteDouble();
 
 
-		if (bootstrap) {
+		if (runner.bootstrap()) {
 			//DISCONNECTABLE: here need to split this exit and outside here see if it's done
 			runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 			trees.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
@@ -203,8 +203,8 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			runner.retrieveTreeBlock(treeList, finalScores);
 			taxa = treeList.getTaxa();
 			initializeObservedStates(taxa);
-			boolean bootstrap = runner.bootstrap();
-			if (bootstrap) {
+//			boolean bootstrap = runner.bootstrap();
+			if (runner.bootstrap()) {
 				treeList.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
 			} 
 			else {
