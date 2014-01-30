@@ -84,7 +84,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (matrix==null )
 			return false;
 		if (!(matrix.getParentData() != null && requiredClassOfData.isInstance(matrix.getParentData()))){
-			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " works only if given a full MolecularData object");
+			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " works only if given a full "+requiredClassOfData.getName()+" object");
 			return false;
 		}
 
