@@ -414,7 +414,7 @@ WAG, gene2 = 501-1000
 		if (writeStandardPartition) {
 			if (nucleotides) {
 				for (int i=0; i<parts.length; i++) {
-					String q = ListableVector.getListOfMatches((Listable[])characterPartition.getProperties(), parts[i], CharacterStates.toExternal(0));
+					String q = ListableVector.getListOfMatches((Listable[])characterPartition.getProperties(), parts[i], CharacterStates.toExternal(0), true, ",");
 					if (q != null) {
 						if (nucleotides)
 							sb.append("DNA, " + StringUtil.simplifyIfNeededForOutput(parts[i].getName(), true) + " = " +  q + "\n");
@@ -423,7 +423,7 @@ WAG, gene2 = 501-1000
 			} else if (protein) {
 				String[] rateModels = getRateModels(parts);
 				if (rateModels!=null) {for (int i=0; i<parts.length; i++) {
-					String q = ListableVector.getListOfMatches((Listable[])characterPartition.getProperties(), parts[i], CharacterStates.toExternal(0));
+					String q = ListableVector.getListOfMatches((Listable[])characterPartition.getProperties(), parts[i], CharacterStates.toExternal(0), true, ",");
 					if (q != null && i<rateModels.length) {
 						sb.append(rateModels[i]+", " + StringUtil.simplifyIfNeededForOutput(parts[i].getName(), true) + " = " +  q + "\n");
 					}
