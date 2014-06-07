@@ -1,6 +1,9 @@
 Zephyr
 
-- check box - do you do an autosave upon completion
+
+- if cancel a zephyr search, make sure to unlock matrix if needed against editing
+
+
 - when you hit stop button - offer the user the option to display the current tree  (simple version: put tree description in clipboard)  
 	(or: establishes a treeblock and adds trees to that block; animate tree block)
 - harvest bootstrap trees as it goes, moving it into a treeblock (could then have a live consensus)
@@ -12,7 +15,9 @@ Zephyr
 
 
 
-
+bugs fixed
+7 June 2014
+- if run a bootstrap, then do normal, second tree block will have "bootstrap" in its name (at least sometimes for RAxML)
 
 
 

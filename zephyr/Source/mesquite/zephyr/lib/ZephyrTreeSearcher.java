@@ -166,7 +166,6 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		initialTree.setToDefaultBush(2, false);
 
 		CommandRecord.tick(getProgramName() + " Tree Search in progress " );
-		boolean bootstrap = runner.bootstrap();
 
 		Random rng = new Random(System.currentTimeMillis());
 
@@ -175,15 +174,13 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		double bestScore = MesquiteDouble.unassigned;
 		MesquiteDouble finalScores = new MesquiteDouble();
 
-
+		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 		if (runner.bootstrap()) {
 			//DISCONNECTABLE: here need to split this exit and outside here see if it's done
-			runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 			trees.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
 		} 
 		else {
 			//DISCONNECTABLE: here need to split this exit and outside here see if it's done
-			tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 			if (tree==null)
 				return null;
 			bestScore = finalScores.getValue();
