@@ -655,11 +655,11 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".nex";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 		if (partitionScheme==noPartition)
-			ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data, true, false, false);
+			ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data, true, selectedTaxaOnly, false, false);
 		else if (partitionScheme==partitionByCharacterGroups)
-			ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data, true, true, false);
+			ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data, true, selectedTaxaOnly, true, false);
 		else if (partitionScheme==partitionByCodonPosition)
-			ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data, true, true, true);
+			ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data, true, selectedTaxaOnly, true, true);
 
 		setFileNames();
 

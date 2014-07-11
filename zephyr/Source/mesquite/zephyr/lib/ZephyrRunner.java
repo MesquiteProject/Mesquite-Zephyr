@@ -37,6 +37,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected String unique;
 	protected Random rng;
 	protected ZephyrTreeSearcher ownerModule;
+	protected boolean selectedTaxaOnly = false;
 
 	
 	protected String outgroupTaxSetString = "";
@@ -183,26 +184,42 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (taxa==null)
 			return true;
 		SpecsSetVector ssv  = taxa.getSpecSetsVector(TaxaSelectionSet.class);
-		if (ssv==null || ssv.size()<=0)
-			return true;
+		if (!taxa.anySelected())
+			if (ssv==null || ssv.size()<=0)
+				return true;
 
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), getProgramName()+" Outgroup Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
-		dialog.addLabel(getProgramName()+" Outgroup Options");
+		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), getProgramName()+" Taxon Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
+		dialog.addLabel(getProgramName()+" Taxon Options");
 
 		boolean specifyOutgroup = false;
 
 		Choice taxonSetChoice = null;
-		Checkbox specifyOutgroupBox = dialog.addCheckBox("specify outgroup", specifyOutgroup);
-		taxonSetChoice = dialog.addPopUpMenu ("Outgroups: ", ssv, 0);
+		Checkbox specifyOutgroupBox = null;
+
+		if (ssv!=null && ssv.size()>0){
+			taxonSetChoice = dialog.addPopUpMenu ("Outgroups: ", ssv, 0);
+			specifyOutgroupBox = dialog.addCheckBox("specify outgroup", specifyOutgroup);
+		}
+
+		Checkbox selectedOnlyBox = null;
+
+		if (taxa.anySelected())
+			selectedOnlyBox = dialog.addCheckBox("selected taxa only", selectedTaxaOnly);
+		else
+			selectedTaxaOnly = false;
 
 
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
-			specifyOutgroup = specifyOutgroupBox.getState();
-			outgroupTaxSetString = taxonSetChoice.getSelectedItem();
+			if (specifyOutgroupBox!=null) 
+				specifyOutgroup = specifyOutgroupBox.getState();
+			if (taxonSetChoice !=null) 
+				outgroupTaxSetString = taxonSetChoice.getSelectedItem();
 			if (!specifyOutgroup)
 				outgroupTaxSetString="";
+			if (selectedOnlyBox!=null)
+				selectedTaxaOnly = selectedOnlyBox.getState();
 		}
 		dialog.dispose();
 		return (buttonPressed.getValue()==0);

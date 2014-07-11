@@ -344,9 +344,9 @@ public class RAxMLExporter extends RAxMLRunner {
 
 		boolean fileSaved = false;
 		if (data instanceof DNAData)
-			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data);
+			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		else if (data instanceof ProteinData)
-			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data);
+			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data, selectedTaxaOnly);
 
 	
 		MesquiteFile.putFileContents(configFilePath, configFileContents, true);//TODO: why ascii = true?

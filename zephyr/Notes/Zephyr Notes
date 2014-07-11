@@ -16,8 +16,6 @@ Zephyr
 
 
 bugs fixed
-7 June 2014
-- if run a bootstrap, then do normal, second tree block will have "bootstrap" in its name (at least sometimes for RAxML)
 
 
 

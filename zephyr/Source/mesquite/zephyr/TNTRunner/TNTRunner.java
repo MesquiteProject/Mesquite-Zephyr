@@ -387,7 +387,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		if (exporter==null)
 			return null;
 		boolean fileSaved = false;
-		fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data);
+		fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		if (!fileSaved) return null;
 
 		setFileNames();

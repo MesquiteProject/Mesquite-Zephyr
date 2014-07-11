@@ -55,7 +55,7 @@ public class ZephyrUtil {
 	}	
 	/*.................................................................................................................*/
 	//TODO: Many unused variables in method call (taxa, directoryPath, fileName)?
-	public static boolean saveExportFile(MesquiteModule module, FileInterpreterI exporter, String path, CategoricalData data) {
+	public static boolean saveExportFile(MesquiteModule module, FileInterpreterI exporter, String path, CategoricalData data, boolean selectedTaxaOnly) {
 		if (data==null)
 			return false;
 
@@ -64,6 +64,7 @@ public class ZephyrUtil {
 		file.writeTaxaWithAllMissing = false;
 		file.writeExcludedCharacters = false;
 		if (exporter!=null) {
+			exporter.writeOnlySelectedTaxa = selectedTaxaOnly;
 			if (module instanceof ZephyrFilePreparer)
 				((ZephyrFilePreparer)module).prepareExportFile(exporter);
 			StringBuffer sb = exporter.getDataAsFileText(file, data);
@@ -298,7 +299,7 @@ public class ZephyrUtil {
 		}
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public static void writeNEXUSFile(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean useStandardizedTaxonNames,boolean writeSetsBlock, boolean useCodPosIfAvailable) {
 		writeNEXUSFile(taxa, dir, fileName, path, data, useStandardizedTaxonNames, false, writeSetsBlock, useCodPosIfAvailable);
 	}

@@ -564,9 +564,9 @@ WAG, gene2 = 501-1000
 		((InterpretPhylip)exporter).setTaxonNamer(namer);
 		boolean fileSaved = false;
 		if (data instanceof DNAData)
-			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data);
+			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		else if (data instanceof ProteinData)
-			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data);
+			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data, selectedTaxaOnly);
 		if (!fileSaved) return null;
 		setFileNames();
 
