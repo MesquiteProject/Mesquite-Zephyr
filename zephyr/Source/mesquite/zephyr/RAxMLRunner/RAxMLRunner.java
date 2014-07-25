@@ -23,6 +23,7 @@ import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
 import mesquite.lib.system.SystemUtil;
+import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
 import mesquite.zephyr.GarliRunner.GarliRunner;
 import mesquite.zephyr.RAxMLTrees.*;
 import mesquite.zephyr.lib.*;
@@ -358,6 +359,7 @@ WAG, gene2 = 501-1000
 
 	 * 
 	 * */
+	/*.................................................................................................................*
 
 	private String[] getRateModels(CharactersGroup[] parts){
 		if (parts==null || parts.length==0 || parts.length>20)
@@ -570,7 +572,7 @@ WAG, gene2 = 501-1000
 		if (!fileSaved) return null;
 		setFileNames();
 
-		String multipleModelFileContents = getMultipleModelFileString(data, false);//TODO: why is partByCodPos false?
+		String multipleModelFileContents = IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?
 		if (StringUtil.blank(multipleModelFileContents)) 
 			multipleModelFileName=null;
 
