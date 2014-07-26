@@ -9,7 +9,7 @@ import mesquite.zephyr.lib.*;
 
 
 public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements Reconnectable {
-	ZephyrRunner runner;
+	protected ZephyrRunner runner;
 	protected TreeSource treeRecoveryTask;
 	protected Tree latestTree = null;
 	protected Taxa taxa;

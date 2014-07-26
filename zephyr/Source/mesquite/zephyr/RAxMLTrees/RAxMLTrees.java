@@ -58,7 +58,7 @@ public class RAxMLTrees extends ZephyrTreeSearcher {
 		latestTree = null;
 
 		String s = MesquiteFile.getFileLastDarkLine(path);
-		SimpleTaxonNamer namer = new SimpleTaxonNamer();
+		TaxonNamer namer = runner.getTaxonNamer();
 		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);
 
 		if (latestTree!=null && latestTree.isValid()) {

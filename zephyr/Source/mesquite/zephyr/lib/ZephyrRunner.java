@@ -6,22 +6,7 @@ import java.util.Random;
 
 import mesquite.categ.lib.CategoricalData;
 import mesquite.categ.lib.MolecularData;
-import mesquite.lib.ExtensibleDialog;
-import mesquite.lib.MesquiteCommand;
-import mesquite.lib.MesquiteDouble;
-import mesquite.lib.MesquiteInteger;
-import mesquite.lib.MesquiteMessage;
-import mesquite.lib.MesquiteModule;
-import mesquite.lib.MesquiteThread;
-import mesquite.lib.MesquiteTimer;
-import mesquite.lib.MesquiteTrunk;
-import mesquite.lib.ProgressIndicator;
-import mesquite.lib.SpecsSetVector;
-import mesquite.lib.StringUtil;
-import mesquite.lib.Taxa;
-import mesquite.lib.TaxaSelectionSet;
-import mesquite.lib.Tree;
-import mesquite.lib.TreeVector;
+import mesquite.lib.*;
 import mesquite.lib.characters.MCharactersDistribution;
 import mesquite.zephyr.GarliTrees.GarliTrees;
 import mesquite.zephyr.RAxMLTrees.RAxMLTrees;
@@ -51,10 +36,20 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract boolean queryOptions();
 	
 	public abstract String[] getLogFileNames();
+	protected SimpleTaxonNamer namer = new SimpleTaxonNamer();
 
 	
 	public void initialize (ZephyrTreeSearcher ownerModule) {
 		this.ownerModule= ownerModule;
+	}
+	/*.................................................................................................................*/
+	public boolean initalizeTaxonNamer(Taxa taxa){
+		namer.initialize(taxa);
+		return true;
+	}
+	/*.................................................................................................................*/
+	public TaxonNamer getTaxonNamer(){
+		return null;
 	}
 	/*.................................................................................................................*/
 	public boolean initializeTaxa (Taxa taxa) {
@@ -64,7 +59,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			if (!MesquiteThread.isScripting() && !queryTaxaOptions(taxa))
 				return false;
 		}
-		return true;
+		return initalizeTaxonNamer(taxa);
 	}
 
 	public void setFileNames () {

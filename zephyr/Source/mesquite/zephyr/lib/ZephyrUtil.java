@@ -81,7 +81,7 @@ public class ZephyrUtil {
 	}	
 
 	/*.................................................................................................................*/
-	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, SimpleTaxonNamer namer) {
+	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, TaxonNamer namer) {
 		if (StringUtil.blank(line))
 			return null;
 		MesquiteTree t = new MesquiteTree(taxa);

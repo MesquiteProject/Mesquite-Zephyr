@@ -5,7 +5,10 @@ import mesquite.lib.*;;
 /**For making more informative shortened names.  Uses the first four characters of a taxon name and the taxon number.  Compare with SimpleTaxonNamer*/
 public class TaxonNameShortener extends TaxonNamer {
 	int startLength = 4;
-	
+	public boolean initialize(Taxa taxa){
+		return true;
+	}
+
 	/*.................................................................................................................*/
 	public String getNameToUse(Taxon taxon) {
 		Taxa taxa = taxon.getTaxa();

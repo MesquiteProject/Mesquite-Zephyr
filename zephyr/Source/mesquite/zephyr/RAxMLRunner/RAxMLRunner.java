@@ -65,7 +65,6 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	static String proteinModel = "PROTGAMMAJTT";
 	static String otherOptions = "";
 
-	SimpleTaxonNamer namer = new SimpleTaxonNamer();
 
 	long  randseed = -1;
 	static String constraintfile = "none";
@@ -94,6 +93,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 			return sorry("Couldn't find an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
+		
 
 /*		if (!MesquiteThread.isScripting() && !queryOptions()){
 			fireEmployee(externalProcRunner);
@@ -554,6 +554,7 @@ WAG, gene2 = 501-1000
 		if (tempDir==null)
 			return null;
 		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".phy";   //replace this with actual file name?
+		String translationFileName = "translationTable.txt";   
 		String dataFilePath = tempDir +  dataFileName;
 		FileInterpreterI exporter = null;
 		if (data instanceof DNAData)
@@ -563,7 +564,9 @@ WAG, gene2 = 501-1000
 		if (exporter==null)
 			return null;
 		((InterpretPhylip)exporter).setTaxonNameLength(100);
+		String translationTable = namer.getTranslationTable(taxa);
 		((InterpretPhylip)exporter).setTaxonNamer(namer);
+		
 		boolean fileSaved = false;
 		if (data instanceof DNAData)
 			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
@@ -586,7 +589,7 @@ WAG, gene2 = 501-1000
 		programCommand += StringUtil.lineEnding();  
 		
 		//setting up the arrays of input file names and contents
-		int numInputFiles = 2;
+		int numInputFiles = 3;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -597,6 +600,8 @@ WAG, gene2 = 501-1000
 		fileNames[0] = dataFileName;
 		fileContents[1] = multipleModelFileContents;
 		fileNames[1] = multipleModelFileName;
+		fileContents[2] = translationTable;
+		fileNames[2] = translationFileName;
 
 		numRunsCompleted = 0;
 		
