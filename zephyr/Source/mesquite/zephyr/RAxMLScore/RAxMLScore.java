@@ -1,6 +1,7 @@
 package mesquite.zephyr.RAxMLScore;
 
 
+import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
 import mesquite.zephyr.RAxMLRunner.*;
@@ -25,7 +26,7 @@ public class RAxMLScore extends NumberForTree {
             return;
 	   	clearResultAndLastResult(result);
        if (tree instanceof Attachable){
-        	Object obj = ((Attachable)tree).getAttachment(RAxMLRunner.SCORENAME);
+        	Object obj = ((Attachable)tree).getAttachment(IOUtil.RAXMLSCORENAME);
         	if (obj == null){
         			if (resultString != null)
         				resultString.setValue("No RAxML score is associated with this tree.  To obtain a score, use as tree source \"RAxML Trees\".");

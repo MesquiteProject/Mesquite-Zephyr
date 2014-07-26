@@ -37,7 +37,6 @@ outgroups
  */
 
 public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
-	public static final String SCORENAME = "RAxMLScore";
 
 	boolean onlyBest = true;
 
@@ -554,7 +553,7 @@ WAG, gene2 = 501-1000
 		if (tempDir==null)
 			return null;
 		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".phy";   //replace this with actual file name?
-		String translationFileName = "translationTable.txt";   
+		String translationFileName = IOUtil.translationTableFileName;   
 		String dataFilePath = tempDir +  dataFileName;
 		FileInterpreterI exporter = null;
 		if (data instanceof DNAData)
@@ -719,7 +718,7 @@ WAG, gene2 = 501-1000
 					ZephyrUtil.adjustTree(newTree, outgroupSet);
 					if (MesquiteDouble.isCombinable(finalValues[i])){
 						MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
-						s.setName(RAxMLRunner.SCORENAME);
+						s.setName(IOUtil.RAXMLSCORENAME);
 						((Attachable)newTree).attachIfUniqueName(s);
 					}
 
