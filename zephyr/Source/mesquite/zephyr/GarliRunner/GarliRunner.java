@@ -649,7 +649,7 @@ public class GarliRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		setGarliSeed(seed);
 
 		// create the data file
-		String tempDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.IN_SUPPORT_DIR, "GARLI");
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "GARLI", "-Run.");  
 		if (tempDir==null)
 			return null;
 		dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".nex";   //replace this with actual file name?

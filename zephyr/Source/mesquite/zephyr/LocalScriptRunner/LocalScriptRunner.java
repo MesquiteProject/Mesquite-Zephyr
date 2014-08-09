@@ -142,7 +142,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	// the actual data & scripts.  
 	public boolean setInputFiles(String script, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
-		rootDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.BESIDE_HOME_FILE, getExecutableName());
+		rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
 		if (rootDir==null)
 			return false;
 		

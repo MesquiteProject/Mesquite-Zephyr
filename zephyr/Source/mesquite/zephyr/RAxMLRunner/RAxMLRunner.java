@@ -549,7 +549,7 @@ WAG, gene2 = 501-1000
 		isProtein = data instanceof ProteinData;
 
 		// create the data file
-		String tempDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.IN_SUPPORT_DIR, "RAxML");  
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "RAxML", "-Run.");  
 		if (tempDir==null)
 			return null;
 		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".phy";   //replace this with actual file name?

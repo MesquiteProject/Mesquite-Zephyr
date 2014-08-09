@@ -378,7 +378,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 
 
 		//write data file
-		String tempDir = ZephyrUtil.createDirectoryForFiles(this, ZephyrUtil.IN_SUPPORT_DIR, "TNT");
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "TNT","-Run.");  
 		if (tempDir==null)
 			return null;
 		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".ss";   //replace this with actual file name?
