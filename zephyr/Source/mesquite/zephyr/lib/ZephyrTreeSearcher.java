@@ -102,24 +102,35 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		return null;
 	}
 
-	private void initializeObservedStates(Taxa taxa) {
+	private boolean initializeObservedStates(Taxa taxa) {
 		if (matrixSourceTask!=null) {
-			if (observedStates ==null)
+			if (observedStates ==null) {
 				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
+				if (observedStates==null)
+					return false;
+			}
 		}
+		else return false;
+		return true;
 	}
 	
-	public void initialize(Taxa taxa) {
+	public boolean initialize(Taxa taxa) {
 		this.taxa = taxa;
 		if (matrixSourceTask!=null) {
 			matrixSourceTask.initialize(taxa);
-		}
-		initializeObservedStates(taxa);
+		} else
+			return false;
+		if (!initializeObservedStates(taxa))
+			return false;
 		if (runner ==null) {
 			runner = (ZephyrRunner)hireNamedEmployee(getRunnerClass(), getRunnerModuleName());
 		}
-		if (runner !=null)
+		if (runner !=null){
 			runner.initializeTaxa(taxa);
+		}
+		else
+			return false;
+		return true;
 	}
 
 	public String getExplanation() {
@@ -222,7 +233,8 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			return;
 		getProject().getHomeFile().setDirtiedByCommand(true);
 		taxa = treeList.getTaxa();
-		initialize(taxa);
+		if (!initialize(taxa))
+			return;
 
 		//DISCONNECTABLE
 		TreeVector trees = getTrees(taxa);

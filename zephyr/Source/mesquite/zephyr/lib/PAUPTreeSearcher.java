@@ -58,15 +58,20 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 		return null;
 	}
 
-	public void initialize(Taxa taxa) {
+	public boolean initialize(Taxa taxa) {
 		this.taxa = taxa;
 		if (matrixSourceTask!=null) {
 			matrixSourceTask.initialize(taxa);
 			if (observedStates ==null)
 				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
-		}
+			if (observedStates ==null)
+				return false;
+		} else
+			return false;
 		if (paupRunner !=null)
 			paupRunner.setPAUPPath(PAUPPath);
+		else return false;
+		return true;
 	}
 
 	public boolean getPreferencesSet() {
@@ -172,7 +177,8 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 		if (treeList==null || paupRunner==null)
 			return;
 		taxa = treeList.getTaxa();
-		initialize(taxa);
+		if (!initialize(taxa)) 
+			return;
 
 
 		if (!queryOptions())
