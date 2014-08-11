@@ -26,7 +26,8 @@ public class ImportRAxMLTrees extends InterpretPhylipTrees {
 		String summary = MesquiteFile.getFileContentsAsString(directoryPath+infoFileName);
 		if (StringUtil.notEmpty(summary)) {
 			DoubleArray finalValues = new DoubleArray(trees.size());
-			IOUtil.readRAxMLInfoFile(this, summary, true, trees, finalValues);
+			DoubleArray optimizedValues = new DoubleArray(trees.size());
+			IOUtil.readRAxMLInfoFile(this, summary, true, trees, finalValues, optimizedValues);
 		}
 		return true;
 	}

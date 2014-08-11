@@ -79,6 +79,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 
 	double finalValue = MesquiteDouble.unassigned;
 	double[] finalValues = null;
+	double[] optimizedValues = null;
 	int runNumber = 0;
 
 
@@ -501,6 +502,13 @@ WAG, gene2 = 501-1000
 				finalValues = new double[numRuns];
 			DoubleArray.deassignArray(finalValues);
 		}
+		if (optimizedValues==null) {
+			if (bootstrap())
+				optimizedValues = new double[getBootstrapreps()];
+			else
+				optimizedValues = new double[numRuns];
+			DoubleArray.deassignArray(optimizedValues);
+		}
 		outgroupSet =null;
 		if (!StringUtil.blank(outgroupTaxSetString)) {
 			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
@@ -692,17 +700,18 @@ WAG, gene2 = 501-1000
 				String line = parser.getRawNextDarkLine();
 				logln("\nSummary of RAxML Search");
 
+				
 				while (!StringUtil.blank(line) && count < finalValues.length) {
 					if (line.startsWith("Inference[")) {
 						Parser subParser = new Parser();
 						subParser.setString(line);
-						String token = subParser.getFirstToken();
+						String token = subParser.getFirstToken();   // should be "Inference"
 						while (!StringUtil.blank(token) && ! subParser.atEnd()){
 							if (token.indexOf("likelihood")>=0) {
 								token = subParser.getNextToken();
 								finalValues[count] = -MesquiteDouble.fromString(token);
 								//	finalScore[count].setValue(finalValues[count]);
-								logln("RAxML Run " + (count+1) + " ln L = -" + finalValues[count]);
+								//logln("RAxML Run " + (count+1) + " ln L = -" + finalValues[count]);
 							}
 							token = subParser.getNextToken();
 						}
@@ -711,14 +720,47 @@ WAG, gene2 = 501-1000
 					parser.setAllowComments(false);
 					line = parser.getRawNextDarkLine();
 				}
+
+				count =0;
+
+				while (!StringUtil.blank(line) && count < optimizedValues.length) {
+					if (line.startsWith("Inference[")) {
+						Parser subParser = new Parser();
+						subParser.setString(line);
+						String token = subParser.getFirstToken();   // should be "Inference"
+						while (!StringUtil.blank(token) && ! subParser.atEnd()){
+							if (token.indexOf("Likelihood")>=0) {
+								token = subParser.getNextToken(); // :
+								token = subParser.getNextToken(); // -
+								optimizedValues[count] = -MesquiteDouble.fromString(token);
+								//	finalScore[count].setValue(finalValues[count]);
+								//logln("RAxML Run " + (count+1) + " ln L = -" + optimizedValues[count]);
+							}
+							token = subParser.getNextToken();
+						}
+						count++;
+					}
+					parser.setAllowComments(false);
+					line = parser.getRawNextDarkLine();
+				}
+				
+				for (int i=0; i<finalValues.length && i<optimizedValues.length; i++){
+					logln("RAxML Run " + (i+1) + " ln L = -" + finalValues[i] + ",  final gamma-based ln L = -" + optimizedValues[i]);
+				}
+
 				double bestScore =MesquiteDouble.unassigned;
 				int bestRun = MesquiteInteger.unassigned;
-				for (int i=0; i<treeList.getNumberOfTrees(); i++) {
+				for (int i=0; i<treeList.getNumberOfTrees() && i<finalValues.length; i++) {
 					Tree newTree = treeList.getTree(i);
 					ZephyrUtil.adjustTree(newTree, outgroupSet);
 					if (MesquiteDouble.isCombinable(finalValues[i])){
 						MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
 						s.setName(IOUtil.RAXMLSCORENAME);
+						((Attachable)newTree).attachIfUniqueName(s);
+					}
+					if (MesquiteDouble.isCombinable(optimizedValues[i])){
+						MesquiteDouble s = new MesquiteDouble(-optimizedValues[i]);
+						s.setName(IOUtil.RAXMLFINALSCORENAME);
 						((Attachable)newTree).attachIfUniqueName(s);
 					}
 
@@ -732,6 +774,7 @@ WAG, gene2 = 501-1000
 							bestRun = i;
 						}
 				}
+
 				if (MesquiteInteger.isCombinable(bestRun)) {
 					t = treeList.getTree(bestRun);
 					ZephyrUtil.adjustTree(t, outgroupSet);
