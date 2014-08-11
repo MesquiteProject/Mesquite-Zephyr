@@ -2,6 +2,8 @@ package mesquite.zephyr.ImportRAxMLTrees;
 
 import mesquite.io.lib.*;
 import mesquite.lib.*;
+import mesquite.lib.duties.TaxaManager;
+import mesquite.lib.duties.TreesManager;
 
 public class ImportRAxMLTrees extends InterpretPhylipTrees {
 	
@@ -23,7 +25,10 @@ public class ImportRAxMLTrees extends InterpretPhylipTrees {
 	/*.................................................................................................................*/
 	public boolean importExtraFiles(MesquiteFile file, Taxa taxa, TreeVector trees) {  
 		String directoryPath = file.getDirectoryName();
-		String summary = MesquiteFile.getFileContentsAsString(directoryPath+infoFileName);
+		MesquiteString directoryName= new MesquiteString(directoryPath);
+		MesquiteString fileName= new MesquiteString("infoFileName");
+		String filePath = MesquiteFile.openFileDialog("Choose RAxML Info File...", directoryName, fileName);
+		String summary = MesquiteFile.getFileContentsAsString(filePath);
 		if (StringUtil.notEmpty(summary)) {
 			DoubleArray finalValues = new DoubleArray(trees.size());
 			DoubleArray optimizedValues = new DoubleArray(trees.size());
@@ -31,6 +36,48 @@ public class ImportRAxMLTrees extends InterpretPhylipTrees {
 		}
 		return true;
 	}
+	/*.................................................................................................................*/
+	public void readTreeFile(MesquiteProject mf, MesquiteFile file, String arguments) {
+		boolean enlargeTaxaBlock = false;
+		Taxa taxa = getProject().chooseTaxa(containerOfModule(), "From what taxa are these trees composed?");
+		if (taxa== null) {
+			TaxaManager taxaTask = (TaxaManager)findElementManager(Taxa.class);
+			taxa = taxaTask.makeNewTaxa("Taxa", 0, false);
+			taxa.addToFile(file, getProject(), taxaTask);
+			enlargeTaxaBlock = true;
+		}
+		incrementMenuResetSuppression();
+		initializeTreeImport(file, taxa);
+		String fileNameBase = StringUtil.getAllButLastItem(file.getName(), ".");
+		int count=0;
+		MesquiteFile treeFile=null;
+		TreeVector trees = new TreeVector(taxa);
+
+		while (MesquiteFile.fileExists(file.getDirectoryName(), fileNameBase+"."+count))  {
+			treeFile = MesquiteFile.open(file.getDirectoryName(), fileNameBase+"."+count);
+			if (treeFile.openReading()) {
+
+				MesquiteMessage.println("Reading file " + treeFile.getName());
+				TreeVector newTrees = IOUtil.readPhylipTrees(this,mf, treeFile, null, null, taxa, enlargeTaxaBlock, taxonNamer,getTreeNameBase(), false);
+				trees.addElements(newTrees, false);
+				if (trees != null && count==0){
+					trees.setName("RAxML Trees");
+					trees.addToFile(taxa.getFile(),mf,(TreesManager)this.findElementManager(TreeVector.class));
+				}
+
+				if (treeFile!=null) 
+					treeFile.closeReading();
+			}
+			count++;
+
+		}
+
+		importExtraFiles(file,taxa, trees);
+		finishImport(null, file, false );
+
+		decrementMenuResetSuppression();
+	}
+
 
 	public String getTreeNameBase () {
 		return "RAxML tree ";
@@ -56,5 +103,7 @@ public class ImportRAxMLTrees extends InterpretPhylipTrees {
 	public boolean isPrerelease(){
 		return true;
 	}
+	
+	//TODO: read in translation table file if it exists.
 
 }
