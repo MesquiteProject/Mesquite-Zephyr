@@ -26,6 +26,10 @@ public class TNTTrees extends ZephyrTreeSearcher {
 	protected MCharactersDistribution observedStates;
 	int rerootNode = 0;
 
+	/*.................................................................................................................*/
+	public boolean  loadModule(){ 
+		return false;
+	}
 
 	/*.................................................................................................................*
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
@@ -51,6 +55,11 @@ public class TNTTrees extends ZephyrTreeSearcher {
 	public String getProgramName() {
 		return "TNT";
 	}
+	/*.................................................................................................................*/
+	 public String getProgramURL() {
+		 return "http://www.lillo.org.ar/phylogeny/tnt/";
+	 }
+
 	 public Class getRunnerClass(){
 		 return TNTRunner.class;
 	 }

@@ -96,6 +96,18 @@ public class PAUPNJ extends PAUPTreeSearcher {
 		}
 		return sb.toString();
 	}
+	
+	/*.................................................................................................................*/
+	public String getTreeBlockName(){
+		if (doBootstrap) {
+			return "PAUP* NJ Bootstrap Tree (Matrix: " + observedStates.getName() + ")";
+		} 
+		else {
+			return "PAUP* NJ Tree (Matrix: " + observedStates.getName() + ")";
+
+		}
+	}
+
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
 		return true;

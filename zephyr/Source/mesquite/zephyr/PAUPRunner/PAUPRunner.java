@@ -46,7 +46,7 @@ public class PAUPRunner extends MesquiteModule implements OutputFileProcessor , 
 	}
 	*/
 
-	
+
 	/*.................................................................................................................*/
    	public String getDataFileName(){
    		return fileName;

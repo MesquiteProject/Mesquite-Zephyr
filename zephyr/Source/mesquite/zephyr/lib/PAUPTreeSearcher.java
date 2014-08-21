@@ -19,7 +19,7 @@ import mesquite.lib.duties.*;
 import mesquite.zephyr.PAUPRunner.*;
 
 public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements ActionListener, PAUPCommander {
-	PAUPRunner paupRunner;
+	protected PAUPRunner paupRunner;
 	Taxa taxa;
 	private MatrixSourceCoord matrixSourceTask;
 	protected MCharactersDistribution observedStates;
@@ -165,6 +165,12 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 	public boolean isSubstantive(){
 		return true;
 	}
+	
+	/*.................................................................................................................*/
+	public String getTreeBlockName(){
+		return "";
+	}
+
 	/*.................................................................................................................*/
 	private TreeVector getTrees(Taxa taxa) {
 		TreeVector trees = new TreeVector(taxa);
@@ -177,9 +183,11 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 		MesquiteDouble finalScore = new MesquiteDouble();
 
 		paupRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScore, getName(), this);
+		trees.setName(getTreeBlockName());
 
 		return trees;
 	}
+
 
 	/*.................................................................................................................*/
 	public void fillTreeBlock(TreeVector treeList){
@@ -214,7 +222,7 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 			storePreferences();
 
 		TreeVector trees = getTrees(taxa);
-		treeList.setName("Trees from PAUP search");
+		treeList.setName(getTreeBlockName());
 		treeList.setAnnotation ("Parameters: "  + getParameters(), false);
 		if (trees!=null)
 			treeList.addElements(trees, false);

@@ -74,6 +74,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 
 		return true;
 	}
+	/*.................................................................................................................*/
+	public boolean  loadModule(){ 
+		return false;
+	}
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
@@ -178,6 +182,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 				+ "Mesquite will read in the trees found by TNT. ";
 
 		queryOptionsDialog.appendToHelpString(helpString);
+		queryOptionsDialog.setHelpURL(ownerModule.getProgramURL());
 
 		MesquiteTabbedPanel tabbedPanel = queryOptionsDialog.addMesquiteTabbedPanel();
 

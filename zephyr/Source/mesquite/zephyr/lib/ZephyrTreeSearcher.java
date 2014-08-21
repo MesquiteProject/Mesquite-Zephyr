@@ -47,6 +47,8 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	abstract public Class getRunnerClass();
 	/*.................................................................................................................*/
 	abstract public String getProgramName();
+	/*.................................................................................................................*/
+	abstract public String getProgramURL();
 
 	/*.................................................................................................................*/
 	/** Notifies all employees that a file is about to be closed.*/

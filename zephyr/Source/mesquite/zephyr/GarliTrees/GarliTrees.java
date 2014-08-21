@@ -33,6 +33,10 @@ public class GarliTrees extends ZephyrTreeSearcher {
 	public String getProgramName() {
 		return "GARLI";
 	}
+	/*.................................................................................................................*/
+	 public String getProgramURL() {
+		 return "https://code.google.com/p/garli/";
+	 }
 
 
 	public String eachTreeCommands (){

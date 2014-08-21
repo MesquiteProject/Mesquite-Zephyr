@@ -10,6 +10,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.PAUPParsimony;
 
 import java.awt.*;
+import java.util.Random;
+
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
@@ -122,6 +124,16 @@ public class PAUPParsimony extends PAUPTreeSearcher {
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){
 		return true;
+	}
+	/*.................................................................................................................*/
+	public String getTreeBlockName(){
+		if (doBootstrap) {
+			return "PAUP* Bootstrap Trees (Matrix: " + observedStates.getName() + ")";
+		} 
+		else {
+			return "PAUP* MP Trees (Matrix: " + observedStates.getName() + ")";
+
+		}
 	}
 
 	/*.................................................................................................................*/

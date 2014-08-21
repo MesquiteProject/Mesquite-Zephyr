@@ -1,5 +1,8 @@
 Zephyr
 
+Ubuntu:  RAxML double // in path; but Garli and PAUP are OK
+Ubuntu: RAXML dialog too big
+
 - protect file paths in the batchfile?  if there is a space in file path
 - should show you options (command) that are being sent
 - dialog box should show versions it works for
