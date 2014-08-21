@@ -52,6 +52,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		this.ownerModule= ownerModule;
 	}
 	/*.................................................................................................................*/
+	public String getTestedProgramVersions(){
+		return "";
+	}
+	/*.................................................................................................................*/
 	public boolean initalizeTaxonNamer(Taxa taxa){
 		namer.initialize(taxa);
 		return true;

@@ -188,10 +188,13 @@ public class ZephyrUtil {
 		for (int i=0; i<parts.length; i++) {
 			partitionChoice.addItem(parts[i].getName());
 		}
+		if (characterPartition.getAnyCurrentlyUnassigned())
+			partitionChoice.addItem("unassigned");
+
 	}
 	/*.................................................................................................................*/
 	public static int getPartitionSubset(CharacterData data, String chosen){
-		if (data==null)
+		if (data==null || StringUtil.blank(chosen))
 			return -1;
 		CharactersGroup[] parts =null;
 		CharacterPartition characterPartition = (CharacterPartition)data.getCurrentSpecsSet(CharacterPartition.class);
@@ -203,11 +206,13 @@ public class ZephyrUtil {
 				if (parts[i].getName().equalsIgnoreCase(chosen))
 					return i;
 			}
+			if (chosen.equalsIgnoreCase("unassigned"))
+				return parts.length;
 		}
 		return -1;
 	}
 	/*.................................................................................................................*/
-	public static String getStandardPartitionNEXUSCommands(CharacterData data){
+	public static String getStandardPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters){
 		String standardPartitionSection = "";
 		String standardPartition = "";
 		String partitionCommand = "";
@@ -219,8 +224,12 @@ public class ZephyrUtil {
 		if (parts==null)
 			return null;
 		int numCharSets = 0;
+		Listable[] partition = (Listable[])characterPartition.getProperties();
+		if (!writeExcludedCharacters) 
+			partition = data.removeExcludedFromListable(partition);
+		String q;
 		for (int i=0; i<parts.length; i++) {
-			String q = ListableVector.getListOfMatches((Listable[])characterPartition.getProperties(), parts[i], CharacterStates.toExternal(0));
+			q = ListableVector.getListOfMatches(partition, parts[i], CharacterStates.toExternal(0));
 			if (q != null) {
 				standardPartition +=  "\n\tcharset " + StringUtil.simplifyIfNeededForOutput(parts[i].getName(),true) + " = " + q + ";";
 				numCharSets++;
@@ -229,6 +238,14 @@ public class ZephyrUtil {
 				partitionCommand += " part"+i + ":" + StringUtil.simplifyIfNeededForOutput(parts[i].getName(),true) ;
 			}
 		}
+		q = ListableVector.getListOfMatches(partition, null, CharacterStates.toExternal(0));
+		if (q != null) {
+			standardPartition +=  "\n\tcharset unassigned = " + q + ";";
+			numCharSets++;
+			if (!StringUtil.blank(partitionCommand))
+				partitionCommand += ", ";
+			partitionCommand += " part" + parts.length + ": unassigned" ;
+		}
 		if (!StringUtil.blank(standardPartition)) {
 			standardPartitionSection +=standardPartition;
 			standardPartitionSection += "\n\tcharpartition * currentPartition = " + partitionCommand + ";\n";
@@ -236,15 +253,18 @@ public class ZephyrUtil {
 		return standardPartitionSection;
 	}
 	/*.................................................................................................................*/
-	public static String getCodPosPartitionNEXUSCommands(CharacterData data){
+	public static String getCodPosPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters){
 		//codon positions if nucleotide
 		String codPosPartitionSection = "";
 		int numberCharSets = 0;
 		String charSetCommands = "";
 		String partitionCommand = "";
 		CodonPositionsSet codSet = (CodonPositionsSet)data.getCurrentSpecsSet(CodonPositionsSet.class);
+		boolean[] include = null;
+		if (!writeExcludedCharacters)
+			include = data.getBooleanArrayOfIncluded();
 		for (int iw = 0; iw<4; iw++){
-			String locs = codSet.getListOfMatches(iw);
+			String locs = codSet.getListOfMatches(iw,0,include);
 			if (!StringUtil.blank(locs)) {
 				String charSetName = "";
 				if (iw==0) 
@@ -268,14 +288,14 @@ public class ZephyrUtil {
 
 	/*.................................................................................................................*/
 
-	public static  String getNEXUSSetsBlock(CategoricalData data, boolean useCodPosIfAvailable){
+	public static  String getNEXUSSetsBlock(CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters){
 		StringBuffer sb = new StringBuffer();
 
 		String partitions = "";
 		if (useCodPosIfAvailable && data instanceof DNAData && ((DNAData)data).someCoding())
-			partitions = getCodPosPartitionNEXUSCommands(data);
+			partitions = getCodPosPartitionNEXUSCommands(data, writeExcludedCharacters);
 		else
-			partitions = getStandardPartitionNEXUSCommands(data);
+			partitions = getStandardPartitionNEXUSCommands(data, writeExcludedCharacters);
 
 		if (StringUtil.notEmpty(partitions)) {
 			sb.append("begin sets;\n");
@@ -299,7 +319,8 @@ public class ZephyrUtil {
 			f.writeOnlySelectedTaxa = writeOnlySelectedTaxa;
 			f.writeLine("#NEXUS" + StringUtil.lineEnding());
 			data.getMatrixManager().writeCharactersBlock(data, null, f, null);
-			String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable);
+			String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, false);
+			Debugg.println(setsBlock);
 			if (StringUtil.notEmpty(setsBlock))
 				f.writeLine(setsBlock + StringUtil.lineEnding());
 

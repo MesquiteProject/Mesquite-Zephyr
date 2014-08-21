@@ -1,5 +1,8 @@
 Zephyr
 
+- protect file paths in the batchfile?  if there is a space in file path
+- should show you options (command) that are being sent
+- dialog box should show versions it works for
 
 - if cancel a zephyr search, make sure to unlock matrix if needed against editing
 
@@ -15,15 +18,14 @@ Zephyr
 
 
 
-bugs fixed
-
+1.01:  
+- report version numbers of programs
 
 
 
 
 ===========
 
-- RAxML problem with char partitions
 - Parametric bootstrapping!!!
 
 First, when choosing "use codon positions" on the "characters models" tab it automatically 

@@ -55,11 +55,12 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	boolean preferencesSet = false;
 	boolean isProtein = false;
 
-	int bootstrapreps = 0;
+	int bootstrapreps = 100;
 	int bootstrapSeed = Math.abs((int)System.currentTimeMillis());
 	static String dnaModel = "GTRGAMMAI";
 	static String proteinModel = "PROTGAMMAJTT";
 	static String otherOptions = "";
+	boolean doBootstrap = false;
 
 
 	long  randseed = -1;
@@ -70,7 +71,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	javax.swing.JLabel commandLabel;
 	SingleLineTextArea commandField;
 	IntegerField numProcessorsFiled, numRunsField, bootStrapRepsField;
-	Checkbox onlyBestBox, retainFilescheckBox;
+	Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox;
 	RadioButtons threadingRadioButtons;
 //	int count=0;
 
@@ -137,6 +138,8 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 			bootstrapreps = MesquiteInteger.fromString(content);
 		if ("onlyBest".equalsIgnoreCase(tag))
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
+		if ("doBootstrap".equalsIgnoreCase(tag))
+			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
 
 		if ("raxmlThreadingVersion".equalsIgnoreCase(tag))
 			threadingVersion = MesquiteInteger.fromString(content);
@@ -149,12 +152,14 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 
 		preferencesSet = true;
 	}
+	
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
+		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
 		StringUtil.appendXMLTag(buffer, 2, "raxmlThreadingVersion", threadingVersion);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
 		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
@@ -163,6 +168,10 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		return buffer.toString();
 	}
 
+	/*.................................................................................................................*/
+	public String getTestedProgramVersions(){
+		return "8.0.0";
+	}
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
@@ -198,12 +207,18 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		externalProcRunner.addItemsToDialogPanel(dialog);
 		threadingRadioButtons= dialog.addRadioButtons(new String[] {"other", "PThreads version"}, threadingVersion);
 		numProcessorsFiled = dialog.addIntegerField("Number of Processors", numProcessors, 8, 1, MesquiteInteger.infinite);
+		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
 
 		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
-		numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
-		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
+		doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
+		dialog.addHorizontalLine(1);
+		doBootstrapCheckbox.addItemListener(this);
 		bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
 		seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
+		dialog.addHorizontalLine(1);
+		numRunsField = dialog.addIntegerField("Number of Replicates for ML Tree Search", numRuns, 8, 1, MesquiteInteger.infinite);
+		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
+		checkEnabled(doBootstrap);
 
 		tabbedPanel.addPanel("Character Models", true);
 		dnaModelField = dialog.addTextField("DNA Model:", dnaModel, 20);
@@ -240,6 +255,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 				randomIntSeed = seedField.getValue();
 				bootstrapreps = bootStrapRepsField.getValue();
 				onlyBest = onlyBestBox.getState();
+				doBootstrap = doBootstrapCheckbox.getState();
 				otherOptions = otherOptionsField.getText();
 				threadingVersion = threadingRadioButtons.getValue();
 //				MPIsetupCommand = MPISetupField.getText();
@@ -252,9 +268,18 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		dialog.dispose();
 		return (buttonPressed.getValue()==0);
 	}
+	public void checkEnabled(boolean doBoot) {
+		onlyBestBox.setEnabled(!doBoot);
+	}
+	public void itemStateChanged(ItemEvent e) {
+  		if (e.getItemSelectable() == doBootstrapCheckbox){
+  			checkEnabled (doBootstrapCheckbox.getState());
+
+  		}
+	}
 	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
-			if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
+		if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
 
 			String arguments = getArguments("fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null);
 			String command = externalProcRunner.getExecutableCommand() + arguments;
@@ -475,7 +500,7 @@ WAG, gene2 = 501-1000
 		if (!StringUtil.blank(LOCotherOptions)) 
 			arguments += " " + LOCotherOptions;
 
-		if (LOCbootstrapreps>0) {
+		if (bootstrap() && LOCbootstrapreps>0) {
 			arguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
 		}
 		else if (LOCnumRuns>1)
@@ -585,7 +610,8 @@ WAG, gene2 = 501-1000
 
 		//now establish the commands for invoking RAxML
 		String arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName);
-
+		logln("RAxML arguments: \n" + arguments + "\n");
+		
 		String programCommand = externalProcRunner.getExecutableCommand()+arguments;
 		if (threadingVersion==THREADING_PTHREADS) {
 			programCommand += " -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ";   // have to ensure that there are at least two threads requested
@@ -951,7 +977,7 @@ WAG, gene2 = 501-1000
 
 
 	public boolean bootstrap() {
-		return bootstrapreps>0;
+		return doBootstrap;
 	}
 	public int getBootstrapreps() {
 		return bootstrapreps;
@@ -998,10 +1024,6 @@ WAG, gene2 = 501-1000
 		return "RAxML";
 	}
 
-	public void itemStateChanged(ItemEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
 
 
 
