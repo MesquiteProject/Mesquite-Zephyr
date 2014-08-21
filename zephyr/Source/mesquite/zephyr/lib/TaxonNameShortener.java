@@ -1,11 +1,23 @@
+/* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
+
+Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
+Zephry's web site is http://mesquitezephyr.wikispaces.com
+
+This source code and its compiled class files are free and modifiable under the terms of 
+GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
+*/
+
 package mesquite.zephyr.lib;
 
 import mesquite.lib.*;;
 
 /**For making more informative shortened names.  Uses the first four characters of a taxon name and the taxon number.  Compare with SimpleTaxonNamer*/
-public class TaxonNameShortener implements TaxonNamer {
+public class TaxonNameShortener extends TaxonNamer {
 	int startLength = 4;
-	
+	public boolean initialize(Taxa taxa){
+		return true;
+	}
+
 	/*.................................................................................................................*/
 	public String getNameToUse(Taxon taxon) {
 		Taxa taxa = taxon.getTaxa();

@@ -1,3 +1,11 @@
+/* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
+
+Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
+Zephry's web site is http://mesquitezephyr.wikispaces.com
+
+This source code and its compiled class files are free and modifiable under the terms of 
+GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
+*/
 package mesquite.zephyr.GarliScore;
 
 
@@ -28,7 +36,7 @@ public class GarliScore extends NumberForTree {
         	Object obj = ((Attachable)tree).getAttachment(GarliRunner.SCORENAME);
         	if (obj == null){
         			if (resultString != null)
-        				resultString.setValue("No Garli score is associated with this tree.  To obtain a score, use as tree source \"Garli Trees\".");
+        				resultString.setValue("No GARLI score is associated with this tree.  To obtain a score, use as tree source \"GARLI Trees\".");
         			return;
         	}
         	if (obj instanceof MesquiteDouble)
@@ -38,7 +46,7 @@ public class GarliScore extends NumberForTree {
         }
        
         if (resultString != null) {
-            resultString.setValue("Garli score : " + result.toString());
+            resultString.setValue("GARLI score : " + result.toString());
         }
 		saveLastResult(result);
 		saveLastResultString(resultString);
@@ -55,12 +63,12 @@ public class GarliScore extends NumberForTree {
     /** Explains what the module does. */
 
     public String getExplanation() {
-        return "Supplies - ln L score from Garli";
+        return "Supplies - ln L score from GARLI";
     }
 
     /* ................................................................................................................. */
     /** Name of module */
     public String getName() {
-        return "Garli Score";
+        return "GARLI Score";
     }
 }

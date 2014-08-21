@@ -1,3 +1,12 @@
+/* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
+
+Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
+Zephry's web site is http://mesquitezephyr.wikispaces.com
+
+This source code and its compiled class files are free and modifiable under the terms of 
+GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
+*/
+
 package mesquite.zephyr.lib;
 
 import java.awt.event.*;
@@ -10,7 +19,7 @@ import mesquite.lib.duties.*;
 import mesquite.zephyr.PAUPRunner.*;
 
 public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements ActionListener, PAUPCommander {
-	PAUPRunner paupRunner;
+	protected PAUPRunner paupRunner;
 	Taxa taxa;
 	private MatrixSourceCoord matrixSourceTask;
 	protected MCharactersDistribution observedStates;
@@ -28,7 +37,7 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 
 
-		paupRunner = (PAUPRunner)hireNamedEmployee(PAUPRunner.class, "#mesquite.bosque.PAUPRunner.PAUPRunner");
+		paupRunner = (PAUPRunner)hireNamedEmployee(PAUPRunner.class, "#mesquite.zephyr.PAUPRunner.PAUPRunner");
 		if (paupRunner ==null)
 			return false;
 		paupRunner.setPAUPPath(PAUPPath);
@@ -58,15 +67,20 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 		return null;
 	}
 
-	public void initialize(Taxa taxa) {
+	public boolean initialize(Taxa taxa) {
 		this.taxa = taxa;
 		if (matrixSourceTask!=null) {
 			matrixSourceTask.initialize(taxa);
 			if (observedStates ==null)
 				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
-		}
+			if (observedStates ==null)
+				return false;
+		} else
+			return false;
 		if (paupRunner !=null)
 			paupRunner.setPAUPPath(PAUPPath);
+		else return false;
+		return true;
 	}
 
 	public boolean getPreferencesSet() {
@@ -151,6 +165,12 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 	public boolean isSubstantive(){
 		return true;
 	}
+	
+	/*.................................................................................................................*/
+	public String getTreeBlockName(){
+		return "";
+	}
+
 	/*.................................................................................................................*/
 	private TreeVector getTrees(Taxa taxa) {
 		TreeVector trees = new TreeVector(taxa);
@@ -163,16 +183,19 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 		MesquiteDouble finalScore = new MesquiteDouble();
 
 		paupRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScore, getName(), this);
+		trees.setName(getTreeBlockName());
 
 		return trees;
 	}
+
 
 	/*.................................................................................................................*/
 	public void fillTreeBlock(TreeVector treeList){
 		if (treeList==null || paupRunner==null)
 			return;
 		taxa = treeList.getTaxa();
-		initialize(taxa);
+		if (!initialize(taxa)) 
+			return;
 
 
 		if (!queryOptions())
@@ -199,7 +222,7 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 			storePreferences();
 
 		TreeVector trees = getTrees(taxa);
-		treeList.setName("Trees from PAUP search");
+		treeList.setName(getTreeBlockName());
 		treeList.setAnnotation ("Parameters: "  + getParameters(), false);
 		if (trees!=null)
 			treeList.addElements(trees, false);

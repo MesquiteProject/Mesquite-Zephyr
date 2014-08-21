@@ -1,31 +1,34 @@
 Zephyr
 
-- check box - do you do an autosave upon completion
+Ubuntu:  RAxML double // in path; but Garli and PAUP are OK
+Ubuntu: RAXML dialog too big
+
+- protect file paths in the batchfile?  if there is a space in file path
+- should show you options (command) that are being sent
+- dialog box should show versions it works for
+
+- if cancel a zephyr search, make sure to unlock matrix if needed against editing
+
+
 - when you hit stop button - offer the user the option to display the current tree  (simple version: put tree description in clipboard)  
 	(or: establishes a treeblock and adds trees to that block; animate tree block)
 - harvest bootstrap trees as it goes, moving it into a treeblock (could then have a live consensus)
 - bootstrap run in Garli, display branch lengths as zero - should just do majrule right away.
-
-
-
-
-
--  Have it so that you can stop the remote process from within Mesquite.
+- Have it so that you can stop the remote process from within Mesquite.
 
 - have the configuration and set up files (e.g., the matrix) saved rather than used to start a remote run
 
 
 
 
-
-
+1.01:  
+- report version numbers of programs
 
 
 
 
 ===========
 
-- RAxML problem with char partitions
 - Parametric bootstrapping!!!
 
 First, when choosing "use codon positions" on the "characters models" tab it automatically 

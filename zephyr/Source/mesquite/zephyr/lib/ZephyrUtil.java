@@ -1,3 +1,12 @@
+/* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
+
+Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
+Zephry's web site is http://mesquitezephyr.wikispaces.com
+
+This source code and its compiled class files are free and modifiable under the terms of 
+GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
+*/
+
 package mesquite.zephyr.lib;
 
 import java.awt.Choice;
@@ -8,7 +17,6 @@ import java.io.Writer;
 import java.util.Enumeration;
 
 import cgrb.eta.remote.api.ETAConnection;
-
 import mesquite.categ.lib.CategoricalData;
 import mesquite.categ.lib.DNAData;
 import mesquite.categ.lib.MolecularData;
@@ -29,7 +37,7 @@ import mesquite.lib.duties.TreesManager;
 
 
 public class ZephyrUtil {
-
+	public static final String VERSION_FILE = "fileToDetermineVersion";
 
 
 	/*.................................................................................................................*/
@@ -44,25 +52,28 @@ public class ZephyrUtil {
 				((AdjustableTree)t).standardize(taxonSet,  false);
 		}
 	}
-	
+
 	/*.................................................................................................................*/
 	//TODO: Many unused variables in method call (taxa, directoryPath, fileName)?
-	public static boolean saveExportFile(MesquiteModule module, String interpreterModuleName, Taxa taxa, String directoryPath, String fileName, String path, CategoricalData data) {
+	public static FileInterpreterI getFileInterpreter(MesquiteModule module, String interpreterModuleName) {
+		FileCoordinator coord = module.getFileCoordinator();
+		if (coord == null) 
+			return null;
+		FileInterpreterI exporter = (FileInterpreterI)coord.findEmployeeWithName(interpreterModuleName);
+		return exporter;
+	}	
+	/*.................................................................................................................*/
+	//TODO: Many unused variables in method call (taxa, directoryPath, fileName)?
+	public static boolean saveExportFile(MesquiteModule module, FileInterpreterI exporter, String path, CategoricalData data, boolean selectedTaxaOnly) {
 		if (data==null)
 			return false;
 
-		FileCoordinator coord = module.getFileCoordinator();
-		if (coord == null) 
-			return false;
-		
-
 		module.incrementMenuResetSuppression();
-
-		FileInterpreterI exporter = (FileInterpreterI)coord.findEmployeeWithName(interpreterModuleName);
 		MesquiteFile file = new MesquiteFile();
 		file.writeTaxaWithAllMissing = false;
 		file.writeExcludedCharacters = false;
 		if (exporter!=null) {
+			exporter.writeOnlySelectedTaxa = selectedTaxaOnly;
 			if (module instanceof ZephyrFilePreparer)
 				((ZephyrFilePreparer)module).prepareExportFile(exporter);
 			StringBuffer sb = exporter.getDataAsFileText(file, data);
@@ -79,7 +90,7 @@ public class ZephyrUtil {
 	}	
 
 	/*.................................................................................................................*/
-	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, SimpleTaxonNamer namer) {
+	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, TaxonNamer namer) {
 		if (StringUtil.blank(line))
 			return null;
 		MesquiteTree t = new MesquiteTree(taxa);
@@ -156,7 +167,7 @@ public class ZephyrUtil {
 		if (data instanceof DNAData && ((DNAData)data).someCoding()) {
 			return true;
 		}
-		
+
 		CharacterPartition characterPartition = (CharacterPartition)data.getCurrentSpecsSet(CharacterPartition.class);
 		if (characterPartition!=null) {
 			return true;
@@ -177,10 +188,13 @@ public class ZephyrUtil {
 		for (int i=0; i<parts.length; i++) {
 			partitionChoice.addItem(parts[i].getName());
 		}
+		if (characterPartition.getAnyCurrentlyUnassigned())
+			partitionChoice.addItem("unassigned");
+
 	}
 	/*.................................................................................................................*/
 	public static int getPartitionSubset(CharacterData data, String chosen){
-		if (data==null)
+		if (data==null || StringUtil.blank(chosen))
 			return -1;
 		CharactersGroup[] parts =null;
 		CharacterPartition characterPartition = (CharacterPartition)data.getCurrentSpecsSet(CharacterPartition.class);
@@ -192,11 +206,13 @@ public class ZephyrUtil {
 				if (parts[i].getName().equalsIgnoreCase(chosen))
 					return i;
 			}
+			if (chosen.equalsIgnoreCase("unassigned"))
+				return parts.length;
 		}
 		return -1;
 	}
 	/*.................................................................................................................*/
-	public static String getStandardPartitionNEXUSCommands(CharacterData data){
+	public static String getStandardPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters){
 		String standardPartitionSection = "";
 		String standardPartition = "";
 		String partitionCommand = "";
@@ -208,8 +224,12 @@ public class ZephyrUtil {
 		if (parts==null)
 			return null;
 		int numCharSets = 0;
+		Listable[] partition = (Listable[])characterPartition.getProperties();
+		if (!writeExcludedCharacters) 
+			partition = data.removeExcludedFromListable(partition);
+		String q;
 		for (int i=0; i<parts.length; i++) {
-			String q = ListableVector.getListOfMatches((Listable[])characterPartition.getProperties(), parts[i], CharacterStates.toExternal(0));
+			q = ListableVector.getListOfMatches(partition, parts[i], CharacterStates.toExternal(0));
 			if (q != null) {
 				standardPartition +=  "\n\tcharset " + StringUtil.simplifyIfNeededForOutput(parts[i].getName(),true) + " = " + q + ";";
 				numCharSets++;
@@ -218,6 +238,14 @@ public class ZephyrUtil {
 				partitionCommand += " part"+i + ":" + StringUtil.simplifyIfNeededForOutput(parts[i].getName(),true) ;
 			}
 		}
+		q = ListableVector.getListOfMatches(partition, null, CharacterStates.toExternal(0));
+		if (q != null) {
+			standardPartition +=  "\n\tcharset unassigned = " + q + ";";
+			numCharSets++;
+			if (!StringUtil.blank(partitionCommand))
+				partitionCommand += ", ";
+			partitionCommand += " part" + parts.length + ": unassigned" ;
+		}
 		if (!StringUtil.blank(standardPartition)) {
 			standardPartitionSection +=standardPartition;
 			standardPartitionSection += "\n\tcharpartition * currentPartition = " + partitionCommand + ";\n";
@@ -225,15 +253,18 @@ public class ZephyrUtil {
 		return standardPartitionSection;
 	}
 	/*.................................................................................................................*/
-	public static String getCodPosPartitionNEXUSCommands(CharacterData data){
+	public static String getCodPosPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters){
 		//codon positions if nucleotide
 		String codPosPartitionSection = "";
 		int numberCharSets = 0;
 		String charSetCommands = "";
 		String partitionCommand = "";
 		CodonPositionsSet codSet = (CodonPositionsSet)data.getCurrentSpecsSet(CodonPositionsSet.class);
+		boolean[] include = null;
+		if (!writeExcludedCharacters)
+			include = data.getBooleanArrayOfIncluded();
 		for (int iw = 0; iw<4; iw++){
-			String locs = codSet.getListOfMatches(iw);
+			String locs = codSet.getListOfMatches(iw,0,include);
 			if (!StringUtil.blank(locs)) {
 				String charSetName = "";
 				if (iw==0) 
@@ -257,15 +288,15 @@ public class ZephyrUtil {
 
 	/*.................................................................................................................*/
 
-	public static  String getNEXUSSetsBlock(CategoricalData data, boolean useCodPosIfAvailable){
+	public static  String getNEXUSSetsBlock(CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters){
 		StringBuffer sb = new StringBuffer();
-		
+
 		String partitions = "";
 		if (useCodPosIfAvailable && data instanceof DNAData && ((DNAData)data).someCoding())
-			partitions = getCodPosPartitionNEXUSCommands(data);
+			partitions = getCodPosPartitionNEXUSCommands(data, writeExcludedCharacters);
 		else
-			partitions = getStandardPartitionNEXUSCommands(data);
-		
+			partitions = getStandardPartitionNEXUSCommands(data, writeExcludedCharacters);
+
 		if (StringUtil.notEmpty(partitions)) {
 			sb.append("begin sets;\n");
 			sb.append(partitions);
@@ -288,7 +319,8 @@ public class ZephyrUtil {
 			f.writeOnlySelectedTaxa = writeOnlySelectedTaxa;
 			f.writeLine("#NEXUS" + StringUtil.lineEnding());
 			data.getMatrixManager().writeCharactersBlock(data, null, f, null);
-			String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable);
+			String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, false);
+			Debugg.println(setsBlock);
 			if (StringUtil.notEmpty(setsBlock))
 				f.writeLine(setsBlock + StringUtil.lineEnding());
 
@@ -297,7 +329,7 @@ public class ZephyrUtil {
 		}
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public static void writeNEXUSFile(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean useStandardizedTaxonNames,boolean writeSetsBlock, boolean useCodPosIfAvailable) {
 		writeNEXUSFile(taxa, dir, fileName, path, data, useStandardizedTaxonNames, false, writeSetsBlock, useCodPosIfAvailable);
 	}
@@ -312,7 +344,7 @@ public class ZephyrUtil {
 				extension = "."+StringUtil.getLastItem(fileName, ".");
 				fileName = StringUtil.getAllButLastItem(fileName, ".");
 			}
-				
+
 			outputFilePath += MesquiteFile.getAvailableFileName(outputFilePath, fileName, extension);
 		}
 		else
@@ -323,7 +355,7 @@ public class ZephyrUtil {
 	}
 	/*.................................................................................................................*/
 	public static void copyLogFile(MesquiteModule ownerModule, String programName, String originalLogFilePath) {
-
+		try {
 		String logFilePath = ownerModule.getProject().getHomeDirectoryName();
 		if (!StringUtil.blank(logFilePath))
 			logFilePath += MesquiteFile.getAvailableFileName(logFilePath, programName,".log");
@@ -331,6 +363,10 @@ public class ZephyrUtil {
 			logFilePath = MesquiteFile.saveFileAsDialog("Save copy of "+programName+" log to file");
 		if (!StringUtil.blank(logFilePath)) {
 			MesquiteFile.copyFileFromPaths(originalLogFilePath, logFilePath, true);
+		}
+		}
+		catch (NullPointerException e){
+			// used to avoid error if user quite mesquite mid-calculation
 		}
 	}
 	/*.................................................................................................................*/
@@ -350,7 +386,7 @@ public class ZephyrUtil {
 			w.write("\tTITLE " + StringUtil.tokenize(taxa.getName()) + ";" + end);
 		if (taxa.getAnnotation()!=null) 
 			w.write("[!" + taxa.getAnnotation() + "]" + StringUtil.lineEnding());
-		
+
 		w.write("\tDIMENSIONS NTAX=" + taxa.getNumTaxa() + ";" + end + "\tTAXLABELS" + end + "\t\t");
 		String taxonName = "";
 		for (int it=0; it<taxa.getNumTaxa(); it++) {
@@ -368,7 +404,7 @@ public class ZephyrUtil {
 		w.write("END;" + end + end);
 	}
 
-		
+
 	/// Copied from ManageTrees.getTreeBlock and refactored to remove project-wide dependencies
 	public static void writeTreesBlock(Writer w, TreeVector trees, boolean suppressTitle, boolean suppressLink) throws IOException{
 		if (trees == null || trees.size() == 0)
@@ -423,7 +459,7 @@ public class ZephyrUtil {
 			if (trees.getWriteWeights()&& weightObject!=null && weightObject instanceof MesquiteString)
 				w.write("[&W " + ((MesquiteString)weightObject).getValue() + "] ");
 			w.write(t.writeTree(writeMode) + StringUtil.lineEnding());
-			
+
 		}
 		w.write("END;" + StringUtil.lineEnding()+ StringUtil.lineEnding());
 	}
@@ -436,7 +472,7 @@ public class ZephyrUtil {
 		ZephyrUtil.writeTreesBlock(w, tv, true, true);
 		w.close();
 	}
-	
+
 	public static void writeNEXUSTreeFile(Taxa taxa, TreeSource treeSource, String dir, String fileName) throws Exception, IOException {
 		if (dir != null && fileName != null ) {
 			int nt = treeSource.getNumberOfTrees(taxa);
@@ -458,23 +494,40 @@ public class ZephyrUtil {
 			ZephyrUtil.writeNEXUSTreeFile(taxa, tv, dir, fileName);
 		}
 	}
-
-	/*.................................................................................................................*/
-	public static String createDirectoryForFiles(MesquiteModule module, boolean askForLocation, String name) {
-		MesquiteBoolean directoryCreated = new MesquiteBoolean(false);
-		String rootDir = null;
-		if (!askForLocation)
-			rootDir = module.createEmptySupportDirectory(directoryCreated) + MesquiteFile.fileSeparator;  //replace this with current directory of file
-		if (!directoryCreated.getValue()) {
-			rootDir = MesquiteFile.chooseDirectory("Choose folder for storing "+name+" files");
-			if (rootDir==null) {
-				MesquiteMessage.discreetNotifyUser("Sorry, directory for storing "+name+" files could not be created.");
-				return null;
-			} else
-				rootDir += MesquiteFile.fileSeparator;
+	
+	
+	public static String getStandardExtraTreeWindowCommands (boolean isBootstrap, long treeBlockID){
+		String commands = "setSize 400 600; ";
+		if (isBootstrap){
+			commands += "getOwnerModule; tell It; setTreeSource  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";
+			commands += " setTreeBlockByID " + treeBlockID + ";";
+			commands += " toggleUseWeights off; endTell; setConsenser  #mesquite.consensus.MajRuleTree.MajRuleTree; endTell; endTell;";
 		}
-		return rootDir;
+
+		commands += "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
+		commands += "setTreeDrawer  #mesquite.trees.SquareLineTree.SquareLineTree; tell It; orientRight; showEdgeLines off; ";
+		
+		
+		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
+		if (!isBootstrap)
+			commands += " tell It; branchLengthsToggle on; endTell; ";
+		commands += " setEdgeWidth 3; endTell; ";  // endTell is for SquareLineTree
+		if (isBootstrap){
+			commands += "labelBranchLengths off;";
+		}
+		commands += "getEmployee #mesquite.trees.BasicDrawTaxonNames.BasicDrawTaxonNames; tell It; toggleColorPartition on; setFontSize 10; endTell; ";		
+
+		commands += " endTell; "; //endTell for BasicTreeDrawCoordinator
+		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
+
+		if (isBootstrap){
+			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; toggleShow consensusFrequency; endTell; endTell; ";
+		}		
+
+		return commands;
 	}
+
+	
 
 
 }

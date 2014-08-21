@@ -6,22 +6,20 @@ Zephry's web site is http://mesquitezephyr.wikispaces.com
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
-
 package mesquite.zephyr.lib;
 
-import cgrb.eta.remote.api.*;
+import mesquite.lib.*;
 
-public class ZephyrETAConnection {
-	ETAConnection etaConnection;
+public interface ExternalProcessRequester {
+	
+	public void intializeAfterExternalProcessRunnerHired();
 
-	public boolean establishConnection(String username, String password) {
-		try {
-			ETAConnection etaConnection = new ETAConnection(username, password);
-		}
-		catch (InValidUserNameException e) {
-			return false;
-		}
-		return true;
-	}
+	public void runFilesAvailable(boolean[] filesAvailable);
+	
+	public void runFailed(String message);
+	
+	public void runFinished(String message);
+	
+	public String getProgramName();
 	
 }

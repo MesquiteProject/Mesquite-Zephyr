@@ -1,12 +1,21 @@
+/* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
+
+Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
+Zephry's web site is http://mesquitezephyr.wikispaces.com
+
+This source code and its compiled class files are free and modifiable under the terms of 
+GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
+*/
+
 package mesquite.zephyr.RAxMLExporter;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+
 import mesquite.categ.lib.*;
 import mesquite.io.lib.InterpretPhylip;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
-import mesquite.lib.characters.CharacterData;
 import mesquite.lib.duties.FileInterpreterI;
 import mesquite.zephyr.RAxMLRunner.*;
 import mesquite.zephyr.lib.*;
@@ -216,7 +225,7 @@ public class RAxMLExporter extends RAxMLRunner {
 	/**If there are partitions (or 'Groups' by Mesquiteese) in the selected matrix, will prepare the partition and return 
 	 * a string that will ultimately be written to a partition text file called [baseFileName]_parts.txt.*/
 	private String getMultipleModelFileString(CharacterData data, boolean partByCodPos){//over-rides RAxMLRunner's method
-		boolean writeCodPosPartition = false;
+		boolean writeCodPosPartition = false;  // currently not used anywhere
 		boolean writeStandardPartition = false;
 		CharactersGroup[] parts =null;
 		if (data instanceof DNAData)
@@ -241,30 +250,40 @@ public class RAxMLExporter extends RAxMLRunner {
 		boolean protein = (data instanceof ProteinData);
 		String standardPart = "";//TODO: Never used?
 		if (writeStandardPartition) {
+			Listable[] partition = (Listable[])characterPartition.getProperties();
+			partition = data.removeExcludedFromListable(partition);
 			if (nucleotides) {
+				String q;
 				for (int i=0; i<parts.length; i++) {
-					String q = ListableVector.getListOfMatches((Listable[])characterPartition.getProperties(), parts[i], CharacterStates.toExternal(0));
+					q = ListableVector.getListOfMatches(partition, parts[i], CharacterStates.toExternal(0));
 					if (q != null) {
 						if (nucleotides)
 							sb.append("DNA, " + StringUtil.simplifyIfNeededForOutput(parts[i].getName(), true) + " = " +  q + "\n");
 					}
 				}
+				q = ListableVector.getListOfMatches(partition, null, CharacterStates.toExternal(0));
+				if (q != null) {
+					if (nucleotides)
+						sb.append("DNA, unassigned = " +  q + "\n");
+				}
 			} else if (protein) {
 				String[] rateModels = getRateModels(parts);
-				if (rateModels!=null) {for (int i=0; i<parts.length; i++) {
-					String q = ListableVector.getListOfMatches((Listable[])characterPartition.getProperties(), parts[i], CharacterStates.toExternal(0));
-					if (q != null && i<rateModels.length) {
-						sb.append(rateModels[i]+", " + StringUtil.simplifyIfNeededForOutput(parts[i].getName(), true) + " = " +  q + "\n");
+				if (rateModels!=null) {
+					for (int i=0; i<parts.length; i++) {
+						String q = ListableVector.getListOfMatches(partition, parts[i], CharacterStates.toExternal(0));
+						if (q != null && i<rateModels.length) {
+							sb.append(rateModels[i]+", " + StringUtil.simplifyIfNeededForOutput(parts[i].getName(), true) + " = " +  q + "\n");
+						}
 					}
-				}
 				}
 			}
 		} else if (writeCodPosPartition && partByCodPos) {//TODO: never accessed because in the only call of this method, partByCodPos is false.
-				//codon positions if nucleotide
-				int numberCharSets = 0; //TODO: Never used?
+			//codon positions if nucleotide
+			int numberCharSets = 0; //TODO: Never used?
 				CodonPositionsSet codSet = (CodonPositionsSet)data.getCurrentSpecsSet(CodonPositionsSet.class);
+				boolean[] include = data.getBooleanArrayOfIncluded();
 				for (int iw = 0; iw<4; iw++){
-					String locs = codSet.getListOfMatches(iw);
+					String locs = codSet.getListOfMatches(iw,0,include);
 					if (!StringUtil.blank(locs)) {
 						String charSetName = "";
 						if (iw==0) 
@@ -327,17 +346,28 @@ public class RAxMLExporter extends RAxMLRunner {
 		String configFileContents = "# replace <raxml_call> with appropriate command to call RAxML" + StringUtil.lineEnding();
 		configFileContents += getProgramCommand(threadingVersion, MPIsetupCommand,numProcessors, arguments, true)+ StringUtil.lineEnding();
 		
-		boolean fileSaved = false;
 
 		/*Write the phylip file to disk, choosing the appropriate interpreter (DNA or protein).  The interpreter will shorten the name
 		 * according to the format of the 'namer' object.  In this case, it is a TaxonNameShortener (see prepareExportFile method above).
 		 * In RAxMLRunner, the namer is a SimpleTaxonNamer.*/
-		if (data instanceof DNAData){
-			fileSaved = ZephyrUtil.saveExportFile(this,"#InterpretPhylipDNA", taxa, directoryPath,  dataFile,  dataFilePath,  data);
+		
+		FileInterpreterI exporter = null;
+		if (data instanceof DNAData)
+			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipDNA");
+		else if (data instanceof ProteinData)
+			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipProtein");
+		if (exporter==null)
+			return null;
+		((InterpretPhylip)exporter).setTaxonNameLength(100);
+		((InterpretPhylip)exporter).setTaxonNamer(namer);
 
-		} else if (data instanceof ProteinData){
-			 fileSaved = ZephyrUtil.saveExportFile(this,"#InterpretPhylipProtein", taxa, directoryPath,  dataFile,  dataFilePath,  data);
-		}
+		boolean fileSaved = false;
+		if (data instanceof DNAData)
+			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
+		else if (data instanceof ProteinData)
+			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data, selectedTaxaOnly);
+
+	
 		MesquiteFile.putFileContents(configFilePath, configFileContents, true);//TODO: why ascii = true?
 		
 		if (!fileSaved){

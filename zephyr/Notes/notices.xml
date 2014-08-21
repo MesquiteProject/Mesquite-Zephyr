@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<mesquite>
+	<MessagesFromHome>
+		<version>1</version>
+		<notice><!--Zephyr notice of update -->
+			<forBuildNumberEqualOrLess>620</forBuildNumberEqualOrLess> <!-- this refers to Mesquite build, e.g. for compatibility -->
+			<noticeNumber>1</noticeNumber>
+			<messageType>alert</messageType>
+			<identity>Zephyr</identity>
+			<updateVersion>001</updateVersion>
+			<packageName>Zephyr version 1.0</packageName>
+			<message>
+			<![CDATA[<img src="http://mesquiteproject.org/packages/zephyr/splash.jpg"><p>
+			In order to install Zephyr, you need to first update to Mesquite version 3.0.  
+			You can get Mesquite 3.0 at <a href = "https://mesquiteproject.wikispaces.com/Installation">https://mesquiteproject.wikispaces.com/Installation</a>
+			]]>
+			</message>
+		</notice>
+		<currentReleaseVersion>
+			<versionString>1.0</versionString>
+			<version>1000</version>
+			<downloadURL>http://mesquitezephyr.wikispaces.com/Download</downloadURL>
+		</currentReleaseVersion>
+		
+	</MessagesFromHome>
+</mesquite>

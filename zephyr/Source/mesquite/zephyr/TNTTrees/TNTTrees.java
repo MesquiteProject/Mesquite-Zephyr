@@ -1,3 +1,12 @@
+/* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
+
+Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
+Zephry's web site is http://mesquitezephyr.wikispaces.com
+
+This source code and its compiled class files are free and modifiable under the terms of 
+GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
+*/
+
 package mesquite.zephyr.TNTTrees;
 
 import java.util.*;
@@ -9,7 +18,7 @@ import mesquite.zephyr.TNTRunner.TNTRunner;
 import mesquite.zephyr.lib.*;
 
 
-public class TNTTrees extends ExternalTreeSearcher {
+public class TNTTrees extends ZephyrTreeSearcher {
 	TNTRunner tntRunner;
 	TreeSource treeRecoveryTask;
 	Taxa taxa;
@@ -17,7 +26,12 @@ public class TNTTrees extends ExternalTreeSearcher {
 	protected MCharactersDistribution observedStates;
 	int rerootNode = 0;
 
+	/*.................................................................................................................*/
+	public boolean  loadModule(){ 
+		return false;
+	}
 
+	/*.................................................................................................................*
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences();
 
@@ -26,29 +40,43 @@ public class TNTTrees extends ExternalTreeSearcher {
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 
 
-		tntRunner = (TNTRunner)hireNamedEmployee(TNTRunner.class, "#mesquite.bosque.TNTRunner.TNTRunner");
+		tntRunner = (TNTRunner)hireNamedEmployee(TNTRunner.class, "#mesquite.zephyr.TNTRunner.TNTRunner");
 		if (tntRunner ==null)
 			return false;
 		tntRunner.initialize(this);
 		return true;
 	}
 
-
-
-	public String getExtraTreeWindowCommands (){
-		String commands = "setSize 400 600; getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
-		commands += "setTreeDrawer  #mesquite.trees.SquareTree.SquareTree; tell It; orientRight; ";
-		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
-		//if (tntRunner.getBootstrapreps()<=0)
-		//	commands += " tell It; branchLengthsToggle on; endTell; ";
-		commands += " setEdgeWidth 3; endTell; ";
-		if (tntRunner.getBootstrapreps()>0)
-			commands += "labelBranchLengths on; setNumBrLenDecimals 0; showBrLenLabelsOnTerminals off; showBrLensUnspecified off; setBrLenLabelColor 0 0 0;";
-		commands += " endTell; ";
-		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
-		commands += eachTreeCommands();
-		return commands;
+	/*.................................................................................................................*/
+	public String getRunnerModuleName() {
+		return "#mesquite.zephyr.TNTRunner.TNTRunner";
 	}
+	/*.................................................................................................................*/
+	public String getProgramName() {
+		return "TNT";
+	}
+	/*.................................................................................................................*/
+	 public String getProgramURL() {
+		 return "http://www.lillo.org.ar/phylogeny/tnt/";
+	 }
+
+	 public Class getRunnerClass(){
+		 return TNTRunner.class;
+	 }
+
+	/*.................................................................................................................*/
+	public boolean isPrerelease(){
+		return true;
+	}
+	/*.................................................................................................................*/
+	public boolean requestPrimaryChoice(){
+		return true;
+	}
+	/*.................................................................................................................*/
+	public boolean canGiveIntermediateResults(){
+		return true;
+	}
+	/*.................................................................................................................*/
 
 
 	public String eachTreeCommands (){
@@ -59,7 +87,7 @@ public class TNTTrees extends ExternalTreeSearcher {
 		commands += " ladderize root; ";
 		return commands;
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public Class getCharacterClass() {
 		return null;
 	}
@@ -72,7 +100,7 @@ public class TNTTrees extends ExternalTreeSearcher {
 				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
 		}
 		if (tntRunner ==null) {
-			tntRunner = (TNTRunner)hireNamedEmployee(TNTRunner.class, "#mesquite.bosque.TNTRunner.TNTRunner");
+			tntRunner = (TNTRunner)hireNamedEmployee(TNTRunner.class, "#mesquite.zephyr.TNTRunner.TNTRunner");
 		}
 		if (tntRunner !=null)
 			tntRunner.initializeTaxa(taxa);
@@ -88,23 +116,7 @@ public class TNTTrees extends ExternalTreeSearcher {
 		return "TNT Trees...";
 	}
 
-	/*.................................................................................................................*/
-	public boolean isSubstantive(){
-		return true;
-	}
-	/*.................................................................................................................*/
-	public boolean isPrerelease(){
-		return true;
-	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	/*.................................................................................................................*/
-	public boolean canGiveIntermediateResults(){
-		return true;
-	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public Tree getLatestTree(Taxa taxa, MesquiteNumber score, MesquiteString titleForWindow){
 		if (titleForWindow != null)
 			titleForWindow.setValue("Tree from TNT");
@@ -142,7 +154,7 @@ public class TNTTrees extends ExternalTreeSearcher {
 			newResultsAvailable(outgroupTaxSet);
 
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	private TreeVector getTrees(Taxa taxa) {
 		TreeVector trees = new TreeVector(taxa);
 		MesquiteTree initialTree = new MesquiteTree(taxa);
@@ -169,7 +181,7 @@ public class TNTTrees extends ExternalTreeSearcher {
 		return trees;
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void fillTreeBlock(TreeVector treeList){
 		if (treeList==null || tntRunner==null)
 			return;
@@ -182,6 +194,7 @@ public class TNTTrees extends ExternalTreeSearcher {
 		if (trees!=null)
 			treeList.addElements(trees, false);
 	}
+	/*.................................................................................................................*/
 
 
 }

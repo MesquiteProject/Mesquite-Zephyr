@@ -1,3 +1,12 @@
+/* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
+
+Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
+Zephry's web site is http://mesquitezephyr.wikispaces.com
+
+This source code and its compiled class files are free and modifiable under the terms of 
+GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
+*/
+
 package mesquite.zephyr.PAUPNJ;
 
 import java.awt.*;
@@ -87,6 +96,18 @@ public class PAUPNJ extends PAUPTreeSearcher {
 		}
 		return sb.toString();
 	}
+	
+	/*.................................................................................................................*/
+	public String getTreeBlockName(){
+		if (doBootstrap) {
+			return "PAUP* NJ Bootstrap Tree (Matrix: " + observedStates.getName() + ")";
+		} 
+		else {
+			return "PAUP* NJ Tree (Matrix: " + observedStates.getName() + ")";
+
+		}
+	}
+
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
 		return true;

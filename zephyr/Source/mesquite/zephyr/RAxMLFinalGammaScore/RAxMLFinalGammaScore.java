@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.RAxMLScore;
+package mesquite.zephyr.RAxMLFinalGammaScore;
 
 
 import mesquite.io.lib.IOUtil;
@@ -16,7 +16,7 @@ import mesquite.lib.duties.*;
 import mesquite.zephyr.RAxMLRunner.*;
 
 
-public class RAxMLScore extends NumberForTree {
+public class RAxMLFinalGammaScore extends NumberForTree {
 
     /* ................................................................................................................. */
 
@@ -35,10 +35,10 @@ public class RAxMLScore extends NumberForTree {
             return;
 	   	clearResultAndLastResult(result);
        if (tree instanceof Attachable){
-        	Object obj = ((Attachable)tree).getAttachment(IOUtil.RAXMLSCORENAME);
+        	Object obj = ((Attachable)tree).getAttachment(IOUtil.RAXMLFINALSCORENAME);
         	if (obj == null){
         			if (resultString != null)
-        				resultString.setValue("No RAxML score is associated with this tree.  To obtain a score, use as tree source \"RAxML Trees\".");
+        				resultString.setValue("No RAxML Final Gamma-based score is associated with this tree.  To obtain a score, use as tree source \"RAxML Trees\".");
         			return;
         	}
         	if (obj instanceof MesquiteDouble)
@@ -48,7 +48,7 @@ public class RAxMLScore extends NumberForTree {
         }
        
         if (resultString != null) {
-            resultString.setValue("RAxML score : " + result.toString());
+            resultString.setValue("RAxML Final Gamma-based score : " + result.toString());
         }
 		saveLastResult(result);
 		saveLastResultString(resultString);
@@ -65,12 +65,12 @@ public class RAxMLScore extends NumberForTree {
     /** Explains what the module does. */
 
     public String getExplanation() {
-        return "Supplies - ln L score from RAxML";
+        return "Supplies final gamma-based - ln L score from RAxML";
     }
 
     /* ................................................................................................................. */
     /** Name of module */
     public String getName() {
-        return "RAxML Score";
+        return "RAxML Final Gamma-based Score";
     }
 }
