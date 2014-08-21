@@ -130,20 +130,14 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		loadPreferences();
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) {
 		Snapshot temp = new Snapshot();
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments,
 			CommandChecker checker) {
 		if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner",
@@ -242,10 +236,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		preferencesSet = b;
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public void processSingleXMLPreference(String tag, String content) {
 		if ("numRuns".equalsIgnoreCase(tag))
 			numRuns = MesquiteInteger.fromString(content);
@@ -261,10 +252,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		preferencesSet = true;
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public String preparePreferencesForXML() {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);
@@ -278,10 +266,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		return buffer.toString();
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public void preparePartitionChoice(Choice partitionChoice,
 			int partitionScheme) {
 		partitionChoice.removeAll();
@@ -304,10 +289,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		}
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	private void setUpCharModels(CategoricalData data) {
 		if (data == null)
 			return;
@@ -334,10 +316,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	private void writeCharModels(StringBuffer sb, CharacterData data) {
 		switch (partitionScheme) {
 		case partitionByCharacterGroups:
@@ -360,22 +339,17 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		}
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	private void setCharacterModels() {
 		GarliCharModel charModel = null;
 		switch (partitionScheme) {
 		case partitionByCharacterGroups:
-			if (currentPartitionSubset >= 0
-					&& currentPartitionSubset < charGroupModels.length) {
+			if (currentPartitionSubset >= 0 && currentPartitionSubset < charGroupModels.length) {
 				charModel = charGroupModels[currentPartitionSubset];
 			}
 			break;
 		case partitionByCodonPosition:
-			if (currentPartitionSubset >= 0
-					&& currentPartitionSubset < codonPositionModels.length) {
+			if (currentPartitionSubset >= 0 && currentPartitionSubset < codonPositionModels.length) {
 				charModel = codonPositionModels[currentPartitionSubset];
 			}
 			break;
@@ -405,8 +379,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		}
 
 		if (numRateCatField != null) {
-			numRateCatField.getTextField().setText(
-					"" + charModel.getNumratecats());
+			numRateCatField.getTextField().setText("" + charModel.getNumratecats());
 		}
 
 		if (invarSitesChoice != null) {
@@ -414,23 +387,18 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		}
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	private void processCharacterModels() {
 		int choiceValue = 0;
 		GarliCharModel charModel = null;
 		switch (partitionScheme) {
 		case partitionByCharacterGroups:
-			if (currentPartitionSubset >= 0
-					&& currentPartitionSubset < charGroupModels.length) {
+			if (currentPartitionSubset >= 0 && currentPartitionSubset < charGroupModels.length) {
 				charModel = charGroupModels[currentPartitionSubset];
 			}
 			break;
 		case partitionByCodonPosition:
-			if (currentPartitionSubset >= 0
-					&& currentPartitionSubset < codonPositionModels.length) {
+			if (currentPartitionSubset >= 0 && currentPartitionSubset < codonPositionModels.length) {
 				charModel = codonPositionModels[currentPartitionSubset];
 			}
 			break;
@@ -510,31 +478,15 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		}
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public String getTestedProgramVersions() {
 		return "2.0";
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public boolean queryOptions() {
-		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options")) // Debugg.println
-																			// needs
-																			// to
-																			// check
-																			// that
-																			// options
-																			// set
-																			// well
-																			// enough
-																			// to
-																			// proceed
-																			// anyway
+		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options")) // Debugg.println needs to check that options set well enough to proceed anyway
+
 			return true;
 
 		boolean closeWizard = false;
@@ -550,8 +502,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		}
 
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(),
-				"GARLI Options & Locations", buttonPressed);
+		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), "GARLI Options & Locations", buttonPressed);
 
 		// dialog.addLabel("GARLI - Options and Locations");
 
@@ -562,26 +513,21 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose GARLI Score.";
 
 		dialog.appendToHelpString(helpString);
+		dialog.setHelpURL(ownerModule.getProgramURL());
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 
 		tabbedPanel.addPanel("GARLI Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
-		dialog.addLabelSmallText("This version of Zephyr tested on the following GARLI version(s): "
-				+ getTestedProgramVersions());
+		dialog.addLabelSmallText("This version of Zephyr tested on the following GARLI version(s): " + getTestedProgramVersions());
 
 		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
-		doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis",
-				doBootstrap);
+		doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
 		dialog.addHorizontalLine(1);
 		doBootstrapCheckbox.addItemListener(this);
-		IntegerField bootStrapRepsField = dialog
-				.addIntegerField("Bootstrap Reps", bootstrapreps, 8, 0,
-						MesquiteInteger.infinite);
+		IntegerField bootStrapRepsField = dialog.addIntegerField("Bootstrap Reps", bootstrapreps, 8, 0, MesquiteInteger.infinite);
 		dialog.addHorizontalLine(1);
-		IntegerField numRunsField = dialog.addIntegerField(
-				"Number of Search Replicates", numRuns, 8, 1,
-				MesquiteInteger.infinite);
+		IntegerField numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 
 		tabbedPanel.addPanel("Character Models", true);
@@ -593,9 +539,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			if (partitionScheme == partitionByCodonPosition)
 				partitionScheme = noPartition;
 		}
-		charPartitionButtons = dialog.addRadioButtons(new String[] {
-				"don't partition", "use character groups",
-				"use codon positions" }, partitionScheme);
+		charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
 		charPartitionButtons.addItemListener(this);
 		if (!data.hasCharacterGroups()) {
 			charPartitionButtons.setEnabled(1, false);
@@ -604,22 +548,15 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			charPartitionButtons.setEnabled(2, false);
 		}
 
-		Checkbox linkModelsBox = dialog.addCheckBox(
-				"use same set of model parameters for all partition subsets",
-				linkModels);
-		Checkbox subsetSpecificRatesBox = dialog.addCheckBox(
-				"infer overall rate multipliers for each partition subset",
-				subsetSpecificRates);
+		Checkbox linkModelsBox = dialog.addCheckBox("use same set of model parameters for all partition subsets",linkModels);
+		Checkbox subsetSpecificRatesBox = dialog.addCheckBox("infer overall rate multipliers for each partition subset",subsetSpecificRates);
 
 		dialog.addHorizontalLine(1);
-		partitionChoice = dialog.addPopUpMenu(
-				"Edit model for this partition subset:",
-				new String[] { "All Characters" }, 0);
+		partitionChoice = dialog.addPopUpMenu("Edit model for this partition subset:",new String[] { "All Characters" }, 0);
 		preparePartitionChoice(partitionChoice, partitionScheme);
 		partitionChoice.addItemListener(this);
 
-		rateMatrixChoice = dialog.addPopUpMenu("Rate Matrix", new String[] {
-				"Equal Rates", "2-Parameter", "GTR       ", "Custom" }, 2);
+		rateMatrixChoice = dialog.addPopUpMenu("Rate Matrix", new String[] {"Equal Rates", "2-Parameter", "GTR       ", "Custom" }, 2);
 		rateMatrixChoice.addItemListener(this);
 		customMatrix = dialog.addTextField("6rate", 20); // since 2 is selected
 															// as default in
@@ -627,18 +564,13 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		customMatrix.setEditable(false);
 		customMatrix.setBackground(ColorDistribution.veryLightGray);
 
-		invarSitesChoice = dialog.addPopUpMenu("Invariant Sites", new String[] {
-				"none", "Estimate Proportion" }, 1);
-		rateHetChoice = dialog.addPopUpMenu("Gamma Site-to-Site Rate Model",
-				new String[] { "none", "Estimate Shape Parameter" }, 1);
-		numRateCatField = dialog.addIntegerField(
-				"Number of Rate Categories for Gamma", numratecats, 4, 1, 20);
+		invarSitesChoice = dialog.addPopUpMenu("Invariant Sites", new String[] {"none", "Estimate Proportion" }, 1);
+		rateHetChoice = dialog.addPopUpMenu("Gamma Site-to-Site Rate Model",new String[] { "none", "Estimate Shape Parameter" }, 1);
+		numRateCatField = dialog.addIntegerField("Number of Rate Categories for Gamma", numratecats, 4, 1, 20);
 
 		tabbedPanel.addPanel("Constraint File", true);
-		constraintFileField = dialog.addTextField("Path to Constraint File:",
-				constraintfile, 40);
-		Button constraintFileBrowseButton = dialog.addAListenedButton(
-				"Browse...", null, this);
+		constraintFileField = dialog.addTextField("Path to Constraint File:",constraintfile, 40);
+		Button constraintFileBrowseButton = dialog.addAListenedButton("Browse...", null, this);
 		constraintFileBrowseButton.setActionCommand("constraintBrowse");
 
 		tabbedPanel.addPanel("Other options", true);
@@ -677,25 +609,18 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		return (buttonPressed.getValue() == 0);
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equalsIgnoreCase("constraintBrowse")) {
 			MesquiteString directoryName = new MesquiteString();
 			MesquiteString fileName = new MesquiteString();
-			constraintfile = MesquiteFile.openFileDialog(
-					"Choose Constraint File", directoryName, fileName);
+			constraintfile = MesquiteFile.openFileDialog("Choose Constraint File", directoryName, fileName);
 			if (StringUtil.notEmpty(constraintfile))
 				constraintFileField.setText(constraintfile);
 		}
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public void setGarliSeed(long seed) {
 		this.randseed = seed;
 	}
@@ -705,10 +630,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	double[] finalValues = null;
 	int runNumber = 0;
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public void initializeMonitoring() {
 		if (finalValues == null) {
 			if (bootstrap())
@@ -721,10 +643,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 	String configFileName;
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public void setFileNames() {
 		configFileName = "garli.conf";
 	}
@@ -735,10 +654,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	static final int TREEFILE = 3;
 	static final int BESTTREEFILE = 4;
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public String[] getLogFileNames() {
 		String treeFileName;
 		if (bootstrap())
@@ -749,14 +665,10 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		String allBestTreeFilePath = ofprefix + ".best.all.tre";
 		String mainLogFileName = ofprefix + ".log00.log";
 
-		return new String[] { mainLogFileName, currentTreeFilePath,
-				ofprefix + ".screen.log", treeFileName, allBestTreeFilePath };
+		return new String[] { mainLogFileName, currentTreeFilePath,ofprefix + ".screen.log", treeFileName, allBestTreeFilePath };
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public boolean initializeJustBeforeQueryOptions() {
 		setUpCharModels(data);
 		return true;
@@ -771,36 +683,25 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		setGarliSeed(seed);
 
 		// create the data file
-		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this,
-				MesquiteFileUtil.IN_SUPPORT_DIR, "GARLI", "-Run.");
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this,MesquiteFileUtil.IN_SUPPORT_DIR, "GARLI", "-Run.");
 		if (tempDir == null)
 			return null;
-		dataFileName = "tempData"
-				+ MesquiteFile.massageStringToFilePathSafe(unique) + ".nex"; // replace
-																				// this
-																				// with
-																				// actual
-																				// file
-																				// name?
+		dataFileName = "tempData"+ MesquiteFile.massageStringToFilePathSafe(unique) + ".nex"; // replace this with actual file name?
+
 		String dataFilePath = tempDir + dataFileName;
 		if (partitionScheme == noPartition)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName,
-					dataFilePath, data, true, selectedTaxaOnly, false, false);
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, false, false);
 		else if (partitionScheme == partitionByCharacterGroups)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName,
-					dataFilePath, data, true, selectedTaxaOnly, true, false);
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, true, false);
 		else if (partitionScheme == partitionByCodonPosition)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName,
-					dataFilePath, data, true, selectedTaxaOnly, true, true);
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, true, true);
 
 		setFileNames();
 
 		// setting up the GARLI config file
 		String config = getGARLIConfigurationFile(data);
 		if (!MesquiteThread.isScripting() && showConfigDetails) {
-			config = MesquiteString.queryMultiLineString(getModuleWindow(),
-					"GARLI Config File", "GARLI Config File2", config, 30,
-					false, true);
+			config = MesquiteString.queryMultiLineString(getModuleWindow(),"GARLI Config File", "GARLI Config File2", config, 30, false, true);
 			if (StringUtil.blank(config))
 				return null;
 		}
@@ -816,8 +717,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		fileContents[0] = MesquiteFile.getFileContentsAsString(dataFilePath);
 		fileNames[0] = dataFileName;
 		if (StringUtil.notEmpty(constraintfile)) {
-			fileContents[1] = MesquiteFile
-					.getFileContentsAsString(constraintfile);
+			fileContents[1] = MesquiteFile.getFileContentsAsString(constraintfile);
 			fileNames[1] = "constraint";
 		}
 		fileContents[2] = config;
@@ -825,22 +725,15 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 		String GARLIcommand = externalProcRunner.getExecutableCommand();
 		if (externalProcRunner.isWindows())
-			GARLIcommand += " --batch " + configFileName
-					+ StringUtil.lineEnding();
+			GARLIcommand += " --batch " + configFileName + StringUtil.lineEnding();
 		else
-			GARLIcommand += StringUtil.lineEnding(); // GARLI command is very
-														// simple as all of the
-														// arguments are in the
-														// config file
+			GARLIcommand += StringUtil.lineEnding(); // GARLI command is very simple as all of the arguments are in the config file
 
-		boolean success = runProgramOnExternalProcess(GARLIcommand,
-				fileContents, fileNames, ownerModule.getName());
+		boolean success = runProgramOnExternalProcess(GARLIcommand, fileContents, fileNames, ownerModule.getName());
 
 		if (success) {
 			getProject().decrementProjectWindowSuppression();
-			return retrieveTreeBlock(trees, finalScore); // here's where we
-															// actually process
-															// everything.
+			return retrieveTreeBlock(trees, finalScore); // here's where we actually process everything
 		}
 
 		getProject().decrementProjectWindowSuppression();
@@ -848,28 +741,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		return null;
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................* public Tree
-	 * continueMonitoring(MesquiteCommand callBackCommand) {
-	 * logln("Monitoring GARLI run begun.");
-	 * getProject().incrementProjectWindowSuppression();
-	 * 
-	 * initializeMonitoring(); setFilePaths();
-	 * externalProcRunner.setOutputFileNamesToWatch(logFileNames);
-	 * 
-	 * boolean success = externalProcRunner.monitorExecution();
-	 * 
-	 * if (progIndicator!=null) progIndicator.goAway();
-	 * 
-	 * //deleteSupportDirectory();
-	 * getProject().decrementProjectWindowSuppression(); if (data != null)
-	 * data.setEditorInhibition(false); if (callBackCommand != null)
-	 * callBackCommand.doItMainThread(null, null, this); return null; }
-	 * 
-	 * /*........................................................................
-	 * .........................................
-	 */
+	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
 		logln("Preparing to receive GARLI trees.");
 		boolean success = false;
@@ -889,27 +761,9 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 		// read in the tree files
 		if (onlyBest || numRuns == 1 || bootstrap())
-			tempDataFile = (MesquiteFile) coord
-					.doCommand(
-							"includeTreeFile",
-							StringUtil.tokenize(outputFilePaths[TREEFILE])
-									+ " "
-									+ StringUtil.tokenize("#InterpretNEXUS")
-									+ " suppressImportFileSave useStandardizedTaxonNames taxa = "
-									+ coord.getProject().getTaxaReference(taxa),
-							CommandChecker.defaultChecker); // TODO: never
-															// scripting???
+			tempDataFile = (MesquiteFile) coord.doCommand("includeTreeFile", StringUtil.tokenize(outputFilePaths[TREEFILE]) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); // TODO: never scripting???
 		else
-			tempDataFile = (MesquiteFile) coord
-					.doCommand(
-							"includeTreeFile",
-							StringUtil.tokenize(outputFilePaths[BESTTREEFILE])
-									+ " "
-									+ StringUtil.tokenize("#InterpretNEXUS")
-									+ " suppressImportFileSave useStandardizedTaxonNames taxa = "
-									+ coord.getProject().getTaxaReference(taxa),
-							CommandChecker.defaultChecker); // TODO: never
-															// scripting???
+			tempDataFile = (MesquiteFile) coord.doCommand("includeTreeFile",StringUtil.tokenize(outputFilePaths[BESTTREEFILE]) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); // TODO: never scripting???
 
 		runFilesAvailable();
 
@@ -944,9 +798,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 					if (finalValues != null && i < finalValues.length
 							&& MesquiteDouble.isCombinable(finalValues[i]))
 						if (MesquiteDouble.isUnassigned(bestScore))
-							bestScore = finalValues[i]; // Debugg.println must
-														// refind final values,
-														// best score
+							bestScore = finalValues[i]; // Debugg.println must refind final values, best score
 						else if (bestScore < finalValues[i])
 							bestScore = finalValues[i];
 				}
@@ -968,19 +820,13 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		return null;
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 
 	int numRunsCompleted = 0;
 	long screenFilePos = 0;
 	MesquiteFile screenFile = null;
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
 		String[] logFileNames = getLogFileNames();
@@ -1018,14 +864,10 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				Debugg.println("*** File does not exist (" + filePath + ") ***");
 		}
 
-		if (fileNum == CURRENTTREEFILEPATH && outputFilePaths.length > 1
-				&& !StringUtil.blank(outputFilePaths[CURRENTTREEFILEPATH])
-				&& !bootstrap()) {
+		if (fileNum == CURRENTTREEFILEPATH && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[CURRENTTREEFILEPATH]) && !bootstrap()) {
 			String treeFilePath = filePath;
 			if (taxa != null) {
-				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa
-						.getSpecsSet(outgroupTaxSetString,
-								TaxaSelectionSet.class);
+				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
 				ownerModule.newTreeAvailable(treeFilePath, outgroupSet);
 			} else
 				ownerModule.newTreeAvailable(treeFilePath, null);
@@ -1037,8 +879,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				if (MesquiteFile.fileExists(filePath))
 					screenFile = MesquiteFile.open(true, filePath);
 				else
-					Debugg.println("*** File does not exist (" + filePath
-							+ ") ***");
+					MesquiteMessage.warnProgrammer("*** File does not exist (" + filePath + ") ***");
 			}
 			if (screenFile != null) {
 				screenFile.openReading();
@@ -1055,33 +896,22 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 						s1 = parser.getNextToken(); // score
 						s1 = parser.getNextToken(); // =
 						s1 = parser.getNextToken(); // number
-						if (finalValues != null
-								&& runNumber < finalValues.length)
-							finalValues[runNumber] = MesquiteDouble
-									.fromString(s1);
+						if (finalValues != null && runNumber < finalValues.length)
+							finalValues[runNumber] = MesquiteDouble.fromString(s1);
 						runNumber++;
 						if (bootstrap())
-							logln("GARLI bootstrap replicate " + runNumber
-									+ " of " + getTotalReps() + ", ln L = "
-									+ s1);
+							logln("GARLI bootstrap replicate " + runNumber + " of " + getTotalReps() + ", ln L = " + s1);
 						else
-							logln("GARLI search replicate " + runNumber
-									+ " of " + getTotalReps() + ", ln L = "
-									+ s1);
+							logln("GARLI search replicate " + runNumber + " of " + getTotalReps() + ", ln L = " + s1);
 						numRunsCompleted++;
-						double timePerRep = timer.timeSinceVeryStartInSeconds()
-								/ numRunsCompleted; // this is time per rep
+						double timePerRep = timer.timeSinceVeryStartInSeconds()/ numRunsCompleted; // this is time per rep
 						int timeLeft = 0;
 						if (bootstrap()) {
 							timeLeft = (int) ((bootstrapreps - numRunsCompleted) * timePerRep);
 						} else {
 							timeLeft = (int) ((numRuns - numRunsCompleted) * timePerRep);
 						}
-						logln("  Running time so far "
-								+ StringUtil.secondsToHHMMSS((int) timer
-										.timeSinceVeryStartInSeconds())
-								+ ", approximate time remaining "
-								+ StringUtil.secondsToHHMMSS(timeLeft));
+						logln("  Running time so far " + StringUtil.secondsToHHMMSS((int) timer.timeSinceVeryStartInSeconds()) + ", approximate time remaining "+ StringUtil.secondsToHHMMSS(timeLeft));
 
 					} else if (s.startsWith("ERROR:"))
 						MesquiteMessage.discreetNotifyUser("GARLI " + s);
@@ -1096,33 +926,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................*
-	 * 
-	 * public void processCompletedOutputFiles(String[] outputFilePaths) {
-	 * runNumber=0; screenFilePos = 0; if (outputFilePaths.length>0 &&
-	 * !StringUtil.blank(outputFilePaths[MAINLOGFILE])) { if (!bootstrap()) {
-	 * String s =
-	 * MesquiteFile.getFileLastContents(outputFilePaths[MAINLOGFILE]); if
-	 * (!StringUtil.blank(s)) { parser.setString(s); parser.getFirstToken();
-	 * finalValue = MesquiteDouble.fromString(parser.getNextToken()); } }
-	 * ZephyrUtil.copyLogFile(this, getExecutableName(),
-	 * outputFilePaths[SCREENLOG]);
-	 * 
-	 * } }
-	 * /*.....................................................................
-	 * ............................................*
-	 * 
-	 * public boolean continueShellProcess(Process proc){ if
-	 * (progIndicator!=null && progIndicator.isAborted()) { try {
-	 * proc.destroy(); } catch (Exception e) {
-	 * MesquiteMessage.warnProgrammer("EXCEPTION "); e.printStackTrace(); }
-	 * return false; } return true; }
-	 * /*..........................................
-	 * .......................................................................
-	 */
-
+	/*.................................................................................................................*/
 	public boolean bootstrap() {
 		return doBootstrap;
 	}
@@ -1135,40 +939,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		this.bootstrapreps = bootstrapreps;
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................* public void setNumRateCats(int
-	 * numratecats){ this.numratecats = numratecats; }
-	 * /*........................
-	 * ................................................
-	 * .........................................* public int getNumRateCats(){
-	 * return numratecats; }
-	 * /*...................................................
-	 * ..............................................................* public
-	 * void setRateMatrix(String ratematrix){ this.ratematrix = ratematrix; }
-	 * /*...
-	 * .....................................................................
-	 * .........................................* public String getRateMatrix(){
-	 * return ratematrix; }
-	 * /*...................................................
-	 * ..............................................................* public
-	 * void setRateHetModel(String ratehetmodel){ this.ratehetmodel =
-	 * ratehetmodel; }
-	 * /*.........................................................
-	 * ........................................................* public String
-	 * getRateHetModel(){ return ratehetmodel; }
-	 * /*..............................
-	 * ..........................................
-	 * .........................................* public void
-	 * setInvariantSites(String invariantsites){ this.invariantsites =
-	 * invariantsites; }
-	 * /*......................................................
-	 * ...........................................................* public
-	 * String getInvariantSites(){ return invariantsites; }
-	 * /*.....................
-	 * ...................................................
-	 * .........................................
-	 */
+	/*.................................................................................................................*/
 	public void setOfPrefix(String ofprefix) {
 		this.ofprefix = ofprefix;
 	}
@@ -1181,18 +952,12 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		return "GARLI Runner";
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public int getNumRuns() {
 		return numRuns;
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public int getTotalReps() {
 		if (bootstrap())
 			return getBootstrapreps();
@@ -1200,10 +965,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			return numRuns;
 	}
 
-	/*
-	 * ...........................................................................
-	 * ......................................
-	 */
+	/*.................................................................................................................*/
 	public boolean getOnlyBest() {
 		return onlyBest;
 	}
@@ -1213,20 +975,13 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	}
 
 	public void itemStateChanged(ItemEvent e) {
-		if (charPartitionButtons.isAButton(e.getItemSelectable())) { // button
-																		// for
-																		// the
-																		// partition
-																		// scheme
+		if (charPartitionButtons.isAButton(e.getItemSelectable())) { // button for the partition scheme
 			processCharacterModels();
 			if (charPartitionButtons != null)
 				partitionScheme = charPartitionButtons.getValue();
 			if (partitionChoice != null)
 				preparePartitionChoice(partitionChoice, partitionScheme);
-		} else if (e.getItemSelectable() == partitionChoice) { // popup for
-																// which
-																// partition to
-																// edit
+		} else if (e.getItemSelectable() == partitionChoice) { // popup for which partition to edit
 			processCharacterModels();
 			if (partitionScheme == partitionByCodonPosition) {
 				if (codpos1Subset.equalsIgnoreCase((String) e.getItem())) {
@@ -1244,8 +999,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 					setCharacterModels();
 				}
 			} else if (partitionScheme == partitionByCharacterGroups) {
-				currentPartitionSubset = ZephyrUtil.getPartitionSubset(data,
-						(String) e.getItem());
+				currentPartitionSubset = ZephyrUtil.getPartitionSubset(data, (String) e.getItem());
 				setCharacterModels();
 			} else
 				setCharacterModels();
@@ -1265,19 +1019,8 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				break;
 			case 3: // Custom
 				matrix = customMatrix.getText();
-				if (matrix == null || "1rate 2rate 6rate".indexOf(matrix) >= 0) // Debugg.println
-																				// keep
-																				// previous
-																				// custom
-																				// matrices
-																				// remembered
-																				// for
-																				// users
-																				// who
-																				// switch
-																				// back
-																				// to
-																				// them?
+				if (matrix == null || "1rate 2rate 6rate".indexOf(matrix) >= 0) // Debugg.println keep previous custom matrices remembered for users who switch back to them?
+
 					matrix = "(a a a a a a)";
 				break;
 			default:
@@ -1312,6 +1055,8 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	}
 
 }
+/*.................................................................................................................*/
+/*.................................................................................................................*/
 
 class GarliCharModel {
 	String ratematrix = "6rate";

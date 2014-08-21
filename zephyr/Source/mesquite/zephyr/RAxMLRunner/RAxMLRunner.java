@@ -198,6 +198,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose RAxML Score.";
 
 		dialog.appendToHelpString(helpString);
+		dialog.setHelpURL(ownerModule.getProgramURL());
 
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
