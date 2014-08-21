@@ -1,13 +1,13 @@
-package mesquite.zephyr.GarliRunner;
-/* Zephyr source code.  Copyright 2009-2013 D. Maddison and W. Maddison.
-Version 0.9, December 2013.
+/* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
 
-Mesquite is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
-Mesquite's web site is http://mesquiteproject.org
+Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
+Zephry's web site is http://mesquitezephyr.wikispaces.com
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
- */
+*/
+
+package mesquite.zephyr.GarliRunner;
 
 
 import java.awt.*;
