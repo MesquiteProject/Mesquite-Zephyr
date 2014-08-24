@@ -131,13 +131,13 @@ public class PAUPNJ extends PAUPTreeSearcher {
 
 
 	public String getExplanation() {
-		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a neighbor-joining or bootstrap neighbor-joining, and harvest the resulting trees.";
+		return "If PAUP* is installed, will save a copy of a character matrix and script PAUP* to conduct a neighbor-joining or bootstrap neighbor-joining, and harvest the resulting trees.";
 	}
 	public String getName() {
-		return "Neighbor-Joining (PAUP)";
+		return "Neighbor-Joining (PAUP*)";
 	}
 	public String getNameForMenuItem() {
-		return "Neighbor-Joining (PAUP)...";
+		return "Neighbor-Joining (PAUP*)...";
 	}
 
 

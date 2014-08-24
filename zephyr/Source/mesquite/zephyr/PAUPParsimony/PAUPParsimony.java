@@ -146,13 +146,13 @@ public class PAUPParsimony extends PAUPTreeSearcher {
 
 
 	public String getExplanation() {
-		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a parsimony search, and harvest the resulting trees.";
+		return "If PAUP* is installed, will save a copy of a character matrix and script PAUP* to conduct a parsimony search, and harvest the resulting trees.";
 	}
 	public String getName() {
-		return "Parsimony Search (PAUP)";
+		return "Parsimony Search (PAUP*)";
 	}
 	public String getNameForMenuItem() {
-		return "Parsimony Search (PAUP)...";
+		return "Parsimony Search (PAUP*)...";
 	}
 
 
