@@ -255,6 +255,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		treeList.setAnnotation ("Parameters: "  + getParameters(), false);
 		if (trees!=null)
 			treeList.addElements(trees, false);
+		trees.dispose();
 		treesInferred = treeList.getID();
 	}
 
