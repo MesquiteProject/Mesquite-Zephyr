@@ -213,11 +213,13 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
 		doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
 		dialog.addHorizontalLine(1);
+		dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
 		doBootstrapCheckbox.addItemListener(this);
 		bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
 		seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
 		dialog.addHorizontalLine(1);
-		numRunsField = dialog.addIntegerField("Number of Replicates for ML Tree Search", numRuns, 8, 1, MesquiteInteger.infinite);
+		dialog.addLabel("Maximum Likelihood Tree Search Options", Label.LEFT, false, true);
+		numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 		checkEnabled(doBootstrap);
 

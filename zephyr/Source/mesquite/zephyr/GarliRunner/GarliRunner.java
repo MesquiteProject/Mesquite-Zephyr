@@ -524,9 +524,11 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
 		doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
 		dialog.addHorizontalLine(1);
+		dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
 		doBootstrapCheckbox.addItemListener(this);
 		IntegerField bootStrapRepsField = dialog.addIntegerField("Bootstrap Reps", bootstrapreps, 8, 0, MesquiteInteger.infinite);
 		dialog.addHorizontalLine(1);
+		dialog.addLabel("Maximum Likelihood Tree Search Options", Label.LEFT, false, true);
 		IntegerField numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 
@@ -701,7 +703,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		// setting up the GARLI config file
 		String config = getGARLIConfigurationFile(data);
 		if (!MesquiteThread.isScripting() && showConfigDetails) {
-			config = MesquiteString.queryMultiLineString(getModuleWindow(),"GARLI Config File", "GARLI Config File2", config, 30, false, true);
+			config = MesquiteString.queryMultiLineString(getModuleWindow(),"GARLI Config File", "GARLI Config File", config, 30, false, true);
 			if (StringUtil.blank(config))
 				return null;
 		}

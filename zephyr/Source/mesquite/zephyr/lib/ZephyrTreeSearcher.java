@@ -197,20 +197,22 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		MesquiteDouble finalScores = new MesquiteDouble();
 
 		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
-		if (runner.bootstrap()) {
-			//DISCONNECTABLE: here need to split this exit and outside here see if it's done
-			trees.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
-		} 
-		else {
-			//DISCONNECTABLE: here need to split this exit and outside here see if it's done
-			if (tree==null)
-				return null;
-			bestScore = finalScores.getValue();
+		if (trees!=null) {
+			if (runner.bootstrap()) {
+				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
+				trees.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
+			} 
+			else {
+				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
+				if (tree==null)
+					return null;
+				bestScore = finalScores.getValue();
 
-			//	logln("Best score: " + bestScore);
-			trees.setName(getProgramName() + " Trees (Matrix: " + observedStates.getName() + ")");
+				//	logln("Best score: " + bestScore);
+				trees.setName(getProgramName() + " Trees (Matrix: " + observedStates.getName() + ")");
+			}
+			treesInferred = trees.getID();
 		}
-		treesInferred = trees.getID();
 		return trees;
 	}
 	/*.................................................................................................................*/
@@ -257,6 +259,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			treeList.addElements(trees, false);
 		trees.dispose();
 		treesInferred = treeList.getID();
+		
 	}
 
 
