@@ -213,11 +213,13 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
 		doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
 		dialog.addHorizontalLine(1);
+		dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
 		doBootstrapCheckbox.addItemListener(this);
 		bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
 		seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
 		dialog.addHorizontalLine(1);
-		numRunsField = dialog.addIntegerField("Number of Replicates for ML Tree Search", numRuns, 8, 1, MesquiteInteger.infinite);
+		dialog.addLabel("Maximum Likelihood Tree Search Options", Label.LEFT, false, true);
+		numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 		checkEnabled(doBootstrap);
 
@@ -991,6 +993,14 @@ WAG, gene2 = 501-1000
 
 	public Class getDutyClass() {
 		return RAxMLRunner.class;
+	}
+
+	/*.................................................................................................................*/
+	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
+	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
+	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
+	public int getVersionOfFirstRelease(){
+		return -100;  
 	}
 
 	public String getName() {

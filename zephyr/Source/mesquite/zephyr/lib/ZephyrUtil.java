@@ -320,7 +320,6 @@ public class ZephyrUtil {
 			f.writeLine("#NEXUS" + StringUtil.lineEnding());
 			data.getMatrixManager().writeCharactersBlock(data, null, f, null);
 			String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, false);
-			Debugg.println(setsBlock);
 			if (StringUtil.notEmpty(setsBlock))
 				f.writeLine(setsBlock + StringUtil.lineEnding());
 

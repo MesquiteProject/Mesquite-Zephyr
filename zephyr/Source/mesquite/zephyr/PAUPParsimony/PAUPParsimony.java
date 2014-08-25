@@ -141,18 +141,18 @@ public class PAUPParsimony extends PAUPTreeSearcher {
 	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
 	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
 	public int getVersionOfFirstRelease(){
-		return NEXTRELEASE;  
+		return -100;  
 	}
 
 
 	public String getExplanation() {
-		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a parsimony search, and harvest the resulting trees.";
+		return "If PAUP* is installed, will save a copy of a character matrix and script PAUP* to conduct a parsimony search, and harvest the resulting trees.";
 	}
 	public String getName() {
-		return "Parsimony Search (PAUP)";
+		return "Parsimony Search (PAUP*)";
 	}
 	public String getNameForMenuItem() {
-		return "Parsimony Search (PAUP)...";
+		return "Parsimony Search (PAUP*)...";
 	}
 
 
