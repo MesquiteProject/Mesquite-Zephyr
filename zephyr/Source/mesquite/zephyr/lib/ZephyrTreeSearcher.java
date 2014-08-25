@@ -160,7 +160,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){
