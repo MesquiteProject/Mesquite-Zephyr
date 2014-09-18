@@ -738,6 +738,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			return retrieveTreeBlock(trees, finalScore); // here's where we actually process everything
 		}
 
+
 		getProject().decrementProjectWindowSuppression();
 		data.setEditorInhibition(false);
 		return null;

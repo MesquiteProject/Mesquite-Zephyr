@@ -120,6 +120,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public boolean runProgramOnExternalProcess (String programCommand, String[] fileContents, String[] fileNames, String progTitle) {
 
+		postBean();
+
 		/*  ============ SETTING UP THE RUN ============  */
 		boolean success = externalProcRunner.setInputFiles(programCommand,fileContents, fileNames);
 		if (!success){
