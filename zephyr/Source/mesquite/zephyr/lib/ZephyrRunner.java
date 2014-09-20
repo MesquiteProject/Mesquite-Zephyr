@@ -120,10 +120,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public boolean runProgramOnExternalProcess (String programCommand, String[] fileContents, String[] fileNames, String progTitle) {
 
+
 		/*  ============ SETTING UP THE RUN ============  */
 		boolean success = externalProcRunner.setInputFiles(programCommand,fileContents, fileNames);
 		if (!success){
 			// give message about failure
+			postBean("failed, externalProcRunner.setInputFiles", false);
 			return false;
 		}
 		logFileNames = getLogFileNames();
@@ -143,8 +145,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		// the process runs
 		if (success)
 			success = externalProcRunner.monitorExecution();
-		else
+		else {
+			postBean("failed, externalProcRunner.startExecution", false);
 			alert("The "+getProgramName()+" run encountered problems. ");  // better error message!
+		}
 
 		// the process completed
 		logln("\n"+getProgramName()+" analysis completed at " + getDateAndTime());
