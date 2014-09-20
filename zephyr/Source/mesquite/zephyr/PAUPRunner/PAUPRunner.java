@@ -188,9 +188,10 @@ public class PAUPRunner extends MesquiteModule implements OutputFileProcessor , 
 			data.setEditorInhibition(false);
 			manager.deleteElement(tv);  // get rid of temporary tree block
 			if (success) { 
-				postBean();
+				postBean("successful", false);
 				return t;
 			}
+			postBean("failed", false);
 			return null;
 		}
 		deleteSupportDirectory();
