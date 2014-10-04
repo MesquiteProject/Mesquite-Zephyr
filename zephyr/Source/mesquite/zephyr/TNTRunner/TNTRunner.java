@@ -405,7 +405,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 
 		String arguments = "";
 		if (MesquiteTrunk.isWindows())
-			arguments += " ;proc " + commandsFileName;
+			arguments += " proc " + commandsFileName;
 		else
 			arguments += " proc " + commandsFileName;
 		
