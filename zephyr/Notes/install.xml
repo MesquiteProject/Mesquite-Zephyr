@@ -36,7 +36,7 @@
 				<install>
 					<location>mesquite</location>
 					<file>zephyr</file>
-					<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/1.0/Zephyr.1.0.zip</url>
+					<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/1.0/Zephyr.1.0build11.zip</url>
 					<treatment>unzip</treatment>
 					<updateVersion>001</updateVersion>
 				</install>

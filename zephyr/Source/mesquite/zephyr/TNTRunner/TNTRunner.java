@@ -76,7 +76,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 	}
 	/*.................................................................................................................*/
 	public boolean  loadModule(){ 
-		return false;
+		return true;
 	}
 
 	/*.................................................................................................................*/
