@@ -121,6 +121,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			searchArguments = StringUtil.cleanXMLEscapeCharacters(content);
 		if ("bootstrapSearchArguments".equalsIgnoreCase(tag))
 			bootstrapSearchArguments = StringUtil.cleanXMLEscapeCharacters(content);
+		if ("otherOptions".equalsIgnoreCase(tag))
+			otherOptions = StringUtil.cleanXMLEscapeCharacters(content);
 
 		//parallel, etc.
 		preferencesSet = true;
@@ -134,6 +136,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		StringUtil.appendXMLTag(buffer, 2, "searchArguments", searchArguments);  
 		StringUtil.appendXMLTag(buffer, 2, "bootstrapSearchArguments", bootstrapSearchArguments);  
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
+		StringUtil.appendXMLTag(buffer, 2, "otherOptions", otherOptions);  
 
 		preferencesSet = true;
 		return buffer.toString();
@@ -236,7 +239,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 		tabbedPanel.addPanel("Other Options", true);
 		Checkbox convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
-		SingleLineTextField otherOptionsField = queryOptionsDialog.addTextField("Other TNT options:", otherOptions, 40);
+		queryOptionsDialog.addHorizontalLine(1);
+		queryOptionsDialog.addLabel("Post-Search Options");
+		TextArea otherOptionsField = queryOptionsDialog.addTextAreaSmallFont(otherOptions, 7, 80);
 
 
 		tabbedPanel.cleanup();
@@ -384,6 +389,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			//commands += getTNTCommand("tsave !5 " + treeFileName) ;   // if showing intermediate trees
 			commands +=  getTNTCommand("tsave *" + treeFileName);
 			commands += searchArguments;
+			commands += otherOptions;
 			commands +=   getTNTCommand("save");   
 			commands += getTNTCommand("log/") ; 
 			commands += getTNTCommand("tsave/") ; 
@@ -667,7 +673,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 
 	public boolean bootstrap() {
-		return bootstrapreps>0;
+		return doBootstrap;
 	}
 	public int getBootstrapreps() {
 		return bootstrapreps;
