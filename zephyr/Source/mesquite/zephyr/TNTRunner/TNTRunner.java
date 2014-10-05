@@ -142,7 +142,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		return buffer.toString();
 	}
 	
-	public void setDefaultSearchArguments(){
+	public void setDefaultTNTCommands(){
 		bootstrapSearchArguments="";
 		bootstrapSearchArguments +=   getTNTCommand("rseed[");   // if showing intermediate trees
 		bootstrapSearchArguments +=   getTNTCommand("hold 3000");   
@@ -160,11 +160,14 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		searchArguments +=   getTNTCommand("sec: slack 20");   
 		searchArguments +=   getTNTCommand("bbreak: tbr safe fillonly") ;   // actual search
 		searchArguments +=   getTNTCommand("xmult");   
-		searchArguments +=   getTNTCommand("bbreak");   
+		searchArguments +=   getTNTCommand("bbreak");  
+		
+		otherOptions = "";   
+
 	}
 	
 	public void intializeAfterExternalProcessRunnerHired() {
-		setDefaultSearchArguments();
+		setDefaultTNTCommands();
 		loadPreferences();
 	}
 
@@ -185,6 +188,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	Button useDefaultsButton = null;
 	TextArea searchField = null;
 	TextArea bootstrapSearchField = null;
+	TextArea otherOptionsField = null;
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
@@ -241,7 +245,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		Checkbox convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
 		queryOptionsDialog.addHorizontalLine(1);
 		queryOptionsDialog.addLabel("Post-Search Options");
-		TextArea otherOptionsField = queryOptionsDialog.addTextAreaSmallFont(otherOptions, 7, 80);
+		 otherOptionsField = queryOptionsDialog.addTextAreaSmallFont(otherOptions, 7, 80);
 
 
 		tabbedPanel.cleanup();
@@ -302,9 +306,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	/*.................................................................................................................*/
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equalsIgnoreCase("setToDefaults")) {
-			setDefaultSearchArguments();
+			setDefaultTNTCommands();
 			searchField.setText(searchArguments);	
 			bootstrapSearchField.setText(bootstrapSearchArguments);
+			otherOptionsField.setText(otherOptions);
 		}
 	}
 	/*.................................................................................................................*/
