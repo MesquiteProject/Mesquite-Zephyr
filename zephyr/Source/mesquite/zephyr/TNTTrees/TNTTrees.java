@@ -47,6 +47,7 @@ public class TNTTrees extends ZephyrTreeSearcher {
 		return true;
 	}
 
+
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
 		return "#mesquite.zephyr.TNTRunner.TNTRunner";
@@ -55,6 +56,7 @@ public class TNTTrees extends ZephyrTreeSearcher {
 	public String getProgramName() {
 		return "TNT";
 	}
+
 	/*.................................................................................................................*/
 	 public String getProgramURL() {
 		 return "http://www.lillo.org.ar/phylogeny/tnt/";

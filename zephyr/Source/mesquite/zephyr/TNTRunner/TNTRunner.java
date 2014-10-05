@@ -193,9 +193,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	void adjustDialogText() {
 		if (bootStrapRepsField!=null)
 			if (parallel)
-				bootStrapRepsField.setLabelText("Bootstrap/Jackknifing/etc Replicates Per Slave");
+				bootStrapRepsField.setLabelText("Resampling Replicates Per Slave");
 			else
-				bootStrapRepsField.setLabelText("Bootstrap/Jackknifing/etc Replicates");
+				bootStrapRepsField.setLabelText("Resampling Replicates");
 	}
 	ExtensibleDialog queryOptionsDialog=null;
 	IntegerField bootStrapRepsField = null;
@@ -244,21 +244,18 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 		tabbedPanel.addPanel("Search Options", true);
 		Choice searchStyleChoice = queryOptionsDialog.addPopUpMenu("Type of search:", new String[] {"Regular Search",  "Jackknife", "Symmetric Resampling", "Bootstrap", "Poisson"}, searchStyle);
-
 		queryOptionsDialog.addLabel("Regular Search Commands");
 		searchField = queryOptionsDialog.addTextAreaSmallFont(searchArguments, 7,80);
 		searchScriptPathField = queryOptionsDialog.addTextField("Path to TNT run file containing search commands", searchScriptPath, 40);
 		Button browseSearchScriptPathButton = queryOptionsDialog.addAListenedButton("Browse...",null, this);
 		browseSearchScriptPathButton.setActionCommand("browseSearchScript");
 		Checkbox harvestOnlyStrictConsensusBox = queryOptionsDialog.addCheckBox("only acquire strict consensus", harvestOnlyStrictConsensus);
-
 		queryOptionsDialog.addHorizontalLine(1);
-		queryOptionsDialog.addLabel("Bootstrap/Jackknife Search Commands");
+		queryOptionsDialog.addLabel("Resampling Search Commands");
 		//		Checkbox doBootstrapBox = queryOptionsDialog.addCheckBox("do bootstrapping", doBootstrap);
-
-		bootStrapRepsField = queryOptionsDialog.addIntegerField("Bootstrap/Jackknife/etc. Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
+		bootStrapRepsField = queryOptionsDialog.addIntegerField("Resampling Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
 		bootstrapSearchField = queryOptionsDialog.addTextAreaSmallFont(bootstrapSearchArguments, 7,80);
-		bootSearchScriptPathField = queryOptionsDialog.addTextField("Path to TNT run file containing search commands for boot/jack", bootSearchScriptPath, 30);
+		bootSearchScriptPathField = queryOptionsDialog.addTextField("Path to TNT run file containing search commands for resampled", bootSearchScriptPath, 30);
 		Button browseBootSearchScriptPathButton = queryOptionsDialog.addAListenedButton("Browse...",null, this);
 		browseSearchScriptPathButton.setActionCommand("browseBootSearchScript");
 		adjustDialogText();
@@ -267,6 +264,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		useDefaultsButton = queryOptionsDialog.addAListenedButton("Set to Defaults", null, this);
 		useDefaultsButton.setActionCommand("setToDefaults");
 
+		
 		tabbedPanel.addPanel("Other Options", true);
 		Checkbox convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
 		queryOptionsDialog.addHorizontalLine(1);
@@ -357,7 +355,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 			MesquiteString directoryName = new MesquiteString();
 			MesquiteString fileName = new MesquiteString();
-			String path = MesquiteFile.openFileDialog("Choose Bootstrap/Jackknife Search Script File", directoryName, fileName);
+			String path = MesquiteFile.openFileDialog("Choose Resampling Search Script File", directoryName, fileName);
 			if (StringUtil.notEmpty(path))
 				bootSearchScriptPathField.setText(path);
 		}
