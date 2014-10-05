@@ -30,8 +30,6 @@ import mesquite.io.lib.*;
 - set random numbers seed ("RSEED xxx");
 - use semicolons on windows?
 
-- control over search, mxram
-
 - deal with ccode properly, etc.
 - deal with IUPAC and protein data correctly
 
@@ -56,7 +54,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	int numSlaves = 6;
 	String bootstrapSearchArguments = "";
 	String searchArguments = "";
-	boolean harvestOnlyStrictConsensus = true;
+	boolean harvestOnlyStrictConsensus = false;
+	String searchScriptPath = "";
+	String bootstrapScriptPath = "";
 
 
 	long  randseed = -1;
@@ -166,6 +166,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		searchArguments +=   getTNTCommand("xmult");   
 		searchArguments +=   getTNTCommand("bbreak");  
 		
+
+	}
+	public void setDefaultTNTCommandsOtherOptions(){
 		otherOptions = "";   
 
 	}
@@ -190,9 +193,11 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	ExtensibleDialog queryOptionsDialog=null;
 	IntegerField bootStrapRepsField = null;
 	Button useDefaultsButton = null;
+	Button useDefaultsOtherOptionsButton = null;
 	TextArea searchField = null;
 	TextArea bootstrapSearchField = null;
 	TextArea otherOptionsField = null;
+	SingleLineTextField searchScriptPathField=null;
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
@@ -233,6 +238,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 		queryOptionsDialog.addLabel("Regular Search Options");
 		searchField = queryOptionsDialog.addTextAreaSmallFont(searchArguments, 7,80);
+		 searchScriptPathField = queryOptionsDialog.addTextField("Path to search script file", searchScriptPath, 40);
+		Button browseSearchScriptPathButton = queryOptionsDialog.addAListenedButton("Browse...",null, this);
+		browseSearchScriptPathButton.setActionCommand("browseSearchScript");
 		Checkbox harvestOnlyStrictConsensusBox = queryOptionsDialog.addCheckBox("only acquire strict consensus", harvestOnlyStrictConsensus);
 
 		queryOptionsDialog.addHorizontalLine(1);
@@ -241,8 +249,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		
 		bootStrapRepsField = queryOptionsDialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
 		bootstrapSearchField = queryOptionsDialog.addTextAreaSmallFont(bootstrapSearchArguments, 7,80);
-		queryOptionsDialog.addHorizontalLine(1);
 		adjustDialogText();
+		queryOptionsDialog.addHorizontalLine(1);
 		queryOptionsDialog.addNewDialogPanel();
 		useDefaultsButton = queryOptionsDialog.addAListenedButton("Set to Defaults", null, this);
 		useDefaultsButton.setActionCommand("setToDefaults");
@@ -252,6 +260,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		queryOptionsDialog.addHorizontalLine(1);
 		queryOptionsDialog.addLabel("Post-Search Options");
 		 otherOptionsField = queryOptionsDialog.addTextAreaSmallFont(otherOptions, 7, 80);
+		 queryOptionsDialog.addHorizontalLine(1);
+		 queryOptionsDialog.addNewDialogPanel();
+		 useDefaultsOtherOptionsButton = queryOptionsDialog.addAListenedButton("Set to Defaults", null, this);
+		 useDefaultsOtherOptionsButton.setActionCommand("setToDefaultsOtherOptions");
 
 
 		tabbedPanel.cleanup();
@@ -268,6 +280,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				parallel = parallelCheckBox.getState();
 				doBootstrap = doBootstrapBox.getState();
 				searchArguments = searchField.getText();
+				searchScriptPath = searchScriptPathField.getText();
 				bootstrapSearchArguments = bootstrapSearchField.getText();
 				harvestOnlyStrictConsensus = harvestOnlyStrictConsensusBox.getState();
 				mxram = maxRamField.getValue();
@@ -316,7 +329,16 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			setDefaultTNTCommands();
 			searchField.setText(searchArguments);	
 			bootstrapSearchField.setText(bootstrapSearchArguments);
+		} else if (e.getActionCommand().equalsIgnoreCase("setToDefaultsOtherOptions")) {
+			setDefaultTNTCommandsOtherOptions();
 			otherOptionsField.setText(otherOptions);
+		} else if (e.getActionCommand().equalsIgnoreCase("browseSearchScript") && searchScriptPathField!=null) {
+			
+			MesquiteString directoryName = new MesquiteString();
+			MesquiteString fileName = new MesquiteString();
+			String path = MesquiteFile.openFileDialog("Choose Search Script File", directoryName, fileName);
+			if (StringUtil.notEmpty(path))
+				searchScriptPathField.setText(path);
 		}
 	}
 	/*.................................................................................................................*/
@@ -400,7 +422,12 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		else {
 			//commands += getTNTCommand("tsave !5 " + treeFileName) ;   // if showing intermediate trees
 			commands +=  getTNTCommand("tsave *" + treeFileName);
-			commands += searchArguments;
+			if (StringUtil.notEmpty(searchScriptPath)) {
+				String script = MesquiteFile.getFileContentsAsString(searchScriptPath);
+				if (StringUtil.notEmpty(script))
+					commands += script;
+			}
+			else commands += searchArguments;
 			commands += otherOptions;
 			if (harvestOnlyStrictConsensus) 
 				commands += getTNTCommand("nelsen *") ; 
