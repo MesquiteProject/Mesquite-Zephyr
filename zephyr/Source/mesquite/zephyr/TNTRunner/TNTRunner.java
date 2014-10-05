@@ -50,6 +50,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	static int BOOTSTRAPSEARCH=3;
 	static int POISSONSEARCH=4;
 	int searchStyle = REGULARSEARCH;
+	boolean resamplingAllConsensusTrees=true;
 
 
 	int bootstrapreps = 0;
@@ -123,6 +124,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			mxram = MesquiteInteger.fromString(content);
 		if ("convertGapsToMissing".equalsIgnoreCase(tag))
 			convertGapsToMissing = MesquiteBoolean.fromTrueFalseString(content);
+		if ("resamplingAllConsensusTrees".equalsIgnoreCase(tag))
+			resamplingAllConsensusTrees = MesquiteBoolean.fromTrueFalseString(content);
 		if ("harvestOnlyStrictConsensus".equalsIgnoreCase(tag))
 			harvestOnlyStrictConsensus = MesquiteBoolean.fromTrueFalseString(content);
 		if ("searchStyle".equalsIgnoreCase(tag))
@@ -143,6 +146,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		StringUtil.appendXMLTag(buffer, 2, "mxram", mxram);  
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "convertGapsToMissing", convertGapsToMissing);  
+		StringUtil.appendXMLTag(buffer, 2, "resamplingAllConsensusTrees", resamplingAllConsensusTrees);  
 		StringUtil.appendXMLTag(buffer, 2, "harvestOnlyStrictConsensus", harvestOnlyStrictConsensus);  
 		StringUtil.appendXMLTag(buffer, 2, "searchArguments", searchArguments);  
 		StringUtil.appendXMLTag(buffer, 2, "bootstrapSearchArguments", bootstrapSearchArguments);  
@@ -179,6 +183,102 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		otherOptions = "";   
 
 	}
+	/*.................................................................................................................*/
+	void formCommandFile(String dataFileName, int firstOutgroup) {
+		if (parallel) {
+			commands = "";
+		}
+		commands += getTNTCommand("mxram " + mxram);
+
+		commands += getTNTCommand("report+0/1/0");
+		commands += getTNTCommand("p " + dataFileName);
+		commands += getTNTCommand("log "+logFileName) ; 
+		commands += getTNTCommand("vversion");
+		if (MesquiteInteger.isCombinable(firstOutgroup) && firstOutgroup>=0)
+			commands += getTNTCommand("outgroup " + firstOutgroup);
+		if (bootstrapOrJackknife()) {
+			if (parallel) {
+				commands += indentTNTCommand("ptnt begin parallelRun " + numSlaves + "/ram x 2 = ");
+			}
+			if (StringUtil.notEmpty(bootSearchScriptPath)) {
+				String script = MesquiteFile.getFileContentsAsString(bootSearchScriptPath);
+				if (StringUtil.notEmpty(script))
+					commands += script;
+			}
+			else commands += StringUtil.lineEnding() + bootstrapSearchArguments + StringUtil.lineEnding();
+			String saveTreesString="";
+			if (resamplingAllConsensusTrees)
+				saveTreesString= " savetrees "; 
+			String bootSearchString = " [xmult; bb]";
+			bootSearchString="";
+			
+			if (parallel) {
+				int numRepsPerSlave = bootstrapreps/numSlaves;
+				if (numRepsPerSlave*numSlaves<bootstrapreps) numRepsPerSlave++;
+				if (searchStyle==BOOTSTRAPSEARCH)
+					commands += getTNTCommand("resample boot cut 50 " + saveTreesString +" replications " + numRepsPerSlave + " [xmult; bb] savetrees"); // + getComDelim();   
+				else if (searchStyle==JACKKNIFESEARCH)
+					commands += getTNTCommand("resample jak cut 50 " + saveTreesString +" replications " + numRepsPerSlave + " [xmult; bb] savetrees"); // + getComDelim();   
+				else if (searchStyle==SYMSEARCH)
+					commands += getTNTCommand("resample sym cut 50 " + saveTreesString +" replications " + numRepsPerSlave + " [xmult; bb] savetrees"); // + getComDelim();   
+				else if (searchStyle==POISSONSEARCH)
+					commands += getTNTCommand("resample poisson cut 50 " + saveTreesString +" replications " + numRepsPerSlave + " [xmult; bb] savetrees"); // + getComDelim();   
+				commands += getTNTCommand("return");
+				commands += getTNTCommand("ptnt wait parallelRun");
+				commands += getTNTCommand("ptnt get parallelRun");
+			} else {
+				if (!resamplingAllConsensusTrees) {
+					commands +=  getTNTCommand("macro=");				
+					commands +=  getTNTCommand("ttags =");		
+				}
+				commands +=  getTNTCommand("tsave *" + treeFileName);				
+				if (searchStyle==BOOTSTRAPSEARCH)
+					commands += getTNTCommand("resample boot " + saveTreesString +" replications " + bootstrapreps + bootSearchString); // + getComDelim();   
+				else if (searchStyle==JACKKNIFESEARCH)
+					commands += getTNTCommand("resample jak cut 50 " + saveTreesString +" replications " + bootstrapreps + bootSearchString); // + getComDelim();   
+				else if (searchStyle==SYMSEARCH)
+					commands += getTNTCommand("resample sym cut 50 " + saveTreesString +" replications " + bootstrapreps + bootSearchString); // + getComDelim();   
+				else if (searchStyle==POISSONSEARCH)
+					commands += getTNTCommand("resample poisson cut 50 " + saveTreesString +" replications " + bootstrapreps + bootSearchString); // + getComDelim();   
+				if (!resamplingAllConsensusTrees)
+					commands += getTNTCommand("save *") ; 
+				else 
+					commands += getTNTCommand("save") ; 
+				commands += getTNTCommand("tsave/") ; 
+				if (!resamplingAllConsensusTrees) {
+					commands +=  getTNTCommand("ttags -/");		
+					commands +=  getTNTCommand("macro-");				
+				}
+			}
+
+			//commands += getTNTCommand("proc/") ; 
+
+			commands += getTNTCommand("log/") ; 
+
+
+			//	if (!parallel)
+			commands += getTNTCommand("quit") ; 
+		}
+		else {
+			//commands += getTNTCommand("tsave !5 " + treeFileName) ;   // if showing intermediate trees
+			commands +=  getTNTCommand("tsave *" + treeFileName);
+			if (StringUtil.notEmpty(searchScriptPath)) {
+				String script = MesquiteFile.getFileContentsAsString(searchScriptPath);
+				if (StringUtil.notEmpty(script))
+					commands += script;
+			}
+			else commands += searchArguments;
+			commands += otherOptions;
+			if (harvestOnlyStrictConsensus) 
+				commands += getTNTCommand("nelsen *") ; 
+			commands +=   getTNTCommand("save");   
+			commands += getTNTCommand("log/") ; 
+
+			commands += getTNTCommand("tsave/") ; 
+			commands += getTNTCommand("quit") ; 
+		}
+	}
+
 
 	public void intializeAfterExternalProcessRunnerHired() {
 		setDefaultTNTCommands();
@@ -258,6 +358,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		bootSearchScriptPathField = queryOptionsDialog.addTextField("Path to TNT run file containing search commands for resampled", bootSearchScriptPath, 30);
 		Button browseBootSearchScriptPathButton = queryOptionsDialog.addAListenedButton("Browse...",null, this);
 		browseSearchScriptPathButton.setActionCommand("browseBootSearchScript");
+		Checkbox resamplingAllConsensusTreesBox = queryOptionsDialog.addCheckBox("acquire strict consensus tree from each replicate", resamplingAllConsensusTrees);
+
 		adjustDialogText();
 		queryOptionsDialog.addHorizontalLine(1);
 		queryOptionsDialog.addNewDialogPanel();
@@ -294,6 +396,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				bootstrapSearchArguments = bootstrapSearchField.getText();
 				bootSearchScriptPath = bootSearchScriptPathField.getText();
 				harvestOnlyStrictConsensus = harvestOnlyStrictConsensusBox.getState();
+				resamplingAllConsensusTrees = resamplingAllConsensusTreesBox.getState();
 				searchStyle = searchStyleChoice.getSelectedIndex();
 				mxram = maxRamField.getValue();
 
@@ -403,85 +506,6 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	}
 
 
-	/*.................................................................................................................*/
-	void formCommandFile(String dataFileName, int firstOutgroup) {
-		if (parallel) {
-			commands = "";
-		}
-		commands += getTNTCommand("mxram " + mxram);
-
-		commands += getTNTCommand("report+0/1/0");
-		commands += getTNTCommand("p " + dataFileName);
-		commands += getTNTCommand("log "+logFileName) ; 
-		commands += getTNTCommand("vversion");
-		if (MesquiteInteger.isCombinable(firstOutgroup) && firstOutgroup>=0)
-			commands += getTNTCommand("outgroup " + firstOutgroup);
-		if (bootstrapOrJackknife()) {
-			if (parallel) {
-				commands += indentTNTCommand("ptnt begin parallelRun " + numSlaves + "/ram x 2 = ");
-			}
-			if (StringUtil.notEmpty(bootSearchScriptPath)) {
-				String script = MesquiteFile.getFileContentsAsString(bootSearchScriptPath);
-				if (StringUtil.notEmpty(script))
-					commands += script;
-			}
-			else commands += StringUtil.lineEnding() + bootstrapSearchArguments + StringUtil.lineEnding();
-			
-			if (parallel) {
-				int numRepsPerSlave = bootstrapreps/numSlaves;
-				if (numRepsPerSlave*numSlaves<bootstrapreps) numRepsPerSlave++;
-				if (searchStyle==BOOTSTRAPSEARCH)
-					commands += getTNTCommand("resample boot cut 50 savetrees replications " + numRepsPerSlave + " [xmult; bb] savetrees"); // + getComDelim();   
-				else if (searchStyle==JACKKNIFESEARCH)
-					commands += getTNTCommand("resample jak cut 50 savetrees replications " + numRepsPerSlave + " [xmult; bb] savetrees"); // + getComDelim();   
-				else if (searchStyle==SYMSEARCH)
-					commands += getTNTCommand("resample sym cut 50 savetrees replications " + numRepsPerSlave + " [xmult; bb] savetrees"); // + getComDelim();   
-				else if (searchStyle==POISSONSEARCH)
-					commands += getTNTCommand("resample poisson cut 50 savetrees replications " + numRepsPerSlave + " [xmult; bb] savetrees"); // + getComDelim();   
-				commands += getTNTCommand("return");
-				commands += getTNTCommand("ptnt wait parallelRun");
-				commands += getTNTCommand("ptnt get parallelRun");
-			} else {
-				commands +=  getTNTCommand("tsave *" + treeFileName);				
-				if (searchStyle==BOOTSTRAPSEARCH)
-					commands += getTNTCommand("resample boot cut 50 savetrees replications " + bootstrapreps + " [xmult; bb]"); // + getComDelim();   
-				else if (searchStyle==JACKKNIFESEARCH)
-					commands += getTNTCommand("resample jak cut 50 savetrees replications " + bootstrapreps + " [xmult; bb]"); // + getComDelim();   
-				else if (searchStyle==SYMSEARCH)
-					commands += getTNTCommand("resample sym cut 50 savetrees replications " + bootstrapreps + " [xmult; bb]"); // + getComDelim();   
-				else if (searchStyle==POISSONSEARCH)
-					commands += getTNTCommand("resample poisson cut 50 savetrees replications " + bootstrapreps + " [xmult; bb]"); // + getComDelim();   
-				commands += getTNTCommand("save") ; 
-				commands += getTNTCommand("tsave/") ; 
-			}
-
-			//commands += getTNTCommand("proc/") ; 
-
-			commands += getTNTCommand("log/") ; 
-
-
-			//	if (!parallel)
-			commands += getTNTCommand("quit") ; 
-		}
-		else {
-			//commands += getTNTCommand("tsave !5 " + treeFileName) ;   // if showing intermediate trees
-			commands +=  getTNTCommand("tsave *" + treeFileName);
-			if (StringUtil.notEmpty(searchScriptPath)) {
-				String script = MesquiteFile.getFileContentsAsString(searchScriptPath);
-				if (StringUtil.notEmpty(script))
-					commands += script;
-			}
-			else commands += searchArguments;
-			commands += otherOptions;
-			if (harvestOnlyStrictConsensus) 
-				commands += getTNTCommand("nelsen *") ; 
-			commands +=   getTNTCommand("save");   
-			commands += getTNTCommand("log/") ; 
-
-			commands += getTNTCommand("tsave/") ; 
-			commands += getTNTCommand("quit") ; 
-		}
-	}
 
 	String treeFileName="TNT_Trees.txt";
 	//	String currentTreeFileName;
