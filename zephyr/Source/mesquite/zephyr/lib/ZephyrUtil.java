@@ -99,7 +99,7 @@ public class ZephyrUtil {
 		return t;
 	}
 	/*.................................................................................................................*/
-	public  static Tree readTNTTrees(MesquiteModule module, TreeVector trees, String contents, String treeName, int firstTreeNumber, Taxa taxa, boolean firstTree) {
+	public  static Tree readTNTTrees(MesquiteModule module, TreeVector trees, String contents, String treeName, int firstTreeNumber, Taxa taxa, boolean firstTree, boolean onlyLastTree) {
 		FileCoordinator coord = module.getFileCoordinator();
 		if (coord == null) 
 			return  null;
@@ -111,6 +111,7 @@ public class ZephyrUtil {
 		parser.setString(contents);
 		parser.setLineEndString("*");
 		String line = parser.getRawNextDarkLine();
+		String previousLine = "";
 		Tree returnTree = null;
 		int count = firstTreeNumber;
 		boolean foundTree = false;
@@ -118,23 +119,36 @@ public class ZephyrUtil {
 
 		if (exporter!=null) {
 			while (StringUtil.notEmpty(line)) {
-				MesquiteTree t = (MesquiteTree)exporter.readTREAD(null, taxa, line, firstTree, null);
-				if (t!=null) {
-					if (!foundTree)
-						returnTree = t;
-					foundTree = true;
-					if (trees!=null) {
+				if (!onlyLastTree) {
+					MesquiteTree t = (MesquiteTree)exporter.readTREAD(null, taxa, line, firstTree, null);
+					if (t!=null) {
+						if (!foundTree)
+							returnTree = t;
+						foundTree = true;
+						if (trees!=null) {
+							if (firstTree)
+								t.setName(treeName);
+							else
+								t.setName(treeName+count);
+							trees.addElement(t, false);
+						}
 						if (firstTree)
-							t.setName(treeName);
-						else
-							t.setName(treeName+count);
+							break;
+						count++;
+					}
+				}
+				previousLine=line;
+				line = parser.getRawNextDarkLine();
+			}
+			if (onlyLastTree && StringUtil.notEmpty(previousLine)) {
+				MesquiteTree t = (MesquiteTree)exporter.readTREAD(null, taxa, previousLine, false, null);
+				if (t!=null) {
+						returnTree = t;
+					if (trees!=null) {
+						t.setName("Strict consensus tree");
 						trees.addElement(t, false);
 					}
-					if (firstTree)
-						break;
-					count++;
 				}
-				line = parser.getRawNextDarkLine();
 			}
 			MesquiteModule.decrementMenuResetSuppression();
 			return returnTree;
@@ -143,10 +157,10 @@ public class ZephyrUtil {
 		return  null;
 	}	
 	/*.................................................................................................................*/
-	public static Tree readTNTTreeFile(MesquiteModule module, TreeVector trees, Taxa taxa, String treeFilePath, String treeName, int firstTreeNumber, MesquiteBoolean success, boolean firstTree) {
+	public static Tree readTNTTreeFile(MesquiteModule module, TreeVector trees, Taxa taxa, String treeFilePath, String treeName, int firstTreeNumber, MesquiteBoolean success, boolean firstTree, boolean onlyLastTree) {
 		Tree t =null;
 		String contents = MesquiteFile.getFileContentsAsString(treeFilePath, -1);
-		t = readTNTTrees(module, trees,contents,treeName, firstTreeNumber, taxa,firstTree);
+		t = readTNTTrees(module, trees,contents,treeName, firstTreeNumber, taxa,firstTree, onlyLastTree);
 
 		if (t!=null) {
 			if (success!=null)

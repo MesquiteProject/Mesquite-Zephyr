@@ -56,6 +56,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	int numSlaves = 6;
 	String bootstrapSearchArguments = "";
 	String searchArguments = "";
+	boolean harvestOnlyStrictConsensus = true;
 
 
 	long  randseed = -1;
@@ -115,6 +116,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			mxram = MesquiteInteger.fromString(content);
 		if ("convertGapsToMissing".equalsIgnoreCase(tag))
 			convertGapsToMissing = MesquiteBoolean.fromTrueFalseString(content);
+		if ("harvestOnlyStrictConsensus".equalsIgnoreCase(tag))
+			harvestOnlyStrictConsensus = MesquiteBoolean.fromTrueFalseString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
 			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
 		if ("searchArguments".equalsIgnoreCase(tag))
@@ -133,6 +136,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		StringUtil.appendXMLTag(buffer, 2, "mxram", mxram);  
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "convertGapsToMissing", convertGapsToMissing);  
+		StringUtil.appendXMLTag(buffer, 2, "harvestOnlyStrictConsensus", harvestOnlyStrictConsensus);  
 		StringUtil.appendXMLTag(buffer, 2, "searchArguments", searchArguments);  
 		StringUtil.appendXMLTag(buffer, 2, "bootstrapSearchArguments", bootstrapSearchArguments);  
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
@@ -229,10 +233,12 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 		queryOptionsDialog.addLabel("Regular Search Options");
 		searchField = queryOptionsDialog.addTextAreaSmallFont(searchArguments, 7,80);
+		Checkbox harvestOnlyStrictConsensusBox = queryOptionsDialog.addCheckBox("only acquire strict consensus", harvestOnlyStrictConsensus);
 
 		queryOptionsDialog.addHorizontalLine(1);
 		queryOptionsDialog.addLabel("Bootstrap Search Options");
 		Checkbox doBootstrapBox = queryOptionsDialog.addCheckBox("do bootstrapping", doBootstrap);
+		
 		bootStrapRepsField = queryOptionsDialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
 		bootstrapSearchField = queryOptionsDialog.addTextAreaSmallFont(bootstrapSearchArguments, 7,80);
 		queryOptionsDialog.addHorizontalLine(1);
@@ -263,6 +269,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				doBootstrap = doBootstrapBox.getState();
 				searchArguments = searchField.getText();
 				bootstrapSearchArguments = bootstrapSearchField.getText();
+				harvestOnlyStrictConsensus = harvestOnlyStrictConsensusBox.getState();
 				mxram = maxRamField.getValue();
 
 				externalProcRunner.storePreferences();
@@ -395,8 +402,11 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			commands +=  getTNTCommand("tsave *" + treeFileName);
 			commands += searchArguments;
 			commands += otherOptions;
+			if (harvestOnlyStrictConsensus) 
+				commands += getTNTCommand("nelsen *") ; 
 			commands +=   getTNTCommand("save");   
 			commands += getTNTCommand("log/") ; 
+
 			commands += getTNTCommand("tsave/") ; 
 			commands += getTNTCommand("quit") ; 
 		}
@@ -521,9 +531,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 		//TreeVector tv = new TreeVector(taxa);
 		if (bootstrap())
-			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTBootstrap Rep", 0, readSuccess, false);  // set first tree number as 0 as will remove the first one later.
+			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTBootstrap Rep", 0, readSuccess, false, false);  // set first tree number as 0 as will remove the first one later.
 		else
-			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTTree", 1, readSuccess, false);
+			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTTree", 1, readSuccess, false, harvestOnlyStrictConsensus);
 		success = t!=null;
 		if (success && bootstrap()) {
 			t = t.cloneTree();
