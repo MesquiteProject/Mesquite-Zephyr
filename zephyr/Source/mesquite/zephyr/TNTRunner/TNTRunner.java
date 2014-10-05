@@ -37,7 +37,7 @@ import mesquite.io.lib.*;
 
  */
 
-public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalProcessRequester  {
+public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionListener, ExternalProcessRequester  {
 	public static final String SCORENAME = "TNTScore";
 
 
@@ -131,7 +131,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		preferencesSet = true;
 		return buffer.toString();
 	}
-	public void intializeAfterExternalProcessRunnerHired() {
+	
+	public void setDefaultSearchArguments(){
+		bootstrapSearchArguments="";
 		bootstrapSearchArguments +=   getTNTCommand("rseed[");   // if showing intermediate trees
 		bootstrapSearchArguments +=   getTNTCommand("hold 3000");   
 		//	bootstrapSearchArguments +=   " sect: slack 5"+getComDelim();   
@@ -140,16 +142,20 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		bootstrapSearchArguments +=   getTNTCommand("sec: xss 4-2+3-1 gocomb 60 fuse 4 drift 5 combstart 5");   
 		bootstrapSearchArguments +=   getTNTCommand("xmult: replications 1 hits 1 ratchet 15 verbose rss xss drift 10 dumpfuse") ;   // actual search
 
+		searchArguments="";
 		searchArguments +=   getTNTCommand("rseed[");   
 		searchArguments +=   getTNTCommand("hold 10000");   
 		searchArguments +=   getTNTCommand("xinact");   
 		searchArguments +=   getTNTCommand("xmult:  rss css fuse 6 drift 6 ratchet 20 replic 100");   
+		searchArguments +=   getTNTCommand("sec: slack 20");   
 		searchArguments +=   getTNTCommand("bbreak: tbr safe fillonly") ;   // actual search
-		searchArguments +=  getTNTCommand("tsave *" + treeFileName);
 		searchArguments +=   getTNTCommand("xmult");   
 		searchArguments +=   getTNTCommand("bbreak");   
 		searchArguments +=   getTNTCommand("save");   
-
+	}
+	
+	public void intializeAfterExternalProcessRunnerHired() {
+		setDefaultSearchArguments();
 		loadPreferences();
 	}
 
@@ -167,6 +173,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 	}
 	ExtensibleDialog queryOptionsDialog=null;
 	IntegerField bootStrapRepsField = null;
+	Button useDefaultsButton = null;
+	TextArea searchField = null;
+	TextArea bootstrapSearchField = null;
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
@@ -206,16 +215,19 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		Checkbox convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
 
 		queryOptionsDialog.addLabel("Regular Search Options");
-		TextArea searchField = queryOptionsDialog.addTextAreaSmallFont(searchArguments, 7,30);
+		searchField = queryOptionsDialog.addTextAreaSmallFont(searchArguments, 7,30);
 		bootStrapRepsField = queryOptionsDialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
 
 		queryOptionsDialog.addLabel("Bootstrap Search Options");
-		TextArea bootstrapSearchField = queryOptionsDialog.addTextAreaSmallFont(bootstrapSearchArguments, 7,30);
+		bootstrapSearchField = queryOptionsDialog.addTextAreaSmallFont(bootstrapSearchArguments, 7,30);
 		queryOptionsDialog.addHorizontalLine(1);
 
 		SingleLineTextField otherOptionsField = queryOptionsDialog.addTextField("Other TNT options:", otherOptions, 40);
 
 		adjustDialogText();
+		queryOptionsDialog.addNewDialogPanel();
+		useDefaultsButton = queryOptionsDialog.addAListenedButton("Set to Defaults", null, this);
+		useDefaultsButton.setActionCommand("setToDefaults");
 
 		tabbedPanel.cleanup();
 		queryOptionsDialog.nullifyAddPanel();
@@ -269,6 +281,14 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		return (buttonPressed.getValue()==0);
 	}
 
+	/*.................................................................................................................*/
+	public void actionPerformed(ActionEvent e) {
+		if (e.getActionCommand().equalsIgnoreCase("setToDefaults")) {
+			setDefaultSearchArguments();
+			searchField.setText(searchArguments);	
+			bootstrapSearchField.setText(bootstrapSearchArguments);
+		}
+	}
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent arg0) {
 		if (queryOptionsDialog!=null) {
@@ -348,6 +368,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		}
 		else {
 			//commands += getTNTCommand("tsave !5 " + treeFileName) ;   // if showing intermediate trees
+			commands +=  getTNTCommand("tsave *" + treeFileName);
 			commands += searchArguments;
 			commands += getTNTCommand("log/") ; 
 			commands += getTNTCommand("tsave/") ; 
