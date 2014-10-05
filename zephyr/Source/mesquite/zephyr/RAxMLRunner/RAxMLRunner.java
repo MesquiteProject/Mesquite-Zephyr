@@ -503,7 +503,7 @@ WAG, gene2 = 501-1000
 		if (!StringUtil.blank(LOCotherOptions)) 
 			arguments += " " + LOCotherOptions;
 
-		if (bootstrap() && LOCbootstrapreps>0) {
+		if (bootstrapOrJackknife() && LOCbootstrapreps>0) {
 			arguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
 		}
 		else if (LOCnumRuns>1)
@@ -521,14 +521,14 @@ WAG, gene2 = 501-1000
 	/*.................................................................................................................*/
 	public void initializeMonitoring(){
 		if (finalValues==null) {
-			if (bootstrap())
+			if (bootstrapOrJackknife())
 				finalValues = new double[getBootstrapreps()];
 			else
 				finalValues = new double[numRuns];
 			DoubleArray.deassignArray(finalValues);
 		}
 		if (optimizedValues==null) {
-			if (bootstrap())
+			if (bootstrapOrJackknife())
 				optimizedValues = new double[getBootstrapreps()];
 			else
 				optimizedValues = new double[numRuns];
@@ -555,12 +555,12 @@ WAG, gene2 = 501-1000
 	public String[] getLogFileNames(){
 		String treeFileName;
 		String logFileName;
-		if (bootstrap())
+		if (bootstrapOrJackknife())
 			treeFileName = "RAxML_bootstrap.file.out";
 		else 
 			treeFileName = "RAxML_result.file.out";
 		logFileName = "RAxML_log.file.out";
-		if (!bootstrap() && numRuns>1) {
+		if (!bootstrapOrJackknife() && numRuns>1) {
 			treeFileName+=".RUN.";
 			logFileName+=".RUN.";
 		}
@@ -700,7 +700,7 @@ WAG, gene2 = 501-1000
 		Tree t= null;
 		int count =0;
 		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
-		if (bootstrap()) {
+		if (bootstrapOrJackknife()) {
 			t =readRAxMLTreeFile(treeList, treeFilePath, "RAxML Bootstrap Tree", readSuccess, false);
 			ZephyrUtil.adjustTree(t, outgroupSet);
 		}
@@ -874,7 +874,7 @@ WAG, gene2 = 501-1000
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
 		String filePath=outputFilePaths[fileNum];
 
-		if (fileNum==0 && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0]) && !bootstrap()) {   // screen log
+		if (fileNum==0 && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0]) && !bootstrapOrJackknife()) {   // screen log
 			if (MesquiteFile.fileExists(filePath)) {
 				String s = MesquiteFile.getFileLastContents(filePath);
 				if (!StringUtil.blank(s))
@@ -891,7 +891,7 @@ WAG, gene2 = 501-1000
 			} 
 		}
 
-		if (fileNum==1 && outputFilePaths.length>1 && !StringUtil.blank(outputFilePaths[1]) && !bootstrap() && showIntermediateTrees) {   // tree file
+		if (fileNum==1 && outputFilePaths.length>1 && !StringUtil.blank(outputFilePaths[1]) && !bootstrapOrJackknife() && showIntermediateTrees) {   // tree file
 			String treeFilePath = filePath;
 			if (taxa != null) {
 				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
@@ -909,7 +909,7 @@ WAG, gene2 = 501-1000
 					parser.allowComments=false;
 					parser.setString(s);
 					String searchString = "";
-					if (bootstrap())
+					if (bootstrapOrJackknife())
 						searchString = "Bootstrap";
 					else
 						searchString = "Inference";
@@ -939,7 +939,7 @@ WAG, gene2 = 501-1000
 								token = subParser.getNextToken();
 
 								numRunsCompleted++;
-								if (bootstrap()){
+								if (bootstrapOrJackknife()){
 									logln("RAxML bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
 								}
 								else
@@ -955,7 +955,7 @@ WAG, gene2 = 501-1000
 						if (externalProcRunner.canCalculateTimeRemaining(numRunsCompleted)) {
 							double timePerRep = timer.timeSinceVeryStartInSeconds()/numRunsCompleted;   //this is time per rep
 							int timeLeft = 0;
-							if (bootstrap()) {
+							if (bootstrapOrJackknife()) {
 								timeLeft = (int)((bootstrapreps- numRunsCompleted) * timePerRep);
 							}
 							else {
@@ -967,7 +967,7 @@ WAG, gene2 = 501-1000
 							logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
 						}
 
-						if (!bootstrap() && runNumber+1<numRuns) {
+						if (!bootstrapOrJackknife() && runNumber+1<numRuns) {
 							logln("");
 							logln("Beginning Run " + (runNumber+2));
 						}
@@ -982,7 +982,7 @@ WAG, gene2 = 501-1000
 	/*.................................................................................................................*/
 
 
-	public boolean bootstrap() {
+	public boolean bootstrapOrJackknife() {
 		return doBootstrap;
 	}
 	public int getBootstrapreps() {

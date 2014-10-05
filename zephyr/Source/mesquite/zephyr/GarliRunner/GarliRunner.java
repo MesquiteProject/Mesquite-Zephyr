@@ -220,7 +220,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		sb.append("\nuniqueswapbias = " + uniqueswapbias);
 		sb.append("\ndistanceswapbias = " + distanceswapbias);
 
-		if (bootstrap())
+		if (bootstrapOrJackknife())
 			sb.append("\n\nbootstrapreps = " + bootstrapreps); // important to
 																// be
 																// user-editable
@@ -635,7 +635,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	/*.................................................................................................................*/
 	public void initializeMonitoring() {
 		if (finalValues == null) {
-			if (bootstrap())
+			if (bootstrapOrJackknife())
 				finalValues = new double[getBootstrapreps()];
 			else
 				finalValues = new double[numRuns];
@@ -659,7 +659,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	/*.................................................................................................................*/
 	public String[] getLogFileNames() {
 		String treeFileName;
-		if (bootstrap())
+		if (bootstrapOrJackknife())
 			treeFileName = ofprefix + ".boot.tre";
 		else
 			treeFileName = ofprefix + ".best.tre";
@@ -763,7 +763,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
 
 		// read in the tree files
-		if (onlyBest || numRuns == 1 || bootstrap())
+		if (onlyBest || numRuns == 1 || bootstrapOrJackknife())
 			tempDataFile = (MesquiteFile) coord.doCommand("includeTreeFile", StringUtil.tokenize(outputFilePaths[TREEFILE]) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); // TODO: never scripting???
 		else
 			tempDataFile = (MesquiteFile) coord.doCommand("includeTreeFile",StringUtil.tokenize(outputFilePaths[BESTTREEFILE]) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); // TODO: never scripting???
@@ -852,7 +852,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 		if (fileNum == MAINLOGFILE && outputFilePaths.length > 0
 				&& !StringUtil.blank(outputFilePaths[MAINLOGFILE])
-				&& !bootstrap()) { // screen log
+				&& !bootstrapOrJackknife()) { // screen log
 			if (MesquiteFile.fileExists(filePath)) {
 				String s = MesquiteFile.getFileLastContents(filePath);
 				if (!StringUtil.blank(s))
@@ -870,7 +870,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				Debugg.println("*** File does not exist (" + filePath + ") ***");
 		}
 
-		if (fileNum == CURRENTTREEFILEPATH && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[CURRENTTREEFILEPATH]) && !bootstrap()) {
+		if (fileNum == CURRENTTREEFILEPATH && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[CURRENTTREEFILEPATH]) && !bootstrapOrJackknife()) {
 			String treeFilePath = filePath;
 			if (taxa != null) {
 				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
@@ -905,14 +905,14 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 						if (finalValues != null && runNumber < finalValues.length)
 							finalValues[runNumber] = MesquiteDouble.fromString(s1);
 						runNumber++;
-						if (bootstrap())
+						if (bootstrapOrJackknife())
 							logln("GARLI bootstrap replicate " + runNumber + " of " + getTotalReps() + ", ln L = " + s1);
 						else
 							logln("GARLI search replicate " + runNumber + " of " + getTotalReps() + ", ln L = " + s1);
 						numRunsCompleted++;
 						double timePerRep = timer.timeSinceVeryStartInSeconds()/ numRunsCompleted; // this is time per rep
 						int timeLeft = 0;
-						if (bootstrap()) {
+						if (bootstrapOrJackknife()) {
 							timeLeft = (int) ((bootstrapreps - numRunsCompleted) * timePerRep);
 						} else {
 							timeLeft = (int) ((numRuns - numRunsCompleted) * timePerRep);
@@ -933,7 +933,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	}
 
 	/*.................................................................................................................*/
-	public boolean bootstrap() {
+	public boolean bootstrapOrJackknife() {
 		return doBootstrap;
 	}
 
@@ -965,7 +965,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 	/*.................................................................................................................*/
 	public int getTotalReps() {
-		if (bootstrap())
+		if (bootstrapOrJackknife())
 			return getBootstrapreps();
 		else
 			return numRuns;

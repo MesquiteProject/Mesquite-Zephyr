@@ -91,7 +91,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 
 	public String getExtraTreeWindowCommands (){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.bootstrap(), treesInferred)+ eachTreeCommands();
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.bootstrapOrJackknife(), treesInferred)+ eachTreeCommands();
 	}
 
 
@@ -198,7 +198,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 		if (trees!=null) {
-			if (runner.bootstrap()) {
+			if (runner.bootstrapOrJackknife()) {
 				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
 				trees.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
 			} 
@@ -225,7 +225,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			taxa = treeList.getTaxa();
 			initializeObservedStates(taxa);
 //			boolean bootstrap = runner.bootstrap();
-			if (runner.bootstrap()) {
+			if (runner.bootstrapOrJackknife()) {
 				treeList.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
 			} 
 			else {
