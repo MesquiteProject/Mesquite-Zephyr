@@ -49,6 +49,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 	int bootstrapreps = 0;
 	long bootstrapSeed = System.currentTimeMillis();
+	boolean doBootstrap= false;
 	String otherOptions = "";
 
 	boolean parallel = false;
@@ -110,8 +111,12 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("bootStrapReps".equalsIgnoreCase(tag))
 			bootstrapreps = MesquiteInteger.fromString(content);
+		if ("mxram".equalsIgnoreCase(tag))
+			mxram = MesquiteInteger.fromString(content);
 		if ("convertGapsToMissing".equalsIgnoreCase(tag))
 			convertGapsToMissing = MesquiteBoolean.fromTrueFalseString(content);
+		if ("doBootstrap".equalsIgnoreCase(tag))
+			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
 		if ("searchArguments".equalsIgnoreCase(tag))
 			searchArguments = StringUtil.cleanXMLEscapeCharacters(content);
 		if ("bootstrapSearchArguments".equalsIgnoreCase(tag))
@@ -123,10 +128,12 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
+		StringUtil.appendXMLTag(buffer, 2, "mxram", mxram);  
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "convertGapsToMissing", convertGapsToMissing);  
 		StringUtil.appendXMLTag(buffer, 2, "searchArguments", searchArguments);  
 		StringUtil.appendXMLTag(buffer, 2, "bootstrapSearchArguments", bootstrapSearchArguments);  
+		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
 
 		preferencesSet = true;
 		return buffer.toString();
@@ -151,7 +158,6 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		searchArguments +=   getTNTCommand("bbreak: tbr safe fillonly") ;   // actual search
 		searchArguments +=   getTNTCommand("xmult");   
 		searchArguments +=   getTNTCommand("bbreak");   
-		searchArguments +=   getTNTCommand("save");   
 	}
 	
 	public void intializeAfterExternalProcessRunnerHired() {
@@ -209,19 +215,22 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		Checkbox parallelCheckBox = queryOptionsDialog.addCheckBox("use PVM for parallel processing", parallel);
 		parallelCheckBox.addItemListener(this);
 		IntegerField slavesField = queryOptionsDialog.addIntegerField("Number of Slaves", numSlaves, 4, 0, MesquiteInteger.infinite);
+		IntegerField maxRamField = queryOptionsDialog.addIntegerField("mxram value", mxram, 4, 0, MesquiteInteger.infinite);
 
 
 		tabbedPanel.addPanel("Search Options", true);
-		Checkbox convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
 
 		queryOptionsDialog.addLabel("Regular Search Options");
-		searchField = queryOptionsDialog.addTextAreaSmallFont(searchArguments, 7,30);
-		bootStrapRepsField = queryOptionsDialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
+		searchField = queryOptionsDialog.addTextAreaSmallFont(searchArguments, 7,80);
 
-		queryOptionsDialog.addLabel("Bootstrap Search Options");
-		bootstrapSearchField = queryOptionsDialog.addTextAreaSmallFont(bootstrapSearchArguments, 7,30);
 		queryOptionsDialog.addHorizontalLine(1);
+		queryOptionsDialog.addLabel("Bootstrap Search Options");
+		Checkbox doBootstrapBox = queryOptionsDialog.addCheckBox("do bootstrapping", doBootstrap);
+		bootStrapRepsField = queryOptionsDialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
+		bootstrapSearchField = queryOptionsDialog.addTextAreaSmallFont(bootstrapSearchArguments, 7,80);
 
+		tabbedPanel.addPanel("Other Options", true);
+		Checkbox convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
 		SingleLineTextField otherOptionsField = queryOptionsDialog.addTextField("Other TNT options:", otherOptions, 40);
 
 		adjustDialogText();
@@ -231,7 +240,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 		tabbedPanel.cleanup();
 		queryOptionsDialog.nullifyAddPanel();
-		queryOptionsDialog.completeAndShowDialog(true);
+
+		queryOptionsDialog.completeAndShowDialog("Search", "Cancel", null, null);
 
 		if (buttonPressed.getValue()==0)  {
 			if (externalProcRunner.optionsChosen()) {
@@ -240,8 +250,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				otherOptions = otherOptionsField.getText();
 				convertGapsToMissing = convertGapsBox.getState();
 				parallel = parallelCheckBox.getState();
+				doBootstrap = doBootstrapBox.getState();
 				searchArguments = searchField.getText();
 				bootstrapSearchArguments = bootstrapSearchField.getText();
+				mxram = maxRamField.getValue();
 
 				externalProcRunner.storePreferences();
 				storePreferences();
@@ -338,6 +350,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			commands = "";
 		}
 		commands += getTNTCommand("mxram " + mxram);
+		
 		commands += getTNTCommand("report+0/1/0");
 		commands += getTNTCommand("p " + dataFileName);
 		commands += getTNTCommand("log "+logFileName) ; 
@@ -370,6 +383,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			//commands += getTNTCommand("tsave !5 " + treeFileName) ;   // if showing intermediate trees
 			commands +=  getTNTCommand("tsave *" + treeFileName);
 			commands += searchArguments;
+			commands +=   getTNTCommand("save");   
 			commands += getTNTCommand("log/") ; 
 			commands += getTNTCommand("tsave/") ; 
 			commands += getTNTCommand("quit") ; 
@@ -424,7 +438,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		setFileNames();
 
 		TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-		int firstOutgroup = 0;
+		int firstOutgroup = MesquiteInteger.unassigned;
 		if (outgroupSet!=null)
 			firstOutgroup = outgroupSet.firstBitOn();
 		formCommandFile(dataFileName, firstOutgroup);
