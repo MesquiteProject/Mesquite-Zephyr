@@ -137,8 +137,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		searchArguments +=   getTNTCommand("rseed[");   
 		searchArguments +=   getTNTCommand("hold 10000");   
 		searchArguments +=   getTNTCommand("xinact");   
-		searchArguments += getTNTCommand("sect:slack 1");
-		searchArguments +=   getTNTCommand("xmult: rss css fuse 6 drift 6 ratchet 20 replic 100");   
+		searchArguments +=   getTNTCommand("xmult:  rss css fuse 6 drift 6 ratchet 20 replic 100");   
 		searchArguments +=   getTNTCommand("bbreak: tbr safe fillonly") ;   // actual search
 		searchArguments +=  getTNTCommand("tsave *" + treeFileName);
 		searchArguments +=   getTNTCommand("xmult");   
