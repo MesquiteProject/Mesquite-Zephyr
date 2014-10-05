@@ -134,12 +134,16 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		bootstrapSearchArguments +=   getTNTCommand("sec: xss 4-2+3-1 gocomb 60 fuse 4 drift 5 combstart 5");   
 		bootstrapSearchArguments +=   getTNTCommand("xmult: replications 1 hits 1 ratchet 15 verbose rss xss drift 10 dumpfuse") ;   // actual search
 
-		searchArguments +=   getTNTCommand("rseed[") ;   // if showing intermediate trees
+		searchArguments +=   getTNTCommand("rseed[");   
 		searchArguments +=   getTNTCommand("hold 10000");   
-		searchArguments +=   getTNTCommand("sec: xss 4-2+3-1 gocomb 60 fuse 4 drift 5 combstart 5");   
-		searchArguments +=   getTNTCommand("xmult: replications 10 hits " + totalNumHits + " ratchet 15 verbose rss xss drift 10");
-		searchArguments +=   getTNTCommand("xmult") ;   // actual search
-		searchArguments +=   getTNTCommand("bbreak=fillonly") ;   // actual search
+		searchArguments +=   getTNTCommand("xinact");   
+		searchArguments += getTNTCommand("sect:slack 1");
+		searchArguments +=   getTNTCommand("xmult: rss css fuse 6 drift 6 ratchet 20 replic 100");   
+		searchArguments +=   getTNTCommand("bbreak: tbr safe fillonly") ;   // actual search
+		searchArguments +=  getTNTCommand("tsave *" + treeFileName);
+		searchArguments +=   getTNTCommand("xmult");   
+		searchArguments +=   getTNTCommand("bbreak");   
+		searchArguments +=   getTNTCommand("save");   
 
 		loadPreferences();
 	}
@@ -330,7 +334,6 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 			} else
 				commands += getTNTCommand("resample boot cut 50 savetrees replications " + bootstrapreps + " [xmult; bb]"); // + getComDelim();   
 
-			commands += getTNTCommand("tsave *" + treeFileName);
 			commands += getTNTCommand("save") ; 
 			//commands += getTNTCommand("proc/") ; 
 
@@ -339,15 +342,15 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 			commands += getTNTCommand("quit") ; 
 		}
 		else {
-			commands += getTNTCommand("tsave !5 " + treeFileName) ;   // if showing intermediate trees
+			//commands += getTNTCommand("tsave !5 " + treeFileName) ;   // if showing intermediate trees
 			commands += searchArguments;
-			commands += getTNTCommand("tsave *" + treeFileName);
-			commands += getTNTCommand("save") ; 
+			commands += getTNTCommand("log/") ; 
+			commands += getTNTCommand("tsave/") ; 
 			commands += getTNTCommand("quit") ; 
 		}
 	}
 
-	String treeFileName;
+	String treeFileName="TNT_Trees.txt";
 //	String currentTreeFileName;
 	String logFileName;
 	String commandsFileName;
@@ -355,10 +358,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 
 	/*.................................................................................................................*/
 	public void setFileNames(){
-		if (bootstrap())
+		/*if (bootstrap())
 			treeFileName = "TNT_bootstrapTrees.txt";
 		else 
-			treeFileName = "TNT_Trees.txt";  
+			treeFileName = "TNT_Trees.txt";  */
 //		currentTreeFileName = treeFileName+"-1";
 		logFileName = "log.out";
 		commandsFileName = "TNTCommands.txt";
