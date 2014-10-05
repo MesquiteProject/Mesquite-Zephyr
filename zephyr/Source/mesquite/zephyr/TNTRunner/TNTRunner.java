@@ -228,15 +228,16 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		Checkbox doBootstrapBox = queryOptionsDialog.addCheckBox("do bootstrapping", doBootstrap);
 		bootStrapRepsField = queryOptionsDialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
 		bootstrapSearchField = queryOptionsDialog.addTextAreaSmallFont(bootstrapSearchArguments, 7,80);
+		queryOptionsDialog.addHorizontalLine(1);
+		adjustDialogText();
+		queryOptionsDialog.addNewDialogPanel();
+		useDefaultsButton = queryOptionsDialog.addAListenedButton("Set to Defaults", null, this);
+		useDefaultsButton.setActionCommand("setToDefaults");
 
 		tabbedPanel.addPanel("Other Options", true);
 		Checkbox convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
 		SingleLineTextField otherOptionsField = queryOptionsDialog.addTextField("Other TNT options:", otherOptions, 40);
 
-		adjustDialogText();
-		queryOptionsDialog.addNewDialogPanel();
-		useDefaultsButton = queryOptionsDialog.addAListenedButton("Set to Defaults", null, this);
-		useDefaultsButton.setActionCommand("setToDefaults");
 
 		tabbedPanel.cleanup();
 		queryOptionsDialog.nullifyAddPanel();
