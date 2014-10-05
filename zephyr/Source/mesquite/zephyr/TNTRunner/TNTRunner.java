@@ -112,6 +112,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 			bootstrapreps = MesquiteInteger.fromString(content);
 		if ("convertGapsToMissing".equalsIgnoreCase(tag))
 			convertGapsToMissing = MesquiteBoolean.fromTrueFalseString(content);
+		if ("searchArguments".equalsIgnoreCase(tag))
+			searchArguments = StringUtil.cleanXMLEscapeCharacters(content);
+		if ("bootstrapSearchArguments".equalsIgnoreCase(tag))
+			bootstrapSearchArguments = StringUtil.cleanXMLEscapeCharacters(content);
 
 		//parallel, etc.
 		preferencesSet = true;
@@ -121,6 +125,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ExternalPr
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "convertGapsToMissing", convertGapsToMissing);  
+		StringUtil.appendXMLTag(buffer, 2, "searchArguments", searchArguments);  
+		StringUtil.appendXMLTag(buffer, 2, "bootstrapSearchArguments", bootstrapSearchArguments);  
 
 		preferencesSet = true;
 		return buffer.toString();
