@@ -37,7 +37,7 @@ import mesquite.io.lib.*;
 
  */
 
-public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionListener, ExternalProcessRequester  {
+public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionListener, ExternalProcessRequester, ZephyrFilePreparer  {
 	public static final String SCORENAME = "TNTScore";
 
 
