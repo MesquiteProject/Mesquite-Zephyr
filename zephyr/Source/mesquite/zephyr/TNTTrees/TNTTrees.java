@@ -65,9 +65,13 @@ public class TNTTrees extends ZephyrTreeSearcher {
 	 public Class getRunnerClass(){
 		 return TNTRunner.class;
 	 }
+	 /*.................................................................................................................*/
+	 public String getCitation() {
+		 return "Maddison DR and Maddison KW. 2014.  TNT Tree Searcher, in " + getPackageIntroModule().getPackageCitation();
+	 }
 
-	/*.................................................................................................................*/
-	public boolean isPrerelease(){
+	 /*.................................................................................................................*/
+	 public boolean isPrerelease(){
 		return true;
 	}
 	/*.................................................................................................................*/
@@ -156,6 +160,8 @@ public class TNTTrees extends ZephyrTreeSearcher {
 			newResultsAvailable(outgroupTaxSet);
 
 	}
+	/*.................................................................................................................*/
+
 	/*.................................................................................................................*
 	private TreeVector getTrees(Taxa taxa) {
 		TreeVector trees = new TreeVector(taxa);

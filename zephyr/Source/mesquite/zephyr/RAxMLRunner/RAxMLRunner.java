@@ -198,7 +198,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose RAxML Score.";
 
 		dialog.appendToHelpString(helpString);
-		dialog.setHelpURL(ownerModule.getProgramURL());
+		dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
 
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
@@ -895,10 +895,10 @@ WAG, gene2 = 501-1000
 			String treeFilePath = filePath;
 			if (taxa != null) {
 				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-				ownerModule.newTreeAvailable(treeFilePath, outgroupSet);
+				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 
 			}
-			else ownerModule.newTreeAvailable(treeFilePath, null);
+			else ((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
 		}
 
 		if (fileNum==2 && outputFilePaths.length>2 && !StringUtil.blank(outputFilePaths[2])) {   // info file

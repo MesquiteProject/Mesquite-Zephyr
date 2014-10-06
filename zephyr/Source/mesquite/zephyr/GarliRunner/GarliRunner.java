@@ -513,7 +513,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose GARLI Score.";
 
 		dialog.appendToHelpString(helpString);
-		dialog.setHelpURL(ownerModule.getProgramURL());
+		dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 
@@ -874,9 +874,9 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			String treeFilePath = filePath;
 			if (taxa != null) {
 				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-				ownerModule.newTreeAvailable(treeFilePath, outgroupSet);
+				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 			} else
-				ownerModule.newTreeAvailable(treeFilePath, null);
+				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
 		}
 
 		if (fileNum == SCREENLOG && outputFilePaths.length > 2

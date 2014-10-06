@@ -25,13 +25,9 @@ import mesquite.io.lib.*;
 
 /* TODO:
 
-- displays final bootstrap tree
-
 - set random numbers seed ("RSEED xxx");
-- use semicolons on windows?
 
-- deal with ccode properly, etc.
-- deal with IUPAC and protein data correctly
+- deal with IUPAC and protein data correctly?
 
  */
 
@@ -338,7 +334,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				+ "Mesquite will read in the trees found by TNT. ";
 
 		queryOptionsDialog.appendToHelpString(helpString);
-		queryOptionsDialog.setHelpURL(ownerModule.getProgramURL());
+		queryOptionsDialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
 
 		MesquiteTabbedPanel tabbedPanel = queryOptionsDialog.addMesquiteTabbedPanel();
 
@@ -544,7 +540,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(MolecularData.class, matrix))
+		if (!initializeGetTrees(CategoricalData.class, matrix))
 			return null;
 		setTNTSeed(seed);
 		isProtein = data instanceof ProteinData;
@@ -603,7 +599,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		if (success){
 			getProject().decrementProjectWindowSuppression();
 			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
-		}
+		} else
+			postBean("unsuccessful [1]", false);
+
 		getProject().decrementProjectWindowSuppression();
 		data.setEditorInhibition(false);
 		return null;
@@ -653,8 +651,12 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 		MesquiteThread.setCurrentCommandRecord(oldCR);
 		success = readSuccess.getValue();
-		if (!success)
+		if (!success) {
 			logln("Execution of TNT unsuccessful [2]");
+			postBean("unsuccessful [2]", false);
+		} else
+			postBean("successful", false);
+
 
 		getProject().decrementProjectWindowSuppression();
 		if (data!=null)
@@ -718,10 +720,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			String treeFilePath = filePath;
 			if (taxa != null) {
 				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-				ownerModule.newTreeAvailable(treeFilePath, outgroupSet);
+				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 
 			}
-			else ownerModule.newTreeAvailable(treeFilePath, null);
+			else ((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
 		} 	
 		else	if (fileNum==1 && outputFilePaths.length>1 && !StringUtil.blank(outputFilePaths[1]) && !bootstrapOrJackknife()) {   // log file
 			if (MesquiteFile.fileExists(filePath)) {
@@ -830,6 +832,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	public String getName() {
 		return "TNT Runner";
 	}
+
 
 
 	public void runFailed(String message) {

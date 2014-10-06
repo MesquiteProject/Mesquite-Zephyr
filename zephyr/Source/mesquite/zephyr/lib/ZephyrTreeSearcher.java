@@ -17,7 +17,7 @@ import mesquite.lib.duties.*;
 import mesquite.zephyr.lib.*;
 
 
-public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements Reconnectable {
+public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements Reconnectable, ZephyrRunnerEmployer {
 	protected ZephyrRunner runner;
 	protected TreeSource treeRecoveryTask;
 	protected Tree latestTree = null;

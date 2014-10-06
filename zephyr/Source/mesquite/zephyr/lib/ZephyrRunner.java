@@ -30,7 +30,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected Taxa taxa;
 	protected String unique;
 	protected Random rng;
-	protected ZephyrTreeSearcher ownerModule;
+	protected MesquiteModule ownerModule;
+	protected ZephyrRunnerEmployer zephyrRunnerEmployer;
 	protected boolean selectedTaxaOnly = false;
 
 	
@@ -49,8 +50,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected SimpleTaxonNamer namer = new SimpleTaxonNamer();
 
 	
-	public void initialize (ZephyrTreeSearcher ownerModule) {
+	public void initialize (MesquiteModule ownerModule) {
 		this.ownerModule= ownerModule;
+		this.zephyrRunnerEmployer = (ZephyrRunnerEmployer)ownerModule;
 	}
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
