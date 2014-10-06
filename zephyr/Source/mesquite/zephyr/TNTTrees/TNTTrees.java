@@ -138,7 +138,7 @@ public class TNTTrees extends ZephyrTreeSearcher {
 		String s = MesquiteFile.getFileLastContents(path);
 
 
-		latestTree = ZephyrUtil.readTNTTrees(this, null,s,"TNTTree", 0, taxa,true, false);
+		latestTree = ZephyrUtil.readTNTTrees(this, null,s,"TNTTree", 0, taxa,true, false, null);
 
 		if (latestTree!=null && latestTree.isValid()) {
 			rerootNode = latestTree.nodeOfTaxonNumber(1);

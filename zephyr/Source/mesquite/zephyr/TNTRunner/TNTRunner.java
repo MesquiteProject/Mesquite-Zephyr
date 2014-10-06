@@ -50,10 +50,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	static int BOOTSTRAPSEARCH=3;
 	static int POISSONSEARCH=4;
 	int searchStyle = REGULARSEARCH;
-	boolean resamplingAllConsensusTrees=true;
+	boolean resamplingAllConsensusTrees=false;
 
 
-	int bootstrapreps = 0;
+	int bootstrapreps = 100;
 	long bootstrapSeed = System.currentTimeMillis();
 	//	boolean doBootstrap= false;
 	String otherOptions = "";
@@ -157,7 +157,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		return buffer.toString();
 	}
 
-	public void setDefaultTNTCommands(){
+	public void setDefaultTNTCommandsSearchOptions(){
 		bootstrapSearchArguments="";
 		bootstrapSearchArguments +=   getTNTCommand("rseed[");   // if showing intermediate trees
 		bootstrapSearchArguments +=   getTNTCommand("hold 3000");   
@@ -177,11 +177,14 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		searchArguments +=   getTNTCommand("xmult");   
 		searchArguments +=   getTNTCommand("bbreak");  
 
-
+		resamplingAllConsensusTrees=false;
+		harvestOnlyStrictConsensus=false;
+		bootstrapreps = 100;
+		
 	}
 	public void setDefaultTNTCommandsOtherOptions(){
 		otherOptions = "";   
-
+		convertGapsToMissing = true;
 	}
 	/*.................................................................................................................*/
 	void formCommandFile(String dataFileName, int firstOutgroup) {
@@ -281,7 +284,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 
 	public void intializeAfterExternalProcessRunnerHired() {
-		setDefaultTNTCommands();
+		setDefaultTNTCommandsSearchOptions();
+		setDefaultTNTCommandsOtherOptions();
 		loadPreferences();
 	}
 
@@ -306,6 +310,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	TextArea otherOptionsField = null;
 	SingleLineTextField searchScriptPathField=null;
 	SingleLineTextField bootSearchScriptPathField=null;
+	Checkbox convertGapsBox=null;
+	Checkbox harvestOnlyStrictConsensusBox=null;
+	Checkbox resamplingAllConsensusTreesBox=null;
+
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
@@ -349,7 +357,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		searchScriptPathField = queryOptionsDialog.addTextField("Path to TNT run file containing search commands", searchScriptPath, 40);
 		Button browseSearchScriptPathButton = queryOptionsDialog.addAListenedButton("Browse...",null, this);
 		browseSearchScriptPathButton.setActionCommand("browseSearchScript");
-		Checkbox harvestOnlyStrictConsensusBox = queryOptionsDialog.addCheckBox("only acquire strict consensus", harvestOnlyStrictConsensus);
+		harvestOnlyStrictConsensusBox = queryOptionsDialog.addCheckBox("only acquire strict consensus", harvestOnlyStrictConsensus);
 		queryOptionsDialog.addHorizontalLine(1);
 		queryOptionsDialog.addLabel("Resampling Search Commands");
 		//		Checkbox doBootstrapBox = queryOptionsDialog.addCheckBox("do bootstrapping", doBootstrap);
@@ -358,7 +366,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		bootSearchScriptPathField = queryOptionsDialog.addTextField("Path to TNT run file containing search commands for resampled", bootSearchScriptPath, 30);
 		Button browseBootSearchScriptPathButton = queryOptionsDialog.addAListenedButton("Browse...",null, this);
 		browseSearchScriptPathButton.setActionCommand("browseBootSearchScript");
-		Checkbox resamplingAllConsensusTreesBox = queryOptionsDialog.addCheckBox("acquire strict consensus tree from each replicate", resamplingAllConsensusTrees);
+		 resamplingAllConsensusTreesBox = queryOptionsDialog.addCheckBox("acquire strict consensus tree from each replicate", resamplingAllConsensusTrees);
 
 		adjustDialogText();
 		queryOptionsDialog.addHorizontalLine(1);
@@ -366,9 +374,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		useDefaultsButton = queryOptionsDialog.addAListenedButton("Set to Defaults", null, this);
 		useDefaultsButton.setActionCommand("setToDefaults");
 
-		
 		tabbedPanel.addPanel("Other Options", true);
-		Checkbox convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
+		convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
 		queryOptionsDialog.addHorizontalLine(1);
 		queryOptionsDialog.addLabel("Post-Search Options");
 		otherOptionsField = queryOptionsDialog.addTextAreaSmallFont(otherOptions, 7, 80);
@@ -441,14 +448,18 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	/*.................................................................................................................*/
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equalsIgnoreCase("setToDefaults")) {
-			setDefaultTNTCommands();
+			setDefaultTNTCommandsSearchOptions();
 			searchField.setText(searchArguments);	
 			bootstrapSearchField.setText(bootstrapSearchArguments);
+			harvestOnlyStrictConsensusBox.setState(harvestOnlyStrictConsensus);
+			resamplingAllConsensusTreesBox.setState(resamplingAllConsensusTrees);
+			bootStrapRepsField.setValue(bootstrapreps);
+
 		} else if (e.getActionCommand().equalsIgnoreCase("setToDefaultsOtherOptions")) {
 			setDefaultTNTCommandsOtherOptions();
 			otherOptionsField.setText(otherOptions);
+			convertGapsBox.setState(convertGapsToMissing);
 		} else if (e.getActionCommand().equalsIgnoreCase("browseSearchScript") && searchScriptPathField!=null) {
-
 			MesquiteString directoryName = new MesquiteString();
 			MesquiteString fileName = new MesquiteString();
 			String path = MesquiteFile.openFileDialog("Choose Search Script File", directoryName, fileName);
@@ -598,6 +609,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		return null;
 	}	
 
+	NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
 	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
@@ -625,12 +637,16 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 		//TreeVector tv = new TreeVector(taxa);
-		if (bootstrapOrJackknife())
-			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTBootstrap Rep", 0, readSuccess, false, false);  // set first tree number as 0 as will remove the first one later.
+		if (bootstrapOrJackknife()) {
+			if (resamplingAllConsensusTrees)
+				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTBootstrap Rep", 0, readSuccess, false, false, null);  // set first tree number as 0 as will remove the first one later.
+			else
+				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT Bootstrap Majority Rule Tree", 1, readSuccess, false, false, freqRef);
+		}
 		else
-			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTTree", 1, readSuccess, false, harvestOnlyStrictConsensus);
+			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTTree", 1, readSuccess, false, harvestOnlyStrictConsensus, null);
 		success = t!=null;
-		if (success && bootstrapOrJackknife()) {
+		if (success && bootstrapOrJackknife() && resamplingAllConsensusTrees) {
 			t = t.cloneTree();
 			treeList.removeElementAt(0, false);  // get rid of first one as this is the bootstrap tree
 		}
@@ -785,6 +801,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	public boolean bootstrapOrJackknife() {
 		return searchStyle==BOOTSTRAPSEARCH || searchStyle==JACKKNIFESEARCH || searchStyle==SYMSEARCH || searchStyle==POISSONSEARCH;
 	}
+	public  boolean doMajRuleConsensusOfResults(){
+		return bootstrapOrJackknife() && resamplingAllConsensusTrees ;
+	}
+
 	public int getBootstrapreps() {
 		return bootstrapreps;
 	}

@@ -985,6 +985,10 @@ WAG, gene2 = 501-1000
 	public boolean bootstrapOrJackknife() {
 		return doBootstrap;
 	}
+	public  boolean doMajRuleConsensusOfResults(){
+		return bootstrapOrJackknife();
+	}
+
 	public int getBootstrapreps() {
 		return bootstrapreps;
 	}

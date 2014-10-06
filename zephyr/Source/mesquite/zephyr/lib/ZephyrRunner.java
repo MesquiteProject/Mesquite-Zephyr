@@ -40,6 +40,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore);
 	public abstract Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore);
 	public abstract boolean bootstrapOrJackknife();
+	public abstract boolean doMajRuleConsensusOfResults();
 	public abstract void reconnectToRequester(MesquiteCommand command);
 	public abstract String getProgramName();
 	public abstract boolean queryOptions();

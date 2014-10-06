@@ -99,7 +99,7 @@ public class ZephyrUtil {
 		return t;
 	}
 	/*.................................................................................................................*/
-	public  static Tree readTNTTrees(MesquiteModule module, TreeVector trees, String contents, String treeName, int firstTreeNumber, Taxa taxa, boolean firstTree, boolean onlyLastTree) {
+	public  static Tree readTNTTrees(MesquiteModule module, TreeVector trees, String contents, String treeName, int firstTreeNumber, Taxa taxa, boolean firstTree, boolean onlyLastTree, NameReference valuesAtNodes) {
 		FileCoordinator coord = module.getFileCoordinator();
 		if (coord == null) 
 			return  null;
@@ -120,7 +120,7 @@ public class ZephyrUtil {
 		if (exporter!=null) {
 			while (StringUtil.notEmpty(line)) {
 				if (!onlyLastTree) {
-					MesquiteTree t = (MesquiteTree)exporter.readTREAD(null, taxa, line, firstTree, null);
+					MesquiteTree t = (MesquiteTree)exporter.readTREAD(null, taxa, line, firstTree, null, valuesAtNodes);
 					if (t!=null) {
 						if (!foundTree)
 							returnTree = t;
@@ -141,7 +141,7 @@ public class ZephyrUtil {
 				line = parser.getRawNextDarkLine();
 			}
 			if (onlyLastTree && StringUtil.notEmpty(previousLine)) {
-				MesquiteTree t = (MesquiteTree)exporter.readTREAD(null, taxa, previousLine, false, null);
+				MesquiteTree t = (MesquiteTree)exporter.readTREAD(null, taxa, previousLine, false, null, valuesAtNodes);
 				if (t!=null) {
 						returnTree = t;
 					if (trees!=null) {
@@ -157,10 +157,10 @@ public class ZephyrUtil {
 		return  null;
 	}	
 	/*.................................................................................................................*/
-	public static Tree readTNTTreeFile(MesquiteModule module, TreeVector trees, Taxa taxa, String treeFilePath, String treeName, int firstTreeNumber, MesquiteBoolean success, boolean firstTree, boolean onlyLastTree) {
+	public static Tree readTNTTreeFile(MesquiteModule module, TreeVector trees, Taxa taxa, String treeFilePath, String treeName, int firstTreeNumber, MesquiteBoolean success, boolean firstTree, boolean onlyLastTree, NameReference valuesAtNodes) {
 		Tree t =null;
 		String contents = MesquiteFile.getFileContentsAsString(treeFilePath, -1);
-		t = readTNTTrees(module, trees,contents,treeName, firstTreeNumber, taxa,firstTree, onlyLastTree);
+		t = readTNTTrees(module, trees,contents,treeName, firstTreeNumber, taxa,firstTree, onlyLastTree, valuesAtNodes);
 
 		if (t!=null) {
 			if (success!=null)
@@ -509,9 +509,9 @@ public class ZephyrUtil {
 	}
 	
 	
-	public static String getStandardExtraTreeWindowCommands (boolean isBootstrap, long treeBlockID){
+	public static String getStandardExtraTreeWindowCommands (boolean doMajRule, boolean isBootstrap, long treeBlockID){
 		String commands = "setSize 400 600; ";
-		if (isBootstrap){
+		if (doMajRule){
 			commands += "getOwnerModule; tell It; setTreeSource  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";
 			commands += " setTreeBlockByID " + treeBlockID + ";";
 			commands += " toggleUseWeights off; endTell; setConsenser  #mesquite.consensus.MajRuleTree.MajRuleTree; endTell; endTell;";

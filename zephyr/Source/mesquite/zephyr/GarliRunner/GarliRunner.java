@@ -936,6 +936,10 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	public boolean bootstrapOrJackknife() {
 		return doBootstrap;
 	}
+	public  boolean doMajRuleConsensusOfResults(){
+		return bootstrapOrJackknife();
+	}
+
 
 	public int getBootstrapreps() {
 		return bootstrapreps;

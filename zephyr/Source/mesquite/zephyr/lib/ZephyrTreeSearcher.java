@@ -91,7 +91,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 
 	public String getExtraTreeWindowCommands (){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.bootstrapOrJackknife(), treesInferred)+ eachTreeCommands();
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred)+ eachTreeCommands();
 	}
 
 
@@ -200,7 +200,10 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (trees!=null) {
 			if (runner.bootstrapOrJackknife()) {
 				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
-				trees.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
+				if (runner.doMajRuleConsensusOfResults()) //this means we have read in all of the bootstrap trees
+					trees.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
+				else
+					trees.setName(getProgramName() + " Bootstrap Consensus Tree (Matrix: " + observedStates.getName() + ")");
 			} 
 			else {
 				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
@@ -226,7 +229,10 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			initializeObservedStates(taxa);
 //			boolean bootstrap = runner.bootstrap();
 			if (runner.bootstrapOrJackknife()) {
-				treeList.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
+				if (runner.doMajRuleConsensusOfResults()) //this means we have read in all of the bootstrap trees
+					treeList.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
+				else
+					treeList.setName(getProgramName() + " Bootstrap Consensus Tree (Matrix: " + observedStates.getName() + ")");
 			} 
 			else {
 				treeList.setName(getProgramName() + " Trees (Matrix: " + observedStates.getName() + ")");
