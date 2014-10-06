@@ -366,7 +366,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		bootSearchScriptPathField = queryOptionsDialog.addTextField("Path to TNT run file containing search commands for resampled", bootSearchScriptPath, 30);
 		Button browseBootSearchScriptPathButton = queryOptionsDialog.addAListenedButton("Browse...",null, this);
 		browseSearchScriptPathButton.setActionCommand("browseBootSearchScript");
-		 resamplingAllConsensusTreesBox = queryOptionsDialog.addCheckBox("acquire strict consensus tree from each replicate", resamplingAllConsensusTrees);
+		 resamplingAllConsensusTreesBox = queryOptionsDialog.addCheckBox("allow TNT to calculate consensus tree", !resamplingAllConsensusTrees);
 
 		adjustDialogText();
 		queryOptionsDialog.addHorizontalLine(1);
@@ -403,7 +403,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				bootstrapSearchArguments = bootstrapSearchField.getText();
 				bootSearchScriptPath = bootSearchScriptPathField.getText();
 				harvestOnlyStrictConsensus = harvestOnlyStrictConsensusBox.getState();
-				resamplingAllConsensusTrees = resamplingAllConsensusTreesBox.getState();
+				resamplingAllConsensusTrees = !resamplingAllConsensusTreesBox.getState();
 				searchStyle = searchStyleChoice.getSelectedIndex();
 				mxram = maxRamField.getValue();
 
@@ -452,7 +452,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			searchField.setText(searchArguments);	
 			bootstrapSearchField.setText(bootstrapSearchArguments);
 			harvestOnlyStrictConsensusBox.setState(harvestOnlyStrictConsensus);
-			resamplingAllConsensusTreesBox.setState(resamplingAllConsensusTrees);
+			resamplingAllConsensusTreesBox.setState(!resamplingAllConsensusTrees);
 			bootStrapRepsField.setValue(bootstrapreps);
 
 		} else if (e.getActionCommand().equalsIgnoreCase("setToDefaultsOtherOptions")) {
