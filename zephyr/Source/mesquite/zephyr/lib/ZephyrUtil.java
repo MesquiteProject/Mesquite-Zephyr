@@ -534,7 +534,7 @@ public class ZephyrUtil {
 		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
 
 		if (isBootstrap){
-			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; toggleShow consensusFrequency; endTell; endTell; ";
+			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; toggleShow consensusFrequency; setDigits 0; writeAsPercentage on; toggleWhiteEdges off; setOffset 0  9; endTell; endTell; ";
 		}		
 
 		return commands;
