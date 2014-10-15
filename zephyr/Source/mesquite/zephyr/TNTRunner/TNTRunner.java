@@ -46,7 +46,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	static int SYMSEARCH=3;
 	static int POISSONSEARCH=4;
 	int searchStyle = REGULARSEARCH;
-	boolean resamplingAllConsensusTrees=false;
+	boolean resamplingAllConsensusTrees=false;  //if true, will pull in each of the consensus trees (one from each rep) from a resampling run
 
 
 	int bootstrapreps = 100;
@@ -605,11 +605,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		return null;
 	}	
 
-	NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
 	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
-		logln("Preparing to receive RAxML trees.");
+		logln("Preparing to receive TNT trees.");
 		boolean success = false;
 		taxa = treeList.getTaxa();
 		//TODO		finalScore.setValue(finalValue);

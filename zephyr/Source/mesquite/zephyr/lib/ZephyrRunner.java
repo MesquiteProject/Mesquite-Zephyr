@@ -33,6 +33,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected MesquiteModule ownerModule;
 	protected ZephyrRunnerEmployer zephyrRunnerEmployer;
 	protected boolean selectedTaxaOnly = false;
+	
+	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
+
 
 	
 	protected String outgroupTaxSetString = "";

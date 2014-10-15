@@ -7,37 +7,29 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPNJ;
+package mesquite.zephyr.PAUPDistanceRunner;
 
-import java.awt.*;
+import java.awt.Checkbox;
+import java.awt.TextArea;
+import java.util.*;
 
-import mesquite.lib.*;
-import mesquite.zephyr.lib.*;
 import mesquite.categ.lib.*;
+import mesquite.lib.*;
+import mesquite.lib.characters.*;
+import mesquite.lib.duties.*;
+import mesquite.zephyr.lib.*;
 
-public class PAUPNJ extends PAUPTreeSearcher {
+/* TODO:
+ * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
+ */
+
+public class PAUPDistanceRunner extends PAUPRunner {
 	int bootStrapReps = 500;
 	boolean doBootstrap = false;
 	protected String paupCommands = "";
 
-	public String getExtraTreeWindowCommands (){
-
-		String commands = "setSize 400 600; ";
-		commands += " getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
-		commands += "setTreeDrawer  #mesquite.trees.SquareTree.SquareTree; tell It; orientRight; ";
-		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
-		if (!doBootstrap)
-			commands += " tell It; branchLengthsToggle on; endTell; ";
-		commands += " setEdgeWidth 3; endTell; ";
-		if (doBootstrap)
-			commands += "labelBranchLengths on; setNumBrLenDecimals 0; showBrLenLabelsOnTerminals off; showBrLensUnspecified off; setBrLenLabelColor 0 0 0;";
-		commands += " endTell; ladderize root; ";
-		return commands;
-	}
-
-
 	/*.................................................................................................................*/
-	public void processMorePreferences (String tag, String content) {
+	public void processSingleXMLPreference (String tag, String content) {
 		if ("bootStrapReps".equalsIgnoreCase(tag))
 			bootStrapReps = MesquiteInteger.fromString(content);
 		if ("bootstrap".equalsIgnoreCase(tag))
@@ -96,48 +88,17 @@ public class PAUPNJ extends PAUPTreeSearcher {
 		}
 		return sb.toString();
 	}
-	
-	/*.................................................................................................................*/
-	public String getTreeBlockName(){
-		if (doBootstrap) {
-			return "PAUP* NJ Bootstrap Tree (Matrix: " + observedStates.getName() + ")";
-		} 
-		else {
-			return "PAUP* NJ Tree (Matrix: " + observedStates.getName() + ")";
-
-		}
+	public boolean bootstrapOrJackknife() {
+		return doBootstrap;
 	}
 
-	/*.................................................................................................................*/
-	public boolean isSubstantive(){
-		return true;
-	}
-	/*.................................................................................................................*/
-	public boolean isPrerelease(){
-		return true;
-	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	/*.................................................................................................................*/
-	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
-	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
-	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
-	public int getVersionOfFirstRelease(){
-		return -100;  
+	public boolean doMajRuleConsensusOfResults() {
+		return doBootstrap;
 	}
 
 
-
-	public String getExplanation() {
-		return "If PAUP* is installed, will save a copy of a character matrix and script PAUP* to conduct a neighbor-joining or bootstrap neighbor-joining, and harvest the resulting trees.";
-	}
 	public String getName() {
-		return "Neighbor-Joining (PAUP*)";
-	}
-	public String getNameForMenuItem() {
-		return "Neighbor-Joining (PAUP*)...";
+		return "PAUP* Distance Analysis";
 	}
 
 

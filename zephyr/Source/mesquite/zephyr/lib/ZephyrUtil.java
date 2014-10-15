@@ -320,7 +320,7 @@ public class ZephyrUtil {
 	}
 
 	/*.................................................................................................................*/
-	public static void writeNEXUSFile(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean useStandardizedTaxonNames, boolean writeOnlySelectedTaxa, boolean writeSetsBlock, boolean useCodPosIfAvailable) {
+	public static boolean writeNEXUSFile(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean useStandardizedTaxonNames, boolean writeOnlySelectedTaxa, boolean writeSetsBlock, boolean useCodPosIfAvailable) {
 		if (path != null) {
 			MesquiteFile f = MesquiteFile.newFile(dir, fileName);
 			f.openWriting(true);
@@ -339,7 +339,9 @@ public class ZephyrUtil {
 
 			//data.getMatrixManager().writeCharactersBlock(data, cB, file, progIndicator)
 			f.closeWriting();
+			return true;
 		}
+		return false;
 	}
 
 	/*.................................................................................................................*
