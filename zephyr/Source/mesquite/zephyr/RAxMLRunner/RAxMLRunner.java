@@ -577,6 +577,7 @@ WAG, gene2 = 501-1000
 		if (!initializeGetTrees(CategoricalData.class, matrix))
 			return null;
 		
+//		Debugg.printStackTrace("\n\n\n+++++++ In getTrees +++++++++\n\n");
 		//RAxML setup
 		setRAxMLSeed(seed);
 		isProtein = data instanceof ProteinData;
@@ -641,11 +642,14 @@ WAG, gene2 = 501-1000
 		//----------//
 		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName());
 
+		
 		if (success){
-			getProject().decrementProjectWindowSuppression();
+		//	if (getProject()!=null)
+				getProject().decrementProjectWindowSuppression();
 			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 		}
-		getProject().decrementProjectWindowSuppression();
+		//if (getProject()!=null)
+			getProject().decrementProjectWindowSuppression();
 		data.setEditorInhibition(false);
 		return null;
 		
@@ -682,7 +686,8 @@ WAG, gene2 = 501-1000
 		taxa = treeList.getTaxa();
 		finalScore.setValue(finalValue);
 
-		getProject().incrementProjectWindowSuppression();
+		if (getProject()!=null)
+			getProject().incrementProjectWindowSuppression();
 		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
 		CommandRecord scr = new CommandRecord(true);
 		MesquiteThread.setCurrentCommandRecord(scr);
@@ -827,7 +832,8 @@ WAG, gene2 = 501-1000
 		if (!success)
 			logln("Execution of RAxML unsuccessful [2]");
 
-		getProject().decrementProjectWindowSuppression();
+		if (getProject()!=null)
+			getProject().decrementProjectWindowSuppression();
 		if (data!=null)
 			data.setEditorInhibition(false);
 		//	manager.deleteElement(tv);  // get rid of temporary tree block

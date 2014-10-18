@@ -52,7 +52,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		externalProcRunner.setProcessRequester(this);
 		rng = new Random(System.currentTimeMillis());
 		loadPreferences();
-		
+				
 		return true;
 	}
 	/*.................................................................................................................*/
@@ -86,7 +86,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
    	}
 	/*.................................................................................................................*/
    	public String PAUPCommandFileStart(){
-   		return "#NEXUS\n\nbegin paup;\n\tset torder=right tcompress increase=auto outroot=monophyl taxlabels=full nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;\n";
+   		return "#NEXUS\n\nbegin paup;\n\tset torder=right tcompress increase=no outroot=monophyl taxlabels=full nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;\n";
    	}
    	
 	/*.................................................................................................................*/
@@ -136,78 +136,6 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 	
 	
-	/*.................................................................................................................*
-	public Tree getTrees2(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(CategoricalData.class, matrix))
-			return null;
-		setTNTSeed(seed);
-		isProtein = data instanceof ProteinData;
-
-
-		//write data file
-		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "TNT","-Run.");  
-		if (tempDir==null)
-			return null;
-		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".ss";   //replace this with actual file name?
-		String dataFilePath = tempDir +  dataFileName;
-		FileInterpreterI exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretTNT");
-		if (exporter==null)
-			return null;
-		boolean fileSaved = false;
-		fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
-		if (!fileSaved) return null;
-
-		setFileNames();
-
-		TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-		int firstOutgroup = MesquiteInteger.unassigned;
-		if (outgroupSet!=null)
-			firstOutgroup = outgroupSet.firstBitOn();
-		
-		
-		formCommandFile(dataFileName, firstOutgroup);
-		logln("\n\nCommands given to TNT:");
-		logln(commands);
-		logln("");
-
-		String arguments = "";
-		if (MesquiteTrunk.isWindows())
-			arguments += " proc " + commandsFileName;
-		else
-			arguments += " proc " + commandsFileName;
-
-		String programCommand = externalProcRunner.getExecutableCommand()+arguments;
-		programCommand += StringUtil.lineEnding();  
-
-
-		int numInputFiles = 2;
-		String[] fileContents = new String[numInputFiles];
-		String[] fileNames = new String[numInputFiles];
-		for (int i=0; i<numInputFiles; i++){
-			fileContents[i]="";
-			fileNames[i]="";
-		}
-		fileContents[0] = MesquiteFile.getFileContentsAsString(dataFilePath);
-		fileNames[0] = dataFileName;
-		fileContents[1] = commands;
-		fileNames[1] = commandsFileName;
-
-
-		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName());
-
-		if (success){
-			getProject().decrementProjectWindowSuppression();
-			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
-		} else
-			postBean("unsuccessful [1]", false);
-
-		getProject().decrementProjectWindowSuppression();
-		data.setEditorInhibition(false);
-		return null;
-	}	
-	
-	*/
 
 	static final int OUT_TREEFILE=0;
 	static final int OUT_LOGFILE = 1;
@@ -268,7 +196,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 		//----------//
 		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName());
-
+		
 		if (success){
 			getProject().decrementProjectWindowSuppression();
 			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
@@ -411,12 +339,12 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	}
 
 	public void intializeAfterExternalProcessRunnerHired() {
-		// TODO Auto-generated method stub
-		
+		loadPreferences();
 	}
 
 
-	public void reconnectToRequester(MesquiteCommand command) {
+	public void reconnectToRequester(MesquiteCommand command){
+		continueMonitoring(command);
 	}
 
 	public String getProgramName() {

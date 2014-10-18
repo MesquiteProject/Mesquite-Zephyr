@@ -100,7 +100,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
 		if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveScriptRunner")) {
-			Debugg.println("ReviveScriptRunner");
+			logln("Reviving ShellScriptRunner");
 			scriptRunner = new ShellScriptRunner();
 			scriptRunner.setOutputProcessor(this);
 			scriptRunner.setWatcher(this);

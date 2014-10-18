@@ -65,7 +65,7 @@ public class PAUPParsimonyRunner extends PAUPRunner {
 	public String getPAUPCommandFileMiddle(String dataFileName, String outputTreeFileName, CategoricalData data){
 		StringBuffer sb = new StringBuffer();
 		sb.append("\texec " + StringUtil.tokenize(dataFileName) + ";\n");
-		sb.append("\tset criterion=parsimony;\n");
+		sb.append("\tset criterion=parsimony ;\n");
 		if (bootstrapOrJackknife()) {
 			sb.append("\tdefaults hs " + hsOptions + ";\n");
 			sb.append(paupCommands+"\n");

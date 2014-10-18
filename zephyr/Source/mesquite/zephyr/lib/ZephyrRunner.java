@@ -252,6 +252,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	/*.................................................................................................................*/
 
+
+	/*.................................................................................................................*/
+
 	public void runFilesAvailable(boolean[] filesAvailable) {
 		if ((progIndicator!=null && progIndicator.isAborted()))
 			return;
