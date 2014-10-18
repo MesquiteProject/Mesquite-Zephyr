@@ -543,6 +543,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		setTNTSeed(seed);
 		isProtein = data instanceof ProteinData;
 
+		//David: if isDoomed() then module is closing down; abort somehow
 
 		//write data file
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "TNT","-Run.");  
@@ -594,14 +595,17 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		//----------//
 		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName());
 
-		if (success){
+		if (!isDoomed()){
+			if (success){
 			getProject().decrementProjectWindowSuppression();
 			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 		} else
 			postBean("unsuccessful [1]", false);
-
-		getProject().decrementProjectWindowSuppression();
-		data.setEditorInhibition(false);
+		}
+		if (getProject() != null)
+			getProject().decrementProjectWindowSuppression();
+		if (data == null)
+			data.setEditorInhibition(false);
 		return null;
 	}	
 

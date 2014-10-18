@@ -681,7 +681,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		if (!initializeGetTrees(MolecularData.class, matrix))
 			return null;
-
+		//David: if isDoomed() then module is closing down; abort somehow
 		setGarliSeed(seed);
 
 		// create the data file
@@ -733,14 +733,17 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 		boolean success = runProgramOnExternalProcess(GARLIcommand, fileContents, fileNames, ownerModule.getName());
 
+		if (!isDoomed()){
 		if (success) {
 			getProject().decrementProjectWindowSuppression();
 			return retrieveTreeBlock(trees, finalScore); // here's where we actually process everything
 		}
+		}
 
-
-		getProject().decrementProjectWindowSuppression();
-		data.setEditorInhibition(false);
+		if (getProject() != null)
+			getProject().decrementProjectWindowSuppression();
+		if (data != null)
+			data.setEditorInhibition(false);
 		return null;
 	}
 

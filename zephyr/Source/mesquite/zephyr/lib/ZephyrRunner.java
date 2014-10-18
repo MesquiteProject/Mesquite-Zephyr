@@ -56,7 +56,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract String[] getLogFileNames();
 	protected SimpleTaxonNamer namer = new SimpleTaxonNamer();
 
-	
+	public void endJob(){
+		if (progIndicator!=null)
+			progIndicator.goAway();
+		super.endJob();
+	}
 	public void initialize (MesquiteModule ownerModule) {
 		this.ownerModule= ownerModule;
 		this.zephyrRunnerEmployer = (ZephyrRunnerEmployer)ownerModule;
@@ -189,15 +193,18 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (inferer != null)
 			((TreeInferer)inferer).bringIntermediatesWindowToFront();*/
 		boolean success = externalProcRunner.monitorExecution();
-
+		
+		
 		if (progIndicator!=null)
 			progIndicator.goAway();
-
-		getProject().decrementProjectWindowSuppression();
+		if (getProject() != null)
+			getProject().decrementProjectWindowSuppression();
 		if (data != null)
 			data.setEditorInhibition(false);
-		if (callBackCommand != null)
-			callBackCommand.doItMainThread(null,  null,  this);
+		if (!isDoomed())
+			if (callBackCommand != null)
+				callBackCommand.doItMainThread(null,  null,  this);
+		
 		return null;
 	}	
 

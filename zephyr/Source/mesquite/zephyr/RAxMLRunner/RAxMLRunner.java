@@ -578,6 +578,9 @@ WAG, gene2 = 501-1000
 			return null;
 		
 //		Debugg.printStackTrace("\n\n\n+++++++ In getTrees +++++++++\n\n");
+		//David: if isDoomed() then module is closing down; abort somehow
+
+		
 		//RAxML setup
 		setRAxMLSeed(seed);
 		isProtein = data instanceof ProteinData;
@@ -642,15 +645,18 @@ WAG, gene2 = 501-1000
 		//----------//
 		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName());
 
-		
-		if (success){
-		//	if (getProject()!=null)
+		if (!isDoomed()){
+
+		if (success){  //David: abort here
+			if (getProject()!=null)
 				getProject().decrementProjectWindowSuppression();
 			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 		}
-		//if (getProject()!=null)
+		}
+		if (getProject()!=null)
 			getProject().decrementProjectWindowSuppression();
-		data.setEditorInhibition(false);
+		if (data != null)
+			data.setEditorInhibition(false);
 		return null;
 		
 
@@ -906,6 +912,8 @@ WAG, gene2 = 501-1000
 			}
 			else ((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
 		}
+		
+		//David: if isDoomed() then module is closing down; abort somehow
 
 		if (fileNum==2 && outputFilePaths.length>2 && !StringUtil.blank(outputFilePaths[2])) {   // info file
 			if (MesquiteFile.fileExists(filePath)) {
