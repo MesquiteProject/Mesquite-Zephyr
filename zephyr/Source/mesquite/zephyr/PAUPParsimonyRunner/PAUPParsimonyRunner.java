@@ -50,6 +50,9 @@ public class PAUPParsimonyRunner extends PAUPRunner {
 			hsOptions = StringUtil.cleanXMLEscapeCharacters(content);
 		if ("paupCommands".equalsIgnoreCase(tag))
 			paupCommands = StringUtil.cleanXMLEscapeCharacters(content);
+		super.processSingleXMLPreference(tag, content);
+
+		preferencesSet = true;
 }
 	/*.................................................................................................................*/
 	public String prepareMorePreferencesForXML () {
@@ -59,6 +62,8 @@ public class PAUPParsimonyRunner extends PAUPRunner {
 		StringUtil.appendXMLTag(buffer, 2, "getConsensus", getConsensus);  
 		StringUtil.appendXMLTag(buffer, 2, "hsOptions", hsOptions);  
 		StringUtil.appendXMLTag(buffer, 2, "paupCommands", paupCommands);  
+		preferencesSet = true;
+
 	return buffer.toString();
 	}
 	/*.................................................................................................................*/

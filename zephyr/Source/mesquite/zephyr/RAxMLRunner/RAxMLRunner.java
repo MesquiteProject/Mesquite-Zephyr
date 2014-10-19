@@ -149,6 +149,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 */
 		if ("numProcessors".equalsIgnoreCase(tag))
 			numProcessors = MesquiteInteger.fromString(content);
+		
 
 		preferencesSet = true;
 	}

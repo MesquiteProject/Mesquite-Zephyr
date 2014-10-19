@@ -37,7 +37,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	PAUPCommander paupCommander = this;
 
 	SingleLineTextField PAUPPathField =  null;
-	boolean preferencesSet = false;
+	protected boolean preferencesSet = false;
 
 
 	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
@@ -75,6 +75,20 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		return null;
 	}	
 
+	/*.................................................................................................................*/
+	public void processSingleXMLPreference (String tag, String content) {
+		if ("writeOnlySelectedTaxa".equalsIgnoreCase(tag))
+			writeOnlySelectedTaxa = MesquiteBoolean.fromTrueFalseString(content);
+		preferencesSet = true;
+	}
+	/*.................................................................................................................*/
+	public String preparePreferencesForXML () {
+		StringBuffer buffer = new StringBuffer(200);
+		StringUtil.appendXMLTag(buffer, 2, "writeOnlySelectedTaxa", writeOnlySelectedTaxa);  
+		buffer.append(prepareMorePreferencesForXML());
+		preferencesSet = true;
+		return buffer.toString();
+	}
 
 	/*.................................................................................................................*/
    	public String getDataFileName(){
@@ -86,7 +100,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
    	}
 	/*.................................................................................................................*/
    	public String PAUPCommandFileStart(){
-   		return "#NEXUS\n\nbegin paup;\n\tset torder=right tcompress increase=no outroot=monophyl taxlabels=full nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;\n";
+   		return "#NEXUS\n\nbegin paup;\n\tset torder=right tcompress increase=auto outroot=monophyl taxlabels=full nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;\n";
    	}
    	
 	/*.................................................................................................................*/
@@ -262,7 +276,6 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 			tempDataFile.close();
 
 		
-		data.setEditorInhibition(false);
 		manager.deleteElement(tv);  // get rid of temporary tree block
 		getProject().decrementProjectWindowSuppression();
 		if (data!=null)

@@ -330,7 +330,8 @@ public class ZephyrUtil {
 			f.useStandardizedTaxonNames=useStandardizedTaxonNames;
 			f.writeExcludedCharacters=false;
 			f.writeTaxaWithAllMissing = false;
-			f.writeOnlySelectedTaxa = writeOnlySelectedTaxa;
+			if (taxa.anySelected())
+				f.writeOnlySelectedTaxa = writeOnlySelectedTaxa;
 			f.writeLine("#NEXUS" + StringUtil.lineEnding());
 			data.getMatrixManager().writeCharactersBlock(data, null, f, null);
 			String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, false);
