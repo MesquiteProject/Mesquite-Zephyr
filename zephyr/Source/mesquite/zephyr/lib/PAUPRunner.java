@@ -33,8 +33,12 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	long  randseed = -1;
 	String dataFileName = "";
 	String treeFileName = "";
-	boolean writeOnlySelectedTaxa = false;
+//	boolean writeOnlySelectedTaxa = false;
 	PAUPCommander paupCommander = this;
+	protected ExtensibleDialog dialog;
+	protected static int REGULARSEARCH=0;
+	protected static int BOOTSTRAPSEARCH=1;
+	protected static int JACKKNIFESEARCH=2;
 
 	SingleLineTextField PAUPPathField =  null;
 	protected boolean preferencesSet = false;
@@ -77,14 +81,14 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
-		if ("writeOnlySelectedTaxa".equalsIgnoreCase(tag))
-			writeOnlySelectedTaxa = MesquiteBoolean.fromTrueFalseString(content);
+//		if ("writeOnlySelectedTaxa".equalsIgnoreCase(tag))
+//			writeOnlySelectedTaxa = MesquiteBoolean.fromTrueFalseString(content);
 		preferencesSet = true;
 	}
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "writeOnlySelectedTaxa", writeOnlySelectedTaxa);  
+//		StringUtil.appendXMLTag(buffer, 2, "writeOnlySelectedTaxa", writeOnlySelectedTaxa);  
 		buffer.append(prepareMorePreferencesForXML());
 		preferencesSet = true;
 		return buffer.toString();
@@ -100,7 +104,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
    	}
 	/*.................................................................................................................*/
    	public String PAUPCommandFileStart(){
-   		return "#NEXUS\n\nbegin paup;\n\tset torder=right tcompress increase=auto outroot=monophyl taxlabels=full nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;\n";
+   		return "#NEXUS\n\nbegin paup;\n\tset torder=right tcompress outroot=monophyl taxlabels=full nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;\n\tlog file=logfile.txt;\n";
    	}
    	
 	/*.................................................................................................................*/
@@ -181,7 +185,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".nex";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 		boolean fileSaved = false;
-		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, writeOnlySelectedTaxa, true, false);;
+		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, selectedTaxaOnly, true, false);;
 		if (!fileSaved) return null;
 
 		setFileNames();
@@ -347,14 +351,6 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	}
 
 
-	public boolean isWriteOnlySelectedTaxa() {
-		return writeOnlySelectedTaxa;
-	}
-
-	public void setWriteOnlySelectedTaxa(boolean writeOnlySelectedTaxa) {
-		this.writeOnlySelectedTaxa = writeOnlySelectedTaxa;
-	}
-
 	public void intializeAfterExternalProcessRunnerHired() {
 		loadPreferences();
 	}
@@ -382,7 +378,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		return "";
 	}
 
-	public abstract void queryOptionsSetup(ExtensibleDialog dialog) ;
+	public abstract void queryOptionsSetup(ExtensibleDialog dialog, MesquiteTabbedPanel tabbedPanel) ;
 	/*.................................................................................................................*/
 	public abstract void queryOptionsProcess(ExtensibleDialog dialog);
 
@@ -403,7 +399,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		}
 
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), getName() + " Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
+		dialog = new ExtensibleDialog(containerOfModule(), getName() + " Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 //		dialog.addLabel(getName() + " Options and Location");
 		String helpString = "This module will prepare a matrix for PAUP, and ask PAUP do to an analysis.  A command-line version of PAUP must be installed. ";
 
@@ -411,17 +407,16 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 
-		tabbedPanel.addPanel("PAUP Program Details", true);
+		tabbedPanel.addPanel("PAUP* Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
 
 		
-		tabbedPanel.addPanel("Options", true);
 
-		queryOptionsSetup(dialog);
-
-		dialog.addHorizontalLine(1);
+		tabbedPanel.addPanel("General", true);
 		
-		Checkbox selectedOnlyBox = dialog.addCheckBox("consider only selected taxa", writeOnlySelectedTaxa);
+//		Checkbox selectedOnlyBox = dialog.addCheckBox("consider only selected taxa", writeOnlySelectedTaxa);
+
+		queryOptionsSetup(dialog, tabbedPanel);
 
 		//TextArea PAUPOptionsField = queryFilesDialog.addTextArea(PAUPOptions, 20);
 		tabbedPanel.cleanup();
@@ -431,7 +426,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		if (buttonPressed.getValue()==0)  {
 			if (externalProcRunner.optionsChosen()) {
 				queryOptionsProcess(dialog);
-				writeOnlySelectedTaxa = selectedOnlyBox.getState();
+//				writeOnlySelectedTaxa = selectedOnlyBox.getState();
 				storePreferences();
 				externalProcRunner.storePreferences();
 			}

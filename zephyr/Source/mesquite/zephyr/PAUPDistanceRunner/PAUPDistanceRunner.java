@@ -50,16 +50,18 @@ public class PAUPDistanceRunner extends PAUPRunner {
 	IntegerField bootStrapRepsField;
 	TextArea paupCommandsField;
 	/*.................................................................................................................*/
-	public void queryOptionsSetup(ExtensibleDialog dialog) {
+	public void queryOptionsSetup(ExtensibleDialog dialog, MesquiteTabbedPanel tabbedPanel) {
 		String helpString = "\nIf \"bootstrap\" is on, the PAUP will do a neighbor-joining bootstrap of the number of replicates specified; otherwise, it will do a simple neighbor-joining analysis.";
 		helpString+= "\nAny PAUP commands entered in the Additional Commands field will be executed in PAUP immediately before the nj or bootstrap command.";
 		dialog.appendToHelpString(helpString);
 
+		dialog.addLabel("Additional commands before nj or bootstrap command: ");
+		paupCommandsField =dialog.addTextAreaSmallFont(paupCommands,4);
+
+		tabbedPanel.addPanel("Bootstrap", true);
 		bootstrapBox = dialog.addCheckBox("bootstrap", doBootstrap);
 		bootStrapRepsField = dialog.addIntegerField("Bootstrap Reps", bootStrapReps, 8, 1, MesquiteInteger.infinite);
 
-		dialog.addLabel("Additional commands before nj or bootstrap command: ");
-		paupCommandsField =dialog.addTextAreaSmallFont(paupCommands,4);
 	}
 
 	/*.................................................................................................................*/

@@ -345,7 +345,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 
 		tabbedPanel.addPanel("Search Options", true);
-		Choice searchStyleChoice = queryOptionsDialog.addPopUpMenu("Type of search:", new String[] {"Regular Search",  "Bootstrap", "Jackknife", "Symmetric Resampled",  "Poisson Bootstrap"}, searchStyle);
+		Choice searchStyleChoice = queryOptionsDialog.addPopUpMenu("Type of search/resampling:", new String[] {"Regular Search",  "Bootstrap", "Jackknife", "Symmetric Resampled",  "Poisson Bootstrap"}, searchStyle);
 		queryOptionsDialog.addLabel("Regular Search Commands");
 		searchField = queryOptionsDialog.addTextAreaSmallFont(searchArguments, 7,80);
 		searchScriptPathField = queryOptionsDialog.addTextField("Path to TNT run file containing search commands", searchScriptPath, 40);
@@ -353,9 +353,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		browseSearchScriptPathButton.setActionCommand("browseSearchScript");
 		harvestOnlyStrictConsensusBox = queryOptionsDialog.addCheckBox("only acquire strict consensus", harvestOnlyStrictConsensus);
 		queryOptionsDialog.addHorizontalLine(1);
-		queryOptionsDialog.addLabel("Resampling Search Commands");
 		//		Checkbox doBootstrapBox = queryOptionsDialog.addCheckBox("do bootstrapping", doBootstrap);
 		bootStrapRepsField = queryOptionsDialog.addIntegerField("Resampling Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
+		queryOptionsDialog.addLabel("Resampling Search Commands");
 		bootstrapSearchField = queryOptionsDialog.addTextAreaSmallFont(bootstrapSearchArguments, 7,80);
 		bootSearchScriptPathField = queryOptionsDialog.addTextField("Path to TNT run file containing search commands for resampled", bootSearchScriptPath, 30);
 		Button browseBootSearchScriptPathButton = queryOptionsDialog.addAListenedButton("Browse...",null, this);
