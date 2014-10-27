@@ -205,26 +205,39 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 		if (trees!=null) {
-			if (runner.bootstrapOrJackknife()) {
-				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
-				if (runner.doMajRuleConsensusOfResults()) //this means we have read in all of the bootstrap trees
-					trees.setName(getProgramName() + " " + runner.getResamplingKindName() + " Trees (Matrix: " + observedStates.getName() + ")");
-				else
-					trees.setName(getProgramName() + " " + runner.getResamplingKindName() +  " Consensus Tree (Matrix: " + observedStates.getName() + ")");
-			} 
-			else {
+			trees.setName(getTreeBlockName());
+			if (!runner.bootstrapOrJackknife()) {
 				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
 				if (tree==null)
 					return null;
 				bestScore = finalScores.getValue();
-
-				//	logln("Best score: " + bestScore);
-				trees.setName(getProgramName() + " Trees (Matrix: " + observedStates.getName() + ")");
 			}
 			treesInferred = trees.getID();
 		}
 		return trees;
 	}
+	
+	/*.................................................................................................................*/
+	public String getMethodNameForTreeBlock() {
+		return "";
+	}
+	/*.................................................................................................................*/
+	public String getTreeBlockName(){
+		if (runner != null){
+			if (runner.bootstrapOrJackknife()) {
+				if (runner.singleTreeFromResampling()) //this means we have read in all of the bootstrap trees
+					return getProgramName() + getMethodNameForTreeBlock() +" " + runner.getResamplingKindName() +  " Consensus Tree (Matrix: " + observedStates.getName() + ")";
+				else
+					return getProgramName() +  getMethodNameForTreeBlock() + " " + runner.getResamplingKindName() +  " Trees (Matrix: " + observedStates.getName() + ")";
+			} 
+			else {
+				return getProgramName() +  getMethodNameForTreeBlock() + " Trees (Matrix: " + observedStates.getName() + ")";
+			}
+		}
+		return getProgramName() +  getMethodNameForTreeBlock() + " Trees";
+
+	}
+
 	/*.................................................................................................................*/
 
 	//TEMPORARY Debugg.println  Should be only in disconnectable tree block fillers
@@ -235,14 +248,8 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			taxa = treeList.getTaxa();
 			initializeObservedStates(taxa);
 //			boolean bootstrap = runner.bootstrap();
-			if (runner.bootstrapOrJackknife()) {
-				if (runner.doMajRuleConsensusOfResults()) //this means we have read in all of the bootstrap trees
-					treeList.setName(getProgramName() + " " + runner.getResamplingKindName() +  " Trees (Matrix: " + observedStates.getName() + ")");
-				else
-					treeList.setName(getProgramName() + " " + runner.getResamplingKindName() +  " Consensus Tree (Matrix: " + observedStates.getName() + ")");
-			} 
-			else {
-				treeList.setName(getProgramName() + " Trees (Matrix: " + observedStates.getName() + ")");
+			treeList.setName(getTreeBlockName());
+			if (!runner.bootstrapOrJackknife()){
 				double bestScore = finalScores.getValue();
 			}
 		}

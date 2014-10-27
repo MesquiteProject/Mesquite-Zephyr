@@ -819,6 +819,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		return bootstrapOrJackknife() && resamplingAllConsensusTrees ;
 	}
 
+	public  boolean singleTreeFromResampling(){
+		return bootstrapOrJackknife() && resamplingAllConsensusTrees ;
+	}
+
 	public int getBootstrapreps() {
 		return bootstrapreps;
 	}

@@ -40,10 +40,10 @@ public class PAUPDistanceTrees extends ZephyrTreeSearcher {
 	/*.................................................................................................................*/
 	public String getTreeBlockName(){
 		if (runner.bootstrapOrJackknife()) {
-			return "PAUP* Distance Bootstrap Tree (Matrix: " + observedStates.getName() + ")";
+			return "PAUP* NJ " + runner.getResamplingKindName() + " Tree (Matrix: " + observedStates.getName() + ")";
 		} 
 		else {
-			return "PAUP* Distance Tree (Matrix: " + observedStates.getName() + ")";
+			return "PAUP* NJ Tree (Matrix: " + observedStates.getName() + ")";
 
 		}
 	}
@@ -74,12 +74,16 @@ public class PAUPDistanceTrees extends ZephyrTreeSearcher {
 		return "If PAUP* is installed, will save a copy of a character matrix and script PAUP* to conduct a neighbor-joining or bootstrap neighbor-joining, and harvest the resulting trees.";
 	}
 	public String getName() {
-		return "PAUP* (Distance)";
+		return "PAUP* (NJ)";
 	}
 	public String getNameForMenuItem() {
-		return "PAUP* (Distance)...";
+		return "PAUP* (NJ)...";
 	}
 
+	/*.................................................................................................................*/
+	public String getMethodNameForTreeBlock() {
+		return " NJ";
+	}
 
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {

@@ -31,7 +31,6 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 	boolean getConsensus = false;
 	String customSearchOptions = "";
 	String customSearchOptionsBoot = "";
-	int searchStyle = REGULARSEARCH;
 
 	int nreps = 10;
 	IntegerField nrepsField;
@@ -356,6 +355,10 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 
 	public boolean doMajRuleConsensusOfResults() {
 		return false;
+	}
+
+	public boolean singleTreeFromResampling() {
+		return true;
 	}
 
 

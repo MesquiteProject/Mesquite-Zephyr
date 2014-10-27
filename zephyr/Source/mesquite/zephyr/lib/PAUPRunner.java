@@ -39,6 +39,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	protected static int REGULARSEARCH=0;
 	protected static int BOOTSTRAPSEARCH=1;
 	protected static int JACKKNIFESEARCH=2;
+	protected int searchStyle = REGULARSEARCH;
+
 
 	SingleLineTextField PAUPPathField =  null;
 	protected boolean preferencesSet = false;
@@ -435,6 +437,13 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		return (buttonPressed.getValue()==0);
 	}
 
+	public String getResamplingKindName() {
+		if (searchStyle==BOOTSTRAPSEARCH )
+			return "Bootstrap";
+		if (searchStyle==JACKKNIFESEARCH )
+			return "Jackknife";
+		return "Bootstrap";
+	}
 
 
 	public void runFailed(String message) {

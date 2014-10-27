@@ -49,9 +49,24 @@ public class PAUPParsimonyTrees extends ZephyrTreeSearcher {
 		return true;
 	}
 	/*.................................................................................................................*/
+	public String getMethodNameForTreeBlock() {
+		return " MP";
+	}
+
+	/*.................................................................................................................*
+	public String resampled(){
+		if (runner.bootstrapOrJackknife()) {
+			return "PAUP* " + " Trees (Matrix: " + observedStates.getName() + ")";
+		} 
+		else {
+			return "PAUP* MP Trees (Matrix: " + observedStates.getName() + ")";
+
+		}
+	}
+	/*.................................................................................................................*
 	public String getTreeBlockName(){
 		if (runner.bootstrapOrJackknife()) {
-			return "PAUP* Bootstrap Trees (Matrix: " + observedStates.getName() + ")";
+			return "PAUP* " + " Trees (Matrix: " + observedStates.getName() + ")";
 		} 
 		else {
 			return "PAUP* MP Trees (Matrix: " + observedStates.getName() + ")";

@@ -49,6 +49,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 
 	public abstract boolean doMajRuleConsensusOfResults();
+	public abstract boolean singleTreeFromResampling();
+
 	public abstract void reconnectToRequester(MesquiteCommand command);
 	public abstract String getProgramName();
 	public abstract boolean queryOptions();

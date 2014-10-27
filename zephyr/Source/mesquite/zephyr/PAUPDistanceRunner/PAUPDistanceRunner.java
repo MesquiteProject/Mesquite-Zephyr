@@ -25,15 +25,14 @@ import mesquite.zephyr.lib.*;
 
 public class PAUPDistanceRunner extends PAUPRunner {
 	int bootStrapReps = 500;
-	boolean doBootstrap = false;
 	protected String paupCommands = "";
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("bootStrapReps".equalsIgnoreCase(tag))
 			bootStrapReps = MesquiteInteger.fromString(content);
-		if ("bootstrap".equalsIgnoreCase(tag))
-			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
+		if ("searchStyle".equalsIgnoreCase(tag))
+			searchStyle = MesquiteInteger.fromString(content);
 		if ("paupCommands".equalsIgnoreCase(tag))
 			paupCommands = StringUtil.cleanXMLEscapeCharacters(content);
 	}
@@ -41,12 +40,12 @@ public class PAUPDistanceRunner extends PAUPRunner {
 	public String prepareMorePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootStrapReps);  
-		StringUtil.appendXMLTag(buffer, 2, "bootstrap", doBootstrap);  
+		StringUtil.appendXMLTag(buffer, 2, "searchStyle", searchStyle);  
 		StringUtil.appendXMLTag(buffer, 2, "paupCommands", paupCommands);  
 		return buffer.toString();
 	}
 
-	Checkbox bootstrapBox;
+	RadioButtons searchStyleBox;
 	IntegerField bootStrapRepsField;
 	TextArea paupCommandsField;
 	/*.................................................................................................................*/
@@ -55,19 +54,22 @@ public class PAUPDistanceRunner extends PAUPRunner {
 		helpString+= "\nAny PAUP commands entered in the Additional Commands field will be executed in PAUP immediately before the nj or bootstrap command.";
 		dialog.appendToHelpString(helpString);
 
+		dialog.addHorizontalLine(1);
+		searchStyleBox = dialog.addRadioButtons(new String[] {"regular search", "bootstrap resampling", "jackknife resampling"}, searchStyle);
+		dialog.addHorizontalLine(1);
+
 		dialog.addLabel("Additional commands before nj or bootstrap command: ");
 		paupCommandsField =dialog.addTextAreaSmallFont(paupCommands,4);
 
-		tabbedPanel.addPanel("Bootstrap", true);
-		bootstrapBox = dialog.addCheckBox("bootstrap", doBootstrap);
-		bootStrapRepsField = dialog.addIntegerField("Bootstrap Reps", bootStrapReps, 8, 1, MesquiteInteger.infinite);
+		tabbedPanel.addPanel("Resampled Searches", true);
+		bootStrapRepsField = dialog.addIntegerField("Bootstrap/Jackknife Replicates", bootStrapReps, 8, 1, MesquiteInteger.infinite);
 
 	}
 
 	/*.................................................................................................................*/
 	public void queryOptionsProcess(ExtensibleDialog dialog) {
 		bootStrapReps = bootStrapRepsField.getValue();
-		doBootstrap = bootstrapBox.getState();
+		searchStyle = searchStyleBox.getValue();
 		paupCommands = paupCommandsField.getText();
 	}
 
@@ -80,8 +82,12 @@ public class PAUPDistanceRunner extends PAUPRunner {
 		if (data instanceof DNAData)
 			sb.append("\tdset distance=hky85;\n");
 		sb.append(paupCommands+ "\n");
-		if (doBootstrap && bootStrapReps>0) {
-			sb.append("\tboot nreps = " + bootStrapReps + " search=nj;\n");
+		if (bootstrapOrJackknife() && bootStrapReps>0) {
+			if (searchStyle==BOOTSTRAPSEARCH)
+				sb.append("\tboot");
+			else
+				sb.append("\tjack");
+			sb.append(" nreps = " + bootStrapReps + " search=nj;\n");
 			sb.append("\tsavetrees from=1 to=1 SaveBootP=brlens file=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
 		}
 		else {
@@ -91,12 +97,17 @@ public class PAUPDistanceRunner extends PAUPRunner {
 		return sb.toString();
 	}
 	public boolean bootstrapOrJackknife() {
-		return doBootstrap;
+		return searchStyle==BOOTSTRAPSEARCH  || searchStyle==JACKKNIFESEARCH;
 	}
 
 	public boolean doMajRuleConsensusOfResults() {
-		return doBootstrap;
+		return bootstrapOrJackknife();
 	}
+
+	public  boolean singleTreeFromResampling(){
+		return true ;
+	}
+
 
 
 	public String getName() {

@@ -1003,6 +1003,11 @@ WAG, gene2 = 501-1000
 	public  boolean doMajRuleConsensusOfResults(){
 		return bootstrapOrJackknife();
 	}
+	
+	public boolean singleTreeFromResampling() {
+		return false;
+	}
+
 
 	public int getBootstrapreps() {
 		return bootstrapreps;
