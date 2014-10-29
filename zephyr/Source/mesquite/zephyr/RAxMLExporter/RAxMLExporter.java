@@ -154,6 +154,8 @@ public class RAxMLExporter extends RAxMLRunner {
 	public void prepareExportFile(FileInterpreterI exporter) {//over-rides RAxMLRunner's method
 		((InterpretPhylip)exporter).setTaxonNameLength(100);
 		((InterpretPhylip)exporter).setTaxonNamer(namer);
+		((InterpretPhylip)exporter).writeTaxaWithAllMissing=false;
+		
 	}
 	/*.................................................................................................................*/
 	/**Prepares the single-line command to be sent to RAxML.*/
@@ -358,8 +360,7 @@ public class RAxMLExporter extends RAxMLRunner {
 			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipProtein");
 		if (exporter==null)
 			return null;
-		((InterpretPhylip)exporter).setTaxonNameLength(100);
-		((InterpretPhylip)exporter).setTaxonNamer(namer);
+		prepareExportFile(exporter);
 
 		boolean fileSaved = false;
 		if (data instanceof DNAData)
