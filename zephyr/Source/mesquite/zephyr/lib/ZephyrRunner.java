@@ -105,7 +105,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return true;
 	}
 	/*.................................................................................................................*/
-	public boolean initializeGetTrees(Class requiredClassOfData, MCharactersDistribution matrix) {
+	public boolean initializeGetTrees(Class requiredClassOfData, Taxa taxa, MCharactersDistribution matrix) {
 		if (matrix==null )
 			return false;
 		if (!(matrix.getParentData() != null && requiredClassOfData.isInstance(matrix.getParentData()))){

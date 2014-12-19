@@ -575,7 +575,7 @@ WAG, gene2 = 501-1000
 	
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(CategoricalData.class, matrix))
+		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
 			return null;
 		
 //		Debugg.printStackTrace("\n\n\n+++++++ In getTrees +++++++++\n\n");

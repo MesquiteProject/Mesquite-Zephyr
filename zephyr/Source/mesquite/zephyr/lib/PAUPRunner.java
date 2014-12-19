@@ -175,7 +175,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	/*.................................................................................................................*/
 
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(CategoricalData.class, matrix))
+		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
 			return null;
 		setPAUPSeed(seed);
 		//David: if isDoomed() then module is closing down; abort somehow

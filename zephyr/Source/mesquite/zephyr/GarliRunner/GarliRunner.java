@@ -677,9 +677,8 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	}
 
 	/* ================================================= */
-	public Tree getTrees(TreeVector trees, Taxa taxa,
-			MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(MolecularData.class, matrix))
+	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
+		if (!initializeGetTrees(MolecularData.class, taxa, matrix))
 			return null;
 		//David: if isDoomed() then module is closing down; abort somehow
 		setGarliSeed(seed);

@@ -68,6 +68,10 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	public void reconnectToRequester(MesquiteCommand command){
 		if (runner ==null)
 			return;
+		String callBackArguments = command.getDefaultArguments();
+		String taxaID = parser.getFirstToken(callBackArguments);
+		if (taxaID !=null)
+			taxa = getProject().getTaxa(taxaID);
 		runner.reconnectToRequester(command);
 	}
 	/*.................................................................................................................*/
