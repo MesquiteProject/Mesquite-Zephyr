@@ -184,6 +184,13 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
 		logln("Monitoring " + getProgramName() + " run begun.");
+		String callBackArguments = callBackCommand.getDefaultArguments();
+		String taxaID = parser.getFirstToken(callBackArguments);
+		if (taxaID !=null)
+			taxa = getProject().getTaxa(taxaID);
+		Debugg.println("@@@@Monitoring taxa of id " + taxaID + "  found as " + taxa);
+		
+		//Debugg.println DAVID: here we have the taxa block.  RAxMLTrees needs to find out what is the taxablock also.
 		getProject().incrementProjectWindowSuppression();
 
 		initializeMonitoring();

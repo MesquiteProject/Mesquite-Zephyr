@@ -72,7 +72,7 @@ public class RAxMLTrees extends ZephyrTreeSearcher {
 
 		String s = MesquiteFile.getFileLastDarkLine(path);
 		TaxonNamer namer = runner.getTaxonNamer();
-		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);
+		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);   //Debugg.println: DAVID: At this point, when monitoring an ongoing single RECONNECTED search, taxa is null.  
 
 		if (latestTree!=null && latestTree.isValid()) {
 			rerootNode = latestTree.nodeOfTaxonNumber(0);

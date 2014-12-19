@@ -95,7 +95,7 @@ public class ZephyrUtil {
 			return null;
 		MesquiteTree t = new MesquiteTree(taxa);
 		t.setPermitTaxaBlockEnlargement(permitTaxaBlockEnlarge);
-		t.readTree(line, namer);
+		t.readTree(line, namer, null, "():;,[]\'"); //tree reading adjusted to use Newick punctuation rather than NEXUS
 		return t;
 	}
 	/*.................................................................................................................*/
