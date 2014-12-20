@@ -188,10 +188,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		String taxaID = parser.getFirstToken(callBackArguments);
 		if (taxaID !=null)
 			taxa = getProject().getTaxa(taxaID);
-		Debugg.println("@@@@Monitoring taxa of id " + taxaID + "  found as " + taxa);
 		
-		//Debugg.println DAVID: here we have the taxa block.  RAxMLTrees needs to find out what is the taxablock also.
-		getProject().incrementProjectWindowSuppression();
+	//	getProject().incrementProjectWindowSuppression();
 
 		initializeMonitoring();
 		setFileNames();
@@ -206,8 +204,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		
 		if (progIndicator!=null)
 			progIndicator.goAway();
-		if (getProject() != null)
-			getProject().decrementProjectWindowSuppression();
+//		if (getProject() != null)
+//			getProject().decrementProjectWindowSuppression();
 		if (data != null)
 			data.setEditorInhibition(false);
 		if (!isDoomed())
