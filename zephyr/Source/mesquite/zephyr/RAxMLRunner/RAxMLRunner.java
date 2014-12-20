@@ -285,7 +285,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	public  void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
 
-			String arguments = getArguments("fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null);
+			String arguments = getArguments("fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, false);
 			String command = externalProcRunner.getExecutableCommand() + arguments;
 			commandLabel.setText("This command will be used to run RAxML:");
 			commandField.setText(command);
@@ -481,9 +481,16 @@ WAG, gene2 = 501-1000
 	}
 
 	/*.................................................................................................................*/
-	String getArguments(String fileName, String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile){
-		String arguments = " -s " + fileName + " -n file.out -m "; 
-
+	String getArguments(String fileName, String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean preflight){
+		String arguments = "";
+		
+		if (preflight)
+			arguments += " -n preflight.out "; 
+		else
+			arguments += " -s " + fileName + " -n file.out "; 
+		
+		
+		arguments += " -m "; 
 		if (isProtein) {
 			if (StringUtil.blank(LOCproteinModel))
 				arguments += "PROTGAMMAJTT";
@@ -507,8 +514,11 @@ WAG, gene2 = 501-1000
 		if (bootstrapOrJackknife() && LOCbootstrapreps>0) {
 			arguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
 		}
-		else if (LOCnumRuns>1)
-			arguments += " -# " + LOCnumRuns;
+		else {
+			if (LOCnumRuns>1)
+				arguments += " -# " + LOCnumRuns;
+			//arguments += " --mesquite";
+		}
 
 		TaxaSelectionSet outgroupSet =null;
 		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
@@ -568,11 +578,20 @@ WAG, gene2 = 501-1000
 		return new String[]{logFileName, treeFileName, "RAxML_info.file.out"};
 	}
 
+	/*.................................................................................................................*/
+	public String getPreflightLogFileNames(){
+		return "RAxML_log.file.out";	
+	}
+
 	
 	
 	TaxaSelectionSet outgroupSet;
 	
-	
+	/*.................................................................................................................*/
+	public boolean preFlightSuccessful(String preflightCommand){
+		return runPreflightCommand(preflightCommand);
+	}
+
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
@@ -581,7 +600,6 @@ WAG, gene2 = 501-1000
 //		Debugg.printStackTrace("\n\n\n+++++++ In getTrees +++++++++\n\n");
 		//David: if isDoomed() then module is closing down; abort somehow
 
-		
 		//RAxML setup
 		setRAxMLSeed(seed);
 		isProtein = data instanceof ProteinData;
@@ -617,14 +635,20 @@ WAG, gene2 = 501-1000
 			multipleModelFileName=null;
 
 		//now establish the commands for invoking RAxML
-		String arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName);
+		String arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, false);
 		logln("RAxML arguments: \n" + arguments + "\n");
 		
+		String preflightArguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, true);
+		String preflightCommand = externalProcRunner.getExecutableCommand()+" --flag-check " + preflightArguments;
 		String programCommand = externalProcRunner.getExecutableCommand()+arguments;
 		if (threadingVersion==THREADING_PTHREADS) {
 			programCommand += " -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ";   // have to ensure that there are at least two threads requested
 		}
 		programCommand += StringUtil.lineEnding();  
+		
+	//	if (preFlightSuccessful(preflightCommand)) {
+	//	}
+
 		
 		//setting up the arrays of input file names and contents
 		int numInputFiles = 3;
@@ -782,9 +806,16 @@ WAG, gene2 = 501-1000
 					line = parser.getRawNextDarkLine();
 				}
 				
+				boolean summaryWritten = false;
 				for (int i=0; i<finalValues.length && i<optimizedValues.length; i++){
-					logln("RAxML Run " + (i+1) + " ln L = -" + finalValues[i] + ",  final gamma-based ln L = -" + optimizedValues[i]);
+					if (MesquiteDouble.isCombinable(finalValues[i]) && MesquiteDouble.isCombinable(optimizedValues[i])) {
+							logln("  RAxML Run " + (i+1) + " ln L = -" + finalValues[i] + ",  final gamma-based ln L = -" + optimizedValues[i]);
+							summaryWritten = true;
+					}
 				}
+				if (!summaryWritten)
+					logln("  No ln L values for RAxML Runs available");
+
 
 				double bestScore =MesquiteDouble.unassigned;
 				int bestRun = MesquiteInteger.unassigned;
