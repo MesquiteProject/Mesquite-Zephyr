@@ -17,6 +17,7 @@ import mesquite.categ.lib.CategoricalData;
 import mesquite.categ.lib.MolecularData;
 import mesquite.lib.*;
 import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.duties.TreeSource;
 import mesquite.zephyr.GarliTrees.GarliTrees;
 import mesquite.zephyr.RAxMLTrees.RAxMLTrees;
 
@@ -104,6 +105,26 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean initializeJustBeforeQueryOptions(){
 		return true;
 	}
+	
+	/*.................................................................................................................*/
+	protected StringBuffer searchDetails = new StringBuffer();
+	public StringBuffer getSearchDetails(){
+		return searchDetails;
+	}
+	/*.................................................................................................................*/
+	public Snapshot getSnapshot(MesquiteFile file) { 
+		Snapshot temp = new Snapshot();
+		temp.addLine("recoverSearchDetails " + ParseUtil.tokenize(searchDetails.toString()));
+		return temp;
+	}
+	/*.................................................................................................................*/
+	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
+		if (checker.compare(this.getClass(), "Recovers search details from previous run", "[search details]", commandName, "recoverSearchDetails")) {
+			searchDetails.setLength(0);
+			searchDetails.append(parser.getFirstToken(arguments));
+		}
+		return null;
+	}	
 	/*.................................................................................................................*/
 	public boolean initializeGetTrees(Class requiredClassOfData, Taxa taxa, MCharactersDistribution matrix) {
 		if (matrix==null )
@@ -135,7 +156,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	/*.................................................................................................................*/
 	public boolean runProgramOnExternalProcess (String programCommand, String[] fileContents, String[] fileNames, String progTitle) {
-
+		searchDetails.setLength(0);
+		searchDetails.append(" testing!\nand more!");
 
 		/*  ============ SETTING UP THE RUN ============  */
 		boolean success = externalProcRunner.setInputFiles(programCommand,fileContents, fileNames);

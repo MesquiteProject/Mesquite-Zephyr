@@ -34,7 +34,6 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (matrixSourceTask == null)
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 
-
 		runner = (ZephyrRunner)hireNamedEmployee(getRunnerClass(), getRunnerModuleName());
 		if (runner ==null)
 			return false;
@@ -95,7 +94,6 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			treeRecoveryTask = (TreeSource)hireNamedEmployee(TreeSource.class, "$ #ManyTreesFromFile xxx remain useStandardizedTaxonNames");  //xxx used because ManyTreesFromFiles needs exact argument sequence
 			return treeRecoveryTask;
 		}
-
 		return null;
 	}	
 
@@ -253,6 +251,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			initializeObservedStates(taxa);
 //			boolean bootstrap = runner.bootstrap();
 			treeList.setName(getTreeBlockName());
+			treeList.setAnnotation ("Parameters: 2"  + runner.getSearchDetails(), false);
 			if (!runner.bootstrapOrJackknife()){
 				double bestScore = finalScores.getValue();
 			}
@@ -278,7 +277,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (trees == null)
 			return;
 		treeList.setName(trees.getName());
-		treeList.setAnnotation ("Parameters: "  + getParameters(), false);
+		treeList.setAnnotation ("Parameters: 1"  + runner.getSearchDetails(), false);
 		if (trees!=null)
 			treeList.addElements(trees, false);
 		trees.dispose();
