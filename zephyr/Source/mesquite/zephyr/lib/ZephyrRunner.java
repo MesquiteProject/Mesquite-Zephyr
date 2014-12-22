@@ -69,6 +69,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		this.zephyrRunnerEmployer = (ZephyrRunnerEmployer)ownerModule;
 	}
 	/*.................................................................................................................*/
+	public String getPreflightLogFileName(){
+		return "";	
+	}
+	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
 		return "";
 	}
@@ -80,6 +84,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public TaxonNamer getTaxonNamer(){
 		return null;
+	}
+	/*.................................................................................................................*/
+	public boolean preFlightSuccessful(String command){
+		return true;
 	}
 	/*.................................................................................................................*/
 	public boolean initializeTaxa (Taxa taxa) {
@@ -155,6 +163,28 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 
 	/*.................................................................................................................*/
+	public boolean runPreflightCommand (String preflightCommand) {
+		
+		boolean success = externalProcRunner.setPreflightInputFiles(preflightCommand);
+
+		String preflightLogFileName = getPreflightLogFileName();
+
+
+		// starting the process
+		success = externalProcRunner.startExecution();
+		
+		
+		// the process runs
+		if (success) {
+			String preflightFile = externalProcRunner.getPreflightFile(preflightLogFileName);
+			Debugg.println("********  preflightFile: " + preflightFile);
+		}
+		else {
+		}
+
+		return success;
+	}
+	/*.................................................................................................................*/
 	public boolean runProgramOnExternalProcess (String programCommand, String[] fileContents, String[] fileNames, String progTitle) {
 		searchDetails.setLength(0);
 		searchDetails.append(" testing!\nand more!");
@@ -175,7 +205,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 
 		MesquiteMessage.logCurrentTime("\nStart of "+getProgramName()+" analysis: ");
+		
 		timer.start();
+		timer.fullReset();
 
 		// starting the process
 		success = externalProcRunner.startExecution();

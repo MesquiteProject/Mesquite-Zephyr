@@ -51,11 +51,14 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public abstract boolean optionsChosen();
 
 	// the actual data & scripts.  
+	public abstract boolean setPreflightInputFiles(String script);
 	public abstract boolean setInputFiles(String script, String[] fileContents, String[] fileNames);  //assumes for now that all input files are in the same directory
 	public abstract void setOutputFileNamesToWatch(String[] fileNames);
 	public abstract String getOutputFilePath(String fileName);
 	public abstract String[] getOutputFilePaths();
 	public abstract String getLastLineOfOutputFile(String fileName);
+
+	public abstract String getPreflightFile(String preflightLogFileName); 
 
 	// starting the run
 	public abstract boolean startExecution();  //do we assume these are disconnectable?
