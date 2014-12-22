@@ -849,6 +849,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		return "TNT Runner";
 	}
 
+	/*.................................................................................................................*/
+	public boolean isPrerelease(){
+		return false;
+	}
 
 
 	public void runFailed(String message) {

@@ -245,9 +245,9 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 
 	/*.................................................................................................................*/
 	public void queryOptionsSetup(ExtensibleDialog dialog, MesquiteTabbedPanel tabbedPanel) {
-		String helpString = "\nIf \"bootstrap\" is on, the PAUP will do a parsimony bootstrap of the number of replicates specified; otherwise, it will do a parsimony heuristic search.";
-		helpString+= "\nAny PAUP commands entered in the Additional Commands field will be executed in PAUP immediately before the bootstrap or hs command.";
-		dialog.appendToHelpString(helpString);
+//		String helpString = "\nIf \"bootstrap\" is on, the PAUP will do a parsimony bootstrap of the number of replicates specified; otherwise, it will do a parsimony heuristic search.";
+//		helpString+= "\nAny PAUP commands entered in the Additional Commands field will be executed in PAUP immediately before the bootstrap or hs command.";
+//		dialog.appendToHelpString(helpString);
 
 		dialog.addHorizontalLine(1);
 		bootstrapBox = dialog.addRadioButtons(new String[] {"regular search", "bootstrap resampling", "jackknife resampling"}, searchStyle);
@@ -361,6 +361,10 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 		return true;
 	}
 
+	/*.................................................................................................................*/
+	public boolean isPrerelease(){
+		return false;
+	}
 
 	public String getName() {
 		return "PAUP* Parsimony Analysis";

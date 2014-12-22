@@ -51,7 +51,7 @@ public class TNTTrees extends ZephyrTreeSearcher {
 
 	 /*.................................................................................................................*/
 	 public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){

@@ -1084,6 +1084,10 @@ WAG, gene2 = 501-1000
 	public boolean getOnlyBest(){
 		return onlyBest;
 	}
+	/*.................................................................................................................*/
+	public boolean isPrerelease(){
+		return false;
+	}
 
 
 	public void intializeAfterExternalProcessRunnerHired() {
