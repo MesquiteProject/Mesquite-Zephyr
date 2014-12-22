@@ -38,7 +38,11 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		return true;
 	}
 
-	
+	/*.................................................................................................................*/
+	public String getDirectoryPath(){  
+		return "";
+	}
+
 	public abstract boolean isWindows();
 	public abstract boolean isLinux();
 

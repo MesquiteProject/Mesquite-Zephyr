@@ -54,7 +54,7 @@ public class PAUPDistanceTrees extends ZephyrTreeSearcher {
 	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){

@@ -82,7 +82,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	}
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
-		Snapshot temp = new Snapshot();
+		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
@@ -96,8 +96,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
-		}
-		return null;
+		} else
+			return super.doCommand(commandName, arguments, checker);
 	}	
 
 	public boolean getPreferencesSet() {

@@ -103,7 +103,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
-		Snapshot temp = new Snapshot();
+		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
@@ -117,8 +117,8 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
-		}
-		return null;
+		} else
+			return super.doCommand(commandName, arguments, checker);
 	}	
 	public void reconnectToRequester(MesquiteCommand command){
 		continueMonitoring(command);
@@ -592,6 +592,7 @@ WAG, gene2 = 501-1000
 		return runPreflightCommand(preflightCommand);
 	}
 
+	String arguments;
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
@@ -635,7 +636,7 @@ WAG, gene2 = 501-1000
 			multipleModelFileName=null;
 
 		//now establish the commands for invoking RAxML
-		String arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, false);
+		arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, false);
 		logln("RAxML arguments: \n" + arguments + "\n");
 		
 		String preflightArguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, true);
@@ -709,6 +710,17 @@ WAG, gene2 = 501-1000
 			callBackCommand.doItMainThread(null,  null,  this);
 		return null;
 	}	
+
+	/*.................................................................................................................*/
+	public void appendAdditionalSearchDetails() {
+		appendToSearchDetails("Search details: ");
+		if (bootstrapOrJackknife()){
+			appendToSearchDetails(" number of bootstrap reps: "+bootstrapreps);
+		} else
+			appendToSearchDetails(" number of search reps: "+numRuns);
+		if (StringUtil.notEmpty(arguments))
+			appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments);
+	}
 
 	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore){
@@ -1024,7 +1036,6 @@ WAG, gene2 = 501-1000
 		}
 
 	}
-
 	/*.................................................................................................................*/
 
 

@@ -64,6 +64,9 @@ public class RAxMLTrees extends ZephyrTreeSearcher {
 	public boolean canGiveIntermediateResults(){
 		return true;
 	}
+	
+
+
 
 	public void newTreeAvailable(String path, TaxaSelectionSet outgroupTaxSet){
 		CommandRecord cr = MesquiteThread.getCurrentCommandRecord();  		

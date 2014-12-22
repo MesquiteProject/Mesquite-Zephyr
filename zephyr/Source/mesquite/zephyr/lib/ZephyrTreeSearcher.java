@@ -55,6 +55,12 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (employee == runner)  // runner quit and none rehired automatically
 			iQuit();
 	}
+	/*.................................................................................................................*/
+	public void appendSearchDetails() {
+//		runner.appendToSearchDetails("Method: " + getMethodNameForTreeBlock() + " " + runner.getResamplingKindName() + "\nMatrix: " + observedStates.getName() + "\n");
+		runner.appendToSearchDetails("\nMatrix: " + observedStates.getName() + "\n");
+		runner.appendAdditionalSearchDetails();
+	}
 
 	/*.................................................................................................................*/
 	/** Notifies all employees that a file is about to be closed.*/
@@ -206,6 +212,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		MesquiteDouble finalScores = new MesquiteDouble();
 
 		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
+		appendSearchDetails();
 		if (trees!=null) {
 			trees.setName(getTreeBlockName());
 			if (!runner.bootstrapOrJackknife()) {
@@ -251,7 +258,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			initializeObservedStates(taxa);
 //			boolean bootstrap = runner.bootstrap();
 			treeList.setName(getTreeBlockName());
-			treeList.setAnnotation ("Parameters: 2"  + runner.getSearchDetails(), false);
+			treeList.setAnnotation (runner.getSearchDetails(), false);
 			if (!runner.bootstrapOrJackknife()){
 				double bestScore = finalScores.getValue();
 			}
@@ -277,7 +284,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (trees == null)
 			return;
 		treeList.setName(trees.getName());
-		treeList.setAnnotation ("Parameters: 1"  + runner.getSearchDetails(), false);
+		treeList.setAnnotation (runner.getSearchDetails(), false);
 		if (trees!=null)
 			treeList.addElements(trees, false);
 		trees.dispose();

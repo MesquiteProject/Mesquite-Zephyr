@@ -50,15 +50,15 @@ public class PAUPDistanceRunner extends PAUPRunner {
 	TextArea paupCommandsField;
 	/*.................................................................................................................*/
 	public void queryOptionsSetup(ExtensibleDialog dialog, MesquiteTabbedPanel tabbedPanel) {
-		String helpString = "\nIf \"bootstrap\" is on, the PAUP will do a neighbor-joining bootstrap of the number of replicates specified; otherwise, it will do a simple neighbor-joining analysis.";
-		helpString+= "\nAny PAUP commands entered in the Additional Commands field will be executed in PAUP immediately before the nj or bootstrap command.";
+		String helpString = "\nIf bootstrap or jackknife resampling is chosen, PAUP* will do a neighbor-joining bootstrap/jackknife of the number of replicates specified; otherwise, it will do a simple neighbor-joining analysis.";
+		helpString+= "\nAny PAUP* commands entered in the Additional commands field will be executed in PAUP* immediately before the nj or bootstrap command.";
 		dialog.appendToHelpString(helpString);
 
 		dialog.addHorizontalLine(1);
 		searchStyleBox = dialog.addRadioButtons(new String[] {"regular search", "bootstrap resampling", "jackknife resampling"}, searchStyle);
 		dialog.addHorizontalLine(1);
 
-		dialog.addLabel("Additional commands before nj or bootstrap command: ");
+		dialog.addLabel("Additional commands before nj or bootstrap/jackknife command: ");
 		paupCommandsField =dialog.addTextAreaSmallFont(paupCommands,4);
 
 		tabbedPanel.addPanel("Resampled Searches", true);
@@ -79,8 +79,6 @@ public class PAUPDistanceRunner extends PAUPRunner {
 		sb.append("\texec " + StringUtil.tokenize(dataFileName) + ";\n");
 		sb.append("\tset criterion=distance;\n");
 		sb.append("\tdset negbrlen=prohibit;\n");
-		if (data instanceof DNAData)
-			sb.append("\tdset distance=hky85;\n");
 		sb.append(paupCommands+ "\n");
 		if (bootstrapOrJackknife() && bootStrapReps>0) {
 			if (searchStyle==BOOTSTRAPSEARCH)
@@ -108,6 +106,10 @@ public class PAUPDistanceRunner extends PAUPRunner {
 		return true ;
 	}
 
+	/*.................................................................................................................*/
+	public boolean isPrerelease(){
+		return false;
+	}
 
 
 	public String getName() {

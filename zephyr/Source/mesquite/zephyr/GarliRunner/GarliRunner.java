@@ -132,7 +132,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) {
-		Snapshot temp = new Snapshot();
+		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
@@ -151,8 +151,8 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
-		}
-		return null;
+		} else
+			return super.doCommand(commandName, arguments, checker);
 	}
 
 	public void reconnectToRequester(MesquiteCommand command) {
@@ -234,6 +234,10 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 	public void setPreferencesSet(boolean b) {
 		preferencesSet = b;
+	}
+	/*.................................................................................................................*/
+	public boolean isPrerelease(){
+		return false;
 	}
 
 	/*.................................................................................................................*/

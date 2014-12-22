@@ -146,6 +146,10 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	String scriptPath = "";
 	String[] outputFilePaths;
 	String[] outputFileNames;
+	/*.................................................................................................................*/
+	public String getDirectoryPath(){  
+		return rootDir;
+	}
 
 	/*.................................................................................................................*/
 	// the actual data & scripts.  

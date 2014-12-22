@@ -63,7 +63,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	}
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
-		Snapshot temp = new Snapshot();
+		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
@@ -77,8 +77,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
-		}
-		return null;
+		} else
+			return super.doCommand(commandName, arguments, checker);
 	}	
 
 	/*.................................................................................................................*/
@@ -403,7 +403,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
 		dialog = new ExtensibleDialog(containerOfModule(), getName() + " Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 //		dialog.addLabel(getName() + " Options and Location");
-		String helpString = "This module will prepare a matrix for PAUP, and ask PAUP do to an analysis.  A command-line version of PAUP must be installed. ";
+		String helpString = "This module will prepare a matrix for PAUP*, and ask PAUP* do to an analysis.  A command-line version of PAUP* must be installed. ";
 
 		dialog.appendToHelpString(helpString);
 
