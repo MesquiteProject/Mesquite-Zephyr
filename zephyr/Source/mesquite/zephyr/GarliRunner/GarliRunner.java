@@ -43,6 +43,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 	String dataFileName = null;
 	int bootstrapreps = 100;
+	int availMemory = 1024;
 
 	boolean showConfigDetails = false;
 
@@ -176,7 +177,9 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		sb.append("\n\nrandseed = " + randseed); // important to be
 													// user-editable
 
-		String garliGeneralOptions = "\nstreefname = random \navailablememory = 512 \nlogevery = 10 \nsaveevery = 100 \nrefinestart = 1 \noutputeachbettertopology = 1"
+		String garliGeneralOptions = "\nstreefname = random \n";
+		garliGeneralOptions += "availablememory = " + availMemory + " \n";
+		garliGeneralOptions += "logevery = 10 \nsaveevery = 100 \nrefinestart = 1 \noutputeachbettertopology = 1"
 				+ "\nenforcetermconditions = 1 \ngenthreshfortopoterm = 10000 \nscorethreshforterm = 0.05 \nsignificanttopochange = 0.01 \noutputphyliptree = 0 \noutputmostlyuselessfiles = 0 \nwritecheckpoints = 0 \nrestart = 0";
 		sb.append(garliGeneralOptions);
 
@@ -246,6 +249,8 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			numRuns = MesquiteInteger.fromString(content);
 		if ("bootStrapReps".equalsIgnoreCase(tag))
 			bootstrapreps = MesquiteInteger.fromString(content);
+		if ("availMemory".equalsIgnoreCase(tag))
+			availMemory = MesquiteInteger.fromString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
 			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
 		if ("onlyBest".equalsIgnoreCase(tag))
@@ -260,6 +265,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	public String preparePreferencesForXML() {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);
+		StringUtil.appendXMLTag(buffer, 2, "availMemory", availMemory);
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);
@@ -523,6 +529,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 		tabbedPanel.addPanel("GARLI Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
+		IntegerField availableMemoryField = dialog.addIntegerField("Memory for GARLI (MB)", availMemory, 8, 256, MesquiteInteger.infinite);
 		dialog.addLabelSmallText("This version of Zephyr tested on the following GARLI version(s): " + getTestedProgramVersions());
 
 		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
@@ -599,6 +606,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				partitionScheme = charPartitionButtons.getValue();
 				linkModels = linkModelsBox.getState();
 				subsetSpecificRates = subsetSpecificRatesBox.getState();
+				availMemory = availableMemoryField.getValue();
 
 				// garliOptions = garliOptionsField.getText();
 
