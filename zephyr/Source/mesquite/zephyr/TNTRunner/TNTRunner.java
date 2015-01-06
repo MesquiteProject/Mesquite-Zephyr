@@ -371,7 +371,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		tabbedPanel.addPanel("Other Options", true);
 		convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
 		queryOptionsDialog.addHorizontalLine(1);
-		queryOptionsDialog.addLabel("Post-Search Options");
+		queryOptionsDialog.addLabel("Post-Search TNT Commands");
 		otherOptionsField = queryOptionsDialog.addTextAreaSmallFont(otherOptions, 7, 80);
 		queryOptionsDialog.addHorizontalLine(1);
 		queryOptionsDialog.addNewDialogPanel();
