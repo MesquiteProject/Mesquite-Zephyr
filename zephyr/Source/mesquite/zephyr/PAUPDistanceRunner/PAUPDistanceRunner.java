@@ -55,13 +55,13 @@ public class PAUPDistanceRunner extends PAUPRunner {
 		dialog.appendToHelpString(helpString);
 
 		dialog.addHorizontalLine(1);
-		searchStyleBox = dialog.addRadioButtons(new String[] {"regular search", "bootstrap resampling", "jackknife resampling"}, searchStyle);
+		searchStyleBox = dialog.addRadioButtons(new String[] {"simple neighbor-joining", "bootstrap resampling", "jackknife resampling"}, searchStyle);
 		dialog.addHorizontalLine(1);
 
 		dialog.addLabel("Additional commands before nj or bootstrap/jackknife command: ");
 		paupCommandsField =dialog.addTextAreaSmallFont(paupCommands,4);
 
-		tabbedPanel.addPanel("Resampled Searches", true);
+		tabbedPanel.addPanel("Resampling Options", true);
 		bootStrapRepsField = dialog.addIntegerField("Bootstrap/Jackknife Replicates", bootStrapReps, 8, 1, MesquiteInteger.infinite);
 
 	}

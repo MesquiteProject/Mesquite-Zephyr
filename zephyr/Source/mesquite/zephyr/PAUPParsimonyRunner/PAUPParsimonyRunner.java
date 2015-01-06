@@ -287,7 +287,7 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 		customSearchOptionsField = dialog.addTextAreaSmallFont(customSearchOptions, 4,60);
 		dialog.addHorizontalLine(1);
 		
-		getConsensusBox = dialog.addCheckBox("only read in consensus", getConsensus);
+		getConsensusBox = dialog.addCheckBox("only read in strict consensus", getConsensus);
 
 		
 		
