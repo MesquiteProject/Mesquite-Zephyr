@@ -3,26 +3,26 @@
 	<MessagesFromHome>
 		<version>1</version>
 		<notice><!--Zephyr notice of update -->
-			<forBuildNumberEqualOrLess>620</forBuildNumberEqualOrLess> <!-- this refers to Mesquite build, e.g. for compatibility -->
-			<noticeNumber>1</noticeNumber>
+			<forBuildNumberEqualOrLess>678</forBuildNumberEqualOrLess> <!-- this refers to Mesquite build, e.g. for compatibility -->
+			<noticeNumber>2</noticeNumber>
 			<messageType>alert</messageType>
 			<identity>Zephyr</identity>
-			<updateVersion>001</updateVersion>
-			<packageName>Zephyr version 1.0</packageName>
+			<updateVersion>002</updateVersion>
+			<packageName>Zephyr version 1.1</packageName>
 			<message>
 			<![CDATA[<img src="http://mesquiteproject.org/packages/zephyr/splash.jpg"><p>
-			In order to install Zephyr, you need to first update to <b>Mesquite version 3.0</b>.  
-			You can get Mesquite 3.0 at https://mesquiteproject.wikispaces.com/Installation
+			In order to install Zephyr, you need to first update to <b>Mesquite version 3.02</b>.  
+			You can get Mesquite 3.02 at https://mesquiteproject.wikispaces.com/Installation
 			]]>
 			</message>
 		</notice>
 		<notice><!--Zephyr install -->
-			<forBuildNumberEqualOrGreater>644</forBuildNumberEqualOrGreater> <!-- this refers to Mesquite build, e.g. for compatibility -->
-			<noticeNumber>1</noticeNumber>
+			<forBuildNumberEqualOrGreater>679</forBuildNumberEqualOrGreater> <!-- this refers to Mesquite build, e.g. for compatibility -->
+			<noticeNumber>2</noticeNumber>
 			<messageType>update</messageType>
 			<identity>Zephyr</identity>
-			<updateVersion>001</updateVersion>
-			<packageName>Zephyr version 1.0</packageName>
+			<updateVersion>002</updateVersion>
+			<packageName>Zephyr version 1.1</packageName>
 			<beforeMessage>This may take a while to download; please wait until a message appears saying it's finished.</beforeMessage>
 			<explanation>
 			<![CDATA[<img src="http://mesquiteproject.org/packages/zephyr/splash.jpg"><p>
@@ -36,9 +36,9 @@
 				<install>
 					<location>mesquite</location>
 					<file>zephyr</file>
-					<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/1.0/Zephyr.1.0build11.zip</url>
+					<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/1.1/Zephyr.1.1.zip</url>
 					<treatment>unzip</treatment>
-					<updateVersion>001</updateVersion>
+					<updateVersion>002</updateVersion>
 				</install>
 		</notice>
 		
