@@ -95,11 +95,11 @@ public class ZephyrUtil {
 			return null;
 		MesquiteTree t = new MesquiteTree(taxa);
 		t.setPermitTaxaBlockEnlargement(permitTaxaBlockEnlarge);
-		t.readTree(line, namer);
+		t.readTree(line, namer, null, "():;,[]\'"); //tree reading adjusted to use Newick punctuation rather than NEXUS
 		return t;
 	}
 	/*.................................................................................................................*/
-	public  static Tree readTNTTrees(MesquiteModule module, TreeVector trees, String contents, String treeName, int firstTreeNumber, Taxa taxa, boolean firstTree) {
+	public  static Tree readTNTTrees(MesquiteModule module, TreeVector trees, String contents, String treeName, int firstTreeNumber, Taxa taxa, boolean firstTree, boolean onlyLastTree, NameReference valuesAtNodes) {
 		FileCoordinator coord = module.getFileCoordinator();
 		if (coord == null) 
 			return  null;
@@ -111,6 +111,7 @@ public class ZephyrUtil {
 		parser.setString(contents);
 		parser.setLineEndString("*");
 		String line = parser.getRawNextDarkLine();
+		String previousLine = "";
 		Tree returnTree = null;
 		int count = firstTreeNumber;
 		boolean foundTree = false;
@@ -118,23 +119,36 @@ public class ZephyrUtil {
 
 		if (exporter!=null) {
 			while (StringUtil.notEmpty(line)) {
-				MesquiteTree t = (MesquiteTree)exporter.readTREAD(null, taxa, line, firstTree, null);
-				if (t!=null) {
-					if (!foundTree)
-						returnTree = t;
-					foundTree = true;
-					if (trees!=null) {
+				if (!onlyLastTree) {
+					MesquiteTree t = (MesquiteTree)exporter.readTREAD(null, taxa, line, firstTree, null, valuesAtNodes);
+					if (t!=null) {
+						if (!foundTree)
+							returnTree = t;
+						foundTree = true;
+						if (trees!=null) {
+							if (firstTree)
+								t.setName(treeName);
+							else
+								t.setName(treeName+count);
+							trees.addElement(t, false);
+						}
 						if (firstTree)
-							t.setName(treeName);
-						else
-							t.setName(treeName+count);
+							break;
+						count++;
+					}
+				}
+				previousLine=line;
+				line = parser.getRawNextDarkLine();
+			}
+			if (onlyLastTree && StringUtil.notEmpty(previousLine)) {
+				MesquiteTree t = (MesquiteTree)exporter.readTREAD(null, taxa, previousLine, false, null, valuesAtNodes);
+				if (t!=null) {
+						returnTree = t;
+					if (trees!=null) {
+						t.setName("Strict consensus tree");
 						trees.addElement(t, false);
 					}
-					if (firstTree)
-						break;
-					count++;
 				}
-				line = parser.getRawNextDarkLine();
 			}
 			MesquiteModule.decrementMenuResetSuppression();
 			return returnTree;
@@ -143,10 +157,10 @@ public class ZephyrUtil {
 		return  null;
 	}	
 	/*.................................................................................................................*/
-	public static Tree readTNTTreeFile(MesquiteModule module, TreeVector trees, Taxa taxa, String treeFilePath, String treeName, int firstTreeNumber, MesquiteBoolean success, boolean firstTree) {
+	public static Tree readTNTTreeFile(MesquiteModule module, TreeVector trees, Taxa taxa, String treeFilePath, String treeName, int firstTreeNumber, MesquiteBoolean success, boolean firstTree, boolean onlyLastTree, NameReference valuesAtNodes) {
 		Tree t =null;
 		String contents = MesquiteFile.getFileContentsAsString(treeFilePath, -1);
-		t = readTNTTrees(module, trees,contents,treeName, firstTreeNumber, taxa,firstTree);
+		t = readTNTTrees(module, trees,contents,treeName, firstTreeNumber, taxa,firstTree, onlyLastTree, valuesAtNodes);
 
 		if (t!=null) {
 			if (success!=null)
@@ -306,7 +320,7 @@ public class ZephyrUtil {
 	}
 
 	/*.................................................................................................................*/
-	public static void writeNEXUSFile(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean useStandardizedTaxonNames, boolean writeOnlySelectedTaxa, boolean writeSetsBlock, boolean useCodPosIfAvailable) {
+	public static boolean writeNEXUSFile(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean useStandardizedTaxonNames, boolean writeOnlySelectedTaxa, boolean writeSetsBlock, boolean useCodPosIfAvailable) {
 		if (path != null) {
 			MesquiteFile f = MesquiteFile.newFile(dir, fileName);
 			f.openWriting(true);
@@ -316,7 +330,8 @@ public class ZephyrUtil {
 			f.useStandardizedTaxonNames=useStandardizedTaxonNames;
 			f.writeExcludedCharacters=false;
 			f.writeTaxaWithAllMissing = false;
-			f.writeOnlySelectedTaxa = writeOnlySelectedTaxa;
+			if (taxa.anySelected())
+				f.writeOnlySelectedTaxa = writeOnlySelectedTaxa;
 			f.writeLine("#NEXUS" + StringUtil.lineEnding());
 			data.getMatrixManager().writeCharactersBlock(data, null, f, null);
 			String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, false);
@@ -325,7 +340,9 @@ public class ZephyrUtil {
 
 			//data.getMatrixManager().writeCharactersBlock(data, cB, file, progIndicator)
 			f.closeWriting();
+			return true;
 		}
+		return false;
 	}
 
 	/*.................................................................................................................*
@@ -495,9 +512,9 @@ public class ZephyrUtil {
 	}
 	
 	
-	public static String getStandardExtraTreeWindowCommands (boolean isBootstrap, long treeBlockID){
+	public static String getStandardExtraTreeWindowCommands (boolean doMajRule, boolean isBootstrap, long treeBlockID){
 		String commands = "setSize 400 600; ";
-		if (isBootstrap){
+		if (doMajRule){
 			commands += "getOwnerModule; tell It; setTreeSource  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";
 			commands += " setTreeBlockByID " + treeBlockID + ";";
 			commands += " toggleUseWeights off; endTell; setConsenser  #mesquite.consensus.MajRuleTree.MajRuleTree; endTell; endTell;";
@@ -520,7 +537,7 @@ public class ZephyrUtil {
 		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
 
 		if (isBootstrap){
-			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; toggleShow consensusFrequency; endTell; endTell; ";
+			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; toggleShow consensusFrequency; setDigits 0; writeAsPercentage on; toggleWhiteEdges off; setOffset 0  9; endTell; endTell; ";
 		}		
 
 		return commands;

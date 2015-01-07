@@ -103,7 +103,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
-		Snapshot temp = new Snapshot();
+		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
@@ -117,8 +117,8 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
-		}
-		return null;
+		} else
+			return super.doCommand(commandName, arguments, checker);
 	}	
 	public void reconnectToRequester(MesquiteCommand command){
 		continueMonitoring(command);
@@ -149,6 +149,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 */
 		if ("numProcessors".equalsIgnoreCase(tag))
 			numProcessors = MesquiteInteger.fromString(content);
+		
 
 		preferencesSet = true;
 	}
@@ -198,7 +199,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose RAxML Score.";
 
 		dialog.appendToHelpString(helpString);
-		dialog.setHelpURL(ownerModule.getProgramURL());
+		dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
 
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
@@ -284,7 +285,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	public  void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
 
-			String arguments = getArguments("fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null);
+			String arguments = getArguments("fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, false);
 			String command = externalProcRunner.getExecutableCommand() + arguments;
 			commandLabel.setText("This command will be used to run RAxML:");
 			commandField.setText(command);
@@ -480,9 +481,16 @@ WAG, gene2 = 501-1000
 	}
 
 	/*.................................................................................................................*/
-	String getArguments(String fileName, String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile){
-		String arguments = " -s " + fileName + " -n file.out -m "; 
-
+	String getArguments(String fileName, String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean preflight){
+		String arguments = "";
+		
+		if (preflight)
+			arguments += " -n preflight.out "; 
+		else
+			arguments += " -s " + fileName + " -n file.out "; 
+		
+		
+		arguments += " -m "; 
 		if (isProtein) {
 			if (StringUtil.blank(LOCproteinModel))
 				arguments += "PROTGAMMAJTT";
@@ -503,11 +511,14 @@ WAG, gene2 = 501-1000
 		if (!StringUtil.blank(LOCotherOptions)) 
 			arguments += " " + LOCotherOptions;
 
-		if (bootstrap() && LOCbootstrapreps>0) {
+		if (bootstrapOrJackknife() && LOCbootstrapreps>0) {
 			arguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
 		}
-		else if (LOCnumRuns>1)
-			arguments += " -# " + LOCnumRuns;
+		else {
+			if (LOCnumRuns>1)
+				arguments += " -# " + LOCnumRuns;
+			//arguments += " --mesquite";
+		}
 
 		TaxaSelectionSet outgroupSet =null;
 		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
@@ -521,14 +532,14 @@ WAG, gene2 = 501-1000
 	/*.................................................................................................................*/
 	public void initializeMonitoring(){
 		if (finalValues==null) {
-			if (bootstrap())
+			if (bootstrapOrJackknife())
 				finalValues = new double[getBootstrapreps()];
 			else
 				finalValues = new double[numRuns];
 			DoubleArray.deassignArray(finalValues);
 		}
 		if (optimizedValues==null) {
-			if (bootstrap())
+			if (bootstrapOrJackknife())
 				optimizedValues = new double[getBootstrapreps()];
 			else
 				optimizedValues = new double[numRuns];
@@ -555,28 +566,41 @@ WAG, gene2 = 501-1000
 	public String[] getLogFileNames(){
 		String treeFileName;
 		String logFileName;
-		if (bootstrap())
+		if (bootstrapOrJackknife())
 			treeFileName = "RAxML_bootstrap.file.out";
 		else 
 			treeFileName = "RAxML_result.file.out";
 		logFileName = "RAxML_log.file.out";
-		if (!bootstrap() && numRuns>1) {
+		if (!bootstrapOrJackknife() && numRuns>1) {
 			treeFileName+=".RUN.";
 			logFileName+=".RUN.";
 		}
 		return new String[]{logFileName, treeFileName, "RAxML_info.file.out"};
 	}
 
+	/*.................................................................................................................*/
+	public String getPreflightLogFileNames(){
+		return "RAxML_log.file.out";	
+	}
+
 	
 	
 	TaxaSelectionSet outgroupSet;
 	
-	
+	/*.................................................................................................................*/
+	public boolean preFlightSuccessful(String preflightCommand){
+		return runPreflightCommand(preflightCommand);
+	}
+
+	String arguments;
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(CategoricalData.class, matrix))
+		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
 			return null;
 		
+//		Debugg.printStackTrace("\n\n\n+++++++ In getTrees +++++++++\n\n");
+		//David: if isDoomed() then module is closing down; abort somehow
+
 		//RAxML setup
 		setRAxMLSeed(seed);
 		isProtein = data instanceof ProteinData;
@@ -612,14 +636,20 @@ WAG, gene2 = 501-1000
 			multipleModelFileName=null;
 
 		//now establish the commands for invoking RAxML
-		String arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName);
+		arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, false);
 		logln("RAxML arguments: \n" + arguments + "\n");
 		
+		String preflightArguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, true);
+		String preflightCommand = externalProcRunner.getExecutableCommand()+" --flag-check " + preflightArguments;
 		String programCommand = externalProcRunner.getExecutableCommand()+arguments;
 		if (threadingVersion==THREADING_PTHREADS) {
 			programCommand += " -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ";   // have to ensure that there are at least two threads requested
 		}
 		programCommand += StringUtil.lineEnding();  
+		
+	//	if (preFlightSuccessful(preflightCommand)) {
+	//	}
+
 		
 		//setting up the arrays of input file names and contents
 		int numInputFiles = 3;
@@ -641,12 +671,18 @@ WAG, gene2 = 501-1000
 		//----------//
 		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName());
 
-		if (success){
-			getProject().decrementProjectWindowSuppression();
+		if (!isDoomed()){
+
+		if (success){  //David: abort here
+			if (getProject()!=null)
+				getProject().decrementProjectWindowSuppression();
 			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 		}
-		getProject().decrementProjectWindowSuppression();
-		data.setEditorInhibition(false);
+		}
+		if (getProject()!=null)
+			getProject().decrementProjectWindowSuppression();
+		if (data != null)
+			data.setEditorInhibition(false);
 		return null;
 		
 
@@ -676,13 +712,25 @@ WAG, gene2 = 501-1000
 	}	
 
 	/*.................................................................................................................*/
+	public void appendAdditionalSearchDetails() {
+		appendToSearchDetails("Search details: ");
+		if (bootstrapOrJackknife()){
+			appendToSearchDetails(" number of bootstrap reps: "+bootstrapreps);
+		} else
+			appendToSearchDetails(" number of search reps: "+numRuns);
+		if (StringUtil.notEmpty(arguments))
+			appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments);
+	}
+
+	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore){
 		logln("Preparing to receive RAxML trees.");
 		boolean success = false;
 		taxa = treeList.getTaxa();
 		finalScore.setValue(finalValue);
 
-		getProject().incrementProjectWindowSuppression();
+		if (getProject()!=null)
+			getProject().incrementProjectWindowSuppression();
 		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
 		CommandRecord scr = new CommandRecord(true);
 		MesquiteThread.setCurrentCommandRecord(scr);
@@ -700,7 +748,7 @@ WAG, gene2 = 501-1000
 		Tree t= null;
 		int count =0;
 		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
-		if (bootstrap()) {
+		if (bootstrapOrJackknife()) {
 			t =readRAxMLTreeFile(treeList, treeFilePath, "RAxML Bootstrap Tree", readSuccess, false);
 			ZephyrUtil.adjustTree(t, outgroupSet);
 		}
@@ -770,9 +818,16 @@ WAG, gene2 = 501-1000
 					line = parser.getRawNextDarkLine();
 				}
 				
+				boolean summaryWritten = false;
 				for (int i=0; i<finalValues.length && i<optimizedValues.length; i++){
-					logln("RAxML Run " + (i+1) + " ln L = -" + finalValues[i] + ",  final gamma-based ln L = -" + optimizedValues[i]);
+					if (MesquiteDouble.isCombinable(finalValues[i]) && MesquiteDouble.isCombinable(optimizedValues[i])) {
+							logln("  RAxML Run " + (i+1) + " ln L = -" + finalValues[i] + ",  final gamma-based ln L = -" + optimizedValues[i]);
+							summaryWritten = true;
+					}
 				}
+				if (!summaryWritten)
+					logln("  No ln L values for RAxML Runs available");
+
 
 				double bestScore =MesquiteDouble.unassigned;
 				int bestRun = MesquiteInteger.unassigned;
@@ -827,7 +882,8 @@ WAG, gene2 = 501-1000
 		if (!success)
 			logln("Execution of RAxML unsuccessful [2]");
 
-		getProject().decrementProjectWindowSuppression();
+		if (getProject()!=null)
+			getProject().decrementProjectWindowSuppression();
 		if (data!=null)
 			data.setEditorInhibition(false);
 		//	manager.deleteElement(tv);  // get rid of temporary tree block
@@ -874,7 +930,7 @@ WAG, gene2 = 501-1000
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
 		String filePath=outputFilePaths[fileNum];
 
-		if (fileNum==0 && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0]) && !bootstrap()) {   // screen log
+		if (fileNum==0 && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0]) && !bootstrapOrJackknife()) {   // screen log
 			if (MesquiteFile.fileExists(filePath)) {
 				String s = MesquiteFile.getFileLastContents(filePath);
 				if (!StringUtil.blank(s))
@@ -891,15 +947,17 @@ WAG, gene2 = 501-1000
 			} 
 		}
 
-		if (fileNum==1 && outputFilePaths.length>1 && !StringUtil.blank(outputFilePaths[1]) && !bootstrap() && showIntermediateTrees) {   // tree file
+		if (fileNum==1 && outputFilePaths.length>1 && !StringUtil.blank(outputFilePaths[1]) && !bootstrapOrJackknife() && showIntermediateTrees) {   // tree file
 			String treeFilePath = filePath;
 			if (taxa != null) {
 				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-				ownerModule.newTreeAvailable(treeFilePath, outgroupSet);
+				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 
 			}
-			else ownerModule.newTreeAvailable(treeFilePath, null);
+			else ((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
 		}
+		
+		//David: if isDoomed() then module is closing down; abort somehow
 
 		if (fileNum==2 && outputFilePaths.length>2 && !StringUtil.blank(outputFilePaths[2])) {   // info file
 			if (MesquiteFile.fileExists(filePath)) {
@@ -909,7 +967,7 @@ WAG, gene2 = 501-1000
 					parser.allowComments=false;
 					parser.setString(s);
 					String searchString = "";
-					if (bootstrap())
+					if (bootstrapOrJackknife())
 						searchString = "Bootstrap";
 					else
 						searchString = "Inference";
@@ -939,7 +997,7 @@ WAG, gene2 = 501-1000
 								token = subParser.getNextToken();
 
 								numRunsCompleted++;
-								if (bootstrap()){
+								if (bootstrapOrJackknife()){
 									logln("RAxML bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
 								}
 								else
@@ -955,7 +1013,7 @@ WAG, gene2 = 501-1000
 						if (externalProcRunner.canCalculateTimeRemaining(numRunsCompleted)) {
 							double timePerRep = timer.timeSinceVeryStartInSeconds()/numRunsCompleted;   //this is time per rep
 							int timeLeft = 0;
-							if (bootstrap()) {
+							if (bootstrapOrJackknife()) {
 								timeLeft = (int)((bootstrapreps- numRunsCompleted) * timePerRep);
 							}
 							else {
@@ -967,7 +1025,7 @@ WAG, gene2 = 501-1000
 							logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
 						}
 
-						if (!bootstrap() && runNumber+1<numRuns) {
+						if (!bootstrapOrJackknife() && runNumber+1<numRuns) {
 							logln("");
 							logln("Beginning Run " + (runNumber+2));
 						}
@@ -978,13 +1036,21 @@ WAG, gene2 = 501-1000
 		}
 
 	}
-
 	/*.................................................................................................................*/
 
 
-	public boolean bootstrap() {
+	public boolean bootstrapOrJackknife() {
 		return doBootstrap;
 	}
+	public  boolean doMajRuleConsensusOfResults(){
+		return bootstrapOrJackknife();
+	}
+	
+	public boolean singleTreeFromResampling() {
+		return false;
+	}
+
+
 	public int getBootstrapreps() {
 		return bootstrapreps;
 	}
@@ -1017,6 +1083,10 @@ WAG, gene2 = 501-1000
 	/*.................................................................................................................*/
 	public boolean getOnlyBest(){
 		return onlyBest;
+	}
+	/*.................................................................................................................*/
+	public boolean isPrerelease(){
+		return false;
 	}
 
 

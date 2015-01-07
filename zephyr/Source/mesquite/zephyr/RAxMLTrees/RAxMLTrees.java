@@ -64,6 +64,9 @@ public class RAxMLTrees extends ZephyrTreeSearcher {
 	public boolean canGiveIntermediateResults(){
 		return true;
 	}
+	
+
+
 
 	public void newTreeAvailable(String path, TaxaSelectionSet outgroupTaxSet){
 		CommandRecord cr = MesquiteThread.getCurrentCommandRecord();  		
@@ -72,7 +75,7 @@ public class RAxMLTrees extends ZephyrTreeSearcher {
 
 		String s = MesquiteFile.getFileLastDarkLine(path);
 		TaxonNamer namer = runner.getTaxonNamer();
-		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);
+		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);    
 
 		if (latestTree!=null && latestTree.isValid()) {
 			rerootNode = latestTree.nodeOfTaxonNumber(0);

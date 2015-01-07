@@ -43,6 +43,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 	String dataFileName = null;
 	int bootstrapreps = 100;
+	int availMemory = 1024;
 
 	boolean showConfigDetails = false;
 
@@ -132,7 +133,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) {
-		Snapshot temp = new Snapshot();
+		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
@@ -151,8 +152,8 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
-		}
-		return null;
+		} else
+			return super.doCommand(commandName, arguments, checker);
 	}
 
 	public void reconnectToRequester(MesquiteCommand command) {
@@ -176,7 +177,9 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		sb.append("\n\nrandseed = " + randseed); // important to be
 													// user-editable
 
-		String garliGeneralOptions = "\nstreefname = random \navailablememory = 512 \nlogevery = 10 \nsaveevery = 100 \nrefinestart = 1 \noutputeachbettertopology = 1"
+		String garliGeneralOptions = "\nstreefname = random \n";
+		garliGeneralOptions += "availablememory = " + availMemory + " \n";
+		garliGeneralOptions += "logevery = 10 \nsaveevery = 100 \nrefinestart = 1 \noutputeachbettertopology = 1"
 				+ "\nenforcetermconditions = 1 \ngenthreshfortopoterm = 10000 \nscorethreshforterm = 0.05 \nsignificanttopochange = 0.01 \noutputphyliptree = 0 \noutputmostlyuselessfiles = 0 \nwritecheckpoints = 0 \nrestart = 0";
 		sb.append(garliGeneralOptions);
 
@@ -220,7 +223,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		sb.append("\nuniqueswapbias = " + uniqueswapbias);
 		sb.append("\ndistanceswapbias = " + distanceswapbias);
 
-		if (bootstrap())
+		if (bootstrapOrJackknife())
 			sb.append("\n\nbootstrapreps = " + bootstrapreps); // important to
 																// be
 																// user-editable
@@ -235,6 +238,10 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	public void setPreferencesSet(boolean b) {
 		preferencesSet = b;
 	}
+	/*.................................................................................................................*/
+	public boolean isPrerelease(){
+		return false;
+	}
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference(String tag, String content) {
@@ -242,6 +249,8 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			numRuns = MesquiteInteger.fromString(content);
 		if ("bootStrapReps".equalsIgnoreCase(tag))
 			bootstrapreps = MesquiteInteger.fromString(content);
+		if ("availMemory".equalsIgnoreCase(tag))
+			availMemory = MesquiteInteger.fromString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
 			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
 		if ("onlyBest".equalsIgnoreCase(tag))
@@ -256,6 +265,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	public String preparePreferencesForXML() {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);
+		StringUtil.appendXMLTag(buffer, 2, "availMemory", availMemory);
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);
@@ -513,12 +523,13 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose GARLI Score.";
 
 		dialog.appendToHelpString(helpString);
-		dialog.setHelpURL(ownerModule.getProgramURL());
+		dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 
 		tabbedPanel.addPanel("GARLI Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
+		IntegerField availableMemoryField = dialog.addIntegerField("Memory for GARLI (MB)", availMemory, 8, 256, MesquiteInteger.infinite);
 		dialog.addLabelSmallText("This version of Zephyr tested on the following GARLI version(s): " + getTestedProgramVersions());
 
 		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
@@ -595,6 +606,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				partitionScheme = charPartitionButtons.getValue();
 				linkModels = linkModelsBox.getState();
 				subsetSpecificRates = subsetSpecificRatesBox.getState();
+				availMemory = availableMemoryField.getValue();
 
 				// garliOptions = garliOptionsField.getText();
 
@@ -635,7 +647,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	/*.................................................................................................................*/
 	public void initializeMonitoring() {
 		if (finalValues == null) {
-			if (bootstrap())
+			if (bootstrapOrJackknife())
 				finalValues = new double[getBootstrapreps()];
 			else
 				finalValues = new double[numRuns];
@@ -659,7 +671,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	/*.................................................................................................................*/
 	public String[] getLogFileNames() {
 		String treeFileName;
-		if (bootstrap())
+		if (bootstrapOrJackknife())
 			treeFileName = ofprefix + ".boot.tre";
 		else
 			treeFileName = ofprefix + ".best.tre";
@@ -677,11 +689,10 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	}
 
 	/* ================================================= */
-	public Tree getTrees(TreeVector trees, Taxa taxa,
-			MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(MolecularData.class, matrix))
+	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
+		if (!initializeGetTrees(MolecularData.class, taxa, matrix))
 			return null;
-
+		//David: if isDoomed() then module is closing down; abort somehow
 		setGarliSeed(seed);
 
 		// create the data file
@@ -733,14 +744,17 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 		boolean success = runProgramOnExternalProcess(GARLIcommand, fileContents, fileNames, ownerModule.getName());
 
+		if (!isDoomed()){
 		if (success) {
 			getProject().decrementProjectWindowSuppression();
 			return retrieveTreeBlock(trees, finalScore); // here's where we actually process everything
 		}
+		}
 
-
-		getProject().decrementProjectWindowSuppression();
-		data.setEditorInhibition(false);
+		if (getProject() != null)
+			getProject().decrementProjectWindowSuppression();
+		if (data != null)
+			data.setEditorInhibition(false);
 		return null;
 	}
 
@@ -763,7 +777,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
 
 		// read in the tree files
-		if (onlyBest || numRuns == 1 || bootstrap())
+		if (onlyBest || numRuns == 1 || bootstrapOrJackknife())
 			tempDataFile = (MesquiteFile) coord.doCommand("includeTreeFile", StringUtil.tokenize(outputFilePaths[TREEFILE]) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); // TODO: never scripting???
 		else
 			tempDataFile = (MesquiteFile) coord.doCommand("includeTreeFile",StringUtil.tokenize(outputFilePaths[BESTTREEFILE]) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); // TODO: never scripting???
@@ -852,7 +866,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 		if (fileNum == MAINLOGFILE && outputFilePaths.length > 0
 				&& !StringUtil.blank(outputFilePaths[MAINLOGFILE])
-				&& !bootstrap()) { // screen log
+				&& !bootstrapOrJackknife()) { // screen log
 			if (MesquiteFile.fileExists(filePath)) {
 				String s = MesquiteFile.getFileLastContents(filePath);
 				if (!StringUtil.blank(s))
@@ -870,13 +884,13 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				Debugg.println("*** File does not exist (" + filePath + ") ***");
 		}
 
-		if (fileNum == CURRENTTREEFILEPATH && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[CURRENTTREEFILEPATH]) && !bootstrap()) {
+		if (fileNum == CURRENTTREEFILEPATH && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[CURRENTTREEFILEPATH]) && !bootstrapOrJackknife()) {
 			String treeFilePath = filePath;
 			if (taxa != null) {
 				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-				ownerModule.newTreeAvailable(treeFilePath, outgroupSet);
+				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 			} else
-				ownerModule.newTreeAvailable(treeFilePath, null);
+				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
 		}
 
 		if (fileNum == SCREENLOG && outputFilePaths.length > 2
@@ -905,14 +919,14 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 						if (finalValues != null && runNumber < finalValues.length)
 							finalValues[runNumber] = MesquiteDouble.fromString(s1);
 						runNumber++;
-						if (bootstrap())
+						if (bootstrapOrJackknife())
 							logln("GARLI bootstrap replicate " + runNumber + " of " + getTotalReps() + ", ln L = " + s1);
 						else
 							logln("GARLI search replicate " + runNumber + " of " + getTotalReps() + ", ln L = " + s1);
 						numRunsCompleted++;
 						double timePerRep = timer.timeSinceVeryStartInSeconds()/ numRunsCompleted; // this is time per rep
 						int timeLeft = 0;
-						if (bootstrap()) {
+						if (bootstrapOrJackknife()) {
 							timeLeft = (int) ((bootstrapreps - numRunsCompleted) * timePerRep);
 						} else {
 							timeLeft = (int) ((numRuns - numRunsCompleted) * timePerRep);
@@ -933,9 +947,16 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	}
 
 	/*.................................................................................................................*/
-	public boolean bootstrap() {
+	public boolean bootstrapOrJackknife() {
 		return doBootstrap;
 	}
+	public  boolean doMajRuleConsensusOfResults(){
+		return bootstrapOrJackknife();
+	}
+	public boolean singleTreeFromResampling() {
+		return false;
+	}
+
 
 	public int getBootstrapreps() {
 		return bootstrapreps;
@@ -965,7 +986,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 	/*.................................................................................................................*/
 	public int getTotalReps() {
-		if (bootstrap())
+		if (bootstrapOrJackknife())
 			return getBootstrapreps();
 		else
 			return numRuns;

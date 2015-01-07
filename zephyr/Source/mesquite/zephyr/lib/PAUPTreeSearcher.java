@@ -16,18 +16,16 @@ import java.util.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
-import mesquite.zephyr.PAUPRunner.*;
+import mesquite.zephyr.lib.*;
 
-public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements ActionListener, PAUPCommander {
-	protected PAUPRunner paupRunner;
-	Taxa taxa;
-	private MatrixSourceCoord matrixSourceTask;
-	protected MCharactersDistribution observedStates;
-	String PAUPPath;
-	SingleLineTextField PAUPPathField =  null;
-	boolean preferencesSet = false;
+public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher  {
+//	Taxa taxa;
+//	private MatrixSourceCoord matrixSourceTask;
+//	protected MCharactersDistribution observedStates;
 	
 	boolean writeOnlySelectedTaxa = false;
+
+	/*.................................................................................................................*
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences();
@@ -37,12 +35,14 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 
 
-		paupRunner = (PAUPRunner)hireNamedEmployee(PAUPRunner.class, "#mesquite.zephyr.PAUPRunner.PAUPRunner");
-		if (paupRunner ==null)
+		runner = (PAUPRunner)hireNamedEmployee(getRunnerClass(), getRunnerModuleName());
+		if (runner ==null)
 			return false;
-		paupRunner.setPAUPPath(PAUPPath);
 		return true;
 	}
+	/*.................................................................................................................*
+
+
 
 	public String getExtraTreeWindowCommands (){
 
@@ -66,6 +66,7 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 	public Class getCharacterClass() {
 		return null;
 	}
+	/*.................................................................................................................*
 
 	public boolean initialize(Taxa taxa) {
 		this.taxa = taxa;
@@ -77,90 +78,10 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 				return false;
 		} else
 			return false;
-		if (paupRunner !=null)
-			paupRunner.setPAUPPath(PAUPPath);
-		else return false;
 		return true;
 	}
 
-	public boolean getPreferencesSet() {
-		return preferencesSet;
-	}
-	public void setPreferencesSet(boolean b) {
-		preferencesSet = b;
-	}
-	/*.................................................................................................................*/
-	public void processMorePreferences (String tag, String content) {
-	}
-	/*.................................................................................................................*/
-	public void processSingleXMLPreference (String tag, String content) {
-		if ("PAUPPath".equalsIgnoreCase(tag)) 
-			PAUPPath = StringUtil.cleanXMLEscapeCharacters(content);
-		processMorePreferences(tag, content);
-		preferencesSet = true;
-	}
-	/*.................................................................................................................*/
-	public String prepareMorePreferencesForXML () {
-		return "";
-	}
-	/*.................................................................................................................*/
-	public String preparePreferencesForXML () {
-		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "PAUPPath", PAUPPath);  
-		buffer.append(prepareMorePreferencesForXML());
 
-		preferencesSet = true;
-		return buffer.toString();
-	}
-
-	public void queryOptionsSetup(ExtensibleDialog dialog) {
-	}
-	/*.................................................................................................................*/
-	public void queryOptionsProcess(ExtensibleDialog dialog) {
-	}
-
-	/*.................................................................................................................*/
-	public boolean queryOptions() {
-		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), getName() + " Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
-		dialog.addLabel(getName() + " Options and Location");
-		String helpString = "This module will prepare a matrix for PAUP, and ask PAUP do to an analysis.  A command-line version of PAUP must be installed. ";
-
-		dialog.appendToHelpString(helpString);
-
-		queryOptionsSetup(dialog);
-
-		dialog.addHorizontalLine(1);
-		PAUPPathField = dialog.addTextField("Path to PAUP:", PAUPPath, 40);
-		Button PAUPBrowseButton = dialog.addAListenedButton("Browse...",null, this);
-		PAUPBrowseButton.setActionCommand("PAUPBrowse");
-		
-		Checkbox selectedOnlyBox = dialog.addCheckBox("consider only selected taxa", writeOnlySelectedTaxa);
-
-		//TextArea PAUPOptionsField = queryFilesDialog.addTextArea(PAUPOptions, 20);
-
-		dialog.completeAndShowDialog(true);
-		if (buttonPressed.getValue()==0)  {
-			PAUPPath = PAUPPathField.getText();
-			queryOptionsProcess(dialog);
-			storePreferences();
-			writeOnlySelectedTaxa = selectedOnlyBox.getState();
-
-
-		}
-		dialog.dispose();
-		return (buttonPressed.getValue()==0);
-	}
-	/*.................................................................................................................*/
-	public  void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase("PAUPBrowse")) {
-			MesquiteString directoryName = new MesquiteString();
-			MesquiteString fileName = new MesquiteString();
-			PAUPPath = MesquiteFile.openFileDialog("Choose PAUP", directoryName, fileName);
-			if (StringUtil.notEmpty(PAUPPath))
-				PAUPPathField.setText(PAUPPath);
-		}
-	}
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
 		return true;
@@ -178,18 +99,20 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 		CommandRecord.tick("PAUP Tree Search in progress " );
 
 		Random rng = new Random(System.currentTimeMillis());
-		paupRunner.setPAUPPath(PAUPPath);
 
 		MesquiteDouble finalScore = new MesquiteDouble();
+		
+//		((PAUPRunner)runner).setPaupCommander(runner);
 
-		paupRunner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScore, getName(), this);
+
+		runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScore);
 		trees.setName(getTreeBlockName());
 
 		return trees;
 	}
 
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void fillTreeBlock(TreeVector treeList){
 		if (treeList==null || paupRunner==null)
 			return;
@@ -228,7 +151,7 @@ public abstract class PAUPTreeSearcher extends ExternalTreeSearcher implements A
 			treeList.addElements(trees, false);
 		paupRunner=null;
 	}
-
+*/
 
 
 }

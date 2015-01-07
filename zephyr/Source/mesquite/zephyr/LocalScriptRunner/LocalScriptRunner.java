@@ -20,7 +20,7 @@ import mesquite.zephyr.lib.*;
 public class LocalScriptRunner extends ExternalProcessRunner implements ActionListener, OutputFileProcessor, ShellScriptWatcher {
 	ShellScriptRunner scriptRunner;
 	Random rng;
-	String rootDir;
+	String rootDir = null;
 	String executablePath;
 	StringBuffer extraPreferences;
 	ExternalProcessRequester processRequester;
@@ -100,7 +100,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
 		if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveScriptRunner")) {
-			Debugg.println("ReviveScriptRunner");
+			logln("Reviving ShellScriptRunner");
 			scriptRunner = new ShellScriptRunner();
 			scriptRunner.setOutputProcessor(this);
 			scriptRunner.setWatcher(this);
@@ -146,12 +146,17 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	String scriptPath = "";
 	String[] outputFilePaths;
 	String[] outputFileNames;
+	/*.................................................................................................................*/
+	public String getDirectoryPath(){  
+		return rootDir;
+	}
 
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
 	public boolean setInputFiles(String script, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
-		rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		if (rootDir==null) 
+			rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
 		if (rootDir==null)
 			return false;
 		
@@ -168,6 +173,22 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
 
 		scriptPath = rootDir + "Script" + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
+		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
+		return true;
+	}
+	/*.................................................................................................................*/
+	// the actual data & scripts.  
+	public boolean setPreflightInputFiles(String script){  //assumes for now that all input files are in the same directory
+		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
+		rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		if (rootDir==null)
+			return false;
+		
+		StringBuffer shellScript = new StringBuffer(1000);
+		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
+		shellScript.append(script);
+
+		scriptPath = rootDir + "preflight.bat";
 		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
 		return true;
 	}
@@ -235,6 +256,13 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 				executablePathField.setText(path);
 		}
 	}
+	public String getPreflightFile(String preflightLogFileName){
+		String filePath = rootDir + preflightLogFileName;
+		String fileContents = MesquiteFile.getFileContentsAsString(filePath);
+		return fileContents;
+	}
+
+
 	/*.................................................................................................................*/
 	public void processOutputFile(String[] outputFilePaths, int fileNum) {
 		boolean filesAvailable[] = new boolean[outputFilePaths.length];
