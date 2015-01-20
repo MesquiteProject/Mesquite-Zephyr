@@ -42,6 +42,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	static final int THREADING_MPI = 2;
 	int threadingVersion = THREADING_OTHER;
 	int numProcessors = 2;
+	boolean RAxML814orLater = true;
 
 		int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
 
@@ -140,6 +141,8 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
 			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
+		if ("RAxML814orLater".equalsIgnoreCase(tag))
+			RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
 
 		if ("raxmlThreadingVersion".equalsIgnoreCase(tag))
 			threadingVersion = MesquiteInteger.fromString(content);
@@ -161,6 +164,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
+		StringUtil.appendXMLTag(buffer, 2, "RAxML814orLater", RAxML814orLater);  
 		StringUtil.appendXMLTag(buffer, 2, "raxmlThreadingVersion", threadingVersion);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
 		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
@@ -171,7 +175,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "8.0.0";
+		return "8.0.0 and 8.1.4";
 	}
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
@@ -209,6 +213,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		externalProcRunner.addItemsToDialogPanel(dialog);
 		threadingRadioButtons= dialog.addRadioButtons(new String[] {"other", "PThreads version"}, threadingVersion);
 		numProcessorsFiled = dialog.addIntegerField("Number of Processors", numProcessors, 8, 1, MesquiteInteger.infinite);
+		Checkbox RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
 		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
 
 		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
@@ -260,6 +265,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 				bootstrapreps = bootStrapRepsField.getValue();
 				onlyBest = onlyBestBox.getState();
 				doBootstrap = doBootstrapCheckbox.getState();
+				RAxML814orLater = RAxML814orLaterCheckbox.getState();
 				otherOptions = otherOptionsField.getText();
 				threadingVersion = threadingRadioButtons.getValue();
 //				MPIsetupCommand = MPISetupField.getText();
@@ -517,7 +523,8 @@ WAG, gene2 = 501-1000
 		else {
 			if (LOCnumRuns>1)
 				arguments += " -# " + LOCnumRuns;
-			//arguments += " --mesquite";
+			if (RAxML814orLater)
+				arguments += " --mesquite";
 		}
 
 		TaxaSelectionSet outgroupSet =null;
