@@ -42,7 +42,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	static final int THREADING_MPI = 2;
 	int threadingVersion = THREADING_OTHER;
 	int numProcessors = 2;
-	boolean RAxML814orLater = true;
+	boolean RAxML814orLater = false;
 
 		int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
 
