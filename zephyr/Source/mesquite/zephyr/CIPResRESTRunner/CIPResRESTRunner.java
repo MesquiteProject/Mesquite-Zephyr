@@ -7,29 +7,37 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.LocalScriptRunner;
+package mesquite.zephyr.CIPResRESTRunner;
 
 import java.awt.Button;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+
 import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
-public class LocalScriptRunner extends ExternalProcessRunner implements ActionListener, OutputFileProcessor, ShellScriptWatcher {
-	ShellScriptRunner scriptRunner;
-	Random rng;
+public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFileProcessor, ShellScriptWatcher {
 	String rootDir = null;
-	String executablePath;
-	StringBuffer extraPreferences;
+	MesquiteString jobURL = null;
+	MesquiteString jobID = null;
 	ExternalProcessRequester processRequester;
+	MesquiteString xmlPrefs= new MesquiteString();
+	String xmlPrefsString = null;
+
+	boolean verbose = true;
+
+	
+	CIPResCommunicator communicator;
 
 	/*.================================================================..*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		MesquiteModule mm = getEmployer();
-		rng = new Random(System.currentTimeMillis());
-		extraPreferences = new StringBuffer();
+		loadPreferences(xmlPrefs);
+		xmlPrefsString = xmlPrefs.getValue();
+
 		return true;
 	}
 	public void endJob(){
@@ -38,10 +46,10 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 	
 	public String getName() {
-		return "Local Script Runner";
+		return "CIPRes REST Runner";
 	}
 	public String getExplanation() {
-		return "Runs local scripts.";
+		return "Runs jobs on CIPRes.";
 	}
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
@@ -49,7 +57,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return false;
+		return true;
 	}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){
@@ -57,57 +65,49 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 
 	public  boolean isWindows() {
-		return MesquiteTrunk.isWindows();
+		return false;
 	}
 	public  boolean isLinux() {
-		return MesquiteTrunk.isLinux();
+		return false;
 	}
 
-	/*.................................................................................................................*/
-	public void processSingleXMLPreference (String tag, String flavor, String content) {
-		if (StringUtil.notEmpty(flavor) && "executablePath".equalsIgnoreCase(tag)){   // it is one with the flavor attribute
-			if (flavor.equalsIgnoreCase(getExecutableName()))   /// check to see if flavor is correct!!!
-				executablePath = StringUtil.cleanXMLEscapeCharacters(content);
-			else {
-				String path = StringUtil.cleanXMLEscapeCharacters(content);
-				StringUtil.appendXMLTag(extraPreferences, 2, "executablePath", flavor, path);  		// store for next time
-			}
-		}
-	}
-	/*.................................................................................................................*/
-	public String preparePreferencesForXML () {
-		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), executablePath);  
-		buffer.append(extraPreferences);
-		return buffer.toString();
-	}
 
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
-		if (scriptRunner != null){
-			temp.addLine("reviveScriptRunner ");
+		if (communicator != null){
+			temp.addLine("reviveCommunicator ");
 			temp.addLine("tell It");
-			temp.incorporate(scriptRunner.getSnapshot(file), true);
+			temp.incorporate(communicator.getSnapshot(file), true);
 			temp.addLine("endTell");
 			//	temp.addLine("startMonitoring ");  this happens via reconnectToRequester so that it happens on the separate thread
 		}
+		if (jobURL != null)
+			temp.addLine("setJobURL " +  ParseUtil.tokenize(jobURL.getValue()));
 		if (rootDir != null)
 			temp.addLine("setRootDir " +  ParseUtil.tokenize(rootDir));
 		return temp;
 	}
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-		if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveScriptRunner")) {
-			logln("Reviving ShellScriptRunner");
-			scriptRunner = new ShellScriptRunner();
-			scriptRunner.setOutputProcessor(this);
-			scriptRunner.setWatcher(this);
-			return scriptRunner;
+		if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveCommunicator")) {
+			logln("Reviving CIPRes Communicator");
+			communicator = new CIPResCommunicator(this, xmlPrefsString,outputFilePaths);
+			communicator.setOutputProcessor(this);
+			communicator.setWatcher(this);
+			communicator.setRootDir(rootDir);
+			return communicator;
+		}
+		else if (checker.compare(this.getClass(), "Sets the job URL", null, commandName, "setJobURL")) {
+			if (jobURL==null)
+				jobURL = new MesquiteString();
+			jobURL.setValue(parser.getFirstToken(arguments));
 		}
 		else if (checker.compare(this.getClass(), "Sets root directory", null, commandName, "setRootDir")) {
 			rootDir = parser.getFirstToken(arguments);
+			if (communicator!=null)
+				communicator.setRootDir(rootDir);
 		}
 		return null;
 	}	
@@ -120,76 +120,66 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		processRequester.intializeAfterExternalProcessRunnerHired();
 	}
 
-	SingleLineTextField executablePathField =  null;
 
 	// given the opportunity to fill in options for user
 	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
-		executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
-		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
-		browseButton.setActionCommand("browse");
-
 	}
 	public boolean optionsChosen(){
-		executablePath = executablePathField.getText();
 		return true;
 	}
 
 	/*.................................................................................................................*/
 	public String getExecutableCommand(){
-		if (MesquiteTrunk.isWindows())
-			return StringUtil.protectForWindows(executablePath);
-		else
-			return StringUtil.protectForUnix(executablePath);
+		return processRequester.getExecutableName();
 	}
 	
-	String runningFilePath = "";
-	String scriptPath = "";
+	String executableCIPResName;
+	MultipartEntityBuilder builder;
 	String[] outputFilePaths;
 	String[] outputFileNames;
+	String[] inputFilePaths;
 	/*.................................................................................................................*/
 	public String getDirectoryPath(){  
 		return rootDir;
 	}
 
 	/*.................................................................................................................*/
+	public String getInputFilePath(int i){  //assumes for now that all input files are in the same directory
+		if (i<inputFilePaths.length)
+			return inputFilePaths[i];
+		return null;
+	}
+
+	/*.................................................................................................................*/
 	// the actual data & scripts.  
 	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
-		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
+		executableCIPResName= programCommand;
+		if (!(arguments instanceof MultipartEntityBuilder))
+			return false;
+		builder = (MultipartEntityBuilder)arguments;
 		if (rootDir==null) 
 			rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
 		if (rootDir==null)
 			return false;
 		
+		inputFilePaths = new String[fileNames.length];
 		for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
 			if (StringUtil.notEmpty(fileNames[i]) && fileContents[i]!=null) {
 				MesquiteFile.putFileContents(rootDir+fileNames[i], fileContents[i], true);
+				inputFilePaths[i]=rootDir+fileNames[i];
 			}
 		}
+		processRequester.prepareRunnerObject(builder);
 
-		runningFilePath = rootDir + "running" + MesquiteFile.massageStringToFilePathSafe(unique);
-		StringBuffer shellScript = new StringBuffer(1000);
-		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
-		shellScript.append(programCommand + " " + ((MesquiteString)arguments).getValue()+ StringUtil.lineEnding());
-		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
-
-		scriptPath = rootDir + "Script" + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
-		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
 		return true;
 	}
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
 	public boolean setPreflightInputFiles(String script){  //assumes for now that all input files are in the same directory
-		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 		rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
 		if (rootDir==null)
 			return false;
 		
-		StringBuffer shellScript = new StringBuffer(1000);
-		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
-		shellScript.append(script);
-
-		scriptPath = rootDir + "preflight.bat";
-		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
 		return true;
 	}
 
@@ -229,13 +219,18 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	/*.................................................................................................................*/
 	// starting the run
 	public boolean startExecution(){  //do we assume these are disconnectable?
-		scriptRunner = new ShellScriptRunner(scriptPath, runningFilePath, null, false, getExecutableName(), outputFilePaths, this, this, true);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
-		return scriptRunner.executeInShell();
+		communicator = new CIPResCommunicator(this,xmlPrefsString, outputFilePaths);
+		communicator.setOutputProcessor(this);
+		communicator.setWatcher(this);
+		communicator.setRootDir(rootDir);
+		
+		jobURL = new MesquiteString();
+		return communicator.sendJobToCipres(builder, executableCIPResName, jobURL);
 	}
 
 	public boolean monitorExecution(){
-		 if (scriptRunner!=null)
-			 return scriptRunner.monitorAndCleanUpShell();
+		 if (communicator!=null && jobURL!=null)
+			 return communicator.monitorAndCleanUpShell(jobURL.getValue());
 		 return false;
 	}
 
@@ -243,18 +238,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		return null;
 	}
 	public boolean stopExecution(){
-		scriptRunner = null;
+		communicator = null;
 		return false;
-	}
-	/*.................................................................................................................*/
-	public  void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase("browse")) {
-			MesquiteString directoryName = new MesquiteString();
-			MesquiteString fileName = new MesquiteString();
-			String path = MesquiteFile.openFileDialog("Choose "+getExecutableName(), directoryName, fileName);
-			if (StringUtil.notEmpty(path))
-				executablePathField.setText(path);
-		}
 	}
 	public String getPreflightFile(String preflightLogFileName){
 		String filePath = rootDir + preflightLogFileName;

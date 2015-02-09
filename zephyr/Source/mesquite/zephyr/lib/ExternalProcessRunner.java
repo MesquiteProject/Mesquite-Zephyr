@@ -38,6 +38,10 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		return true;
 	}
 
+	public String getInputFilePath(int i){ 
+		return null;
+	}
+
 	/*.................................................................................................................*/
 	public String getDirectoryPath(){  
 		return "";
@@ -56,7 +60,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 
 	// the actual data & scripts.  
 	public abstract boolean setPreflightInputFiles(String script);
-	public abstract boolean setInputFiles(String script, String[] fileContents, String[] fileNames);  //assumes for now that all input files are in the same directory
+	public abstract boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames);  //assumes for now that all input files are in the same directory
 	public abstract void setOutputFileNamesToWatch(String[] fileNames);
 	public abstract String getOutputFilePath(String fileName);
 	public abstract String[] getOutputFilePaths();

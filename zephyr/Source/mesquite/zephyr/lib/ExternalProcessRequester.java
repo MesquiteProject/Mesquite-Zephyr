@@ -22,4 +22,8 @@ public interface ExternalProcessRequester {
 	
 	public String getProgramName();
 	
+	public String getExecutableName();
+	
+	public void prepareRunnerObject(Object obj);
+	
 }

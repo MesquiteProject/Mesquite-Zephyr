@@ -200,7 +200,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 		String arguments = commandFileName;
 
-		String programCommand = externalProcRunner.getExecutableCommand() + " " + arguments + StringUtil.lineEnding();  
+		String programCommand = externalProcRunner.getExecutableCommand();
+		//+ " " + arguments + StringUtil.lineEnding();  
 
 		int numInputFiles = 2;
 		String[] fileContents = new String[numInputFiles];
@@ -216,7 +217,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName());
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
 		
 		if (!isDoomed()){
 		if (success){
@@ -363,6 +364,10 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	}
 
 	public String getProgramName() {
+		return "PAUP*";
+	}
+
+	public String getExecutableName() {
 		return "PAUP*";
 	}
 

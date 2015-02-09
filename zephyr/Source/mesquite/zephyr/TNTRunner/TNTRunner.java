@@ -569,14 +569,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		logln(commands);
 		logln("");
 
-		String arguments = "";
-		if (MesquiteTrunk.isWindows())
-			arguments += " proc " + commandsFileName;
-		else
-			arguments += " proc " + commandsFileName;
+		MesquiteString arguments = new MesquiteString();
+		arguments.setValue(" proc " + commandsFileName);
 
-		String programCommand = externalProcRunner.getExecutableCommand()+arguments;
-		programCommand += StringUtil.lineEnding();  
+		String programCommand = externalProcRunner.getExecutableCommand();
 
 
 		int numInputFiles = 2;
@@ -593,7 +589,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName());
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
 
 		if (!isDoomed()){
 			if (success){
@@ -671,6 +667,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 
 	public String getProgramName() {
+		return "TNT";
+	}
+
+	public String getExecutableName() {
 		return "TNT";
 	}
 

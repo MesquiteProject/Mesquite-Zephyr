@@ -737,12 +737,13 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		fileNames[2] = configFileName;
 
 		String GARLIcommand = externalProcRunner.getExecutableCommand();
+		MesquiteString arguments = new MesquiteString();
 		if (externalProcRunner.isWindows())
-			GARLIcommand += " --batch " + configFileName + StringUtil.lineEnding();
+			arguments.setValue(" --batch " + configFileName);
 		else
-			GARLIcommand += StringUtil.lineEnding(); // GARLI command is very simple as all of the arguments are in the config file
+			arguments.setValue(""); // GARLI command is very simple as all of the arguments are in the config file
 
-		boolean success = runProgramOnExternalProcess(GARLIcommand, fileContents, fileNames, ownerModule.getName());
+		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName());
 
 		if (!isDoomed()){
 		if (success) {
@@ -1068,6 +1069,10 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	}
 
 	public String getProgramName() {
+		return "GARLI";
+	}
+
+	public String getExecutableName() {
 		return "GARLI";
 	}
 

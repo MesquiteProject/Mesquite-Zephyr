@@ -7,13 +7,15 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.RAxMLRunner;
+package mesquite.zephyr.lib;
 
 
 import java.awt.*;
 import java.io.*;
 import java.awt.event.*;
 import java.util.*;
+
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
@@ -22,7 +24,7 @@ import mesquite.lib.duties.*;
 import mesquite.lib.system.SystemUtil;
 import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
 import mesquite.zephyr.GarliRunner.GarliRunner;
-import mesquite.zephyr.RAxMLTrees.*;
+import mesquite.zephyr.RAxMLTreesLocal.*;
 import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
 
@@ -33,15 +35,10 @@ outgroups
 
  */
 
-public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
+public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
 
 	boolean onlyBest = true;
 
-	static final int THREADING_OTHER =0;
-	static final int THREADING_PTHREADS = 1;
-	static final int THREADING_MPI = 2;
-	int threadingVersion = THREADING_OTHER;
-	int numProcessors = 2;
 	boolean RAxML814orLater = false;
 
 		int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
@@ -50,36 +47,36 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 //	String MPIsetupCommand = "";
 	boolean showIntermediateTrees = true;
 
-	int numRuns = 5;
-	int numRunsCompleted = 0;
-	int run = 0;
-	boolean preferencesSet = false;
-	boolean isProtein = false;
+	protected int numRuns = 5;
+	protected int numRunsCompleted = 0;
+	protected int run = 0;
+	protected boolean preferencesSet = false;
+	protected boolean isProtein = false;
 
-	int bootstrapreps = 100;
-	int bootstrapSeed = Math.abs((int)System.currentTimeMillis());
-	static String dnaModel = "GTRGAMMAI";
-	static String proteinModel = "PROTGAMMAJTT";
-	static String otherOptions = "";
-	boolean doBootstrap = false;
+	protected int bootstrapreps = 100;
+	protected int bootstrapSeed = Math.abs((int)System.currentTimeMillis());
+	protected static String dnaModel = "GTRGAMMAI";
+	protected static String proteinModel = "PROTGAMMAJTT";
+	protected static String otherOptions = "";
+	protected boolean doBootstrap = false;
 
 
 	long  randseed = -1;
 	static String constraintfile = "none";
 
-	SingleLineTextField dnaModelField, proteinModelField, otherOptionsField, MPISetupField;
+	protected  SingleLineTextField dnaModelField, proteinModelField, otherOptionsField;
 	IntegerField seedField;
 	javax.swing.JLabel commandLabel;
 	SingleLineTextArea commandField;
-	IntegerField numProcessorsFiled, numRunsField, bootStrapRepsField;
-	Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox;
+	protected IntegerField numRunsField, bootStrapRepsField;
+	protected Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox;
 	RadioButtons threadingRadioButtons;
 //	int count=0;
 
-	double finalValue = MesquiteDouble.unassigned;
-	double[] finalValues = null;
-	double[] optimizedValues = null;
-	int runNumber = 0;
+	protected double finalValue = MesquiteDouble.unassigned;
+	protected double[] finalValues = null;
+	protected double[] optimizedValues = null;
+	protected int runNumber = 0;
 
 
 
@@ -87,18 +84,27 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		if (randomIntSeed<0)
 			randomIntSeed = -randomIntSeed;
-		externalProcRunner = (ExternalProcessRunner)hireEmployee(ExternalProcessRunner.class, "External Process Runner (for " + getName() + ")"); 
-		if (externalProcRunner==null){
-			return sorry("Couldn't find an external process runner");
+		if (!hireExternalProcessRunner()){
+			return sorry("Couldn't hire an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
-		
 
-/*		if (!MesquiteThread.isScripting() && !queryOptions()){
-			fireEmployee(externalProcRunner);
-			return false;
+		return true;
+	}
+
+	/*.................................................................................................................*/
+	abstract public String getExternalProcessRunnerModuleName();
+	/*.................................................................................................................*/
+	abstract public Class getExternalProcessRunnerClass();
+
+	/*.................................................................................................................*/
+
+	public boolean hireExternalProcessRunner() {
+		if (externalProcRunner ==null) {
+			externalProcRunner = (ExternalProcessRunner)hireNamedEmployee(getExternalProcessRunnerClass(), getExternalProcessRunnerModuleName());
+			if (externalProcRunner==null)
+				return false;
 		}
-		*/
 		return true;
 	}
 
@@ -141,17 +147,6 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
 			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
-		if ("RAxML814orLater".equalsIgnoreCase(tag))
-			RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
-
-		if ("raxmlThreadingVersion".equalsIgnoreCase(tag))
-			threadingVersion = MesquiteInteger.fromString(content);
-
-/*		if ("MPIsetupCommand".equalsIgnoreCase(tag)) 
-			MPIsetupCommand = StringUtil.cleanXMLEscapeCharacters(content);
-*/
-		if ("numProcessors".equalsIgnoreCase(tag))
-			numProcessors = MesquiteInteger.fromString(content);
 		
 
 		preferencesSet = true;
@@ -164,9 +159,6 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
-		StringUtil.appendXMLTag(buffer, 2, "RAxML814orLater", RAxML814orLater);  
-		StringUtil.appendXMLTag(buffer, 2, "raxmlThreadingVersion", threadingVersion);  
-		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
 		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
 
 		preferencesSet = true;
@@ -177,6 +169,9 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 	public String getTestedProgramVersions(){
 		return "8.0.0 and 8.1.4";
 	}
+	public abstract void addRunnerOptions(ExtensibleDialog dialog);
+	public abstract void processRunnerOptions();
+
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
@@ -211,10 +206,7 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 
 		tabbedPanel.addPanel("RAxML Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
-		threadingRadioButtons= dialog.addRadioButtons(new String[] {"other", "PThreads version"}, threadingVersion);
-		numProcessorsFiled = dialog.addIntegerField("Number of Processors", numProcessors, 8, 1, MesquiteInteger.infinite);
-		Checkbox RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
-		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
+		addRunnerOptions(dialog);
 
 		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
 		doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
@@ -265,12 +257,8 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
 				bootstrapreps = bootStrapRepsField.getValue();
 				onlyBest = onlyBestBox.getState();
 				doBootstrap = doBootstrapCheckbox.getState();
-				RAxML814orLater = RAxML814orLaterCheckbox.getState();
 				otherOptions = otherOptionsField.getText();
-				threadingVersion = threadingRadioButtons.getValue();
-//				MPIsetupCommand = MPISetupField.getText();
-				numProcessors = numProcessorsFiled.getValue(); //
-//				retainFiles = retainFilescheckBox.getState();
+				processRunnerOptions();
 				storePreferences();
 				externalProcRunner.storePreferences();
 			}
@@ -286,20 +274,6 @@ public class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemLi
   			checkEnabled (doBootstrapCheckbox.getState());
 
   		}
-	}
-	/*.................................................................................................................*/
-	public  void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
-
-			String arguments = getArguments("fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, false);
-			String command = externalProcRunner.getExecutableCommand() + arguments;
-			commandLabel.setText("This command will be used to run RAxML:");
-			commandField.setText(command);
-		}
-		else	if (e.getActionCommand().equalsIgnoreCase("clearCommand")) {
-			commandField.setText("");
-			commandLabel.setText("");
-		}
 	}
 	/*.................................................................................................................*/
 	public void setRAxMLSeed(long seed){
@@ -486,55 +460,59 @@ WAG, gene2 = 501-1000
 		return sb.toString();
 	}
 
-	/*.................................................................................................................*/
-	String getArguments(String fileName, String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean preflight){
-		String arguments = "";
+	
+	/*.................................................................................................................*
+	void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean preflight){
+		if (arguments == null)
+			return;
+		
+		String localArguments = "";
 		
 		if (preflight)
-			arguments += " -n preflight.out "; 
+			localArguments += " -n preflight.out "; 
 		else
-			arguments += " -s " + fileName + " -n file.out "; 
+			localArguments += " -s " + fileName + " -n file.out "; 
 		
 		
-		arguments += " -m "; 
+		localArguments += " -m "; 
 		if (isProtein) {
 			if (StringUtil.blank(LOCproteinModel))
-				arguments += "PROTGAMMAJTT";
+				localArguments += "PROTGAMMAJTT";
 			else
-				arguments += LOCproteinModel;
+				localArguments += LOCproteinModel;
 		}
 		else if (StringUtil.blank(LOCdnaModel))
-			arguments += "GTRGAMMA";
+			localArguments += "GTRGAMMA";
 		else
-			arguments += LOCdnaModel;
+			localArguments += LOCdnaModel;
 
 		if (StringUtil.notEmpty(LOCMultipleModelFile))
-			arguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
+			localArguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
 
-		arguments += " -p " + randomIntSeed;
+		localArguments += " -p " + randomIntSeed;
 
 
 		if (!StringUtil.blank(LOCotherOptions)) 
-			arguments += " " + LOCotherOptions;
+			localArguments += " " + LOCotherOptions;
 
 		if (bootstrapOrJackknife() && LOCbootstrapreps>0) {
-			arguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
+			localArguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
 		}
 		else {
 			if (LOCnumRuns>1)
-				arguments += " -# " + LOCnumRuns;
+				localArguments += " -# " + LOCnumRuns;
 			if (RAxML814orLater)
-				arguments += " --mesquite";
+				localArguments += " --mesquite";
 		}
 
 		TaxaSelectionSet outgroupSet =null;
 		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
 			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(LOCoutgroupTaxSetString,TaxaSelectionSet.class);
 			if (outgroupSet!=null) 
-				arguments += " -o " + outgroupSet.getStringList(",", true);
+				localArguments += " -o " + outgroupSet.getStringList(",", true);
 		}
 
-		return arguments;
+		arguments.setValue(localArguments);
 	}
 	/*.................................................................................................................*/
 	public void initializeMonitoring(){
@@ -558,7 +536,7 @@ WAG, gene2 = 501-1000
 		}
 	}
 
-	String multipleModelFileName;
+	protected String multipleModelFileName;
 	
 	/*.................................................................................................................*/
 	public void setFileNames () {
@@ -569,7 +547,7 @@ WAG, gene2 = 501-1000
 	static final int OUT_LOGFILE=0;
 	static final int OUT_TREEFILE=1;
 	static final int OUT_SUMMARYFILE=2;
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String[] getLogFileNames(){
 		String treeFileName;
 		String logFileName;
@@ -598,25 +576,30 @@ WAG, gene2 = 501-1000
 	public boolean preFlightSuccessful(String preflightCommand){
 		return runPreflightCommand(preflightCommand);
 	}
+	
+	/*.................................................................................................................*/
+	public abstract Object getProgramArguments(String dataFileName, boolean isPreflight);
 
-	String arguments;
+
+	//String arguments;
+	/*.................................................................................................................*/
+	public String getDataFileName() {
+		return "data.phy";
+	}
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
 			return null;
 		
-//		Debugg.printStackTrace("\n\n\n+++++++ In getTrees +++++++++\n\n");
-		//David: if isDoomed() then module is closing down; abort somehow
-
 		//RAxML setup
 		setRAxMLSeed(seed);
 		isProtein = data instanceof ProteinData;
 
-		// create the data file
+		// create local version of data file
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "RAxML", "-Run.");  
 		if (tempDir==null)
 			return null;
-		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".phy";   //replace this with actual file name?
+		String dataFileName = getDataFileName();   //replace this with actual file name?
 		String translationFileName = IOUtil.translationTableFileName;   
 		String dataFilePath = tempDir +  dataFileName;
 		FileInterpreterI exporter = null;
@@ -643,16 +626,13 @@ WAG, gene2 = 501-1000
 			multipleModelFileName=null;
 
 		//now establish the commands for invoking RAxML
-		arguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, false);
-		logln("RAxML arguments: \n" + arguments + "\n");
+		Object arguments = getProgramArguments(dataFileName, false);
+		Object preflightArguments = getProgramArguments(dataFileName, true);
 		
-		String preflightArguments = getArguments(dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, true);
-		String preflightCommand = externalProcRunner.getExecutableCommand()+" --flag-check " + preflightArguments;
-		String programCommand = externalProcRunner.getExecutableCommand()+arguments;
-		if (threadingVersion==THREADING_PTHREADS) {
-			programCommand += " -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ";   // have to ensure that there are at least two threads requested
-		}
-		programCommand += StringUtil.lineEnding();  
+
+	//	String preflightCommand = externalProcRunner.getExecutableCommand()+" --flag-check " + ((MesquiteString)preflightArguments).getValue();
+		String programCommand = externalProcRunner.getExecutableCommand();
+		//programCommand += StringUtil.lineEnding();  
 		
 	//	if (preFlightSuccessful(preflightCommand)) {
 	//	}
@@ -676,7 +656,7 @@ WAG, gene2 = 501-1000
 		numRunsCompleted = 0;
 		
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName());
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
 
 		if (!isDoomed()){
 
@@ -725,8 +705,8 @@ WAG, gene2 = 501-1000
 			appendToSearchDetails(" number of bootstrap reps: "+bootstrapreps);
 		} else
 			appendToSearchDetails(" number of search reps: "+numRuns);
-		if (StringUtil.notEmpty(arguments))
-			appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments);
+//		if (StringUtil.notEmpty(arguments))
+//	TODO:		appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments);
 	}
 
 	/*.................................................................................................................*/

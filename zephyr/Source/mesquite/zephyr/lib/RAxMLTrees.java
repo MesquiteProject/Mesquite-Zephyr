@@ -7,19 +7,11 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.RAxMLTrees;
-
-import java.util.*;
+package mesquite.zephyr.lib;
 
 import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.GarliRunner.GarliRunner;
-import mesquite.zephyr.RAxMLRunner.RAxMLRunner;
-import mesquite.zephyr.lib.*;
 
-
-public class RAxMLTrees extends ZephyrTreeSearcher {
+public abstract class RAxMLTrees extends ZephyrTreeSearcher {
 	int rerootNode = 0;
 
 
@@ -34,14 +26,9 @@ public class RAxMLTrees extends ZephyrTreeSearcher {
 
 	
 	/*.................................................................................................................*/
-	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.RAxMLRunner.RAxMLRunner";
-	}
+	public abstract String getRunnerModuleName();
 	/*.................................................................................................................*/
-	public Class getRunnerClass() {
-		return RAxMLRunner.class;
-	}
-
+	public abstract Class getRunnerClass() ;
 	/*.................................................................................................................*/
 	public String getProgramName() {
 		return "RAxML";

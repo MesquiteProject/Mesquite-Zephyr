@@ -19,7 +19,7 @@ import mesquite.lib.*;
 import mesquite.lib.characters.MCharactersDistribution;
 import mesquite.lib.duties.TreeSource;
 import mesquite.zephyr.GarliTrees.GarliTrees;
-import mesquite.zephyr.RAxMLTrees.RAxMLTrees;
+import mesquite.zephyr.RAxMLTreesLocal.RAxMLTreesLocal;
 
 public abstract class ZephyrRunner extends MesquiteModule implements ExternalProcessRequester{
 
@@ -84,6 +84,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			searchDetails.append(s);
 		}
 	}
+	
+	public void prepareRunnerObject(Object obj){
+	}
+	
+
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
 		
@@ -205,10 +210,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return success;
 	}
 	/*.................................................................................................................*/
-	public boolean runProgramOnExternalProcess (String programCommand, String[] fileContents, String[] fileNames, String progTitle) {
+	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle) {
 
 		/*  ============ SETTING UP THE RUN ============  */
-		boolean success = externalProcRunner.setInputFiles(programCommand,fileContents, fileNames);
+		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, fileContents, fileNames);
 		if (!success){
 			// give message about failure
 			postBean("failed, externalProcRunner.setInputFiles", false);
