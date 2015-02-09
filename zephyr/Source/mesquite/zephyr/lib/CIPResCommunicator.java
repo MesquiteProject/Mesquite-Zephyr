@@ -117,7 +117,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 			MesquiteString passwordString = new MesquiteString();
 			if (password!=null)
 				passwordString.setValue(password);
-			new UserNamePasswordDialog(ownerModule.containerOfModule(), "Sign in to CIPRes", "Username", "Password", answer, usernameString, passwordString, false);
+			new UserNamePasswordDialog(ownerModule.containerOfModule(), "Sign in to CIPRes", "Username", "Password", answer, usernameString, passwordString);
 			if (answer.getValue()){
 				username=usernameString.getValue();
 				password=passwordString.getValue();
@@ -327,7 +327,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 			builder.addTextBody("metadata.statusEmail", "true");
 			//			builder.addTextBody("vparam.dna_gtrcat_", "GTRGAMMA", ContentType.TEXT_PLAIN);
 			builder.addTextBody("vparam.runtime_", "0.50", ContentType.TEXT_PLAIN);
-			builder.addTextBody("vparam.specify_bootstraps_", "1", ContentType.TEXT_PLAIN);
+//			builder.addTextBody("vparam.specify_bootstraps_", "1", ContentType.TEXT_PLAIN);
 			//			builder.addTextBody("vparam.invariable_", "I", ContentType.TEXT_PLAIN);
 		}
 	}

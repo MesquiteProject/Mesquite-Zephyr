@@ -163,56 +163,6 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 
 
 
-	/*.................................................................................................................*/
-	void getArgumentsPise(MultipartEntityBuilder builder, String fileName, String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean preflight){
-		if (builder==null)
-			return;
-		
-		if (preflight)
-			arguments += " -n preflight.out "; 
-		else
-			arguments += " -s " + fileName + " -n file.out "; 
-		
-		
-		//arguments += " -m "; 
-		if (isProtein) {
-			if (StringUtil.blank(LOCproteinModel))
-				builder.addTextBody("input.protein_opts_", "PROTGAMMAJTT");
-			else
-				builder.addTextBody("input.protein_opts_", LOCproteinModel);
-		}
-		else if (StringUtil.blank(LOCdnaModel))
-			builder.addTextBody("input.dna_gtrcat_", "GTRGAMMA");
-		else
-			builder.addTextBody("input.dna_gtrcat_",LOCdnaModel);
-
-		if (StringUtil.notEmpty(LOCMultipleModelFile))
-			arguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
-
-		arguments += " -p " + randomIntSeed;
-
-
-		if (!StringUtil.blank(LOCotherOptions)) 
-			arguments += " " + LOCotherOptions;
-
-		if (bootstrapOrJackknife() && LOCbootstrapreps>0) {
-			arguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
-		}
-		else {
-			if (LOCnumRuns>1)
-				arguments += " -# " + LOCnumRuns;
-			if (RAxML814orLater)
-				arguments += " --mesquite";
-		}
-
-		TaxaSelectionSet outgroupSet =null;
-		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
-			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(LOCoutgroupTaxSetString,TaxaSelectionSet.class);
-			if (outgroupSet!=null) 
-				arguments += " -o " + outgroupSet.getStringList(",", true);
-		}
-
-	}	
 	
 	/*.................................................................................................................*/
 	void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean preflight){
