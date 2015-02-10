@@ -21,11 +21,6 @@ import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
-import mesquite.lib.system.SystemUtil;
-import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.GarliRunner.GarliRunner;
-import mesquite.zephyr.RAxMLTreesLocal.*;
-import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
 
 /* TODO:
@@ -92,21 +87,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		return true;
 	}
 
-	/*.................................................................................................................*/
-	abstract public String getExternalProcessRunnerModuleName();
-	/*.................................................................................................................*/
-	abstract public Class getExternalProcessRunnerClass();
-
-	/*.................................................................................................................*/
-
-	public boolean hireExternalProcessRunner() {
-		if (externalProcRunner ==null) {
-			externalProcRunner = (ExternalProcessRunner)hireNamedEmployee(getExternalProcessRunnerClass(), getExternalProcessRunnerModuleName());
-			if (externalProcRunner==null)
-				return false;
-		}
-		return true;
-	}
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 

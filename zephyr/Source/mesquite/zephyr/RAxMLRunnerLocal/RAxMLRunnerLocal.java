@@ -24,7 +24,6 @@ import mesquite.lib.duties.*;
 import mesquite.lib.system.SystemUtil;
 import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
 import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
-import mesquite.zephyr.GarliRunner.GarliRunner;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 import mesquite.zephyr.RAxMLTreesLocal.*;
 import mesquite.zephyr.lib.*;

@@ -19,6 +19,7 @@ import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
+import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 import mesquite.zephyr.TNTTrees.*;
 import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
@@ -72,14 +73,22 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	}
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
-		externalProcRunner = (ExternalProcessRunner)hireEmployee(ExternalProcessRunner.class, "External Process Runner (for " + getName() + ")"); 
-		if (externalProcRunner==null){
-			return sorry("Couldn't find an external process runner");
+		if (!hireExternalProcessRunner()){
+			return sorry("Couldn't hire an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
 
 		return true;
 	}
+	/*.................................................................................................................*/
+	 public String getExternalProcessRunnerModuleName(){
+			return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
+	 }
+	/*.................................................................................................................*/
+	 public Class getExternalProcessRunnerClass(){
+			return LocalScriptRunner.class;
+	 }
+
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);

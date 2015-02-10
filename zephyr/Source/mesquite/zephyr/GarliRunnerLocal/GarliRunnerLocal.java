@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
  */
 
-package mesquite.zephyr.GarliRunner;
+package mesquite.zephyr.GarliRunnerLocal;
 
 import java.awt.*;
 import java.io.*;
@@ -22,70 +22,29 @@ import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
 import mesquite.molec.lib.Blaster;
-import mesquite.zephyr.GarliTrees.*;
+import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
+import mesquite.zephyr.lib.*;
 import mesquite.zephyr.lib.*;
 
-public class GarliRunner extends ZephyrRunner implements ActionListener,
-		ItemListener, ExternalProcessRequester {
-	public static final String SCORENAME = "GARLIScore";
+public class GarliRunnerLocal extends GarliRunner {
 
-	boolean onlyBest = true;
-	boolean doBootstrap = false;
-	int numRuns = 5;
-	String outgroupTaxSetString = "";
-	int outgroupTaxSetNumber = 0;
-	boolean preferencesSet = false;
 	SingleLineTextField garliPathField = null;
 	SingleLineTextField constraintFileField = null;
-	TaxaSelectionSet outgroupSet = null;
 
 	String ofprefix = "output";
 
-	String dataFileName = null;
+	String dataFileName = "dataMatrix.nex";
 	int bootstrapreps = 100;
 	int availMemory = 1024;
 
-	boolean showConfigDetails = false;
-
-	boolean linkModels = false;
-	boolean subsetSpecificRates = false;
-
-	static final int noPartition = 0;
-	static final int partitionByCharacterGroups = 1;
-	static final int partitionByCodonPosition = 2;
-	static final String codpos1Subset = "1st Position";
-	static final String codpos2Subset = "2nd Position";
-	static final String codpos3Subset = "3rd Position";
-	static final String nonCodingSubset = "Non-coding";
-
-	int partitionScheme = partitionByCharacterGroups;
-	int currentPartitionSubset = 0;
-
-	long randseed = -1;
-	double brlenweight = 0.2;
-	double randnniweight = 0.1;
-	double randsprweight = 0.3;
-	double limsprweight = 0.6;
-	int intervallength = 100;
-	int intervalstostore = 5;
-	int limsprrange = 6;
-	int meanbrlenmuts = 5;
-	int gammashapebrlen = 1000;
-	int gammashapemodel = 1000;
-	double uniqueswapbias = 0.1;
-	double distanceswapbias = 1.0;
-	int inferinternalstateprobs = 0;
-	String constraintfile = "";
-
-	String ratematrix = "6rate";
-	String statefrequencies = "estimate";
-	String ratehetmodel = "gamma";
-	int numratecats = 4;
-	String invariantsites = "estimate";
-
-	GarliCharModel[] charGroupModels;
-	GarliCharModel[] codonPositionModels;
-	GarliCharModel noPartitionModel;
+	/*.................................................................................................................*/
+	 public String getExternalProcessRunnerModuleName(){
+			return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
+	 }
+	/*.................................................................................................................*/
+	 public Class getExternalProcessRunnerClass(){
+			return LocalScriptRunner.class;
+	 }
 
 	/*
 	 * [model0] datatype = nucleotide ratematrix = 6rate statefrequencies =
@@ -95,17 +54,8 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	 * estimate ratehetmodel = none numratecats = 1 invariantsites = none
 	 */
 
-	RadioButtons charPartitionButtons = null;
-	Choice partitionChoice = null;
-	Choice rateMatrixChoice = null;
-	SingleLineTextField customMatrix;
-	Choice invarSitesChoice = null;
-	Choice rateHetChoice = null;
-	Checkbox doBootstrapCheckbox = null;
-	IntegerField numRateCatField = null;
-	Checkbox onlyBestBox = null;
-
 	// String rootDir;
+	/*.................................................................................................................*
 
 	public void getEmployeeNeeds() { // This gets called on startup to harvest
 										// information; override this and
@@ -131,14 +81,14 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		loadPreferences();
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public Snapshot getSnapshot(MesquiteFile file) {
 		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public Object doCommand(String commandName, String arguments,
 			CommandChecker checker) {
 		if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner",
@@ -160,84 +110,29 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		continueMonitoring(command);
 	}
 
-	public String getGARLIConfigurationFile(CharacterData data) {
-		StringBuffer sb = new StringBuffer();
-		// sb.append("\n = " + nnnnn);
-		sb.append("[general] ");
-		sb.append("\ndatafname=" + dataFileName);
-		sb.append("\nofprefix=" + ofprefix);
-		sb.append("\noutputcurrentbesttree = 1");
-		// sb.append("\noutputcurrentbesttree = 1");
+	/*.................................................................................................................*/
 
-		if (StringUtil.blank(constraintfile))
-			sb.append("\nconstraintfile = none");
-		else
-			sb.append("\nconstraintfile = constraint"); // important to be
-														// user-editable
-		sb.append("\n\nrandseed = " + randseed); // important to be
-													// user-editable
+	public void appendToConfigFileGeneral(StringBuffer config) {
+		if (config!=null) {
+			config.append("\ndatafname=" + dataFileName);
+			config.append("\nofprefix=" + ofprefix);
 
-		String garliGeneralOptions = "\nstreefname = random \n";
-		garliGeneralOptions += "availablememory = " + availMemory + " \n";
-		garliGeneralOptions += "logevery = 10 \nsaveevery = 100 \nrefinestart = 1 \noutputeachbettertopology = 1"
-				+ "\nenforcetermconditions = 1 \ngenthreshfortopoterm = 10000 \nscorethreshforterm = 0.05 \nsignificanttopochange = 0.01 \noutputphyliptree = 0 \noutputmostlyuselessfiles = 0 \nwritecheckpoints = 0 \nrestart = 0";
-		sb.append(garliGeneralOptions);
+			if (StringUtil.blank(constraintfile))
+				config.append("\nconstraintfile = none");
+			else
+				config.append("\nconstraintfile = constraint"); // important to be user-editable
 
-		sb.append("\n");
+			config.append("\nstreefname = random");
 
-		outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,
-				TaxaSelectionSet.class);
-		if (outgroupSet != null) {
-			sb.append("\noutgroups = " + outgroupSet.getListOfOnBits(" "));
+			config.append("\navailablememory = " + availMemory + " \n");
+			config.append(" \noutputmostlyuselessfiles = 0");
+
+			config.append("\n");
 		}
-		sb.append("\nsearchreps = " + numRuns);
 
-		sb.append("\n");
-		if (linkModels)
-			sb.append("\n\nlinkmodels = " + 1);
-		else
-			sb.append("\n\nlinkmodels = " + 0);
-		if (subsetSpecificRates)
-			sb.append("\nsubsetSpecificRates = " + 1);
-		else
-			sb.append("\nsubsetSpecificRates = " + 0);
-		writeCharModels(sb, data);
-
-		sb.append("\n");
-
-		String garliMasterOptions = "\n\n[master] \nnindivs = 4 \nholdover = 1 \nselectionintensity = .5 \nholdoverpenalty = 0 \nstopgen = 5000000 \nstoptime = 5000000"
-				+ "\n\nstartoptprec = .5 \nminoptprec = .01 \nnumberofprecreductions = 20 \ntreerejectionthreshold = 50.0 \ntopoweight = 1.0 \nmodweight = .05";
-		sb.append(garliMasterOptions);
-
-		sb.append("\n\nbrlenweight = " + brlenweight);
-		sb.append("\nrandnniweight = " + randnniweight);
-		sb.append("\nrandsprweight = " + randsprweight);
-		sb.append("\nlimsprweight = " + limsprweight);
-		sb.append("\nintervallength = " + intervallength);
-		sb.append("\nintervalstostore = " + intervalstostore);
-
-		sb.append("\n\nlimsprrange = " + limsprrange);
-		sb.append("\nmeanbrlenmuts = " + meanbrlenmuts);
-		sb.append("\ngammashapebrlen = " + gammashapebrlen);
-		sb.append("\ngammashapemodel = " + gammashapemodel);
-		sb.append("\nuniqueswapbias = " + uniqueswapbias);
-		sb.append("\ndistanceswapbias = " + distanceswapbias);
-
-		if (bootstrapOrJackknife())
-			sb.append("\n\nbootstrapreps = " + bootstrapreps); // important to
-																// be
-																// user-editable
-		sb.append("\ninferinternalstateprobs = " + inferinternalstateprobs);
-		return sb.toString();
 	}
 
-	public boolean getPreferencesSet() {
-		return preferencesSet;
-	}
 
-	public void setPreferencesSet(boolean b) {
-		preferencesSet = b;
-	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
 		return false;
@@ -245,255 +140,38 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference(String tag, String content) {
-		if ("numRuns".equalsIgnoreCase(tag))
-			numRuns = MesquiteInteger.fromString(content);
-		if ("bootStrapReps".equalsIgnoreCase(tag))
-			bootstrapreps = MesquiteInteger.fromString(content);
+		
 		if ("availMemory".equalsIgnoreCase(tag))
 			availMemory = MesquiteInteger.fromString(content);
-		if ("doBootstrap".equalsIgnoreCase(tag))
-			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
-		if ("onlyBest".equalsIgnoreCase(tag))
-			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
-		if ("showConfigDetails".equalsIgnoreCase(tag))
-			showConfigDetails = MesquiteBoolean.fromTrueFalseString(content);
-
-		preferencesSet = true;
+		super.processSingleXMLPreference(tag, content);
 	}
 
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML() {
 		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);
 		StringUtil.appendXMLTag(buffer, 2, "availMemory", availMemory);
-		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);
-		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);
-		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);
-		StringUtil.appendXMLTag(buffer, 2, "showConfigDetails",
-				showConfigDetails);
-
-		preferencesSet = true;
+		buffer.append(super.preparePreferencesForXML());
 		return buffer.toString();
 	}
 
-	/*.................................................................................................................*/
-	public void preparePartitionChoice(Choice partitionChoice,
-			int partitionScheme) {
-		partitionChoice.removeAll();
-
-		switch (partitionScheme) {
-		case partitionByCharacterGroups:
-			ZephyrUtil.setPartitionChoice(data, partitionChoice);
-			break;
-		case partitionByCodonPosition:
-			partitionChoice.addItem(codpos1Subset);
-			partitionChoice.addItem(codpos2Subset);
-			partitionChoice.addItem(codpos3Subset);
-			partitionChoice.addItem(nonCodingSubset);
-			break;
-		case noPartition:
-			partitionChoice.addItem("All Characters");
-			break;
-		default:
-			partitionChoice.addItem("All Characters");
-		}
-	}
-
-	/*.................................................................................................................*/
-	private void setUpCharModels(CategoricalData data) {
-		if (data == null)
-			return;
-		CharactersGroup[] parts = null;
-		CharacterPartition characterPartition = (CharacterPartition) data
-				.getCurrentSpecsSet(CharacterPartition.class);
-		if (characterPartition != null) {
-			parts = characterPartition.getGroups();
-		}
-		if (parts != null) {
-			int extra = 0;
-			if (characterPartition.getAnyCurrentlyUnassigned())
-				extra++;
-			charGroupModels = new GarliCharModel[parts.length + extra];
-			for (int i = 0; i < parts.length + extra; i++) {
-				charGroupModels[i] = new GarliCharModel();
-			}
-		}
-		codonPositionModels = new GarliCharModel[4];
-		for (int i = 0; i < 4; i++) {
-			codonPositionModels[i] = new GarliCharModel();
-		}
-		noPartitionModel = new GarliCharModel();
-
-	}
-
-	/*.................................................................................................................*/
-	private void writeCharModels(StringBuffer sb, CharacterData data) {
-		switch (partitionScheme) {
-		case partitionByCharacterGroups:
-			for (int i = 0; i < charGroupModels.length; i++) {
-				charGroupModels[i].toStringBuffer(sb, i);
-			}
-			break;
-		case partitionByCodonPosition:
-			for (int i = 0; i < codonPositionModels.length; i++) {
-				if (data instanceof DNAData)
-					if (((DNAData)data).anyCodPos(i, false))   // only write if there are codpos of that sort
-						codonPositionModels[i].toStringBuffer(sb, i);
-			}
-			break;
-		case noPartition:
-			noPartitionModel.toStringBuffer(sb, -1);
-			break;
-		default:
-			noPartitionModel.toStringBuffer(sb, -1);
-		}
-	}
-
-	/*.................................................................................................................*/
-	private void setCharacterModels() {
-		GarliCharModel charModel = null;
-		switch (partitionScheme) {
-		case partitionByCharacterGroups:
-			if (currentPartitionSubset >= 0 && currentPartitionSubset < charGroupModels.length) {
-				charModel = charGroupModels[currentPartitionSubset];
-			}
-			break;
-		case partitionByCodonPosition:
-			if (currentPartitionSubset >= 0 && currentPartitionSubset < codonPositionModels.length) {
-				charModel = codonPositionModels[currentPartitionSubset];
-			}
-			break;
-		case noPartition:
-			charModel = noPartitionModel;
-			break;
-		default:
-			charModel = noPartitionModel;
-		}
-
-		if (rateMatrixChoice != null) {
-			rateMatrixChoice.select(charModel.getRatematrixIndex());
-		}
-		if (customMatrix != null) {
-			customMatrix.setText(charModel.getRatematrix());
-			if (rateMatrixChoice.getSelectedIndex() == 3) {
-				customMatrix.setEditable(true);
-				customMatrix.setBackground(Color.white);
-			} else {
-				customMatrix.setEditable(false);
-				customMatrix.setBackground(ColorDistribution.veryLightGray);
-			}
-		}
-
-		if (rateHetChoice != null) {
-			rateHetChoice.select(charModel.getRatehetmodelIndex());
-		}
-
-		if (numRateCatField != null) {
-			numRateCatField.getTextField().setText("" + charModel.getNumratecats());
-		}
-
-		if (invarSitesChoice != null) {
-			invarSitesChoice.select(charModel.getInvariantsitesIndex());
-		}
-	}
-
-	/*.................................................................................................................*/
-	private void processCharacterModels() {
-		int choiceValue = 0;
-		GarliCharModel charModel = null;
-		switch (partitionScheme) {
-		case partitionByCharacterGroups:
-			if (currentPartitionSubset >= 0 && currentPartitionSubset < charGroupModels.length) {
-				charModel = charGroupModels[currentPartitionSubset];
-			}
-			break;
-		case partitionByCodonPosition:
-			if (currentPartitionSubset >= 0 && currentPartitionSubset < codonPositionModels.length) {
-				charModel = codonPositionModels[currentPartitionSubset];
-			}
-			break;
-		case noPartition:
-			charModel = noPartitionModel;
-			break;
-		default:
-			charModel = noPartitionModel;
-		}
-
-		if (rateMatrixChoice != null) {
-			choiceValue = rateMatrixChoice.getSelectedIndex();
-			charModel.setRatematrixIndex(choiceValue);
-			switch (choiceValue) {
-			case 0:
-				charModel.setRatematrix("1rate");
-				break;
-			case 1:
-				charModel.setRatematrix("2rate");
-				break;
-			case 2:
-				charModel.setRatematrix("6rate");
-				break;
-			/*
-			 * case 3 : charModel.setRatematrix("fixed"); break;
-			 */
-			case 3: // Custom
-				charModel.setRatematrix(customMatrix.getText());
-				break;
-			default:
-				charModel.setRatematrix("6rate");
-			}
-		}
-
-		if (rateHetChoice != null) {
-			choiceValue = rateHetChoice.getSelectedIndex();
-			charModel.setRatehetmodelIndex(choiceValue);
-			switch (choiceValue) {
-			case 0:
-				charModel.setRatehetmodel("none");
-				break;
-			case 1:
-				charModel.setRatehetmodel("gamma");
-				break;
-			case 2:
-				charModel.setRatehetmodel("gammafixed");
-				break;
-			default:
-				charModel.setRatehetmodel("gamma");
-			}
-		}
-
-		if (numRateCatField != null) {
-
-			numratecats = numRateCatField.getValue();
-			// if (numratecats>1 && choiceValue==0)
-			// numratecats=1;
-			charModel.setNumratecats(numratecats);
-		}
-
-		if (invarSitesChoice != null) {
-			choiceValue = invarSitesChoice.getSelectedIndex();
-			charModel.setInvariantsitesIndex(choiceValue);
-			switch (choiceValue) {
-			case 0:
-				charModel.setInvariantsites("none");
-				break;
-			case 1:
-				charModel.setInvariantsites("estimate");
-				break;
-			case 2:
-				charModel.setInvariantsites("fixed");
-				break;
-			default:
-				charModel.setInvariantsites("estimate");
-			}
-		}
-	}
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions() {
 		return "2.0";
 	}
+	IntegerField availableMemoryField;
 
 	/*.................................................................................................................*/
+	public void addRunnerOptions(ExtensibleDialog dialog) {
+		externalProcRunner.addItemsToDialogPanel(dialog);
+		availableMemoryField = dialog.addIntegerField("Memory for GARLI (MB)", availMemory, 8, 256, MesquiteInteger.infinite);
+	}
+	/*.................................................................................................................*/
+	public void processRunnerOptions() {
+		availMemory = availableMemoryField.getValue();
+	}
+
+	/*.................................................................................................................*
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options")) // Debugg.println needs to check that options set well enough to proceed anyway
 
@@ -623,7 +301,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		return (buttonPressed.getValue() == 0);
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equalsIgnoreCase("constraintBrowse")) {
 			MesquiteString directoryName = new MesquiteString();
@@ -634,17 +312,13 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		}
 	}
 
-	/*.................................................................................................................*/
-	public void setGarliSeed(long seed) {
-		this.randseed = seed;
-	}
 
 	int count = 0;
 	double finalValue = MesquiteDouble.unassigned;
 	double[] finalValues = null;
 	int runNumber = 0;
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void initializeMonitoring() {
 		if (finalValues == null) {
 			if (bootstrapOrJackknife())
@@ -654,8 +328,8 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			DoubleArray.deassignArray(finalValues);
 		}
 	}
+	/*.................................................................................................................*/
 
-	String configFileName;
 
 	/*.................................................................................................................*/
 	public void setFileNames() {
@@ -682,13 +356,8 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		return new String[] { mainLogFileName, currentTreeFilePath,ofprefix + ".screen.log", treeFileName, allBestTreeFilePath };
 	}
 
-	/*.................................................................................................................*/
-	public boolean initializeJustBeforeQueryOptions() {
-		setUpCharModels(data);
-		return true;
-	}
 
-	/* ================================================= */
+	/* ================================================= *
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		if (!initializeGetTrees(MolecularData.class, taxa, matrix))
 			return null;
@@ -699,7 +368,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this,MesquiteFileUtil.IN_SUPPORT_DIR, "GARLI", "-Run.");
 		if (tempDir == null)
 			return null;
-		dataFileName = "tempData"+ MesquiteFile.massageStringToFilePathSafe(unique) + ".nex"; // replace this with actual file name?
+		dataFileName = "dataMatrix.nex"; // replace this with actual file name?
 
 		String dataFilePath = tempDir + dataFileName;
 		if (partitionScheme == noPartition)
@@ -759,7 +428,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		return null;
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
 		logln("Preparing to receive GARLI trees.");
 		boolean success = false;
@@ -841,13 +510,13 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		return null;
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 
 	int numRunsCompleted = 0;
 	long screenFilePos = 0;
 	MesquiteFile screenFile = null;
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 
 	public void runFilesAvailable(int fileNum) {
 		String[] logFileNames = getLogFileNames();
@@ -859,11 +528,6 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				.getOutputFilePath(logFileNames[fileNum]);
 		String filePath = outputFilePaths[fileNum];
 
-		/*
-		 * if (fileNum==1) filePath =
-		 * getOutputFileToReadPath(outputFilePaths[fileNum]); else filePath =
-		 * outputFilePaths[fileNum];
-		 */
 
 		if (fileNum == MAINLOGFILE && outputFilePaths.length > 0
 				&& !StringUtil.blank(outputFilePaths[MAINLOGFILE])
@@ -946,127 +610,19 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		}
 
 	}
-
 	/*.................................................................................................................*/
-	public boolean bootstrapOrJackknife() {
-		return doBootstrap;
-	}
-	public  boolean doMajRuleConsensusOfResults(){
-		return bootstrapOrJackknife();
-	}
-	public boolean singleTreeFromResampling() {
-		return false;
-	}
 
-
-	public int getBootstrapreps() {
-		return bootstrapreps;
-	}
-
-	public void setBootstrapreps(int bootstrapreps) {
-		this.bootstrapreps = bootstrapreps;
-	}
-
-	/*.................................................................................................................*/
-	public void setOfPrefix(String ofprefix) {
-		this.ofprefix = ofprefix;
-	}
 
 	public Class getDutyClass() {
 		return GarliRunner.class;
 	}
 
 	public String getName() {
-		return "GARLI Runner";
+		return "GARLI Local Runner";
 	}
 
-	/*.................................................................................................................*/
-	public int getNumRuns() {
-		return numRuns;
-	}
 
-	/*.................................................................................................................*/
-	public int getTotalReps() {
-		if (bootstrapOrJackknife())
-			return getBootstrapreps();
-		else
-			return numRuns;
-	}
 
-	/*.................................................................................................................*/
-	public boolean getOnlyBest() {
-		return onlyBest;
-	}
-
-	public void checkEnabled(boolean doBoot) {
-		onlyBestBox.setEnabled(!doBoot);
-	}
-
-	public void itemStateChanged(ItemEvent e) {
-		if (charPartitionButtons.isAButton(e.getItemSelectable())) { // button for the partition scheme
-			processCharacterModels();
-			if (charPartitionButtons != null)
-				partitionScheme = charPartitionButtons.getValue();
-			if (partitionChoice != null)
-				preparePartitionChoice(partitionChoice, partitionScheme);
-		} else if (e.getItemSelectable() == partitionChoice) { // popup for which partition to edit
-			processCharacterModels();
-			if (partitionScheme == partitionByCodonPosition) {
-				if (codpos1Subset.equalsIgnoreCase((String) e.getItem())) {
-					currentPartitionSubset = 0;
-					setCharacterModels();
-				} else if (codpos2Subset.equalsIgnoreCase((String) e.getItem())) {
-					currentPartitionSubset = 1;
-					setCharacterModels();
-				} else if (codpos3Subset.equalsIgnoreCase((String) e.getItem())) {
-					currentPartitionSubset = 2;
-					setCharacterModels();
-				} else if (nonCodingSubset.equalsIgnoreCase((String) e
-						.getItem())) {
-					currentPartitionSubset = 3;
-					setCharacterModels();
-				}
-			} else if (partitionScheme == partitionByCharacterGroups) {
-				currentPartitionSubset = ZephyrUtil.getPartitionSubset(data, (String) e.getItem());
-				setCharacterModels();
-			} else
-				setCharacterModels();
-
-		} else if (e.getItemSelectable() == rateMatrixChoice) {
-			String matrix = "";
-			int choiceValue = rateMatrixChoice.getSelectedIndex();
-			switch (choiceValue) {
-			case 0:
-				matrix = "1rate";
-				break;
-			case 1:
-				matrix = "2rate";
-				break;
-			case 2:
-				matrix = "6rate";
-				break;
-			case 3: // Custom
-				matrix = customMatrix.getText();
-				if (matrix == null || "1rate 2rate 6rate".indexOf(matrix) >= 0) // Debugg.println keep previous custom matrices remembered for users who switch back to them?
-
-					matrix = "(a a a a a a)";
-				break;
-			default:
-				matrix = "6rate";
-			}
-			customMatrix.setText(matrix);
-			if (choiceValue == 3) {
-				customMatrix.setEditable(true);
-				customMatrix.setBackground(Color.white);
-			} else {
-				customMatrix.setEditable(false);
-				customMatrix.setBackground(ColorDistribution.veryLightGray);
-			}
-		} else if (e.getItemSelectable() == doBootstrapCheckbox) {
-			checkEnabled(doBootstrapCheckbox.getState());
-		}
-
-	}
 
 	public String getProgramName() {
 		return "GARLI";
@@ -1088,114 +644,3 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 }
 /*.................................................................................................................*/
-/*.................................................................................................................*/
-
-class GarliCharModel {
-	String ratematrix = "6rate";
-	String statefrequencies = "estimate";
-	String ratehetmodel = "gamma";
-	int numratecats = 4;
-	String invariantsites = "estimate";
-
-	int ratematrixIndex = 2;
-	int statefrequenciesIndex = 0;
-	int ratehetmodelIndex = 1;
-	int invariantsitesIndex = 1;
-
-	public String getRatematrix() {
-		return ratematrix;
-	}
-
-	public void setRatematrix(String ratematrix) {
-		this.ratematrix = ratematrix;
-	}
-
-	public String getStatefrequencies() {
-		return statefrequencies;
-	}
-
-	public void setStatefrequencies(String statefrequencies) {
-		this.statefrequencies = statefrequencies;
-	}
-
-	public String getRatehetmodel() {
-		return ratehetmodel;
-	}
-
-	public void setRatehetmodel(String ratehetmodel) {
-		this.ratehetmodel = ratehetmodel;
-	}
-
-	public int getNumratecats() {
-		return numratecats;
-	}
-
-	public void setNumratecats(int numratecats) {
-		this.numratecats = numratecats;
-	}
-
-	public String getInvariantsites() {
-		return invariantsites;
-	}
-
-	public void setInvariantsites(String invariantsites) {
-		this.invariantsites = invariantsites;
-	}
-
-	public void toStringBuffer(StringBuffer sb, int modelNumber) {
-		sb.append("\n");
-		if (modelNumber >= 0)
-			sb.append("\n[model" + modelNumber + "]");
-
-		sb.append("\nratematrix = " + ratematrix);
-		sb.append("\nstatefrequencies = " + statefrequencies);
-		sb.append("\nratehetmodel = " + ratehetmodel);
-		if (numratecats > 1 && "none".equalsIgnoreCase(ratehetmodel))
-			sb.append("\nnumratecats = 1");
-		else
-			sb.append("\nnumratecats = " + numratecats);
-		sb.append("\ninvariantsites = " + invariantsites);
-
-	}
-
-	public int getRatematrixIndex() {
-		return ratematrixIndex;
-	}
-
-	public void setRatematrixIndex(int ratematrixIndex) {
-		this.ratematrixIndex = ratematrixIndex;
-	}
-
-	public int getStatefrequenciesIndex() {
-		return statefrequenciesIndex;
-	}
-
-	public void setStatefrequenciesIndex(int statefrequenciesIndex) {
-		this.statefrequenciesIndex = statefrequenciesIndex;
-	}
-
-	public int getRatehetmodelIndex() {
-		return ratehetmodelIndex;
-	}
-
-	public void setRatehetmodelIndex(int ratehetmodelIndex) {
-		this.ratehetmodelIndex = ratehetmodelIndex;
-	}
-
-	public int getInvariantsitesIndex() {
-		return invariantsitesIndex;
-	}
-
-	public void setInvariantsitesIndex(int invariantsitesIndex) {
-		this.invariantsitesIndex = invariantsitesIndex;
-	}
-
-	/*.................................................................................................................*/
-	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
-	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
-	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
-	public int getVersionOfFirstRelease(){
-		return -100;  
-	}
-
-}
