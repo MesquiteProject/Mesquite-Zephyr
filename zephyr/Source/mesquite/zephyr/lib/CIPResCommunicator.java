@@ -706,7 +706,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 		ownerModule.logln("CIPRes job completed.");
 		if (outputFileProcessor!=null) {
 			if (rootDir!=null) {
-				ownerModule.logln("Downloading results from CIPRes.");
+				ownerModule.logln("About to download results from CIPRes.");
 				downloadResults(jobURL, rootDir);
 				outputFileProcessor.processCompletedOutputFiles(outputFilePaths);
 			}

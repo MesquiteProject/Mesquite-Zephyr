@@ -17,6 +17,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
@@ -30,7 +32,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 
 	boolean onlyBest = true;
 	boolean doBootstrap = false;
-	int numRuns = 5;
+	protected int numRuns = 5;
 	String outgroupTaxSetString = "";
 	int outgroupTaxSetNumber = 0;
 	boolean preferencesSet = false;
@@ -59,7 +61,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	int partitionScheme = partitionByCharacterGroups;
 	int currentPartitionSubset = 0;
 
-	long randseed = -1;
+	protected long randseed = -1;
 	double brlenweight = 0.2;
 	double randnniweight = 0.1;
 	double randsprweight = 0.3;
@@ -84,6 +86,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	GarliCharModel[] charGroupModels;
 	GarliCharModel[] codonPositionModels;
 	GarliCharModel noPartitionModel;
+
+	protected static final int DATAFILENUMBER = 0;
+	protected static final int CONFIGFILENUMBER = 2;
 
 	/*
 	 * [model0] datatype = nucleotide ratematrix = 6rate statefrequencies =
@@ -167,7 +172,6 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		sb.append("\n");
 		
 		
-		sb.append("\n\nrandseed = " + randseed); // important to be user-editable
 		sb.append("\noutputcurrentbesttree = 1");
 
 		outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,
@@ -175,7 +179,6 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		if (outgroupSet != null) {
 			sb.append("\noutgroups = " + outgroupSet.getListOfOnBits(" "));
 		}
-		sb.append("\nsearchreps = " + numRuns);
 
 		sb.append("\n");
 		if (linkModels)
@@ -671,6 +674,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		setUpCharModels(data);
 		return true;
 	}
+	/*.................................................................................................................*/
+	 abstract public Object getProgramArguments(String dataFileName, String configFileName, boolean isPreflight) ;
 
 	/* ================================================= */
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
@@ -721,15 +726,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 			fileContents[1] = MesquiteFile.getFileContentsAsString(constraintfile);
 			fileNames[1] = "constraint";
 		}
-		fileContents[2] = config;
-		fileNames[2] = configFileName;
+		fileContents[CONFIGFILENUMBER] = config;
+		fileNames[CONFIGFILENUMBER] = configFileName;
 
 		String GARLIcommand = externalProcRunner.getExecutableCommand();
-		MesquiteString arguments = new MesquiteString();
-		if (externalProcRunner.isWindows())
-			arguments.setValue(" --batch " + configFileName);
-		else
-			arguments.setValue(""); // GARLI command is very simple as all of the arguments are in the config file
+		Object arguments = getProgramArguments(dataFileName, configFileName, false);
 
 		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName());
 

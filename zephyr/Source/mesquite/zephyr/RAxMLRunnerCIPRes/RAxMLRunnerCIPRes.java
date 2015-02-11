@@ -40,7 +40,6 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 	long  randseed = -1;
 
-	SingleLineTextField MPISetupField;
 	javax.swing.JLabel commandLabel;
 	SingleLineTextArea commandField;
 	Checkbox RAxML814orLaterCheckbox;
@@ -140,7 +139,6 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			final File file = new File(externalProcRunner.getInputFilePath(DATAFILENUMBER));
 			FileBody fb = new FileBody(file);
 			builder.addPart("input.infile_", fb);  
-			Debugg.println("*** preparing runner object");
 		}
 	}
 

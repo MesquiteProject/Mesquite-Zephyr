@@ -17,6 +17,9 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
@@ -34,134 +37,70 @@ public class GarliRunnerCIPRes extends GarliRunner {
 
 
 	/*.................................................................................................................*/
-	 public String getExternalProcessRunnerModuleName(){
-			return "#mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner";
-	 }
+	public String getExternalProcessRunnerModuleName(){
+		return "#mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner";
+	}
 	/*.................................................................................................................*/
-	 public Class getExternalProcessRunnerClass(){
-			return CIPResRESTRunner.class;
-	 }
-
-	/*
-	 * [model0] datatype = nucleotide ratematrix = 6rate statefrequencies =
-	 * estimate ratehetmodel = gamma numratecats = 4 invariantsites = none
-	 * 
-	 * [model1] datatype = nucleotide ratematrix = 2rate statefrequencies =
-	 * estimate ratehetmodel = none numratecats = 1 invariantsites = none
-	 */
-
-
-	// String rootDir;
-	/*.................................................................................................................*
-
-	public void getEmployeeNeeds() { // This gets called on startup to harvest
-										// information; override this and
-										// inside, call registerEmployeeNeed
-		EmployeeNeed e = registerEmployeeNeed(ExternalProcessRunner.class,
-				getName() + "  needs a module to run an external process.", "");
+	public Class getExternalProcessRunnerClass(){
+		return CIPResRESTRunner.class;
 	}
 
-	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
-		externalProcRunner = (ExternalProcessRunner) hireEmployee(
-				ExternalProcessRunner.class, "External Process Runner (for "
-						+ getName() + ")");
-		if (externalProcRunner == null) {
-			return sorry("Couldn't find an external process runner");
+	/*.................................................................................................................*/
+	public void prepareRunnerObject(Object obj){
+		if (obj instanceof MultipartEntityBuilder) {
+			MultipartEntityBuilder builder = (MultipartEntityBuilder)obj;
+			final File file = new File(externalProcRunner.getInputFilePath(DATAFILENUMBER));
+			FileBody fb = new FileBody(file);
+			builder.addPart("input.infile_", fb);  
+			final File file2 = new File(externalProcRunner.getInputFilePath(CONFIGFILENUMBER));
+			FileBody fb2 = new FileBody(file2);
+			builder.addPart("input.upload_conffile_", fb2);  
 		}
-		externalProcRunner.setProcessRequester(this);
-
-		return true;
 	}
 
-	public void intializeAfterExternalProcessRunnerHired() {
-		loadPreferences();
+	/*.................................................................................................................*/
+	public Object getProgramArguments(String dataFileName, String configFilePath, boolean isPreflight) {
+		MultipartEntityBuilder arguments = MultipartEntityBuilder.create();
+
+		arguments.addTextBody("vparam.user_conffile_", "1");
+		arguments.addTextBody("vparam.userconffilethere_", "1");
+		arguments.addTextBody("vparam.userconffileconfirm_", "1");
+		
+		arguments.addTextBody("vparam.searchreps_value_", ""+numRuns);
+
+		return arguments;
 	}
 
-	/*.................................................................................................................*
-	public Snapshot getSnapshot(MesquiteFile file) {
-		Snapshot temp = super.getSnapshot(file);
-		temp.addLine("setExternalProcessRunner", externalProcRunner);
-		return temp;
-	}
 
-	/*.................................................................................................................*
-	public Object doCommand(String commandName, String arguments,
-			CommandChecker checker) {
-		if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner",
-				"[name of module]", commandName, "setExternalProcessRunner")) {
-			ExternalProcessRunner temp = (ExternalProcessRunner) replaceEmployee(
-					ExternalProcessRunner.class, arguments,
-					"External Process Runner", externalProcRunner);
-			if (temp != null) {
-				externalProcRunner = temp;
-				parametersChanged();
-			}
-			externalProcRunner.setProcessRequester(this);
-			return externalProcRunner;
-		} else
-			return super.doCommand(commandName, arguments, checker);
-	}
-
-	public void reconnectToRequester(MesquiteCommand command) {
-		continueMonitoring(command);
-	}
 
 	/*.................................................................................................................*/
 
 	public void appendToConfigFileGeneral(StringBuffer config) {
 		if (config!=null) {
-			StringBuffer sb = new StringBuffer();
-			sb.append("\ndatafname=" + dataFileName);
-			sb.append("\nofprefix=" + ofprefix);
+			config.append("\ndatafname=infile");
+			config.append("\nofprefix=" + ofprefix);
 
 			if (StringUtil.blank(constraintfile))
-				sb.append("\nconstraintfile = none");
+				config.append("\nconstraintfile = none");
 			else
-				sb.append("\nconstraintfile = constraint"); // important to be user-editable
+				config.append("\nconstraintfile = constraint"); // important to be user-editable
 
-			String garliGeneralOptions = "\nstreefname = random \n";
+			config.append("\nstreefname = random");
 
-//			garliGeneralOptions += "availablememory = " + availMemory + " \n";
-			garliGeneralOptions += " \noutputmostlyuselessfiles = 0";
-			sb.append(garliGeneralOptions);
+			config.append("\navailablememory = 2000 \n");
+			config.append(" \noutputmostlyuselessfiles = 0");
 
-			sb.append("\n");
+			config.append("\n\nrandseed = -1"); // important to be user-editable
+			config.append("\nsearchreps = 1");
+			config.append("\n");
+
 		}
 
 	}
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return false;
-	}
-
-	/*.................................................................................................................*
-	public void processSingleXMLPreference(String tag, String content) {
-		if ("availMemory".equalsIgnoreCase(tag))
-			availMemory = MesquiteInteger.fromString(content);
-		if ("doBootstrap".equalsIgnoreCase(tag))
-			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
-		if ("onlyBest".equalsIgnoreCase(tag))
-			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
-		if ("showConfigDetails".equalsIgnoreCase(tag))
-			showConfigDetails = MesquiteBoolean.fromTrueFalseString(content);
-
-		preferencesSet = true;
-	}
-
-	/*.................................................................................................................*
-	public String preparePreferencesForXML() {
-		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);
-		StringUtil.appendXMLTag(buffer, 2, "availMemory", availMemory);
-		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);
-		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);
-		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);
-		StringUtil.appendXMLTag(buffer, 2, "showConfigDetails",
-				showConfigDetails);
-
-		preferencesSet = true;
-		return buffer.toString();
+		return true;
 	}
 
 
@@ -173,26 +112,13 @@ public class GarliRunnerCIPRes extends GarliRunner {
 
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
+		dialog.addLabel("CIPRes Options");
 		externalProcRunner.addItemsToDialogPanel(dialog);
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
 	}
 
-
-
-
-	/*.................................................................................................................*
-	public void initializeMonitoring() {
-		if (finalValues == null) {
-			if (bootstrapOrJackknife())
-				finalValues = new double[getBootstrapreps()];
-			else
-				finalValues = new double[numRuns];
-			DoubleArray.deassignArray(finalValues);
-		}
-	}
-	/*.................................................................................................................*/
 
 	/*.................................................................................................................*/
 	public void setFileNames() {
@@ -211,9 +137,10 @@ public class GarliRunnerCIPRes extends GarliRunner {
 		if (bootstrapOrJackknife())
 			treeFileName = ofprefix + ".boot.tre";
 		else
-			treeFileName = ofprefix + ".best.tre";
+			treeFileName = ofprefix + ".run00.best.tre";
 		String currentTreeFilePath = ofprefix + ".best.current.tre";
-		String allBestTreeFilePath = ofprefix + ".best.all.tre";
+		String allBestTreeFilePath = ofprefix + ".run00.best.tre";
+//		String allBestTreeFilePath = ofprefix + ".best.all.tre";
 		String mainLogFileName = ofprefix + ".log00.log";
 
 		return new String[] { mainLogFileName, currentTreeFilePath,ofprefix + ".screen.log", treeFileName, allBestTreeFilePath };
@@ -388,7 +315,7 @@ public class GarliRunnerCIPRes extends GarliRunner {
 				.getOutputFilePath(logFileNames[fileNum]);
 		String filePath = outputFilePaths[fileNum];
 
-		
+
 
 		if (fileNum == MAINLOGFILE && outputFilePaths.length > 0
 				&& !StringUtil.blank(outputFilePaths[MAINLOGFILE])
@@ -490,7 +417,7 @@ public class GarliRunnerCIPRes extends GarliRunner {
 	}
 
 	public String getExecutableName() {
-		return "GARLI";
+		return "GARLI2_TGB";
 	}
 
 	public void runFailed(String message) {
