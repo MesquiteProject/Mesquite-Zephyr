@@ -33,12 +33,9 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 	boolean RAxML814orLater = false;
 
-	int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
 
 	boolean showIntermediateTrees = true;
 
-
-	long  randseed = -1;
 
 	javax.swing.JLabel commandLabel;
 	SingleLineTextArea commandField;

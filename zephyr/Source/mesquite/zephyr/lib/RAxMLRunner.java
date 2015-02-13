@@ -36,7 +36,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	boolean RAxML814orLater = false;
 
-		int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
+	protected	int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
 
 //	boolean retainFiles = false;
 //	String MPIsetupCommand = "";
@@ -56,7 +56,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected boolean doBootstrap = false;
 
 
-	long  randseed = -1;
+	protected long  randseed = -1;
 	static String constraintfile = "none";
 
 	protected  SingleLineTextField dnaModelField, proteinModelField, otherOptionsField;
