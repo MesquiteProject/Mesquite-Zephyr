@@ -10,8 +10,9 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 import mesquite.lib.*;
+import mesquite.search.lib.*;
 
-public abstract class RAxMLTrees extends ZephyrTreeSearcher {
+public abstract class RAxMLTrees extends ZephyrTreeSearcher implements LikelihoodAnalysis {
 	int rerootNode = 0;
 
 

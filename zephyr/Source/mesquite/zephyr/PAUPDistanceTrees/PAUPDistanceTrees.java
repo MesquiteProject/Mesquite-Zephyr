@@ -17,7 +17,7 @@ import mesquite.zephyr.PAUPParsimonyRunner.PAUPParsimonyRunner;
 import mesquite.zephyr.lib.*;
 import mesquite.categ.lib.*;
 
-public class PAUPDistanceTrees extends ZephyrTreeSearcher {
+public class PAUPDistanceTrees extends ZephyrTreeSearcher implements DistanceAnalysis {
 
 	/*.................................................................................................................*
 	public String getExtraTreeWindowCommands (){

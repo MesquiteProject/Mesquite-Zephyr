@@ -19,7 +19,7 @@ import mesquite.zephyr.PAUPParsimonyRunner.PAUPParsimonyRunner;
 import mesquite.zephyr.RAxMLRunnerLocal.RAxMLRunnerLocal;
 import mesquite.zephyr.lib.*;
 
-public class PAUPParsimonyTrees extends ZephyrTreeSearcher {
+public class PAUPParsimonyTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
 
 	/*.................................................................................................................*
 

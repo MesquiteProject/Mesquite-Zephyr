@@ -18,7 +18,7 @@ import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
 import mesquite.zephyr.lib.*;
 
-public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher  {
+public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 //	Taxa taxa;
 //	private MatrixSourceCoord matrixSourceTask;
 //	protected MCharactersDistribution observedStates;

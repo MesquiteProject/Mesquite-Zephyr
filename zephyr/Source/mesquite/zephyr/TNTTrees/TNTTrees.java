@@ -18,7 +18,7 @@ import mesquite.zephyr.TNTRunner.TNTRunner;
 import mesquite.zephyr.lib.*;
 
 
-public class TNTTrees extends ZephyrTreeSearcher {
+public class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
 	TNTRunner tntRunner;
 	TreeSource treeRecoveryTask;
 	Taxa taxa;

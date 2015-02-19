@@ -18,7 +18,7 @@ import mesquite.zephyr.lib.*;
 import mesquite.zephyr.lib.*;
 
 
-public abstract class GarliTrees extends ZephyrTreeSearcher {
+public abstract class GarliTrees extends ZephyrTreeSearcher implements LikelihoodAnalysis {
 	int rerootNode = 0;
 
 	/*.................................................................................................................*/

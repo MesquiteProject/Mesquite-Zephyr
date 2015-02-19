@@ -108,7 +108,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 		return baseURL;
 	}
 	/*.................................................................................................................*/
-	boolean checkUsernamePassword(){
+	boolean checkUsernamePassword(boolean tellUserAboutCipres){
 		if (StringUtil.blank(username) || StringUtil.blank(password)){
 			MesquiteBoolean answer = new MesquiteBoolean(false);
 			MesquiteString usernameString = new MesquiteString();
@@ -117,14 +117,19 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 			MesquiteString passwordString = new MesquiteString();
 			if (password!=null)
 				passwordString.setValue(password);
-			new UserNamePasswordDialog(ownerModule.containerOfModule(), "Sign in to CIPRes", "Username", "Password", answer, usernameString, passwordString);
+			String help = "You will need an account on the CIPRes REST system to use this service.  To register, go to https://www.phylo.org/restusers/register.action";
+			new UserNamePasswordDialog(ownerModule.containerOfModule(), "Sign in to CIPRes", help, "", "Username", "Password", answer, usernameString, passwordString);
 			if (answer.getValue()){
 				username=usernameString.getValue();
 				password=passwordString.getValue();
 			}
 			ownerModule.storePreferences();
 		}
-		return StringUtil.notEmpty(username) && StringUtil.notEmpty(password);
+		boolean success = StringUtil.notEmpty(username) && StringUtil.notEmpty(password);
+		if (!success && tellUserAboutCipres) {
+			MesquiteMessage.discreetNotifyUser("Use of the CIPRes service requires an account with CIPRes's REST service.  Go to https://www.phylo.org/restusers/register.action to register for an account");
+		}
+		return success;
 
 	}
 
@@ -232,7 +237,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	}
 	/*.................................................................................................................*/
 
-	public String[] processJobsList(Document cipresResponseDoc) {
+	public String[] getJobURLs(Document cipresResponseDoc) {
 		String elementName = "jobstatus";
 		Element jobs = cipresResponseDoc.getRootElement().element("jobs");
 		if (jobs==null)
@@ -262,6 +267,16 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 	}
 	/*.................................................................................................................*/
+
+	public String[] getJobURLs(HttpClient httpclient) {
+		Document cipresResponseDoc = cipresQuery(httpclient, baseURL + "/job/" + username, "joblist");
+		if (cipresResponseDoc!=null) {
+			String[] jobList = getJobURLs(cipresResponseDoc);
+			return jobList;
+		}
+		return null;
+	}
+	/*.................................................................................................................*/
 	public void  listTools(HttpClient httpclient){
 		Document cipresResponseDoc = cipresQuery(httpclient, baseURL + "/tool", "tools");
 		if (cipresResponseDoc!=null) {
@@ -272,7 +287,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	public void  listJobs(HttpClient httpclient){
 		Document cipresResponseDoc = cipresQuery(httpclient, baseURL + "/job/" + username, "joblist");
 		if (cipresResponseDoc!=null) {
-			String[] jobList = processJobsList(cipresResponseDoc);
+			String[] jobList = getJobURLs(cipresResponseDoc);
 			if (jobList!=null)
 				for (int job=0; job<jobList.length; job++){
 					Debugg.println("job " + job + ": " + jobList[job]);
@@ -432,7 +447,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 	/*.................................................................................................................*/
 	public String getJobStatus(String jobURL) {
-		if (checkUsernamePassword()) {
+		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
 			return getJobStatus(httpclient, jobURL);
 		}
@@ -441,7 +456,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	}
 	/*.................................................................................................................*/
 	public boolean jobCompleted(String jobURL) {
-		if (checkUsernamePassword()) {
+		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
 			return JOBCOMPLETED.equalsIgnoreCase(getJobStatus(httpclient, jobURL));
 		}
@@ -449,7 +464,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	}
 	/*.................................................................................................................*/
 	public boolean jobSubmitted(String jobURL) {
-		if (checkUsernamePassword()) {
+		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
 			return JOBSUBMITTED.equalsIgnoreCase(getJobStatus(httpclient, jobURL));
 		}
@@ -478,7 +493,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	}
 	/*.................................................................................................................*/
 	public String getResultsDirectory(String jobURL) {
-		if (checkUsernamePassword()) {
+		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
 			return getResultsDirectory(httpclient, jobURL);
 		}
@@ -497,7 +512,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	}
 	/*.................................................................................................................*/
 	public String getWorkingDirectory(String jobURL) {
-		if (checkUsernamePassword()) {
+		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
 			return getWorkingDirectory(httpclient, jobURL);
 		}
@@ -571,6 +586,24 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	}
 
 	/*.................................................................................................................*/
+	public void downloadResults (HttpClient httpclient, String jobURL, String rootDir, String fileName){
+		if (StringUtil.blank(fileName))
+			return;
+		String resultsUri = getResultsDirectory(jobURL);
+		if (StringUtil.notEmpty(resultsUri)) {
+			verbose=false;
+			Document cipresResponseDoc = cipresQuery(httpclient, resultsUri, "results");
+			verbose=true;
+			if (cipresResponseDoc!=null) {
+				CipresJobFile[] cipresJobFile = processResults(cipresResponseDoc);
+				for (int job=0; job<cipresJobFile.length; job++) {
+					if (fileName.equalsIgnoreCase(cipresJobFile[job].getFileName()))
+						cipresDownload(httpclient, cipresJobFile[job].getDownloadURL(), rootDir + cipresJobFile[job].getFileName());
+				}
+			}
+		}
+	}
+	/*.................................................................................................................*/
 	public void downloadResults (HttpClient httpclient, String jobURL, String rootDir){
 
 		String resultsUri = getResultsDirectory(jobURL);
@@ -595,7 +628,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 		/*.................................................................................................................*/
 	public void downloadResults(String jobURL, String rootDir) {
-		if (checkUsernamePassword()) {
+		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
 			downloadResults(httpclient, jobURL, rootDir);
 		}
@@ -622,7 +655,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 	/*.................................................................................................................*/
 	public void getResults(String jobURL) {
-		if (checkUsernamePassword()) {
+		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
 			getResults(httpclient, jobURL);
 		}
@@ -631,7 +664,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 	/*.................................................................................................................*/
 	public boolean checkJobStatus(String jobURL) {
-		if (checkUsernamePassword()) {
+		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
 			checkJob(httpclient, jobURL);
 			return true;
@@ -640,7 +673,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	}
 	/*.................................................................................................................*/
 	public boolean sendJobToCipres(MultipartEntityBuilder builder, String tool, MesquiteString jobURL) {
-		if (checkUsernamePassword()) {
+		if (checkUsernamePassword(true)) {
 			HttpClient httpclient = getHttpClient();
 
 			if (builder==null)
@@ -671,8 +704,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	public boolean monitorAndCleanUpShell(String jobURL){
 		boolean stillGoing = true;
 
-		if (!checkUsernamePassword()) {
-			MesquiteMessage.notifyProgrammer("Authentication failed");
+		if (!checkUsernamePassword(true)) {
 			return false;
 		}
 		lastModified=null;
@@ -717,7 +749,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 	/*.................................................................................................................*/
 	public void listCipresJobs() {
-		if (checkUsernamePassword()) {
+		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
 			listJobs(httpclient);
 		}
@@ -737,14 +769,25 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 	/*.................................................................................................................*/
 	public void deleteJob(String jobURL) {
-		if (checkUsernamePassword()) {
+		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
 			deleteJob(httpclient, jobURL);
 		}
 	}
 	/*.................................................................................................................*/
+	public void deleteAllJobs() {
+		if (checkUsernamePassword(false)) {
+			HttpClient httpclient = getHttpClient();
+			String[] jobURLs = getJobURLs(httpclient);
+			if (jobURLs!=null)
+				for (int job=0; job<jobURLs.length; job++){
+					deleteJob(httpclient, jobURLs[job]);
+				}
+		}
+	}
+	/*.................................................................................................................*/
 	public void listCipresTools() {
-		if (checkUsernamePassword()) {
+		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
 			listTools(httpclient);
 		}
