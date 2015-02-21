@@ -4,6 +4,7 @@ public class CipresJobFile {
 	String downloadURL = null;
 	String downloadTitle = null;
 	String fileName = null;
+	String lastModified = null;
 	long length=0;
 	
 	public String getDownloadURL() {
@@ -29,6 +30,12 @@ public class CipresJobFile {
 	}
 	public void setLength(long length) {
 		this.length = length;
+	}
+	public String getLastModified() {
+		return lastModified;
+	}
+	public void setLastModified(String lastModified) {
+		this.lastModified = lastModified;
 	}
 
 }

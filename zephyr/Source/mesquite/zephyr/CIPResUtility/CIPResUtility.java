@@ -37,26 +37,23 @@ public class CIPResUtility extends UtilitiesAssistant {
 
 		MesquiteSubmenuSpec mss = addSubmenu(null,"CIPRes Utility");
 		
-		addItemToSubmenu(null, mss, "CIPRes Job List", makeCommand("listCIPResJobs", this));
+		addItemToSubmenu(null, mss, "List Jobs", makeCommand("listCIPResJobs", this));
+		addItemToSubmenu(null, mss, "Job Status...", makeCommand("checkJob", this));
+		addItemToSubmenu(null, mss,"Delete Job...", makeCommand("deleteJob", this));
+		addItemToSubmenu(null, mss, "Delete All Jobs...", makeCommand("deleteAllJobs", this));
+		addItemToSubmenu(null, mss, "Download Files from Job...", makeCommand("downloadFiles", this));
 		addItemToSubmenu(null, mss, "CIPRes Tool List", makeCommand("listCIPResTools", this));
-		addItemToSubmenu(null, mss, "CIPRes Job Status...", makeCommand("checkJob", this));
-		addItemToSubmenu(null, mss,"CIPRes Delete Job...", makeCommand("deleteJob", this));
-		addItemToSubmenu(null, mss, "CIPRes Delete All Jobs...", makeCommand("deleteAllJobs", this));
-		addItemToSubmenu(null, mss, "CIPRes Download Files...", makeCommand("downloadFiles", this));
 		communicator = new CIPResCommunicator(this, null, null);
 		return true;
 	}
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-		 if (checker.compare(this.getClass(), "CIPRes Job List", null, commandName, "listCIPResJobs")) {
+		 if (checker.compare(this.getClass(), "List Jobs", null, commandName, "listCIPResJobs")) {
 			communicator.listCipresJobs();
-		}
-		else if (checker.compare(this.getClass(), "CIPRes Tool List", null, commandName, "listCIPResTools")) {
-			communicator.listCipresTools();
 		}
 		else if (checker.compare(this.getClass(), "CIPRes Job Finished?", null, commandName, "checkJob")) {
 			String jobURL = MesquiteString.queryShortString(containerOfModule(), "Check Job Status", "Job URL", "");
-			communicator.checkJobStatus(jobURL);
+			communicator.reportJobStatus(jobURL);
 		}
 		else if (checker.compare(this.getClass(), "Delete Job", null, commandName, "deleteJob")) {
 			String jobURL = MesquiteString.queryShortString(containerOfModule(), "Delete Job", "Job URL", "");
@@ -69,6 +66,9 @@ public class CIPResUtility extends UtilitiesAssistant {
 		else if (checker.compare(this.getClass(), "Download Files", null, commandName, "downloadFiles")) {
 			String jobURL = MesquiteString.queryShortString(containerOfModule(), "Download Job Files", "Job URL", "");
 			communicator.downloadResults(jobURL, "/ciprestest/");
+		}
+		else if (checker.compare(this.getClass(), "List CIPRes Tools", null, commandName, "listCIPResTools")) {
+			communicator.listCipresTools();
 		}
 		else
 			return super.doCommand(commandName, arguments, checker);

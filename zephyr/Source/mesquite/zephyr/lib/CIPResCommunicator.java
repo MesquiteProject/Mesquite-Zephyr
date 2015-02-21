@@ -38,15 +38,15 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	MesquiteModule ownerModule;
 
 	String baseURL = "https://www.phylo.org/cipresrest/v1";
-	boolean verbose = true;
+	boolean verbose = MesquiteTrunk.debugMode;
 
 	static int jobNumber = 3;
 	static String username = "";
 	static String password = ""; 
 	String CIPRESkey = "Mesquite-7C63884588B8438CAE456E115C9643F3";
 
-	OutputFileProcessor outputFileProcessor; //reconnect
-	ShellScriptWatcher watcher; //reconnect
+	OutputFileProcessor outputFileProcessor; // for reconnection
+	ShellScriptWatcher watcher; // for reconnection
 
 	public CIPResCommunicator (MesquiteModule mb, String xmlPrefsString,String[] outputFilePaths) {
 		XMLUtil.readXMLPreferences(mb, this, xmlPrefsString);
@@ -71,8 +71,6 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 		processSingleXMLPreference(tag, null, content);
 
 	}
-	
-	
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String flavor, String content) {
@@ -134,9 +132,20 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	}
 
 	/*.................................................................................................................*/
+	/** This method returns a Document from the contents of the XML file as contained in the String xmlFile.  If rootTag is not empty AND
+	 * the root element of the XML file does NOT equal the value of rootTag, then this will return a null Document. */
 	public Document loadXMLFile(String rootTag, String xmlFile) {
 		if (!StringUtil.blank(xmlFile)) {
 			Document CipresDoc = XMLUtil.getDocumentFromString(rootTag, xmlFile);
+			return CipresDoc;
+		}
+		return null;
+	}
+	/*.................................................................................................................*/
+	/** This method returns a Document from the contents of the XML file as contained in the String xmlFile, with no restriction as to the root element. */
+	public Document loadXMLFile(String xmlFile) {
+		if (!StringUtil.blank(xmlFile)) {
+			Document CipresDoc = XMLUtil.getDocumentFromString(xmlFile);
 			return CipresDoc;
 		}
 		return null;
@@ -152,19 +161,23 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	}
 	/*.................................................................................................................*/
 
-	public void reportError(Document doc, boolean resetPassword) {
-
+	public void reportError(Document doc, String noteToUser, boolean resetPassword) {
+		if (doc==null)
+			return;
 		String displayMessage = doc.getRootElement().elementText("displayMessage");
 		String message = doc.getRootElement().elementText("message");
-		ownerModule.logln("Error communicating with CIPRes");
-		ownerModule.logln(message);
-		if (resetPassword && "Authentication Error".equalsIgnoreCase(displayMessage))
-			password = "";
-
-
+		if (StringUtil.notEmpty(message)) {
+			ownerModule.logln("\n**********\n");
+			ownerModule.logln(noteToUser);
+			ownerModule.logln(message+"\n**********\n");
+			if (resetPassword && "Authentication Error".equalsIgnoreCase(displayMessage))
+				password = "";
+		}
 	}
 
 	/*.................................................................................................................*/
+	/** this is the primary method that sends a query to the CIPRes REST service.  
+	 * It expects to receive an XML file, which it returns in Document if the root tag matc hes xmlRootTag */
 	public Document  cipresQuery(HttpClient httpclient, String URL, String xmlRootTag){
 		if (StringUtil.blank(URL))
 			return null;
@@ -183,12 +196,12 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 				}
 				Document cipresResponseDoc = loadXMLFile(xmlRootTag, sb.toString());
 				if (cipresResponseDoc!=null && verbose) {
-					Debugg.println(sb.toString());
+					ownerModule.logln(sb.toString());
 				}
 				if (cipresResponseDoc==null) {
-					Document errorDoc = loadXMLFile("error", sb.toString());
+					Document errorDoc = loadXMLFile(sb.toString());
 					if (errorDoc!=null)
-						reportError(errorDoc, true);
+						reportError(errorDoc, "Error in communicating with CIPRes",  true);
 				}
 				EntityUtils.consume(response.getEntity());
 				return cipresResponseDoc;
@@ -206,101 +219,6 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 
 
-
-	/*.................................................................................................................*/
-
-	public void processToolList(Document cipresResponseDoc) {
-		String elementName = "tool";
-		List tools = cipresResponseDoc.getRootElement().elements(elementName);
-		int count=0;
-		for (Iterator iter = tools.iterator(); iter.hasNext();) {
-			Element nextTool = (Element) iter.next();
-			count++;
-		}
-		String[] toolName = new String[count];
-		count=0;
-		for (Iterator iter = tools.iterator(); iter.hasNext();) {
-			Element nextTool = (Element) iter.next();
-			String name = nextTool.elementText("toolId");
-			if (!StringUtil.blank(name)&& count<toolName.length) {
-				//toolName[count] = name;
-				Debugg.println(name);
-			}
-			name = nextTool.elementText("toolName");
-			if (!StringUtil.blank(name)&& count<toolName.length) {
-				//toolName[count] = name;
-				Debugg.println("   " + name);
-			}
-			count++;
-		}
-
-	}
-	/*.................................................................................................................*/
-
-	public String[] getJobURLs(Document cipresResponseDoc) {
-		String elementName = "jobstatus";
-		Element jobs = cipresResponseDoc.getRootElement().element("jobs");
-		if (jobs==null)
-			return null;
-		List tools = jobs.elements("jobstatus");
-		int count=0;
-		for (Iterator iter = tools.iterator(); iter.hasNext();) {
-			Element nextTool = (Element) iter.next();
-			count++;
-		}
-		String[] url = new String[count];
-		count=0;
-		for (Iterator iter = tools.iterator(); iter.hasNext();) {
-			Element nextJob = (Element) iter.next();
-			if (nextJob!=null) {
-				Element selfUriElement= nextJob.element("selfUri");
-				if (selfUriElement!=null) {
-					String jobURL = selfUriElement.elementText("url");
-					if (!StringUtil.blank(jobURL)&& count<url.length) {
-						url[count] = jobURL;
-					}
-				}
-				count++;
-			}
-		}
-		return url;
-
-	}
-	/*.................................................................................................................*/
-
-	public String[] getJobURLs(HttpClient httpclient) {
-		Document cipresResponseDoc = cipresQuery(httpclient, baseURL + "/job/" + username, "joblist");
-		if (cipresResponseDoc!=null) {
-			String[] jobList = getJobURLs(cipresResponseDoc);
-			return jobList;
-		}
-		return null;
-	}
-	/*.................................................................................................................*/
-	public void  listTools(HttpClient httpclient){
-		Document cipresResponseDoc = cipresQuery(httpclient, baseURL + "/tool", "tools");
-		if (cipresResponseDoc!=null) {
-			processToolList(cipresResponseDoc);
-		}
-	}
-	/*.................................................................................................................*/
-	public void  listJobs(HttpClient httpclient){
-		Document cipresResponseDoc = cipresQuery(httpclient, baseURL + "/job/" + username, "joblist");
-		if (cipresResponseDoc!=null) {
-			String[] jobList = getJobURLs(cipresResponseDoc);
-			if (jobList!=null)
-				for (int job=0; job<jobList.length; job++){
-					Debugg.println("job " + job + ": " + jobList[job]);
-					String status = getJobStatus(jobList[job]);
-					Debugg.println("   " + status);
-					String wd = getWorkingDirectory(jobList[job]);
-					Debugg.println("   " + wd);
-
-					//getResults(jobList[job]);
-
-				}
-		}
-	}
 
 	/*.................................................................................................................*/
 
@@ -340,15 +258,13 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 			if (StringUtil.notEmpty(jobID))
 				builder.addTextBody("metadata.clientJobId", jobID);
 			builder.addTextBody("metadata.statusEmail", "true");
-			//			builder.addTextBody("vparam.dna_gtrcat_", "GTRGAMMA", ContentType.TEXT_PLAIN);
 			builder.addTextBody("vparam.runtime_", "0.50", ContentType.TEXT_PLAIN);
-//			builder.addTextBody("vparam.specify_bootstraps_", "1", ContentType.TEXT_PLAIN);
-			//			builder.addTextBody("vparam.invariable_", "I", ContentType.TEXT_PLAIN);
 		}
 	}
 
 
 	/*.................................................................................................................*/
+	/** The core method that initiates a job on CIPRes. */
 	public boolean postJob(HttpClient httpclient, MultipartEntityBuilder builder, MesquiteString jobURL){
 		if (builder==null)
 			return false;
@@ -356,7 +272,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 		HttpPost httppost = new HttpPost(URL);
 		httppost.addHeader("cipres-appkey", CIPRESkey); 
 
-		//http://stackoverflow.com/questions/18964288/upload-a-file-through-an-http-form-via-multipartentitybuilder-with-a-progress
+		//some of this from http://stackoverflow.com/questions/18964288/upload-a-file-through-an-http-form-via-multipartentitybuilder-with-a-progress
 		HttpEntity cipresEntity = builder.build();
 
 		httppost.setEntity(cipresEntity);
@@ -372,9 +288,10 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 			while((line = br.readLine()) != null) {
 				sb.append(line+StringUtil.lineEnding());
 			}
-			Document cipresResponseDoc = loadXMLFile("jobstatus", sb.toString());
+
+			Document cipresResponseDoc = loadXMLFile("jobstatus", sb.toString());  // let's see how it went
 			boolean success = false;
-			if (cipresResponseDoc!=null) {
+			if (cipresResponseDoc!=null) {  
 				processJobSubmissionResponse(cipresResponseDoc, jobURL);
 				if (verbose)
 					Debugg.println(sb.toString());
@@ -383,8 +300,8 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 				else 
 					success=true;
 			} else {
-				Debugg.println("\n********  Submission of the CIPRes job was not successful ********* ");
-				Debugg.println(sb.toString());
+				cipresResponseDoc = loadXMLFile(sb.toString());
+				reportError(cipresResponseDoc, "Error with CIPRes run", false);
 
 			}
 			EntityUtils.consume(response.getEntity());
@@ -394,17 +311,12 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 		}
 		return false;
 	}
-	/*.................................................................................................................*/
-	public boolean checkJob (HttpClient httpclient, String jobURL){
-		Document cipresResponseDoc = cipresQuery(httpclient, jobURL, "jobstatus");
-		if (cipresResponseDoc!=null) {
-			ownerModule.logln("CIPRes Job Status: " + jobStatusFromResponse(cipresResponseDoc));
-		}
-		return true;
-	}
+	
+	
 
 	static final String JOBCOMPLETED = "COMPLETED";
 	static final String JOBSUBMITTED = "SUBMITTED";
+	
 	/*.................................................................................................................*/
 	public String jobStatusFromResponse(Document cipresResponseDoc) {
 		String status = "Status not available";
@@ -434,10 +346,20 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 
 	/*.................................................................................................................*/
+	/** Reports job status in the log. */
+	public void reportJobStatus(String jobURL) {
+		if (checkUsernamePassword(false)) {
+			HttpClient httpclient = getHttpClient();
+			Document cipresResponseDoc = cipresQuery(httpclient, jobURL, "jobstatus");
+			if (cipresResponseDoc!=null) {
+				ownerModule.logln("CIPRes Job Status: " + jobStatusFromResponse(cipresResponseDoc));
+			}
+		}
+	}
+
+	/*.................................................................................................................*/
 	public String getJobStatus (HttpClient httpclient, String jobURL){
-		verbose=false;
 		Document cipresResponseDoc = cipresQuery(httpclient, jobURL, "jobstatus");
-		verbose=true;
 		if (cipresResponseDoc!=null) {
 			return jobStatusFromResponse(cipresResponseDoc);
 		}
@@ -483,9 +405,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 	/*.................................................................................................................*/
 	public String getResultsDirectory (HttpClient httpclient, String jobURL){
-		verbose=false;
 		Document cipresResponseDoc = cipresQuery(httpclient, jobURL, "jobstatus");
-		verbose=true;
 		if (cipresResponseDoc!=null) {
 			return getDirectoryFromJobStatusResponse(cipresResponseDoc, "resultsUri");
 		}
@@ -502,9 +422,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 	/*.................................................................................................................*/
 	public String getWorkingDirectory (HttpClient httpclient, String jobURL){
-		verbose=false;
 		Document cipresResponseDoc = cipresQuery(httpclient, jobURL, "jobstatus");
-		verbose=true;
 		if (cipresResponseDoc!=null) {
 			return getDirectoryFromJobStatusResponse(cipresResponseDoc,"workingDirUri");
 		}
@@ -550,6 +468,10 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 						cipresJobFile[count].setDownloadTitle(fileInfo);
 					}
 				}
+				fileInfo= nextJob.elementText("dateModified");
+				if (!StringUtil.blank(fileInfo)&& count<cipresJobFile.length) {
+					cipresJobFile[count].setLastModified(fileInfo);
+				}
 				fileInfo= nextJob.elementText("filename");
 				if (!StringUtil.blank(fileInfo)&& count<cipresJobFile.length) {
 					cipresJobFile[count].setFileName(fileInfo);
@@ -591,9 +513,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 			return;
 		String resultsUri = getResultsDirectory(jobURL);
 		if (StringUtil.notEmpty(resultsUri)) {
-			verbose=false;
 			Document cipresResponseDoc = cipresQuery(httpclient, resultsUri, "results");
-			verbose=true;
 			if (cipresResponseDoc!=null) {
 				CipresJobFile[] cipresJobFile = processResults(cipresResponseDoc);
 				for (int job=0; job<cipresJobFile.length; job++) {
@@ -608,9 +528,44 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 		String resultsUri = getResultsDirectory(jobURL);
 		if (StringUtil.notEmpty(resultsUri)) {
-			verbose=false;
 			Document cipresResponseDoc = cipresQuery(httpclient, resultsUri, "results");
-			verbose=true;
+			if (cipresResponseDoc!=null) {
+				CipresJobFile[] cipresJobFile = processResults(cipresResponseDoc);
+				for (int job=0; job<cipresJobFile.length; job++) {
+					cipresDownload(httpclient, cipresJobFile[job].getDownloadURL(), rootDir + cipresJobFile[job].getFileName());
+				}
+			}
+		}
+	}
+	/*.................................................................................................................*/
+	public void downloadResults(String jobURL, String rootDir) {
+		if (checkUsernamePassword(false)) {
+			HttpClient httpclient = getHttpClient();
+			downloadResults(httpclient, jobURL, rootDir);
+		}
+	}
+
+	/*.................................................................................................................*/
+	public void downloadWorkingResults (HttpClient httpclient, String jobURL, String rootDir, String fileName){
+		if (StringUtil.blank(fileName))
+			return;
+		String workingUri = getWorkingDirectory(jobURL);
+		if (StringUtil.notEmpty(workingUri)) {
+			Document cipresResponseDoc = cipresQuery(httpclient, workingUri, "workingdir");
+			if (cipresResponseDoc!=null) {
+				CipresJobFile[] cipresJobFile = processResults(cipresResponseDoc);
+				for (int job=0; job<cipresJobFile.length; job++) {
+					if (fileName.equalsIgnoreCase(cipresJobFile[job].getFileName()))
+						cipresDownload(httpclient, cipresJobFile[job].getDownloadURL(), rootDir + cipresJobFile[job].getFileName());
+				}
+			}
+		}
+	}
+	/*.................................................................................................................*/
+	public void downloadWorkingResults (HttpClient httpclient, String jobURL, String rootDir){
+		String resultsUri = getWorkingDirectory(jobURL);
+		if (StringUtil.notEmpty(resultsUri)) {
+			Document cipresResponseDoc = cipresQuery(httpclient, resultsUri, "workingdir");
 			if (cipresResponseDoc!=null) {
 				CipresJobFile[] cipresJobFile = processResults(cipresResponseDoc);
 				for (int job=0; job<cipresJobFile.length; job++) {
@@ -620,27 +575,20 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 		}
 	}
 
-	/*.................................................................................................................*
-		public void downloadFile (HttpClient httpclient, String fileURL){
-
-			Document cipresResponseDoc = cipresQuery(httpclient, resultsUri, "results");
-		}
-
-		/*.................................................................................................................*/
-	public void downloadResults(String jobURL, String rootDir) {
+	/*.................................................................................................................*/
+	public void downloadWorkingResults(String jobURL, String rootDir) {
 		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
-			downloadResults(httpclient, jobURL, rootDir);
+			downloadWorkingResults(httpclient, jobURL, rootDir);
 		}
 	}
+
 	/*.................................................................................................................*/
 	public void getResults (HttpClient httpclient, String jobURL){
 
 		String resultsUri = getResultsDirectory(jobURL);
 		if (StringUtil.notEmpty(resultsUri)) {
-			verbose=false;
 			Document cipresResponseDoc = cipresQuery(httpclient, resultsUri, "results");
-			verbose=true;
 			if (cipresResponseDoc!=null) {
 				CipresJobFile[] cipresJobFile = processResults(cipresResponseDoc);
 				for (int job=0; job<cipresJobFile.length; job++) {
@@ -663,15 +611,6 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 
 	/*.................................................................................................................*/
-	public boolean checkJobStatus(String jobURL) {
-		if (checkUsernamePassword(false)) {
-			HttpClient httpclient = getHttpClient();
-			checkJob(httpclient, jobURL);
-			return true;
-		}
-		return false;
-	}
-	/*.................................................................................................................*/
 	public boolean sendJobToCipres(MultipartEntityBuilder builder, String tool, MesquiteString jobURL) {
 		if (checkUsernamePassword(true)) {
 			HttpClient httpclient = getHttpClient();
@@ -687,15 +626,18 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 		return false;
 	}
 	/*.................................................................................................................*/
-	public void processOutputFiles(){
-		if (outputFileProcessor!=null && outputFilePaths!=null && lastModified !=null) {
-			String[] paths = outputFileProcessor.modifyOutputPaths(outputFilePaths);
-			for (int i=0; i<paths.length && i<lastModified.length; i++) {
-				File file = new File(paths[i]);
-				long lastMod = file.lastModified();
-				if (!MesquiteLong.isCombinable(lastModified[i])|| lastMod>lastModified[i]){
-					outputFileProcessor.processOutputFile(paths, i);
-					lastModified[i] = lastMod;
+	public void processOutputFiles(String jobURL){
+		if (rootDir!=null) {
+			downloadWorkingResults(jobURL, rootDir);
+			if (outputFileProcessor!=null && outputFilePaths!=null && lastModified !=null) {
+				String[] paths = outputFileProcessor.modifyOutputPaths(outputFilePaths);
+				for (int i=0; i<paths.length && i<lastModified.length; i++) {
+					File file = new File(paths[i]);
+					long lastMod = file.lastModified();
+					if (!MesquiteLong.isCombinable(lastModified[i])|| lastMod>lastModified[i]){
+						outputFileProcessor.processOutputFile(paths, i);
+						lastModified[i] = lastMod;
+					}
 				}
 			}
 		}
@@ -715,10 +657,11 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 		String status = "";
 		while (!jobCompleted(jobURL) && stillGoing){
 			if(StringUtil.blank(status))
+
 				ownerModule.logln("CIPRes Job Status: " + getJobStatus(jobURL) + "  (" + StringUtil.getDateTime() + ")");
 
 			//	if (jobSubmitted(jobURL))
-		//		processOutputFiles();
+			//		processOutputFiles();
 			try {
 				Thread.sleep(sleepTime);
 			}
@@ -726,7 +669,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 				MesquiteMessage.notifyProgrammer("InterruptedException in CIPRes monitoring");
 				return false;
 			}
-			
+
 			stillGoing = watcher == null || watcher.continueShellProcess(null);
 			String newStatus = getJobStatus(jobURL);
 			if (newStatus!=null && !newStatus.equalsIgnoreCase(status)) {
@@ -734,6 +677,9 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 				status=newStatus;
 			} else
 				ownerModule.log(".");
+			if (newStatus!=null && newStatus.equalsIgnoreCase("SUBMITTED")){  // job is running
+				processOutputFiles(jobURL);
+			}
 		}
 		ownerModule.logln("CIPRes job completed.");
 		if (outputFileProcessor!=null) {
@@ -745,6 +691,92 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 		}
 
 		return true;
+	}
+
+	/*.................................................................................................................*/
+	/** This method simply lists the tools available */
+	public void  listTools(HttpClient httpclient){
+		Document cipresResponseDoc = cipresQuery(httpclient, baseURL + "/tool", "tools");
+		if (cipresResponseDoc!=null) {
+			String elementName = "tool";
+			List tools = cipresResponseDoc.getRootElement().elements(elementName);
+			int count=0;
+			for (Iterator iter = tools.iterator(); iter.hasNext();) {  // let's get a count as to how many tools there are.
+				Element nextTool = (Element) iter.next();
+				count++;
+			}
+			String[] toolName = new String[count];
+			count=0;
+			for (Iterator iter = tools.iterator(); iter.hasNext();) {
+				Element nextTool = (Element) iter.next();
+				String name = nextTool.elementText("toolId");
+				if (!StringUtil.blank(name)&& count<toolName.length) {
+					ownerModule.logln(name);
+				}
+				name = nextTool.elementText("toolName");
+				if (!StringUtil.blank(name)&& count<toolName.length) {
+					ownerModule.logln("   " + name);
+				}
+				count++;
+			}
+		}
+	}
+	/*.................................................................................................................*/
+
+	public String[] getJobURLs(Document cipresResponseDoc) {
+		String elementName = "jobstatus";
+		Element jobs = cipresResponseDoc.getRootElement().element("jobs");
+		if (jobs==null)
+			return null;
+		List tools = jobs.elements("jobstatus");
+		int count=0;
+		for (Iterator iter = tools.iterator(); iter.hasNext();) {
+			Element nextTool = (Element) iter.next();
+			count++;
+		}
+		String[] url = new String[count];
+		count=0;
+		for (Iterator iter = tools.iterator(); iter.hasNext();) {
+			Element nextJob = (Element) iter.next();
+			if (nextJob!=null) {
+				Element selfUriElement= nextJob.element("selfUri");
+				if (selfUriElement!=null) {
+					String jobURL = selfUriElement.elementText("url");
+					if (!StringUtil.blank(jobURL)&& count<url.length) {
+						url[count] = jobURL;
+					}
+				}
+				count++;
+			}
+		}
+		return url;
+
+	}
+	/*.................................................................................................................*/
+	/** This method returns an array of Strings containing the URLs for the jobs for the current user */
+	public String[] getJobURLs(HttpClient httpclient) {
+		Document cipresResponseDoc = cipresQuery(httpclient, baseURL + "/job/" + username, "joblist");
+		if (cipresResponseDoc!=null) {
+			String[] jobList = getJobURLs(cipresResponseDoc);
+			return jobList;
+		}
+		return null;
+	}
+	/*.................................................................................................................*/
+	/** Lists to the log the current jobs of the user */
+	public void  listJobs(HttpClient httpclient){
+		Document cipresResponseDoc = cipresQuery(httpclient, baseURL + "/job/" + username, "joblist");
+		if (cipresResponseDoc!=null) {
+			String[] jobList = getJobURLs(cipresResponseDoc);
+			if (jobList!=null)
+				for (int job=0; job<jobList.length; job++){
+					ownerModule.logln("\njob " + job + ": " + jobList[job]);
+					String status = getJobStatus(jobList[job]);
+					ownerModule.logln("   " + status);
+					String wd = getWorkingDirectory(jobList[job]);
+					ownerModule.logln("   " + wd);
+				}
+		}
 	}
 
 	/*.................................................................................................................*/

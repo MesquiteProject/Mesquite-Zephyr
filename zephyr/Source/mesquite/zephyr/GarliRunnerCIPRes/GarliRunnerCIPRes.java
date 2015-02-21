@@ -134,16 +134,17 @@ public class GarliRunnerCIPRes extends GarliRunner {
 	/*.................................................................................................................*/
 	public String[] getLogFileNames() {
 		String treeFileName;
+		String run = ".run00";
 		if (bootstrapOrJackknife())
-			treeFileName = ofprefix + ".boot.tre";
+			treeFileName = ofprefix + run + ".boot.tre";
 		else
-			treeFileName = ofprefix + ".run00.best.tre";
-		String currentTreeFilePath = ofprefix + ".best.current.tre";
-		String allBestTreeFilePath = ofprefix + ".run00.best.tre";
+			treeFileName = ofprefix + run + ".best.tre";
+		String currentTreeFilePath = ofprefix + run + ".best.current.tre";
+		String allBestTreeFilePath = ofprefix + run + ".best.tre";
 //		String allBestTreeFilePath = ofprefix + ".best.all.tre";
-		String mainLogFileName = ofprefix + ".log00.log";
+		String mainLogFileName = ofprefix + run + ".log00.log";
 
-		return new String[] { mainLogFileName, currentTreeFilePath,ofprefix + ".screen.log", treeFileName, allBestTreeFilePath };
+		return new String[] { mainLogFileName, currentTreeFilePath, ofprefix + run + ".screen.log", treeFileName, allBestTreeFilePath };
 	}
 
 
