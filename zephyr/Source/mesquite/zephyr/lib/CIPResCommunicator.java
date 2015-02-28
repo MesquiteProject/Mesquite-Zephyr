@@ -869,7 +869,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	}
 
 	/*.................................................................................................................*/
-	public void deleteJob(String jobURL) {
+	public void deleteJob(String jobURL) {  // TODO:  check to see if the Zephyr run is ongoing, and warn user if so.
 		if (checkUsernamePassword(false)) {
 			HttpClient httpclient = getHttpClient();
 			deleteJob(httpclient, jobURL);
@@ -877,7 +877,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	}
 	/*.................................................................................................................*/
 	public void deleteAllJobs() {
-		if (checkUsernamePassword(false)) {
+		if (checkUsernamePassword(false)) {   // TODO:  check to see if a Zephyr run is ongoing, and warn user if so.
 			HttpClient httpclient = getHttpClient();
 			String[] jobURLs = getJobURLs(httpclient);
 			if (jobURLs!=null) {

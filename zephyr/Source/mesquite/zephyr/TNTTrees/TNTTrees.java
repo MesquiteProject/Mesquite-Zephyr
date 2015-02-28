@@ -19,12 +19,11 @@ import mesquite.zephyr.lib.*;
 
 
 public class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
-	TNTRunner tntRunner;
 	TreeSource treeRecoveryTask;
-	Taxa taxa;
-	private MatrixSourceCoord matrixSourceTask;
-	protected MCharactersDistribution observedStates;
-	int rerootNode = 0;
+	//Taxa taxa;
+	//private MatrixSourceCoord matrixSourceTask;
+	//protected MCharactersDistribution observedStates;
+	//int rerootNode = 0;
 
 
 	/*.................................................................................................................*/
@@ -84,8 +83,9 @@ public class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
 
 		String s = MesquiteFile.getFileLastContents(path);
 
+		int[] taxonNumberTranslation = ((TNTRunner)runner).getTaxonNumberTranslation(taxa);
 
-		latestTree = ZephyrUtil.readTNTTrees(this, null,s,"TNTTree", 0, taxa,true, false, null);
+		latestTree = ZephyrUtil.readTNTTrees(this, null,s,"TNTTree", 0, taxa,true, false, null, taxonNumberTranslation);
 
 		if (latestTree!=null && latestTree.isValid()) {
 			rerootNode = latestTree.nodeOfTaxonNumber(1);

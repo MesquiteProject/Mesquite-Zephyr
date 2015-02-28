@@ -23,9 +23,9 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	protected Tree latestTree = null;
 	protected Taxa taxa;
 	protected long treesInferred;
-	private MatrixSourceCoord matrixSourceTask;
+	protected MatrixSourceCoord matrixSourceTask;
 	protected MCharactersDistribution observedStates;
-	int rerootNode = 0;
+	protected int rerootNode = 0;
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences();

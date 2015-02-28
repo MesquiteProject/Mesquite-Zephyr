@@ -546,6 +546,63 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	}
 
 	/*.................................................................................................................*/
+	public static final NameReference TNTtoAnalyze = NameReference.getNameReference("TNTtoAnalyze"); 
+
+	//this stores matrix-specific information on the taxa to be included in the run
+	Associable taxaInfo; 
+	public Associable getTaxaInfo(CharacterData data, boolean makeIfNotPresent){
+		if (makeIfNotPresent && taxaInfo == null){
+			taxaInfo = new TaxaInfo(data.getNumTaxa(), data);
+		}
+		return taxaInfo;
+	}
+
+	/* .......................................... DNAData .................................................. */
+	public long getTaxonNumberInTree(Taxa taxa, int it) {
+		Associable tInfo = getTaxaInfo(data, true);
+		if (tInfo!=null) {
+			return (int)tInfo.getAssociatedLong(TNTtoAnalyze,it);
+		}
+		return -1;
+	}
+	/* .......................................... MolecularData .................................................. */
+	public void setTaxonNumberInTree(Taxa taxa, int it, int value) {
+		Associable tInfo = getTaxaInfo(data, true);
+		if (tInfo!=null) {
+			tInfo.setAssociatedLong(TNTtoAnalyze, it, value);
+		}
+	}
+
+	/*.................................................................................................................*/
+	public int[] getTaxonNumberTranslation(Taxa taxa) {
+		int max = -1;
+		for (int it = 0; it<taxa.getNumTaxa(); it++){
+			long translateNumber = getTaxonNumberInTree(taxa,it);
+			if (MesquiteLong.isCombinable(translateNumber) && translateNumber>max) {
+				max=(int)translateNumber;
+			}
+		}
+		int[] translate = new int[max+1];
+		for (int it = 0; it<data.getNumTaxa(); it++) {
+			long translateNumber = getTaxonNumberInTree(taxa,it);
+			if (MesquiteLong.isCombinable(translateNumber) && translateNumber>=0) {
+				translate[(int)translateNumber]=it;
+			}
+		}
+		return translate;
+	}
+	/*.................................................................................................................*/
+	public void setTaxonTranslation(Taxa taxa) {
+		int countTaxa = 0;
+		for (int it = 0; it<data.getNumTaxa(); it++)
+			if ((!selectedTaxaOnly || taxa.getSelected(it)) && (data.hasDataForTaxon(it, false))) {
+				setTaxonNumberInTree(taxa,it,countTaxa);
+				countTaxa++;
+			} else
+				setTaxonNumberInTree(taxa,it,-1);
+
+	}
+	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
 			return null;
@@ -558,14 +615,18 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "TNT","-Run.");  
 		if (tempDir==null)
 			return null;
-		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".ss";   //replace this with actual file name?
+		String dataFileName = "data.ss";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 		FileInterpreterI exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretTNT");
 		if (exporter==null)
 			return null;
 		boolean fileSaved = false;
+		
 		fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		if (!fileSaved) return null;
+		
+		setTaxonTranslation(taxa);
+
 
 		setFileNames();
 
@@ -639,16 +700,18 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		success = false;
 		Tree t= null;
 
+		int[] taxonNumberTranslation = getTaxonNumberTranslation(taxa);
+		
 		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 		//TreeVector tv = new TreeVector(taxa);
 		if (bootstrapOrJackknife()) {
 			if (resamplingAllConsensusTrees)
-				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT " + getResamplingKindName() + " Rep", 0, readSuccess, false, false, null);  // set first tree number as 0 as will remove the first one later.
+				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT " + getResamplingKindName() + " Rep", 0, readSuccess, false, false, null, taxonNumberTranslation);  // set first tree number as 0 as will remove the first one later.
 			else
-				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT " + getResamplingKindName() + " Majority Rule Tree", 1, readSuccess, false, false, freqRef);
+				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT " + getResamplingKindName() + " Majority Rule Tree", 1, readSuccess, false, false, freqRef, taxonNumberTranslation);
 		}
 		else
-			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTTree", 1, readSuccess, false, harvestOnlyStrictConsensus, null);
+			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTTree", 1, readSuccess, false, harvestOnlyStrictConsensus, null, taxonNumberTranslation);
 		success = t!=null;
 		if (success && bootstrapOrJackknife() && resamplingAllConsensusTrees) {
 			t = t.cloneTree();
