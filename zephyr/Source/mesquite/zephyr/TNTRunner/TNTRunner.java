@@ -194,8 +194,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		commands += getTNTCommand("mxram " + mxram);
 
 		commands += getTNTCommand("report+0/1/0");
-		commands += getTNTCommand("p " + dataFileName);
 		commands += getTNTCommand("log "+logFileName) ; 
+		commands += getTNTCommand("p " + dataFileName);
 		commands += getTNTCommand("vversion");
 		if (MesquiteInteger.isCombinable(firstOutgroup) && firstOutgroup>=0)
 			commands += getTNTCommand("outgroup " + firstOutgroup);
