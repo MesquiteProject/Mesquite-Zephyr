@@ -55,9 +55,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected static String otherOptions = "";
 	protected boolean doBootstrap = false;
 	
-	protected boolean[] completedRuns=null;
-	protected int previousCurrentRun=0;
-	MesquiteLong fPOS = new MesquiteLong(0);
 	long summaryFilePosition =0;
 
 
@@ -628,7 +625,6 @@ WAG, gene2 = 501-1000
 		numRunsCompleted = 0;
 		completedRuns = new boolean[numRuns];
 		for (int i=0; i<numRuns; i++) completedRuns[i]=false;
-		fPOS.setValue(0);
 		summaryFilePosition=0;
 		
 		//----------//

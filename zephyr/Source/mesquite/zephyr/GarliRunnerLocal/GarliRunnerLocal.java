@@ -56,14 +56,10 @@ public class GarliRunnerLocal extends GarliRunner {
 			 arguments.setValue(" --batch " + configFileName);
 		 else
 			 arguments.setValue(""); // GARLI command is very simple as all of the arguments are in the config file
-
-
 		 return arguments;
-
 	 }
 
 	/*.................................................................................................................*/
-
 	public void appendToConfigFileGeneral(StringBuffer config) {
 		if (config!=null) {
 			config.append("\ndatafname=" + dataFileName);
@@ -83,10 +79,8 @@ public class GarliRunnerLocal extends GarliRunner {
 
 			config.append("\nsearchreps = " + numRuns);
 
-			
 			config.append("\n");
 		}
-
 	}
 
 	/*.................................................................................................................*/
@@ -132,11 +126,6 @@ public class GarliRunnerLocal extends GarliRunner {
 		configFileName = "garli.conf";
 	}
 
-	static final int MAINLOGFILE = 0;
-	static final int CURRENTTREEFILEPATH = 1;
-	static final int SCREENLOG = 2;
-	static final int TREEFILE = 3;
-	static final int BESTTREEFILE = 4;
 
 	/*.................................................................................................................*/
 	public String[] getLogFileNames() {

@@ -34,6 +34,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
 	protected int currentRun=0;
+	protected boolean[] completedRuns=null;
+	protected int previousCurrentRun=0;
 
 	
 	protected String outgroupTaxSetString = "";

@@ -71,10 +71,7 @@ public class GarliRunnerCIPRes extends GarliRunner {
 		return arguments;
 	}
 
-
-
 	/*.................................................................................................................*/
-
 	public void appendToConfigFileGeneral(StringBuffer config) {
 		if (config!=null) {
 			config.append("\ndatafname=infile");
@@ -93,17 +90,13 @@ public class GarliRunnerCIPRes extends GarliRunner {
 			config.append("\n\nrandseed = -1"); // important to be user-editable
 			config.append("\nsearchreps = 1");
 			config.append("\n");
-
 		}
-
 	}
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
 		return true;
 	}
-
-
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions() {
@@ -125,16 +118,10 @@ public class GarliRunnerCIPRes extends GarliRunner {
 		configFileName = "garli.conf";
 	}
 
-	static final int MAINLOGFILE = 0;
-	static final int CURRENTTREEFILEPATH = 1;
-	static final int SCREENLOG = 2;
-	static final int TREEFILE = 3;
-	static final int BESTTREEFILE = 4;
-
 	/*.................................................................................................................*/
 	public String[] getLogFileNames() {
-		String treeFileName;
-		String run = ".run00";
+		String treeFileName; 	
+		String run = ".run" + MesquiteInteger.toStringDigitsSpecified(currentRun, 2);
 		if (bootstrapOrJackknife())
 			treeFileName = ofprefix + run + ".boot.tre";
 		else
@@ -143,261 +130,25 @@ public class GarliRunnerCIPRes extends GarliRunner {
 		String allBestTreeFilePath = ofprefix + run + ".best.tre";
 //		String allBestTreeFilePath = ofprefix + ".best.all.tre";
 		String mainLogFileName = ofprefix + run + ".log00.log";
-
 		return new String[] { mainLogFileName, currentTreeFilePath, ofprefix + run + ".screen.log", treeFileName, allBestTreeFilePath };
 	}
 
-
-	/* ================================================= *
-	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(MolecularData.class, taxa, matrix))
-			return null;
-		//David: if isDoomed() then module is closing down; abort somehow
-		setGarliSeed(seed);
-
-		// create the data file
-		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this,MesquiteFileUtil.IN_SUPPORT_DIR, "GARLI", "-Run.");
-		if (tempDir == null)
-			return null;
-		dataFileName = "tempData"+ MesquiteFile.massageStringToFilePathSafe(unique) + ".nex"; // replace this with actual file name?
-
-		String dataFilePath = tempDir + dataFileName;
-		if (partitionScheme == noPartition)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, false, false);
-		else if (partitionScheme == partitionByCharacterGroups)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, true, false);
-		else if (partitionScheme == partitionByCodonPosition)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, true, true);
-
-		setFileNames();
-
-		// setting up the GARLI config file
-		String config = getGARLIConfigurationFile(data);
-		if (!MesquiteThread.isScripting() && showConfigDetails) {
-			config = MesquiteString.queryMultiLineString(getModuleWindow(),"GARLI Config File", "GARLI Config File", config, 30, false, true);
-			if (StringUtil.blank(config))
-				return null;
-		}
-
-		// setting up the arrays of input file names and contents
-		int numInputFiles = 3;
-		String[] fileContents = new String[numInputFiles];
-		String[] fileNames = new String[numInputFiles];
-		for (int i = 0; i < numInputFiles; i++) {
-			fileContents[i] = "";
-			fileNames[i] = "";
-		}
-		fileContents[0] = MesquiteFile.getFileContentsAsString(dataFilePath);
-		fileNames[0] = dataFileName;
-		if (StringUtil.notEmpty(constraintfile)) {
-			fileContents[1] = MesquiteFile.getFileContentsAsString(constraintfile);
-			fileNames[1] = "constraint";
-		}
-		fileContents[2] = config;
-		fileNames[2] = configFileName;
-
-		String GARLIcommand = externalProcRunner.getExecutableCommand();
-		MesquiteString arguments = new MesquiteString();
-		if (externalProcRunner.isWindows())
-			arguments.setValue(" --batch " + configFileName);
-		else
-			arguments.setValue(""); // GARLI command is very simple as all of the arguments are in the config file
-
-		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName());
-
-		if (!isDoomed()){
-		if (success) {
-			getProject().decrementProjectWindowSuppression();
-			return retrieveTreeBlock(trees, finalScore); // here's where we actually process everything
-		}
-		}
-
-		if (getProject() != null)
-			getProject().decrementProjectWindowSuppression();
-		if (data != null)
-			data.setEditorInhibition(false);
-		return null;
-	}
-
-	/*.................................................................................................................*
-	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
-		logln("Preparing to receive GARLI trees.");
-		boolean success = false;
-		taxa = treeList.getTaxa();
-		finalScore.setValue(finalValue);
-
-		getProject().incrementProjectWindowSuppression();
-		FileCoordinator coord = getFileCoordinator();
-		MesquiteFile tempDataFile = null;
-		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
-		CommandRecord scr = new CommandRecord(true);
-		MesquiteThread.setCurrentCommandRecord(scr);
-
-		// define file paths and set tree files as needed.
-		setFileNames();
-		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
-
-		// read in the tree files
-		if (onlyBest || numRuns == 1 || bootstrapOrJackknife())
-			tempDataFile = (MesquiteFile) coord.doCommand("includeTreeFile", StringUtil.tokenize(outputFilePaths[TREEFILE]) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); // TODO: never scripting???
-		else
-			tempDataFile = (MesquiteFile) coord.doCommand("includeTreeFile",StringUtil.tokenize(outputFilePaths[BESTTREEFILE]) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); // TODO: never scripting???
-
-		runFilesAvailable();
-
-		MesquiteThread.setCurrentCommandRecord(oldCR);
-
-		TreesManager manager = (TreesManager) findElementManager(TreeVector.class);
-		Tree t = null;
-		int numTB = manager.getNumberTreeBlocks(taxa);
-		TreeVector tv = manager.getTreeBlock(taxa, numTB - 1);
-		if (tv != null) {
-			t = tv.getTree(0);
-			ZephyrUtil.adjustTree(t, outgroupSet);
-
-			if (t != null)
-				success = true;
-
-			if (treeList != null) {
-				double bestScore = MesquiteDouble.unassigned;
-				for (int i = 0; i < tv.getNumberOfTrees(); i++) {
-					Tree newTree = tv.getTree(i);
-					ZephyrUtil.adjustTree(newTree, outgroupSet);
-
-					if (finalValues != null && i < finalValues.length
-							&& MesquiteDouble.isCombinable(finalValues[i])) {
-						MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
-						s.setName(GarliRunner.SCORENAME);
-						((Attachable) newTree).attachIfUniqueName(s);
-					}
-
-					treeList.addElement(newTree, false);
-
-					if (finalValues != null && i < finalValues.length
-							&& MesquiteDouble.isCombinable(finalValues[i]))
-						if (MesquiteDouble.isUnassigned(bestScore))
-							bestScore = finalValues[i]; // Debugg.println must refind final values, best score
-						else if (bestScore < finalValues[i])
-							bestScore = finalValues[i];
-				}
-				logln("Best score: " + bestScore);
-
-			}
-		}
-		// int numTB = manager.getNumberTreeBlocks(taxa);
-
-		getProject().decrementProjectWindowSuppression();
-		if (tempDataFile != null)
-			tempDataFile.close();
-		// deleteSupportDirectory();
-		if (data != null)
-			data.setEditorInhibition(false);
-		manager.deleteElement(tv); // get rid of temporary tree block
-		if (success) {
-			postBean("successful", false);
-			return t;
-		}
-		postBean("failed, retrieveTreeBlock", false);
-		return null;
-	}
-
 	/*.................................................................................................................*/
-
-
-	/*.................................................................................................................*
-
-	public void runFilesAvailable(int fileNum) {
-		String[] logFileNames = getLogFileNames();
-		if ((progIndicator != null && progIndicator.isAborted())
-				|| logFileNames == null)
-			return;
-		String[] outputFilePaths = new String[logFileNames.length];
-		outputFilePaths[fileNum] = externalProcRunner
-				.getOutputFilePath(logFileNames[fileNum]);
-		String filePath = outputFilePaths[fileNum];
-
-
-
-		if (fileNum == MAINLOGFILE && outputFilePaths.length > 0
-				&& !StringUtil.blank(outputFilePaths[MAINLOGFILE])
-				&& !bootstrapOrJackknife()) { // screen log
-			if (MesquiteFile.fileExists(filePath)) {
-				String s = MesquiteFile.getFileLastContents(filePath);
-				if (!StringUtil.blank(s))
-					if (progIndicator != null) {
-						parser.setString(s);
-						String gen = parser.getFirstToken(); // generation
-																// number
-						progIndicator.setText("Generation: " + gen
-								+ ", ln L = " + parser.getNextToken());
-						progIndicator.spin();
-
-					}
-				count++;
-			} else
-				Debugg.println("*** File does not exist (" + filePath + ") ***");
-		}
-
-		if (fileNum == CURRENTTREEFILEPATH && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[CURRENTTREEFILEPATH]) && !bootstrapOrJackknife()) {
-			String treeFilePath = filePath;
-			if (taxa != null) {
-				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
-			} else
-				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
-		}
-
-		if (fileNum == SCREENLOG && outputFilePaths.length > 2
-				&& !StringUtil.blank(outputFilePaths[SCREENLOG])) {
-			if (screenFile == null) { // this is the output file
-				if (MesquiteFile.fileExists(filePath))
-					screenFile = MesquiteFile.open(true, filePath);
-				else
-					MesquiteMessage.warnProgrammer("*** File does not exist (" + filePath + ") ***");
-			}
-			if (screenFile != null) {
-				screenFile.openReading();
-				if (!MesquiteLong.isCombinable(screenFilePos))
-					screenFilePos = 0;
-				screenFile.goToFilePosition(screenFilePos);
-				String s = screenFile.readLine();
-				while (s != null) { // &&
-									// screenFile.getFilePosition()<screenFile.existingLength()-2)
-									// {
-					if (s.startsWith("Final score")) {
-						parser.setString(s);
-						String s1 = parser.getFirstToken(); // Final
-						s1 = parser.getNextToken(); // score
-						s1 = parser.getNextToken(); // =
-						s1 = parser.getNextToken(); // number
-						if (finalValues != null && runNumber < finalValues.length)
-							finalValues[runNumber] = MesquiteDouble.fromString(s1);
-						runNumber++;
-						if (bootstrapOrJackknife())
-							logln("GARLI bootstrap replicate " + runNumber + " of " + getTotalReps() + ", ln L = " + s1);
-						else
-							logln("GARLI search replicate " + runNumber + " of " + getTotalReps() + ", ln L = " + s1);
-						numRunsCompleted++;
-						double timePerRep = timer.timeSinceVeryStartInSeconds()/ numRunsCompleted; // this is time per rep
-						int timeLeft = 0;
-						if (bootstrapOrJackknife()) {
-							timeLeft = (int) ((bootstrapreps - numRunsCompleted) * timePerRep);
-						} else {
-							timeLeft = (int) ((numRuns - numRunsCompleted) * timePerRep);
-						}
-						logln("  Running time so far " + StringUtil.secondsToHHMMSS((int) timer.timeSinceVeryStartInSeconds()) + ", approximate time remaining "+ StringUtil.secondsToHHMMSS(timeLeft));
-
-					} else if (s.startsWith("ERROR:"))
-						MesquiteMessage.discreetNotifyUser("GARLI " + s);
-					s = screenFile.readLine();
-					count++;
-				}
-
-				screenFilePos = screenFile.getFilePosition();
-				screenFile.closeReading();
+	public String[] modifyOutputPaths(String[] outputFilePaths){
+		if (!bootstrapOrJackknife() && numRuns>1 ) {
+			if (currentRun!=previousCurrentRun) {
+				String[] fileNames = getLogFileNames();
+				externalProcRunner.setOutputFileNameToWatch(MAINLOGFILE, fileNames[MAINLOGFILE]);
+				outputFilePaths[MAINLOGFILE] = externalProcRunner.getOutputFilePath(fileNames[MAINLOGFILE]);
+				externalProcRunner.resetLastModified(MAINLOGFILE);
+				externalProcRunner.setOutputFileNameToWatch(CURRENTTREEFILEPATH, fileNames[CURRENTTREEFILEPATH]);
+				outputFilePaths[CURRENTTREEFILEPATH] = externalProcRunner.getOutputFilePath(fileNames[CURRENTTREEFILEPATH]);
+				externalProcRunner.resetLastModified(CURRENTTREEFILEPATH);
+				previousCurrentRun=currentRun;
+				logln("\n----- Now displaying results from run " + currentRun);
 			}
 		}
-
+		return outputFilePaths;
 	}
 
 	/*.................................................................................................................*/
@@ -409,8 +160,6 @@ public class GarliRunnerCIPRes extends GarliRunner {
 	public String getName() {
 		return "GARLI CIPRes Runner";
 	}
-
-
 
 
 	public String getProgramName() {
