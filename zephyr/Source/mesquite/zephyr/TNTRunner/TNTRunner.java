@@ -762,10 +762,6 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	//	MesquiteFile screenFile = null;
 
 	/*.................................................................................................................*
-	public String[] modifyOutputPaths(String[] outputFilePaths){
-		return outputFilePaths;
-	}
-	/*.................................................................................................................*
 	public String getOutputFileToReadPath(String originalPath) {
 		//File file = new File(originalPath);
 		//File fileCopy = new File(originalPath + "2");
@@ -777,6 +773,12 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		}
 		return originalPath;
 	}
+	
+		/*.................................................................................................................*/
+	public  boolean showMultipleRuns() {
+		return false;
+	}
+
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {

@@ -19,7 +19,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
-public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFileProcessor, ShellScriptWatcher {
+public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFileProcessor, ShellScriptWatcher, OutputFilePathModifier {
 	String rootDir = null;
 	MesquiteString jobURL = null;
 	MesquiteString jobID = null;
@@ -194,6 +194,13 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 			}
 		}
 	}
+	/*.................................................................................................................*/
+	public void setOutputFileNameToWatch(int index, String fileName){
+		if (outputFileNames!=null && index>=0 && index < outputFileNames.length) {
+				outputFilePaths[index]=rootDir+fileName;
+				outputFileNames[index]=fileName;
+		}
+	}
 
 	/*.................................................................................................................*/
 	public String getOutputFilePath(String fileName){
@@ -267,7 +274,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	}
 	/*.................................................................................................................*/
 	public String[] modifyOutputPaths(String[] outputFilePaths){
-		return outputFilePaths;
+		return processRequester.modifyOutputPaths(outputFilePaths);
 	}
 	public boolean continueShellProcess(Process proc) {
 		return true;

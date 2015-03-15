@@ -62,6 +62,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public abstract boolean setPreflightInputFiles(String script);
 	public abstract boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames);  //assumes for now that all input files are in the same directory
 	public abstract void setOutputFileNamesToWatch(String[] fileNames);
+	public abstract void setOutputFileNameToWatch(int index, String fileName);
 	public abstract String getOutputFilePath(String fileName);
 	public abstract String[] getOutputFilePaths();
 	public abstract String getLastLineOfOutputFile(String fileName);
@@ -73,6 +74,10 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public abstract boolean monitorExecution();
 	public abstract String checkStatus();  
 	public abstract boolean stopExecution();  
+
+	/*.................................................................................................................*/
+	public void resetLastModified(int i){
+	}
 
 	//results can be harvested by getOutputFile	
 }

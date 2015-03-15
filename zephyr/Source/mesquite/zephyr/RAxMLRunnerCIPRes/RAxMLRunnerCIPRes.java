@@ -199,23 +199,23 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	
 
 
-	static final int OUT_LOGFILE=0;
-	static final int OUT_TREEFILE=1;
-	static final int OUT_SUMMARYFILE=2;
 	/*.................................................................................................................*/
 	public String[] getLogFileNames(){
 		String treeFileName;
+		String workingTreeFileName;
 		String logFileName;
 		if (bootstrapOrJackknife())
 			treeFileName = "RAxML_bootstrap.result";
 		else 
 			treeFileName = "RAxML_result.result";
 		logFileName = "RAxML_info.result";
+		workingTreeFileName= treeFileName;
 		if (!bootstrapOrJackknife() && numRuns>1) {
 			treeFileName+=".RUN.";
+			workingTreeFileName= treeFileName;
 			logFileName+=".RUN.";
 		}
-		return new String[]{logFileName, treeFileName, "RAxML_info.result"};
+		return new String[]{logFileName, treeFileName, "RAxML_info.result", workingTreeFileName};
 	}
 
 	/*.................................................................................................................*/

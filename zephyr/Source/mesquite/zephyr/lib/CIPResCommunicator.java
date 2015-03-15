@@ -42,7 +42,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	String baseURL = "https://www.phylo.org/cipresrest/v1";
 	boolean verbose = MesquiteTrunk.debugMode;
 
-	static int jobNumber = 3;
+	int jobNumber = 3;
 	static String username = "";
 	static String password = ""; 
 	String CIPRESkey = "Mesquite-7C63884588B8438CAE456E115C9643F3";

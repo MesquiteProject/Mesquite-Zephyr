@@ -82,6 +82,11 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		return buffer.toString();
 	}
 
+	/*.................................................................................................................*/
+	public void resetLastModified(int i){
+		scriptRunner.resetLastModified(i);
+	}
+
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
@@ -204,6 +209,13 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			}
 		}
 	}
+	/*.................................................................................................................*/
+	public void setOutputFileNameToWatch(int index, String fileName){
+		if (outputFileNames!=null && index>=0 && index < outputFileNames.length) {
+				outputFilePaths[index]=rootDir+fileName;
+				outputFileNames[index]=fileName;
+		}
+	}
 
 	/*.................................................................................................................*/
 	public String getOutputFilePath(String fileName){
@@ -282,7 +294,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 	/*.................................................................................................................*/
 	public String[] modifyOutputPaths(String[] outputFilePaths){
-		return outputFilePaths;
+		return processRequester.modifyOutputPaths(outputFilePaths);
 	}
 	public boolean continueShellProcess(Process proc) {
 		return true;

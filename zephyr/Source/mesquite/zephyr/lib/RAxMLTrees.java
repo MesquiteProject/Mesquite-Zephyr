@@ -64,6 +64,12 @@ public abstract class RAxMLTrees extends ZephyrTreeSearcher implements Likelihoo
 		String s = MesquiteFile.getFileLastDarkLine(path);
 		TaxonNamer namer = runner.getTaxonNamer();
 		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);    
+		if (latestTree instanceof AdjustableTree) {
+			String name = "RAxML Tree";
+			if (runner.showMultipleRuns())
+				name+= ", Run " + (runner.getCurrentRun()+1);
+			((AdjustableTree)latestTree).setName(name);
+		}
 
 		if (latestTree!=null && latestTree.isValid()) {
 			rerootNode = latestTree.nodeOfTaxonNumber(0);

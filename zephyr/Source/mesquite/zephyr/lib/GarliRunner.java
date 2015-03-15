@@ -484,6 +484,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
 	}
+	/*.................................................................................................................*/
+	public  boolean showMultipleRuns() {
+		return (!bootstrapOrJackknife() && numRuns>1);
+	}
 
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
