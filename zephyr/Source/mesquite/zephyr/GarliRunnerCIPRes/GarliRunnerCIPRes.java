@@ -117,6 +117,10 @@ public class GarliRunnerCIPRes extends GarliRunner {
 	public void setFileNames() {
 		configFileName = "garli.conf";
 	}
+	/*.................................................................................................................*/
+	public boolean mpiVersion() {
+		return true;
+	}
 
 	/*.................................................................................................................*/
 	public String[] getLogFileNames() {
@@ -130,7 +134,7 @@ public class GarliRunnerCIPRes extends GarliRunner {
 		String allBestTreeFilePath = ofprefix + run + ".best.tre";
 //		String allBestTreeFilePath = ofprefix + ".best.all.tre";
 		String mainLogFileName = ofprefix + run + ".log00.log";
-		return new String[] { mainLogFileName, currentTreeFilePath, ofprefix + run + ".screen.log", treeFileName, allBestTreeFilePath };
+		return new String[] { mainLogFileName, currentTreeFilePath, "stdout.txt", treeFileName, allBestTreeFilePath };
 	}
 
 	/*.................................................................................................................*/

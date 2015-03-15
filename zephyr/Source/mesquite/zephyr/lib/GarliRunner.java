@@ -847,6 +847,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	int numRunsCompleted = 0;
 	long screenFilePos = 0;
 	MesquiteFile screenFile = null;
+	/*.................................................................................................................*/
+	public boolean mpiVersion() {
+		return false;
+	}
 
 	/*.................................................................................................................*/
 
@@ -871,10 +875,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 					if (progIndicator != null) {
 						parser.setString(s);
 						String gen = parser.getFirstToken(); // generation
-																// number
+						// number
 						progIndicator.setText("Generation: " + gen + ", ln L = " + parser.getNextToken());
 						progIndicator.spin();
-
 					}
 				count++;
 			} else
