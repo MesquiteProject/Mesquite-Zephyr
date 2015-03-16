@@ -310,7 +310,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 			if (cipresResponseDoc!=null) {  
 				processJobSubmissionResponse(cipresResponseDoc, jobURL);
 				if (verbose)
-					Debugg.println(sb.toString());
+					ownerModule.logln(sb.toString());
 				if (jobURL!=null)
 					success = StringUtil.notEmpty(jobURL.getValue());
 				else 
