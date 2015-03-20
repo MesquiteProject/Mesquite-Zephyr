@@ -105,11 +105,11 @@ public class GarliRunnerCIPRes extends GarliRunner {
 
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
-		dialog.addLabel("CIPRes Options");
 		externalProcRunner.addItemsToDialogPanel(dialog);
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
+		externalProcRunner.optionsChosen();
 	}
 
 

@@ -10,6 +10,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.CIPResRESTRunner;
 
 import java.awt.Button;
+import java.awt.Checkbox;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
@@ -28,6 +29,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	String xmlPrefsString = null;
 
 	boolean verbose = true;
+	boolean forgetPassword=false;
 
 	
 	CIPResCommunicator communicator;
@@ -97,6 +99,10 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 			communicator.setOutputProcessor(this);
 			communicator.setWatcher(this);
 			communicator.setRootDir(rootDir);
+			if (forgetPassword)
+				communicator.forgetPassword();
+			forgetPassword = false;
+
 			return communicator;
 		}
 		else if (checker.compare(this.getClass(), "Sets the job URL", null, commandName, "setJobURL")) {
@@ -120,11 +126,21 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		processRequester.intializeAfterExternalProcessRunnerHired();
 	}
 
+	/*.................................................................................................................*/
+	public void forgetCIPResPassword() {
+		forgetPassword=true;
+	}
+
+	Checkbox ForgetPasswordCheckbox;
 
 	// given the opportunity to fill in options for user
 	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
+		dialog.addBoldLabel("CIPRes Options");
+		ForgetPasswordCheckbox = dialog.addCheckBox("forget CIPRes password", false);
 	}
 	public boolean optionsChosen(){
+		if (ForgetPasswordCheckbox.getState())
+			forgetCIPResPassword();
 		return true;
 	}
 
@@ -230,7 +246,10 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		communicator.setOutputProcessor(this);
 		communicator.setWatcher(this);
 		communicator.setRootDir(rootDir);
-		
+		if (forgetPassword)
+			communicator.forgetPassword();
+		forgetPassword = false;
+
 		jobURL = new MesquiteString();
 		return communicator.sendJobToCipres(builder, executableCIPResName, jobURL);
 	}

@@ -98,15 +98,18 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	public String getTestedProgramVersions(){
 		return "8.0.0 and 8.1.4";
 	}
+
+
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
-		dialog.addLabel("CIPRes Options");
 		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
 		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
+		//externalProcRunner.addItemsToDialogPanel(dialog);
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
 		RAxML814orLater = RAxML814orLaterCheckbox.getState();
+//		externalProcRunner.optionsChosen();
 	}
 	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {

@@ -488,9 +488,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
+		externalProcRunner.addItemsToDialogPanel(dialog);
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
+		externalProcRunner.optionsChosen();
 	}
 	/*.................................................................................................................*/
 	public  boolean showMultipleRuns() {

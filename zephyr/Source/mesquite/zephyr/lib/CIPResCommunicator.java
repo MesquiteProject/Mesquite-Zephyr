@@ -27,7 +27,8 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 
 public class CIPResCommunicator implements XMLPreferencesProcessor {
-	public int sleepTime = 60000;
+	static final int defaultMinPollIntervalSeconds = 60;
+	protected int minPollIntervalSeconds =defaultMinPollIntervalSeconds;
 
 
 	String[] outputFilePaths; //local copies of files
@@ -39,7 +40,8 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	static boolean preferencesProcessed=false;
 	MesquiteModule ownerModule;
 
-	String baseURL = "https://www.phylo.org/cipresrest/v1";
+//	String baseURL = "https://www.phylo.org/cipresrest/v1";
+	String baseURL = "https://cipresrest.sdsc.edu/cipresrest/v1";
 	boolean verbose = MesquiteTrunk.debugMode;
 
 	int jobNumber = 3;
@@ -87,6 +89,10 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 		StringUtil.appendXMLTag(buffer, 2, "username", username);  
 		StringUtil.appendXMLTag(buffer, 2, "jobNumber", jobNumber);  
 		return buffer.toString();
+	}
+	/*.................................................................................................................*/
+	public void forgetPassword() {
+		password="";
 	}
 	/*.................................................................................................................*/
 	public String getRootDir() {
@@ -353,6 +359,15 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 			if (nextEntry!=null)
 				status= nextEntry.elementText("stage");
 		}
+		
+		element = cipresResponseDoc.getRootElement().element("minPollIntervalSeconds");
+		if (element!=null) {
+			minPollIntervalSeconds = MesquiteInteger.fromString(element.getText());
+			if (!MesquiteInteger.isCombinable(minPollIntervalSeconds) || minPollIntervalSeconds<=0)
+				minPollIntervalSeconds = defaultMinPollIntervalSeconds;
+		}
+
+
 
 		if (JOBCOMPLETED.equalsIgnoreCase(status))
 			return JOBCOMPLETED;
@@ -730,7 +745,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 			//	if (jobSubmitted(jobURL))
 			//		processOutputFiles();
 			try {
-				Thread.sleep(sleepTime);
+				Thread.sleep(minPollIntervalSeconds*1000);
 			}
 			catch (InterruptedException e){
 				MesquiteMessage.notifyProgrammer("InterruptedException in CIPRes monitoring");
