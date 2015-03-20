@@ -241,7 +241,6 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 
 
 
-
 	/*.................................................................................................................*/
 
 	public void processJobSubmissionResponse(Document cipresResponseDoc, MesquiteString jobURL) {
