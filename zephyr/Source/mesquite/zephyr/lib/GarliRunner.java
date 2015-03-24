@@ -47,6 +47,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 
 	boolean showConfigDetails = false;
 
+	protected int previousCurrentRun=0;
+
 	boolean linkModels = false;
 	boolean subsetSpecificRates = false;
 
@@ -89,6 +91,13 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 
 	protected static final int DATAFILENUMBER = 0;
 	protected static final int CONFIGFILENUMBER = 2;
+	
+	protected static final int MAINLOGFILE = 0;
+	protected static final int CURRENTTREEFILEPATH = 1;
+	protected static final int SCREENLOG = 2;
+	protected static final int TREEFILE = 3;
+	protected static final int BESTTREEFILE = 4;
+
 
 	/*
 	 * [model0] datatype = nucleotide ratematrix = 6rate statefrequencies =
@@ -289,8 +298,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		if (data == null)
 			return;
 		CharactersGroup[] parts = null;
-		CharacterPartition characterPartition = (CharacterPartition) data
-				.getCurrentSpecsSet(CharacterPartition.class);
+		CharacterPartition characterPartition = (CharacterPartition) data.getCurrentSpecsSet(CharacterPartition.class);
 		if (characterPartition != null) {
 			parts = characterPartition.getGroups();
 		}
@@ -484,6 +492,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
 	}
+	/*.................................................................................................................*/
+	public  boolean showMultipleRuns() {
+		return (!bootstrapOrJackknife() && numRuns>1);
+	}
 
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
@@ -633,7 +645,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	int count = 0;
 	double finalValue = MesquiteDouble.unassigned;
 	double[] finalValues = null;
-	int runNumber = 0;
+	protected int runNumber = 0;
 
 	/*.................................................................................................................*/
 	public void initializeMonitoring() {
@@ -648,12 +660,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 
 	protected String configFileName;
 
-
-	static final int MAINLOGFILE = 0;
-	static final int CURRENTTREEFILEPATH = 1;
-	static final int SCREENLOG = 2;
-	static final int TREEFILE = 3;
-	static final int BESTTREEFILE = 4;
+	public int getCurrentRun() {
+		return runNumber;
+	}
 
 	/*.................................................................................................................*/
 	public String[] getLogFileNames() {
@@ -731,6 +740,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 
 		String GARLIcommand = externalProcRunner.getExecutableCommand();
 		Object arguments = getProgramArguments(dataFileName, configFileName, false);
+		completedRuns = new boolean[numRuns];
+		for (int i=0; i<numRuns; i++) completedRuns[i]=false;
+
 
 		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName());
 
@@ -835,17 +847,19 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	int numRunsCompleted = 0;
 	long screenFilePos = 0;
 	MesquiteFile screenFile = null;
+	/*.................................................................................................................*/
+	public boolean mpiVersion() {
+		return false;
+	}
 
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
 		String[] logFileNames = getLogFileNames();
-		if ((progIndicator != null && progIndicator.isAborted())
-				|| logFileNames == null)
+		if ((progIndicator != null && progIndicator.isAborted()) || logFileNames == null)
 			return;
 		String[] outputFilePaths = new String[logFileNames.length];
-		outputFilePaths[fileNum] = externalProcRunner
-				.getOutputFilePath(logFileNames[fileNum]);
+		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
 		String filePath = outputFilePaths[fileNum];
 
 		/*
@@ -854,20 +868,16 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		 * outputFilePaths[fileNum];
 		 */
 
-		if (fileNum == MAINLOGFILE && outputFilePaths.length > 0
-				&& !StringUtil.blank(outputFilePaths[MAINLOGFILE])
-				&& !bootstrapOrJackknife()) { // screen log
+		if (fileNum == MAINLOGFILE && outputFilePaths.length > 0 && !StringUtil.blank(outputFilePaths[MAINLOGFILE]) && !bootstrapOrJackknife()) { // screen log
 			if (MesquiteFile.fileExists(filePath)) {
 				String s = MesquiteFile.getFileLastContents(filePath);
 				if (!StringUtil.blank(s))
 					if (progIndicator != null) {
 						parser.setString(s);
 						String gen = parser.getFirstToken(); // generation
-																// number
-						progIndicator.setText("Generation: " + gen
-								+ ", ln L = " + parser.getNextToken());
+						// number
+						progIndicator.setText("Generation: " + gen + ", ln L = " + parser.getNextToken());
 						progIndicator.spin();
-
 					}
 				count++;
 			} else
@@ -883,8 +893,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
 		}
 
-		if (fileNum == SCREENLOG && outputFilePaths.length > 2
-				&& !StringUtil.blank(outputFilePaths[SCREENLOG])) {
+		if (fileNum == SCREENLOG && outputFilePaths.length > 2 && !StringUtil.blank(outputFilePaths[SCREENLOG])) {
 			if (screenFile == null) { // this is the output file
 				if (MesquiteFile.fileExists(filePath))
 					screenFile = MesquiteFile.open(true, filePath);
@@ -908,11 +917,14 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 						s1 = parser.getNextToken(); // number
 						if (finalValues != null && runNumber < finalValues.length)
 							finalValues[runNumber] = MesquiteDouble.fromString(s1);
-						runNumber++;
 						if (bootstrapOrJackknife())
-							logln("GARLI bootstrap replicate " + runNumber + " of " + getTotalReps() + ", ln L = " + s1);
-						else
-							logln("GARLI search replicate " + runNumber + " of " + getTotalReps() + ", ln L = " + s1);
+							logln("GARLI bootstrap replicate " + (runNumber+1) + " of " + getTotalReps() + " completed, ln L = " + s1);
+						else {
+							logln("GARLI search replicate " + (runNumber+1) + " of " + getTotalReps() + " completed, ln L = " + s1);
+							if (runNumber>=0 && runNumber<completedRuns.length)
+								completedRuns[runNumber]=true;
+						}
+						runNumber++;
 						numRunsCompleted++;
 						double timePerRep = timer.timeSinceVeryStartInSeconds()/ numRunsCompleted; // this is time per rep
 						int timeLeft = 0;
@@ -931,6 +943,15 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 
 				screenFilePos = screenFile.getFilePosition();
 				screenFile.closeReading();
+				if (!bootstrapOrJackknife()) {  // let's see what the earliest non-completed run is
+					for (int i=0; i<completedRuns.length; i++)
+						if (!completedRuns[i]) {
+							currentRun=i;
+							Debugg.println("\n ************ current run: " + currentRun + "\n");
+							break;
+						}
+				}
+
 			}
 		}
 

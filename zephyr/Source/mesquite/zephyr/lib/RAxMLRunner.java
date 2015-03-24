@@ -54,6 +54,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected static String proteinModel = "PROTGAMMAJTT";
 	protected static String otherOptions = "";
 	protected boolean doBootstrap = false;
+	
+	long summaryFilePosition =0;
+
 
 
 	protected long  randseed = -1;
@@ -72,6 +75,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected double[] finalValues = null;
 	protected double[] optimizedValues = null;
 	protected int runNumber = 0;
+
+	protected static final int OUT_LOGFILE=0;
+	protected static final int OUT_TREEFILE=1;
+	protected static final int OUT_SUMMARYFILE=2;
+	protected static final int WORKING_TREEFILE=3;
 
 
 
@@ -524,25 +532,6 @@ WAG, gene2 = 501-1000
 	
 	}
 
-	static final int OUT_LOGFILE=0;
-	static final int OUT_TREEFILE=1;
-	static final int OUT_SUMMARYFILE=2;
-	/*.................................................................................................................*
-	public String[] getLogFileNames(){
-		String treeFileName;
-		String logFileName;
-		if (bootstrapOrJackknife())
-			treeFileName = "RAxML_bootstrap.file.out";
-		else 
-			treeFileName = "RAxML_result.file.out";
-		logFileName = "RAxML_log.file.out";
-		if (!bootstrapOrJackknife() && numRuns>1) {
-			treeFileName+=".RUN.";
-			logFileName+=".RUN.";
-		}
-		return new String[]{logFileName, treeFileName, "RAxML_info.file.out"};
-	}
-
 	/*.................................................................................................................*/
 	public String getPreflightLogFileNames(){
 		return "RAxML_log.file.out";	
@@ -634,6 +623,9 @@ WAG, gene2 = 501-1000
 		fileNames[2] = translationFileName;
 
 		numRunsCompleted = 0;
+		completedRuns = new boolean[numRuns];
+		for (int i=0; i<numRuns; i++) completedRuns[i]=false;
+		summaryFilePosition=0;
 		
 		//----------//
 		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
@@ -688,6 +680,11 @@ WAG, gene2 = 501-1000
 //		if (StringUtil.notEmpty(arguments))
 //	TODO:		appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments);
 	}
+	
+	public  boolean showMultipleRuns() {
+		return (!bootstrapOrJackknife() && numRuns>1);
+	}
+
 
 	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore){
@@ -887,9 +884,15 @@ WAG, gene2 = 501-1000
 		return command;
 	}
 
+	protected static final int OUT_LOGFILE=0;
+	protected static final int OUT_TREEFILE=1;
+	protected static final int OUT_SUMMARYFILE=2;
+	protected static final int WORKING_TREEFILE=3;
+
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
+		
 		String[] logFileNames = getLogFileNames();
 		if ((progIndicator!=null && progIndicator.isAborted()) || logFileNames==null)
 			return;
@@ -897,7 +900,7 @@ WAG, gene2 = 501-1000
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
 		String filePath=outputFilePaths[fileNum];
 
-		if (fileNum==0 && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0]) && !bootstrapOrJackknife()) {   // screen log
+		if (fileNum==OUT_LOGFILE && outputFilePaths.length>OUT_LOGFILE && !StringUtil.blank(outputFilePaths[OUT_LOGFILE]) && !bootstrapOrJackknife()) {   // screen log
 			if (MesquiteFile.fileExists(filePath)) {
 				String s = MesquiteFile.getFileLastContents(filePath);
 				if (!StringUtil.blank(s))
@@ -914,8 +917,20 @@ WAG, gene2 = 501-1000
 			} 
 		}
 
-		if (fileNum==1 && outputFilePaths.length>1 && !StringUtil.blank(outputFilePaths[1]) && !bootstrapOrJackknife() && showIntermediateTrees) {   // tree file
+		if (fileNum==WORKING_TREEFILE && outputFilePaths.length>WORKING_TREEFILE && !StringUtil.blank(outputFilePaths[WORKING_TREEFILE]) && !bootstrapOrJackknife() && showIntermediateTrees) {   // tree file
 			String treeFilePath = filePath;
+
+			if (taxa != null) {
+				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
+				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
+
+			}
+			else ((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
+		}
+
+		if (fileNum==OUT_TREEFILE && outputFilePaths.length>OUT_TREEFILE && !StringUtil.blank(outputFilePaths[OUT_TREEFILE]) && !bootstrapOrJackknife() && showIntermediateTrees) {   // tree file
+			String treeFilePath = filePath;
+
 			if (taxa != null) {
 				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
 				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
@@ -926,9 +941,16 @@ WAG, gene2 = 501-1000
 		
 		//David: if isDoomed() then module is closing down; abort somehow
 
-		if (fileNum==2 && outputFilePaths.length>2 && !StringUtil.blank(outputFilePaths[2])) {   // info file
+		if (fileNum==OUT_SUMMARYFILE && outputFilePaths.length>OUT_SUMMARYFILE && !StringUtil.blank(outputFilePaths[OUT_SUMMARYFILE])) {   // info file
 			if (MesquiteFile.fileExists(filePath)) {
-				String s = MesquiteFile.getFileLastContents(filePath,2);
+			//	Debugg.println("\n\n ========================\nsummaryFilePosition before: " + summaryFilePosition);
+				//String s = MesquiteFile.getFileLastContents(filePath,fPOS);
+				String s = MesquiteFile.getFileContentsAsString(filePath);
+				long lastLength = s.length();
+				s = s.substring((int)summaryFilePosition);
+				summaryFilePosition = lastLength;
+			//	Debugg.println(" summaryFilePosition after: " + summaryFilePosition);
+			//	Debugg.println(" s: " + s);
 				if (!StringUtil.blank(s)) {
 					Parser parser = new Parser();
 					parser.allowComments=false;
@@ -967,8 +989,11 @@ WAG, gene2 = 501-1000
 								if (bootstrapOrJackknife()){
 									logln("RAxML bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
 								}
-								else
+								else {
 									logln("RAxML Run " + (runNumber+1) + ", final score ln L = " +token );
+									if (runNumber<completedRuns.length)
+										completedRuns[runNumber]=true;
+								}
 								//processOutputFile(outputFilePaths,1);
 								foundRunInfo = true;
 							}
@@ -977,6 +1002,12 @@ WAG, gene2 = 501-1000
 							else
 								token = subParser.getNextToken();
 						}
+						for (int i=0; i<completedRuns.length; i++)
+							if (!completedRuns[i]) {
+								currentRun=i;
+								break;
+							}
+						
 						if (externalProcRunner.canCalculateTimeRemaining(numRunsCompleted)) {
 							double timePerRep = timer.timeSinceVeryStartInSeconds()/numRunsCompleted;   //this is time per rep
 							int timeLeft = 0;

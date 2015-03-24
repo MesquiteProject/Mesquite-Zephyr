@@ -17,7 +17,7 @@ import mesquite.categ.lib.CategoricalData;
 import mesquite.lib.*;
 import mesquite.lib.characters.MCharactersDistribution;
 
-public abstract class ZephyrRunner extends MesquiteModule implements ExternalProcessRequester{
+public abstract class ZephyrRunner extends MesquiteModule implements ExternalProcessRequester, OutputFilePathModifier{
 
 	String[] logFileNames;
 	protected ExternalProcessRunner externalProcRunner;
@@ -33,6 +33,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	
 	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
+	protected int currentRun=0;
+	protected boolean[] completedRuns=null;
+	protected int previousCurrentRun=0;
 
 	
 	protected String outgroupTaxSetString = "";
@@ -41,6 +44,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore);
 	public abstract Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore);
 	public abstract boolean bootstrapOrJackknife();
+	public abstract boolean showMultipleRuns();
+	
 	public String getResamplingKindName() {
 		return "Bootstrap";
 	}
@@ -88,7 +93,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	abstract public Class getExternalProcessRunnerClass();
 
-
+	public int getCurrentRun() {
+		return currentRun;
+	}
 	/*.................................................................................................................*/
 
 	public boolean hireExternalProcessRunner() {
@@ -355,7 +362,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 
 	/*.................................................................................................................*/
-
+	public String[] modifyOutputPaths(String[] outputFilePaths){
+		return outputFilePaths;
+	}
 
 	/*.................................................................................................................*/
 

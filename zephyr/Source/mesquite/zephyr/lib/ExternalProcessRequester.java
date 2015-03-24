@@ -26,4 +26,7 @@ public interface ExternalProcessRequester {
 	
 	public void prepareRunnerObject(Object obj);
 	
+	public String[] modifyOutputPaths(String[] outputFilePaths);
+
+	
 }

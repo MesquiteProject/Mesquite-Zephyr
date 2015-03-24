@@ -78,6 +78,11 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		return temp;
 	}
 	/*.................................................................................................................*/
+	public  boolean showMultipleRuns() {
+		return false;
+	}
+
+	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
 		if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner", "[name of module]", commandName, "setExternalProcessRunner")) {
 			ExternalProcessRunner temp = (ExternalProcessRunner)replaceEmployee(ExternalProcessRunner.class, arguments, "External Process Runner", externalProcRunner);
@@ -197,7 +202,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".nex";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 		boolean fileSaved = false;
-		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, selectedTaxaOnly, true, false);;
+		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, selectedTaxaOnly, true, true);
 		if (!fileSaved) return null;
 
 		setFileNames();

@@ -82,6 +82,12 @@ public abstract class GarliTrees extends ZephyrTreeSearcher implements Likelihoo
 
 			//Wayne: get tree here from file
 			if (latestTree!=null && latestTree.isValid()) {
+				if (latestTree instanceof AdjustableTree) {
+					String name = "GARLI Tree";
+					if (runner.showMultipleRuns())
+						name+= ", Run " + (runner.getCurrentRun()+1);
+					((AdjustableTree)latestTree).setName(name);
+				}
 				newResultsAvailable(outgroupTaxSet);
 			}
 		}
