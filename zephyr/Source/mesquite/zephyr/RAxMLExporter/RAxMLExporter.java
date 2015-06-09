@@ -279,7 +279,7 @@ public class RAxMLExporter extends RAxMLRunnerLocal {
 					}
 				}
 			}
-		} else if (writeCodPosPartition && partByCodPos) {//TODO: never accessed because in the only call of this method, partByCodPos is false.
+		} else if (writeCodPosPartition && partByCodPos) {//TODO: never accessed because in the only call of this method, partByCodPos is false.  //not anymore
 			//codon positions if nucleotide
 			int numberCharSets = 0; //TODO: Never used?
 				CodonPositionsSet codSet = (CodonPositionsSet)data.getCurrentSpecsSet(CodonPositionsSet.class);
@@ -333,7 +333,7 @@ public class RAxMLExporter extends RAxMLRunnerLocal {
 		String configFile = baseFileName + ".config";//TODO: necessary only for ZephyrUtil.saveExportFile call (see note in that class regarding unused variables)?
 		String configFilePath = directoryPath + configFile;
 
-		String multipleModelFileContents = getMultipleModelFileString(data, false);
+		String multipleModelFileContents = getMultipleModelFileString(data, true);  //TODO: turned to true by Wayne
 		String multipleModelFilePath = null;
 		String multipleModelFileName = baseFileName + "_parts.txt";
 		if (StringUtil.notEmpty(multipleModelFileContents)) {
