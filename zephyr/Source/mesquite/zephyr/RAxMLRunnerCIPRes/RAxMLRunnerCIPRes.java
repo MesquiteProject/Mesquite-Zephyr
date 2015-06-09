@@ -262,7 +262,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 
 	public String getExecutableName() {
-		return "RAXMLHPC2_TGB";
+		return "RAXMLHPC8_REST_XSEDE";
 	}
 
 
