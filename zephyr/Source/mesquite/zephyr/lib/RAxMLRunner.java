@@ -702,6 +702,10 @@ WAG, gene2 = 501-1000
 		// define file paths and set tree files as needed. 
 		setFileNames();
 		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
+		if (completedRuns == null){
+			completedRuns = new boolean[numRuns];
+			for (int i=0; i<numRuns; i++) completedRuns[i]=false;
+		}
 
 		String treeFilePath = outputFilePaths[OUT_TREEFILE];
 		
@@ -991,7 +995,7 @@ WAG, gene2 = 501-1000
 								}
 								else {
 									logln("RAxML Run " + (runNumber+1) + ", final score ln L = " +token );
-									if (runNumber<completedRuns.length)
+									if (completedRuns != null && runNumber<completedRuns.length)
 										completedRuns[runNumber]=true;
 								}
 								//processOutputFile(outputFilePaths,1);
@@ -1002,11 +1006,13 @@ WAG, gene2 = 501-1000
 							else
 								token = subParser.getNextToken();
 						}
-						for (int i=0; i<completedRuns.length; i++)
+						if (completedRuns !=null){
+							for (int i=0; i<completedRuns.length; i++)
 							if (!completedRuns[i]) {
 								currentRun=i;
 								break;
 							}
+						}
 						
 						if (externalProcRunner.canCalculateTimeRemaining(numRunsCompleted)) {
 							double timePerRep = timer.timeSinceVeryStartInSeconds()/numRunsCompleted;   //this is time per rep

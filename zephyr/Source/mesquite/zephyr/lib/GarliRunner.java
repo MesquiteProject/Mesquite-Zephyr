@@ -91,7 +91,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 
 	protected static final int DATAFILENUMBER = 0;
 	protected static final int CONFIGFILENUMBER = 2;
-	
+
 	protected static final int MAINLOGFILE = 0;
 	protected static final int CURRENTTREEFILEPATH = 1;
 	protected static final int SCREENLOG = 2;
@@ -120,8 +120,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	// String rootDir;
 
 	public void getEmployeeNeeds() { // This gets called on startup to harvest
-										// information; override this and
-										// inside, call registerEmployeeNeed
+		// information; override this and
+		// inside, call registerEmployeeNeed
 		EmployeeNeed e = registerEmployeeNeed(ExternalProcessRunner.class, getName() + "  needs a module to run an external process.", "");
 	}
 
@@ -179,8 +179,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		sb.append("\nenforcetermconditions = 1 \ngenthreshfortopoterm = 10000 \nscorethreshforterm = 0.05 \nsignificanttopochange = 0.01 \noutputphyliptree = 0  \nwritecheckpoints = 0 \nrestart = 0");
 
 		sb.append("\n");
-		
-		
+
+
 		sb.append("\noutputcurrentbesttree = 1");
 
 		outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,
@@ -198,6 +198,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 			sb.append("\nsubsetSpecificRates = " + 1);
 		else
 			sb.append("\nsubsetSpecificRates = " + 0);
+		if (data instanceof ProteinData){
+			sb.append("\ndatatype = aminoacid");
+		}
+
 		writeCharModels(sb, data);
 
 		sb.append("\n");
@@ -222,8 +226,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 
 		if (bootstrapOrJackknife())
 			sb.append("\n\nbootstrapreps = " + bootstrapreps); // important to
-																// be
-																// user-editable
+		// be
+		// user-editable
 		sb.append("\ninferinternalstateprobs = " + inferinternalstateprobs);
 		return sb.toString();
 	}
@@ -308,14 +312,14 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 				extra++;
 			charGroupModels = new GarliCharModel[parts.length + extra];
 			for (int i = 0; i < parts.length + extra; i++) {
-				charGroupModels[i] = new GarliCharModel();
+				charGroupModels[i] = new GarliCharModel(data instanceof ProteinData);
 			}
 		}
 		codonPositionModels = new GarliCharModel[4];
 		for (int i = 0; i < 4; i++) {
-			codonPositionModels[i] = new GarliCharModel();
+			codonPositionModels[i] = new GarliCharModel(data instanceof ProteinData);
 		}
-		noPartitionModel = new GarliCharModel();
+		noPartitionModel = new GarliCharModel(data instanceof ProteinData);
 
 	}
 
@@ -415,24 +419,31 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		if (rateMatrixChoice != null) {
 			choiceValue = rateMatrixChoice.getSelectedIndex();
 			charModel.setRatematrixIndex(choiceValue);
-			switch (choiceValue) {
-			case 0:
-				charModel.setRatematrix("1rate");
-				break;
-			case 1:
-				charModel.setRatematrix("2rate");
-				break;
-			case 2:
-				charModel.setRatematrix("6rate");
-				break;
-			/*
-			 * case 3 : charModel.setRatematrix("fixed"); break;
-			 */
-			case 3: // Custom
-				charModel.setRatematrix(customMatrix.getText());
-				break;
-			default:
-				charModel.setRatematrix("6rate");
+			if (data instanceof ProteinData){
+				String val = rateMatrixChoice.getItem(choiceValue);
+				charModel.setRatematrix(val);
+			}
+			else {
+
+				switch (choiceValue) {
+				case 0:
+					charModel.setRatematrix("1rate");
+					break;
+				case 1:
+					charModel.setRatematrix("2rate");
+					break;
+				case 2:
+					charModel.setRatematrix("6rate");
+					break;
+					/*
+					 * case 3 : charModel.setRatematrix("fixed"); break;
+					 */
+				case 3: // Custom
+					charModel.setRatematrix(customMatrix.getText());
+					break;
+				default:
+					charModel.setRatematrix("6rate");
+				}
 			}
 		}
 
@@ -557,7 +568,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 			if (partitionScheme == partitionByCodonPosition)
 				partitionScheme = noPartition;
 		}
-		charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
+		if (data instanceof ProteinData)
+			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups" }, partitionScheme);
+		else
+			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
+			
 		charPartitionButtons.addItemListener(this);
 		if (!data.hasCharacterGroups()) {
 			charPartitionButtons.setEnabled(1, false);
@@ -574,14 +589,18 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		preparePartitionChoice(partitionChoice, partitionScheme);
 		partitionChoice.addItemListener(this);
 
-		rateMatrixChoice = dialog.addPopUpMenu("Rate Matrix", new String[] {"Equal Rates", "2-Parameter", "GTR       ", "Custom" }, 2);
-		rateMatrixChoice.addItemListener(this);
-		customMatrix = dialog.addTextField("6rate", 20); // since 2 is selected
-															// as default in
-															// previous
-		customMatrix.setEditable(false);
-		customMatrix.setBackground(ColorDistribution.veryLightGray);
+		if (data instanceof ProteinData)
+			rateMatrixChoice = dialog.addPopUpMenu("Rate Matrix", new String[] {"poisson", "jones", "dayhoff", "wag", "mtmam", "mtrev" }, 2); 
+		else{
+			rateMatrixChoice = dialog.addPopUpMenu("Rate Matrix", new String[] {"Equal Rates", "2-Parameter", "GTR       ", "Custom" }, 2);  //corresponding to 1rate, 2rate, 6rate, custom
+			customMatrix = dialog.addTextField("6rate", 20); // since 2 is selected
 
+			// as default in
+			// previous
+			customMatrix.setEditable(false);
+			customMatrix.setBackground(ColorDistribution.veryLightGray);
+		}
+		rateMatrixChoice.addItemListener(this);
 		invarSitesChoice = dialog.addPopUpMenu("Invariant Sites", new String[] {"none", "Estimate Proportion" }, 1);
 		rateHetChoice = dialog.addPopUpMenu("Gamma Site-to-Site Rate Model",new String[] { "none", "Estimate Shape Parameter" }, 1);
 		numRateCatField = dialog.addIntegerField("Number of Rate Categories for Gamma", numratecats, 4, 1, 20);
@@ -686,7 +705,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		return true;
 	}
 	/*.................................................................................................................*/
-	 abstract public Object getProgramArguments(String dataFileName, String configFileName, boolean isPreflight) ;
+	abstract public Object getProgramArguments(String dataFileName, String configFileName, boolean isPreflight) ;
 
 	/* ================================================= */
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
@@ -699,7 +718,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		String rootDir = MesquiteFileUtil.createDirectoryForFiles(this,MesquiteFileUtil.IN_SUPPORT_DIR, "GARLI", "-Run.");
 		if (rootDir == null)
 			return null;
-		
+
 		if (StringUtil.blank(dataFileName))
 			dataFileName = "dataMatrix.nex"; // replace this with actual file name?
 
@@ -715,8 +734,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 
 		// setting up the GARLI config file
 		String config = getGARLIConfigurationFile(data);
-//		String configFilePath = tempDir+configFileName;
-//		MesquiteFile.putFileContents(configFilePath, config, true);
+		//		String configFilePath = tempDir+configFileName;
+		//		MesquiteFile.putFileContents(configFilePath, config, true);
 		if (!MesquiteThread.isScripting() && showConfigDetails) {
 			config = MesquiteString.queryMultiLineString(getModuleWindow(),"GARLI Config File", "GARLI Config File", config, 30, false, true);
 			if (StringUtil.blank(config))
@@ -749,10 +768,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName());
 
 		if (!isDoomed()){
-		if (success) {
-			getProject().decrementProjectWindowSuppression();
-			return retrieveTreeBlock(trees, finalScore); // here's where we actually process everything
-		}
+			if (success) {
+				getProject().decrementProjectWindowSuppression();
+				return retrieveTreeBlock(trees, finalScore); // here's where we actually process everything
+			}
 		}
 
 		if (getProject() != null)
@@ -779,6 +798,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		// define file paths and set tree files as needed.
 		setFileNames();
 		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
+		if (completedRuns == null){
+			completedRuns = new boolean[numRuns];
+			for (int i=0; i<numRuns; i++) completedRuns[i]=false;
+		}
 
 		// read in the tree files
 		if (onlyBest || numRuns == 1 || bootstrapOrJackknife())
@@ -909,8 +932,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 				screenFile.goToFilePosition(screenFilePos);
 				String s = screenFile.readLine();
 				while (s != null) { // &&
-									// screenFile.getFilePosition()<screenFile.existingLength()-2)
-									// {
+					// screenFile.getFilePosition()<screenFile.existingLength()-2)
+					// {
 					if (s.startsWith("Final score")) {
 						parser.setString(s);
 						String s1 = parser.getFirstToken(); // Final
@@ -923,7 +946,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 							logln("GARLI bootstrap replicate " + (runNumber+1) + " of " + getTotalReps() + " completed, ln L = " + s1);
 						else {
 							logln("GARLI search replicate " + (runNumber+1) + " of " + getTotalReps() + " completed, ln L = " + s1);
-							if (runNumber>=0 && runNumber<completedRuns.length)
+							if (completedRuns != null && runNumber>=0 && runNumber<completedRuns.length)
 								completedRuns[runNumber]=true;
 						}
 						runNumber++;
@@ -945,7 +968,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 
 				screenFilePos = screenFile.getFilePosition();
 				screenFile.closeReading();
-				if (!bootstrapOrJackknife()) {  // let's see what the earliest non-completed run is
+				if (completedRuns != null && !bootstrapOrJackknife()) {  // let's see what the earliest non-completed run is
 					for (int i=0; i<completedRuns.length; i++)
 						if (!completedRuns[i]) {
 							currentRun=i;
@@ -1045,34 +1068,42 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 				setCharacterModels();
 
 		} else if (e.getItemSelectable() == rateMatrixChoice) {
-			String matrix = "";
-			int choiceValue = rateMatrixChoice.getSelectedIndex();
-			switch (choiceValue) {
-			case 0:
-				matrix = "1rate";
-				break;
-			case 1:
-				matrix = "2rate";
-				break;
-			case 2:
-				matrix = "6rate";
-				break;
-			case 3: // Custom
-				matrix = customMatrix.getText();
-				if (matrix == null || "1rate 2rate 6rate".indexOf(matrix) >= 0) // Debugg.println keep previous custom matrices remembered for users who switch back to them?
-
-					matrix = "(a a a a a a)";
-				break;
-			default:
-				matrix = "6rate";
+			if (data instanceof ProteinData){
 			}
-			customMatrix.setText(matrix);
-			if (choiceValue == 3) {
-				customMatrix.setEditable(true);
-				customMatrix.setBackground(Color.white);
-			} else {
-				customMatrix.setEditable(false);
-				customMatrix.setBackground(ColorDistribution.veryLightGray);
+			else {
+				String matrix = "";
+				int choiceValue = rateMatrixChoice.getSelectedIndex();
+				switch (choiceValue) {
+				case 0:
+					matrix = "1rate";
+					break;
+				case 1:
+					matrix = "2rate";
+					break;
+				case 2:
+					matrix = "6rate";
+					break;
+				case 3: // Custom
+					if (customMatrix != null){
+						matrix = customMatrix.getText();
+						if (matrix == null || "1rate 2rate 6rate".indexOf(matrix) >= 0) // Debugg.println keep previous custom matrices remembered for users who switch back to them?
+
+							matrix = "(a a a a a a)";
+					}
+					break;
+				default:
+					matrix = "6rate";
+				}
+				if (customMatrix != null){
+					customMatrix.setText(matrix);
+					if (choiceValue == 3) {
+						customMatrix.setEditable(true);
+						customMatrix.setBackground(Color.white);
+					} else {
+						customMatrix.setEditable(false);
+						customMatrix.setBackground(ColorDistribution.veryLightGray);
+					}
+				}
 			}
 		} else if (e.getItemSelectable() == doBootstrapCheckbox) {
 			checkEnabled(doBootstrapCheckbox.getState());
@@ -1108,11 +1139,21 @@ class GarliCharModel {
 	String ratehetmodel = "gamma";
 	int numratecats = 4;
 	String invariantsites = "estimate";
-
+	boolean ip = false;
 	int ratematrixIndex = 2;
 	int statefrequenciesIndex = 0;
 	int ratehetmodelIndex = 1;
 	int invariantsitesIndex = 1;
+
+	public GarliCharModel(boolean protein){
+		ip = protein;
+		if (ip)
+			ratematrix = "dayhoff";
+	}
+	public boolean isProtein() {
+		return ip;
+	}
+
 
 	public String getRatematrix() {
 		return ratematrix;
@@ -1159,8 +1200,10 @@ class GarliCharModel {
 		if (modelNumber >= 0)
 			sb.append("\n[model" + modelNumber + "]");
 
+
 		sb.append("\nratematrix = " + ratematrix);
 		sb.append("\nstatefrequencies = " + statefrequencies);
+
 		sb.append("\nratehetmodel = " + ratehetmodel);
 		if (numratecats > 1 && "none".equalsIgnoreCase(ratehetmodel))
 			sb.append("\nnumratecats = 1");
