@@ -5,7 +5,7 @@ Zephry's web site is http://mesquitezephyr.wikispaces.com
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
-*/
+ */
 
 package mesquite.zephyr.RAxMLRunnerLocal;
 
@@ -51,25 +51,23 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 
 
 	SingleLineTextField MPISetupField;
-	javax.swing.JLabel commandLabel;
-	SingleLineTextArea commandField;
 	IntegerField numProcessorsField;
 	RadioButtons threadingRadioButtons;
 	Checkbox RAxML814orLaterCheckbox;
 
 
 	/*.................................................................................................................*/
-	 public String getExternalProcessRunnerModuleName(){
-			return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
-	 }
+	public String getExternalProcessRunnerModuleName(){
+		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
+	}
 	/*.................................................................................................................*/
-	 public Class getExternalProcessRunnerClass(){
-			return LocalScriptRunner.class;
-	 }
+	public Class getExternalProcessRunnerClass(){
+		return LocalScriptRunner.class;
+	}
 
-		public String getExecutableName() {
-			return "RAxML";
-		}
+	public String getExecutableName() {
+		return "RAxML";
+	}
 
 
 	/*.................................................................................................................*/
@@ -102,19 +100,19 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 
 		if ("numProcessors".equalsIgnoreCase(tag))
 			numProcessors = MesquiteInteger.fromString(content);
-		
+
 		super.processSingleXMLPreference(tag, content);
 
 		preferencesSet = true;
 	}
-	
+
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "RAxML814orLater", RAxML814orLater);  
 		StringUtil.appendXMLTag(buffer, 2, "raxmlThreadingVersion", threadingVersion);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
-		
+
 		buffer.append(super.preparePreferencesForXML());
 
 		preferencesSet = true;
@@ -160,20 +158,20 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 
 
 
-	
+
 	/*.................................................................................................................*/
 	void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean preflight){
 		if (arguments == null)
 			return;
-		
+
 		String localArguments = "";
-		
+
 		if (preflight)
 			localArguments += " -n preflight.out "; 
 		else
 			localArguments += " -s " + fileName + " -n file.out "; 
-		
-		
+
+
 		localArguments += " -m "; 
 		if (isProtein) {
 			if (StringUtil.blank(LOCproteinModel))
@@ -191,10 +189,13 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 
 		localArguments += " -p " + randomIntSeed;
 
-
 		if (!StringUtil.blank(LOCotherOptions)) 
 			localArguments += " " + LOCotherOptions;
-
+		if (useConstraintTree == SKELETAL)
+			localArguments += " -r constraintTree.tre "; 
+		else if (useConstraintTree == MONOPHYLY)
+			localArguments += " -g constraintTree.tre "; 
+			
 		if (bootstrapOrJackknife() && LOCbootstrapreps>0) {
 			localArguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
 		}
@@ -211,7 +212,6 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 			if (outgroupSet!=null) 
 				localArguments += " -o " + outgroupSet.getStringList(",", true);
 		}
-
 		arguments.setValue(localArguments);
 	}
 
@@ -243,7 +243,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 				outputFilePaths[WORKING_TREEFILE] = externalProcRunner.getOutputFilePath(fileNames[WORKING_TREEFILE]);
 				externalProcRunner.resetLastModified(WORKING_TREEFILE);
 				previousCurrentRun=currentRun;
-//				logln("\n----- Now displaying results from run " + currentRun);
+				//				logln("\n----- Now displaying results from run " + currentRun);
 			}
 		}
 		return outputFilePaths;
@@ -254,10 +254,10 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 		return "RAxML_log.file.out";	
 	}
 
-	
-	
+
+
 	TaxaSelectionSet outgroupSet;
-	
+
 	/*.................................................................................................................*/
 	public boolean preFlightSuccessful(String preflightCommand){
 		return runPreflightCommand(preflightCommand);
@@ -277,7 +277,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 		if (threadingVersion==THREADING_PTHREADS) {
 			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ");   // have to ensure that there are at least two threads requested
 		}
-		return arguments;
+		return arguments; // "> log.txt";
 
 	}
 

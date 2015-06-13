@@ -30,8 +30,6 @@ import mesquite.zephyr.lib.*;
 
 public class GarliRunnerLocal extends GarliRunner {
 
-	SingleLineTextField garliPathField = null;
-	SingleLineTextField constraintFileField = null;
 
 	String ofprefix = "output";
 

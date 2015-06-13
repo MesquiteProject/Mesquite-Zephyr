@@ -37,8 +37,6 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	boolean showIntermediateTrees = true;
 
 
-	javax.swing.JLabel commandLabel;
-	SingleLineTextArea commandField;
 	Checkbox RAxML814orLaterCheckbox;
 
 

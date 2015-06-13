@@ -36,8 +36,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	String outgroupTaxSetString = "";
 	int outgroupTaxSetNumber = 0;
 	boolean preferencesSet = false;
-	SingleLineTextField garliPathField = null;
-	SingleLineTextField constraintFileField = null;
+	protected SingleLineTextField garliPathField = null;
+	protected SingleLineTextField constraintFileField = null;
 	TaxaSelectionSet outgroupSet = null;
 
 	String ofprefix = "output";
