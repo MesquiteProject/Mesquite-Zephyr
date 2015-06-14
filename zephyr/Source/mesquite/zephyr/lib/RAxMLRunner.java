@@ -219,7 +219,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		proteinModelField = dialog.addTextField("Protein Model:", proteinModel, 20);
 		dialog.addHorizontalLine(1);
 		dialog.addLabel("Constraint tree:", Label.LEFT, false, true);
-		constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Partial Resolution", "Skeletal Constraint"}, 0);
+		constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Partial Resolution", "Skeletal Constraint"}, useConstraintTree);
 		constraintButtons.addItemListener(this);
 
 		/*		dialog.addHorizontalLine(1);
@@ -266,6 +266,14 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 	public void checkEnabled(boolean doBoot) {
 		onlyBestBox.setEnabled(!doBoot);
+	}
+	/* ................................................................................................................. */
+	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */
+	public String purposeOfEmployee(MesquiteModule employee) {
+		if (employee instanceof OneTreeSource){
+			return "for a source of a constraint tree for RAxML"; // to be overridden
+		}
+		return "for " + getName(); // to be overridden
 	}
 
 	protected OneTreeSource constraintTreeTask = null;

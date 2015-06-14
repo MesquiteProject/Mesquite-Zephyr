@@ -27,7 +27,7 @@ import mesquite.molec.lib.Blaster;
 import mesquite.zephyr.lib.*;
 import mesquite.zephyr.lib.*;
 
-public abstract class GarliRunner extends ZephyrRunner implements ActionListener, ItemListener, ExternalProcessRequester {
+public abstract class GarliRunner extends ZephyrRunner implements ItemListener, ExternalProcessRequester {
 	public static final String SCORENAME = "GARLIScore";
 
 	boolean onlyBest = true;
@@ -37,7 +37,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	int outgroupTaxSetNumber = 0;
 	boolean preferencesSet = false;
 	protected SingleLineTextField garliPathField = null;
-	protected SingleLineTextField constraintFileField = null;
+	RadioButtons constraintButtons;
 	TaxaSelectionSet outgroupSet = null;
 
 	String ofprefix = "output";
@@ -77,7 +77,6 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	double uniqueswapbias = 0.1;
 	double distanceswapbias = 1.0;
 	int inferinternalstateprobs = 0;
-	protected String constraintfile = "";
 
 	String ratematrix = "6rate";
 	String statefrequencies = "estimate";
@@ -90,6 +89,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	GarliCharModel noPartitionModel;
 
 	protected static final int DATAFILENUMBER = 0;
+	protected static final int CONSTRAINTFILENUMBER = 1;
 	protected static final int CONFIGFILENUMBER = 2;
 
 	protected static final int MAINLOGFILE = 0;
@@ -97,6 +97,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	protected static final int SCREENLOG = 2;
 	protected static final int TREEFILE = 3;
 	protected static final int BESTTREEFILE = 4;
+
+	protected static final int NOCONSTRAINT = 0;
+	protected static final int POSITIVECONSTRAINT = 1;
+	protected static final int NEGATIVECONSTRAINT = 2;
+	protected int useConstraintTree = NOCONSTRAINT;
 
 
 	/*
@@ -135,6 +140,14 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		return true;
 	}
 
+	/* ................................................................................................................. */
+	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */
+	public String purposeOfEmployee(MesquiteModule employee) {
+		if (employee instanceof OneTreeSource){
+			return "for a source of a constraint tree for GARLI"; // to be overridden
+		}
+		return "for " + getName(); // to be overridden
+	}
 	public void intializeAfterExternalProcessRunnerHired() {
 		loadPreferences();
 	}
@@ -559,6 +572,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		IntegerField numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 
+		dialog.addHorizontalLine(1);
+		dialog.addLabel("Constraint tree:", Label.LEFT, false, true);
+		constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Positive Constraint", "Negative Constraint"}, useConstraintTree);
+		constraintButtons.addItemListener(this);
+
 		tabbedPanel.addPanel("Character Models", true);
 		if (!data.hasCharacterGroups()) {
 			if (partitionScheme == partitionByCharacterGroups)
@@ -572,7 +590,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups" }, partitionScheme);
 		else
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
-			
+
 		charPartitionButtons.addItemListener(this);
 		if (!data.hasCharacterGroups()) {
 			charPartitionButtons.setEnabled(1, false);
@@ -605,10 +623,6 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		rateHetChoice = dialog.addPopUpMenu("Gamma Site-to-Site Rate Model",new String[] { "none", "Estimate Shape Parameter" }, 1);
 		numRateCatField = dialog.addIntegerField("Number of Rate Categories for Gamma", numratecats, 4, 1, 20);
 
-		tabbedPanel.addPanel("Constraint File", true);
-		constraintFileField = dialog.addTextField("Path to Constraint File:",constraintfile, 40);
-		Button constraintFileBrowseButton = dialog.addAListenedButton("Browse...", null, this);
-		constraintFileBrowseButton.setActionCommand("constraintBrowse");
 
 		tabbedPanel.addPanel("Other options", true);
 		Checkbox showConfigDetailsBox = dialog.addCheckBox("show config file",
@@ -621,13 +635,13 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 
 		if (buttonPressed.getValue() == 0) {
 			if (externalProcRunner.optionsChosen()) {
-				constraintfile = constraintFileField.getText();
 				numRuns = numRunsField.getValue();
 				bootstrapreps = bootStrapRepsField.getValue();
 				onlyBest = onlyBestBox.getState();
 				doBootstrap = doBootstrapCheckbox.getState();
 				showConfigDetails = showConfigDetailsBox.getState();
 				partitionScheme = charPartitionButtons.getValue();
+				useConstraintTree = constraintButtons.getValue();
 				linkModels = linkModelsBox.getState();
 				subsetSpecificRates = subsetSpecificRatesBox.getState();
 				processRunnerOptions();
@@ -648,16 +662,6 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 	}
 
 	/*.................................................................................................................*/
-	public void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase("constraintBrowse")) {
-			MesquiteString directoryName = new MesquiteString();
-			MesquiteString fileName = new MesquiteString();
-			constraintfile = MesquiteFile.openFileDialog("Choose Constraint File", directoryName, fileName);
-			if (StringUtil.notEmpty(constraintfile))
-				constraintFileField.setText(constraintfile);
-		}
-	}
-
 	/*.................................................................................................................*/
 	public void setGarliSeed(long seed) {
 		this.randseed = seed;
@@ -741,6 +745,26 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 			if (StringUtil.blank(config))
 				return null;
 		}
+		//getting constraint tree if requested
+		String constraintTree = "";
+		if (useConstraintTree>NOCONSTRAINT){
+			getConstraintTreeSource();
+			Tree constraint = null;
+			if (constraintTreeTask != null)
+				constraint = constraintTreeTask.getTree(taxa);
+			if (constraint == null){
+				discreetAlert("Constraint tree is not available.");
+				return null;
+			}
+			else {
+				constraintTree = constraint.writeTreeSimple(MesquiteTree.BY_NUMBERS, false, false, false, false, ",");
+				if (useConstraintTree == POSITIVECONSTRAINT)
+					constraintTree = "+" + constraintTree+ ";";
+				else if (useConstraintTree == NEGATIVECONSTRAINT)
+					constraintTree = "-" + constraintTree+ ";";
+
+			}
+		}
 
 		// setting up the arrays of input file names and contents
 		int numInputFiles = 3;
@@ -750,11 +774,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 			fileContents[i] = "";
 			fileNames[i] = "";
 		}
-		fileContents[0] = MesquiteFile.getFileContentsAsString(dataFilePath);
-		fileNames[0] = dataFileName;
-		if (StringUtil.notEmpty(constraintfile)) {
-			fileContents[1] = MesquiteFile.getFileContentsAsString(constraintfile);
-			fileNames[1] = "constraint";
+		fileContents[DATAFILENUMBER] = MesquiteFile.getFileContentsAsString(dataFilePath);
+		fileNames[DATAFILENUMBER] = dataFileName;
+		if (StringUtil.notEmpty(constraintTree)) {
+			fileContents[CONSTRAINTFILENUMBER] = constraintTree;
+			fileNames[CONSTRAINTFILENUMBER] = "constraintTree";
 		}
 		fileContents[CONFIGFILENUMBER] = config;
 		fileNames[CONFIGFILENUMBER] = configFileName;
@@ -1037,6 +1061,15 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 		onlyBestBox.setEnabled(!doBoot);
 	}
 
+	/*.................................................................................................................*/
+	protected OneTreeSource constraintTreeTask = null;
+	protected OneTreeSource getConstraintTreeSource(){
+		if (constraintTreeTask == null){
+			constraintTreeTask = (OneTreeSource)hireEmployee(OneTreeSource.class, "Source of constraint tree");
+		}
+		return constraintTreeTask;
+	}
+	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent e) {
 		if (charPartitionButtons.isAButton(e.getItemSelectable())) { // button for the partition scheme
 			processCharacterModels();
@@ -1067,7 +1100,13 @@ public abstract class GarliRunner extends ZephyrRunner implements ActionListener
 			} else
 				setCharacterModels();
 
-		} else if (e.getItemSelectable() == rateMatrixChoice) {
+		} 
+		else if (e.getItemSelectable() == constraintButtons && constraintButtons.getValue()>0){
+
+			getConstraintTreeSource();
+
+		}
+		else if (e.getItemSelectable() == rateMatrixChoice) {
 			if (data instanceof ProteinData){
 			}
 			else {

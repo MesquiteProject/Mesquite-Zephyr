@@ -77,10 +77,10 @@ public class GarliRunnerCIPRes extends GarliRunner {
 			config.append("\ndatafname=infile");
 			config.append("\nofprefix=" + ofprefix);
 
-			if (StringUtil.blank(constraintfile))
+			if (useConstraintTree==0)
 				config.append("\nconstraintfile = none");
 			else
-				config.append("\nconstraintfile = constraint"); // important to be user-editable
+				config.append("\nconstraintfile = constraintTree"); // important to be user-editable
 
 			config.append("\nstreefname = random");
 
