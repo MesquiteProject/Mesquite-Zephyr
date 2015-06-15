@@ -662,7 +662,8 @@ WAG, gene2 = 501-1000
 
 		//	if (preFlightSuccessful(preflightCommand)) {
 		//	}
-
+		
+		parametersChanged(); //just a way to ping the coordinator to update the window
 
 		//setting up the arrays of input file names and contents
 		int numInputFiles = 4;

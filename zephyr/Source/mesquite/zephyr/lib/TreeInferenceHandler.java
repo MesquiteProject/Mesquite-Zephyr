@@ -14,6 +14,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 import java.awt.*;
+
 import mesquite.lib.*;
 
 
@@ -32,6 +33,8 @@ public abstract class TreeInferenceHandler extends MesquiteModule  {
  	public String getDutyName() {
  		return "Tree Inference Handler";
    	 }
+	/*.................................................................................................................*/
+	public abstract String getHTMLDescriptionOfStatus();
 
 }
 

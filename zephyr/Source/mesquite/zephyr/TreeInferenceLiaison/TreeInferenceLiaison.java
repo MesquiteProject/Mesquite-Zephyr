@@ -32,6 +32,12 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		return true;
 	}
 	/*.................................................................................................................*/
+	public String getHTMLDescriptionOfStatus(){
+		if (inferenceTask == null)
+			return "No inference";
+		return inferenceTask.getHTMLDescriptionOfStatus();
+	}
+	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
 		temp.addLine("restartTreeSource ", inferenceTask);

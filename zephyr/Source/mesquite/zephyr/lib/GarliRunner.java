@@ -789,6 +789,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		for (int i=0; i<numRuns; i++) completedRuns[i]=false;
 
 
+		parametersChanged(); //just a way to ping the coordinator to update the window
 		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName());
 
 		if (!isDoomed()){
