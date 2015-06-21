@@ -597,11 +597,13 @@ WAG, gene2 = 501-1000
 
 		// create local version of data file
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "RAxML", "-Run.");  
+		Debugg.println("tempDir " + tempDir);
 		if (tempDir==null)
 			return null;
 		String dataFileName = getDataFileName();   //replace this with actual file name?
 		String translationFileName = IOUtil.translationTableFileName;   
 		String dataFilePath = tempDir +  dataFileName;
+		Debugg.println("dataFilePath " + dataFilePath);
 		FileInterpreterI exporter = null;
 		if (data instanceof DNAData)
 			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipDNA");

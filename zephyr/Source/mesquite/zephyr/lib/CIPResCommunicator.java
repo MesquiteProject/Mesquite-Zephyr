@@ -53,7 +53,8 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	ShellScriptWatcher watcher; // for reconnection
 
 	public CIPResCommunicator (MesquiteModule mb, String xmlPrefsString,String[] outputFilePaths) {
-		XMLUtil.readXMLPreferences(mb, this, xmlPrefsString);
+		if (xmlPrefsString != null)
+			XMLUtil.readXMLPreferences(mb, this, xmlPrefsString);
 		this.outputFilePaths = outputFilePaths;
 		ownerModule = mb;
 	}

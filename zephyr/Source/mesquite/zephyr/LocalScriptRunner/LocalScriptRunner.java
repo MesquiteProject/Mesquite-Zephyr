@@ -183,7 +183,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
 
 		scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
-		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
+		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), false);
 		return true;
 	}
 	/*.................................................................................................................*/
@@ -199,7 +199,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		shellScript.append(script);
 
 		scriptPath = rootDir + "preflight.bat";
-		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
+		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), false);
 		return true;
 	}
 
