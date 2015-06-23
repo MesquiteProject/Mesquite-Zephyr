@@ -1,6 +1,6 @@
 /* Mesquite source code.  Copyright 1997 and onward, W. Maddison and D. Maddison. 
 
- 
+
  Disclaimer:  The Mesquite source code is lengthy and we are few.  There are no doubt inefficiencies and goofs in this code. 
  The commenting leaves much to be desired. Please approach this source code with the spirit of helping out.
  Perhaps with your help we can be more than a few, and make Mesquite better.
@@ -22,11 +22,11 @@ import mesquite.zephyr.lib.*;
 /* Manages an individual tree inference attempt */
 
 public class TreeInferenceLiaison extends TreeInferenceHandler {
-	
+
 	TreeInferer inferenceTask;
 	String taxaAssignedID = null;  
 
-	
+
 	/*.................................................................................................................*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		return true;
@@ -40,8 +40,8 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
-		temp.addLine("restartTreeSource ", inferenceTask);
-		temp.addLine("reconnectTreeSource " + StringUtil.tokenize(taxaAssignedID));
+		temp.addLine("setTreeSource ", inferenceTask);
+		temp.addLine("reconnectToTreeSource " + StringUtil.tokenize(taxaAssignedID));
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -55,14 +55,14 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			startInference();
 			return inferenceTask;
 		}
-		else if (checker.compare(this.getClass(), "Restarts to unfinished tree block filling", "[name of tree block filler module]", commandName, "restartTreeSource")) { 
+		else if (checker.compare(this.getClass(), "Restarts to unfinished tree block filling", "[name of tree block filler module]", commandName, "setTreeSource")) { 
 			TreeInferer temp=  (TreeInferer)replaceEmployee(TreeInferer.class, arguments, "Source of trees", inferenceTask);
 			if (temp!=null) {
 				inferenceTask = temp;
 			}
 			return inferenceTask;
 		}
-		else if (checker.compare(this.getClass(), "Reconnects to unfinished tree block filling", "[name of tree block filler module]", commandName, "reconnectTreeSource")) { 
+		else if (checker.compare(this.getClass(), "Reconnects to unfinished tree block filling", "[name of tree block filler module]", commandName, "reconnectToTreeSource")) { 
 			TreeBlockMonitorThread thread = new TreeBlockMonitorThread(this, parser.getFirstToken(arguments), inferenceTask);
 			thread.start();
 		}
@@ -76,8 +76,10 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 					taxa = getProject().getTaxa(0);
 				TreeVector trees = new TreeVector(taxa); 
 				inferenceTask.retrieveTreeBlock(trees, 100);
-				trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));
-				doneQuery(inferenceTask, trees.getTaxa(), trees);
+				if (trees.size() >0){
+					trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));
+					doneQuery(inferenceTask, trees.getTaxa(), trees);
+				}
 				fireTreeFiller();
 				resetAllMenuBars();
 				iQuit();
@@ -104,7 +106,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			taxa = (Taxa)ListDialog.queryList(containerOfModule(), "Select taxa", "Select taxa (for tree inference)",MesquiteString.helpString, taxas, 0);
 		}
 
- 
+
 		if (taxa==null || file == null)
 			return;
 
@@ -120,9 +122,9 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			}
 		}
 		//DW: put the burden of the autosave query onto the inferenceTask, and add a method to TreeInferer to ask it if autosave
-			MesquiteBoolean autoSave = new MesquiteBoolean(false);
-			TreeBlockThread tLT = new TreeBlockThread(this, inferenceTask, trees, howManyTrees, autoSave, file);
-			tLT.start();
+		MesquiteBoolean autoSave = new MesquiteBoolean(false);
+		TreeBlockThread tLT = new TreeBlockThread(this, inferenceTask, trees, howManyTrees, autoSave, file);
+		tLT.start();
 
 	}
 	/*.................................................................................................................*/
@@ -157,7 +159,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		fireEmployee(inferenceTask);  
 		inferenceTask = null;
 		taxaAssignedID = null;
-}
+	}
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease() { 
@@ -188,6 +190,7 @@ abstract class FillerThread extends MesquiteThread {
 	public FillerThread (TreeInferenceLiaison ownerModule) {
 		super();
 		this.ownerModule = ownerModule;
+		setSpontaneousIndicator(false);
 	}
 	public abstract void stopFilling();
 }
@@ -232,7 +235,9 @@ class TreeBlockThread extends FillerThread {
 		long s = System.currentTimeMillis();
 		int before = trees.size();
 		try {
+			Debugg.println("RUN ");
 			inferenceTask.fillTreeBlock(trees, howManyTrees);
+			Debugg.println("RUN DONE ");
 
 			boolean okToSave = false;
 			if (!ownerModule.isDoomed()){
@@ -290,7 +295,7 @@ class TreeBlockMonitorThread extends FillerThread {
 	CommandRecord comRec = null;
 	boolean aborted = true;
 	String taxaIDString = null;
-	
+
 	public TreeBlockMonitorThread (TreeInferenceLiaison ownerModule, String taxaID, TreeInferer fillTask) {
 		super(ownerModule);
 		this.fillTask = fillTask;
@@ -315,6 +320,7 @@ class TreeBlockMonitorThread extends FillerThread {
 	}
 	/*.............................................*/
 	public void run() {
+		Debugg.println("spontaneou&&&&&&& " + getSpontaneousIndicator());
 		Reconnectable reconnectable = fillTask.getReconnectable();
 		if (reconnectable != null){
 			reconnectable.reconnectToRequester(new MesquiteCommand("treesReady", taxaIDString, ownerModule));

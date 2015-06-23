@@ -829,6 +829,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 
 		// read in the tree files
+		TreesManager manager = (TreesManager) findElementManager(TreeVector.class);
+		int oldnumTB = manager.getNumberTreeBlocks(taxa);
 		if (onlyBest || numRuns == 1 || bootstrapOrJackknife())
 			tempDataFile = (MesquiteFile) coord.doCommand("includeTreeFile", StringUtil.tokenize(outputFilePaths[TREEFILE]) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); // TODO: never scripting???
 		else
@@ -838,42 +840,44 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 		MesquiteThread.setCurrentCommandRecord(oldCR);
 
-		TreesManager manager = (TreesManager) findElementManager(TreeVector.class);
 		Tree t = null;
 		int numTB = manager.getNumberTreeBlocks(taxa);
-		TreeVector tv = manager.getTreeBlock(taxa, numTB - 1);
-		if (tv != null) {
-			t = tv.getTree(0);
-			ZephyrUtil.adjustTree(t, outgroupSet);
+		if (numTB> oldnumTB){
+			TreeVector tv = manager.getTreeBlock(taxa, numTB - 1);
+			if (tv != null) {
+				t = tv.getTree(0);
+				ZephyrUtil.adjustTree(t, outgroupSet);
 
-			if (t != null)
-				success = true;
+				if (t != null)
+					success = true;
 
-			if (treeList != null) {
-				double bestScore = MesquiteDouble.unassigned;
-				for (int i = 0; i < tv.getNumberOfTrees(); i++) {
-					Tree newTree = tv.getTree(i);
-					ZephyrUtil.adjustTree(newTree, outgroupSet);
+				if (treeList != null) {
+					double bestScore = MesquiteDouble.unassigned;
+					for (int i = 0; i < tv.getNumberOfTrees(); i++) {
+						Tree newTree = tv.getTree(i);
+						ZephyrUtil.adjustTree(newTree, outgroupSet);
 
-					if (finalValues != null && i < finalValues.length
-							&& MesquiteDouble.isCombinable(finalValues[i])) {
-						MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
-						s.setName(GarliRunner.SCORENAME);
-						((Attachable) newTree).attachIfUniqueName(s);
+						if (finalValues != null && i < finalValues.length
+								&& MesquiteDouble.isCombinable(finalValues[i])) {
+							MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
+							s.setName(GarliRunner.SCORENAME);
+							((Attachable) newTree).attachIfUniqueName(s);
+						}
+
+						treeList.addElement(newTree, false);
+
+						if (finalValues != null && i < finalValues.length
+								&& MesquiteDouble.isCombinable(finalValues[i]))
+							if (MesquiteDouble.isUnassigned(bestScore))
+								bestScore = finalValues[i]; // Debugg.println must refind final values, best score
+							else if (bestScore < finalValues[i])
+								bestScore = finalValues[i];
 					}
+					logln("Best score: " + bestScore);
 
-					treeList.addElement(newTree, false);
-
-					if (finalValues != null && i < finalValues.length
-							&& MesquiteDouble.isCombinable(finalValues[i]))
-						if (MesquiteDouble.isUnassigned(bestScore))
-							bestScore = finalValues[i]; // Debugg.println must refind final values, best score
-						else if (bestScore < finalValues[i])
-							bestScore = finalValues[i];
 				}
-				logln("Best score: " + bestScore);
-
 			}
+			manager.deleteElement(tv); // get rid of temporary tree block
 		}
 		// int numTB = manager.getNumberTreeBlocks(taxa);
 
@@ -883,7 +887,6 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		// deleteSupportDirectory();
 		if (data != null)
 			data.setEditorInhibition(false);
-		manager.deleteElement(tv); // get rid of temporary tree block
 		if (success) {
 			postBean("successful", false);
 			return t;

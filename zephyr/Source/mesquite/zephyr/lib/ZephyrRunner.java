@@ -281,6 +281,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
 		logln("Monitoring " + getProgramName() + " run begun.");
+		Debugg.printStackTrace("");
 		String callBackArguments = callBackCommand.getDefaultArguments();
 		String taxaID = parser.getFirstToken(callBackArguments);
 		if (taxaID !=null)
