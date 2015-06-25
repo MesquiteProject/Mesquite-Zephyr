@@ -277,7 +277,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 		if (threadingVersion==THREADING_PTHREADS) {
 			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ");   // have to ensure that there are at least two threads requested
 		}
-		return arguments; // + "> log.txt";
+		return arguments; // + " | tee log.txt"; // + "> log.txt";
 
 	}
 

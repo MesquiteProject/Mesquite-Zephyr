@@ -34,7 +34,9 @@ public abstract class TreeInferenceHandler extends MesquiteModule  {
  		return "Tree Inference Handler";
    	 }
 	/*.................................................................................................................*/
-	public abstract String getHTMLDescriptionOfStatus();
+	public abstract String getHTMLDescriptionOfStatus(int numLines);
+	/*.................................................................................................................*/
+	public abstract boolean stopInference();
 
 }
 

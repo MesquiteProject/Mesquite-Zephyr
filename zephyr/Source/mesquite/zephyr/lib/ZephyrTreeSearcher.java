@@ -204,6 +204,8 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	public boolean canGiveIntermediateResults(){
 		return true;
 	}
+	
+
 	public Tree getLatestTree(Taxa taxa, MesquiteNumber score, MesquiteString titleForWindow){
 		if (titleForWindow != null)
 			titleForWindow.setValue("Tree from "+ getProgramName());

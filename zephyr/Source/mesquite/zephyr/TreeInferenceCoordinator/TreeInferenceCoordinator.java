@@ -29,7 +29,7 @@ public class TreeInferenceCoordinator extends FileInit {
 	/*.................................................................................................................*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		if (numModulesAvailable(TreeInferer.class)>0){  //ExternalTreeSearcher
-			getFileCoordinator().addSubmenu(MesquiteTrunk.treesMenu, "Tree Inference (Experimental)", makeCommand("inferTrees",  this), TreeInferer.class);
+			getFileCoordinator().addSubmenu(MesquiteTrunk.analysisMenu, "Tree Inference (Experimental)", makeCommand("inferTrees",  this), TreeInferer.class);
 			handlers = new Vector();
 			linkTouchedCommand = new MesquiteCommand("linkTouched", this);
 			makeMenu("Inference");
@@ -79,44 +79,68 @@ public class TreeInferenceCoordinator extends FileInit {
 		return null;
 	}
 	/*.................................................................................................................*/
-	String getStatusHTML(){
+	String getStatusHTML(int numLinesPerHandler){
 		if (handlers.size() == 0)
 			return "No inferences running";
-		String s = "<h2>Inferences in process</h2>";
+		String s = "<h2>Inferences in process</h2><hr size=\"3\" noshade=\"noshade\" />";
 		for (int i = 0; i<handlers.size(); i++) {
 			TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(i);
-			s += e.getHTMLDescriptionOfStatus() + " <a href = \"kill-" + e.getID() + "\">Stop</a><p>";
+			s += e.getHTMLDescriptionOfStatus(numLinesPerHandler) + " <a href = \"kill-" + e.getID() + "\">Stop</a><p><hr size=\"3\" noshade=\"noshade\" />";
 		}
 		return s;
 	}
 	/*.................................................................................................................*/
 	void initiateWindow(){
 		if (window == null) {
-			window = new MesquiteHTMLWindow(this, linkTouchedCommand, "Tree Inference in Progress", true);
-			if (window != null){
-				window.setText(getStatusHTML());
-				window.setPopAsTile(true);
-				window.popOut(true);
-				window.setVisible(true);
-				window.show();
-				resetAllMenuBars();
-			}
+			window = new MesquiteHTMLWindow(this, linkTouchedCommand, "Tree Inference in Progress", false);
+			window.setBackEnabled(false);
 		}
+		window.setText(getStatusHTML(getNumLinesPerHandler()));
+		window.setPopAsTile(true);
+		window.popOut(true);
+		lastWindowStatePopped = true;
+		window.setVisible(true);
+		window.show();
+		resetAllMenuBars();
 
 	}
+	
+	int getNumLinesPerHandler(){
+		if (window == null)
+			return 0;
+		
+		int numLines = (window.getHeight()-30 - handlers.size()*50)/16;
+		if (handlers.size()== 0)
+			return numLines;
+		return numLines/handlers.size();
+		//rough guess: 100 pixels for extras, then 16 pixels per line
+	}
+	boolean lastWindowStatePopped = true;
+	int resetCount = 0;
 	/*.................................................................................................................*/
 	void resetWindow(){
 		if (window != null) {
-			if (window.isVisible() && handlers.size() >0)
-				window.setVisible(true);
+			if (handlers.size()> 0){
+				if (!window.isVisible()){
+					window.setVisible(true);
+				}
 
-			window.setText(getStatusHTML());
+				if (lastWindowStatePopped && !window.isPoppedOut()){
+					window.setPopAsTile(true);
+					window.popOut(true);
+				}
+				
+				window.setText(getStatusHTML(getNumLinesPerHandler()));
+			}
+			else {
+				lastWindowStatePopped = window.isPoppedOut();
+				window.setVisible(false);
+			}
+
 		}
 	}
 	/*.................................................................................................................*/
 	public void employeeParametersChanged(MesquiteModule employee, MesquiteModule source, Notification notification) {
-		if (MesquiteThread.isScripting())
-			return;
 		resetWindow();
 	}
 	/*.................................................................................................................*/
@@ -155,11 +179,10 @@ public class TreeInferenceCoordinator extends FileInit {
 				int id = MesquiteInteger.fromString(idS);
 				TreeInferenceHandler handler = findHandlerByID(id);
 				if (handler != null) {
-					alert("Request to stop handler " + handler.getID() + ". Sorry, stopping is not built yet.");
+					handler.stopInference();
 					return null;
 				}
 			}
-			Debugg.println("linkTouched ARGUMENTS " + arguments);
 		}
 		else
 			return  super.doCommand(commandName, arguments, checker);
