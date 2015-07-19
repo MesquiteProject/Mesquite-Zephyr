@@ -200,6 +200,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		tabbedPanel.addPanel("RAxML Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
 		addRunnerOptions(dialog);
+		if (treeInferer!=null) 
+			treeInferer.addItemsToDialogPanel(dialog);
 
 		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
 		doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
@@ -246,7 +248,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
-			if (externalProcRunner.optionsChosen()) {
+			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
+			if (externalProcRunner.optionsChosen() && infererOK) {
 				dnaModel = dnaModelField.getText();
 				proteinModel = proteinModelField.getText();
 				numRuns = numRunsField.getValue();
@@ -257,8 +260,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				useConstraintTree = constraintButtons.getValue();
 				otherOptions = otherOptionsField.getText();
 				processRunnerOptions();
-				storePreferences();
-				externalProcRunner.storePreferences();
+				storeRunnerPreferences();
 			}
 		}
 		dialog.dispose();

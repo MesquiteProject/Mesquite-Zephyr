@@ -446,11 +446,11 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
-			if (externalProcRunner.optionsChosen()) {
+			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
+			if (externalProcRunner.optionsChosen() && infererOK) {
 				queryOptionsProcess(dialog);
 //				writeOnlySelectedTaxa = selectedOnlyBox.getState();
-				storePreferences();
-				externalProcRunner.storePreferences();
+				storeRunnerPreferences();
 			}
 		}
 		dialog.dispose();

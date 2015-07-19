@@ -29,6 +29,8 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 	String taxaAssignedID = null;  
 	FillerThread inferenceThread = null;
 	Taxa taxa = null;
+	
+	//MesquiteBoolean autoSave = new MesquiteBoolean(true);
 
 	/*.................................................................................................................*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
@@ -85,16 +87,25 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 					taxa = getProject().getTaxa(0);
 				TreeVector trees = new TreeVector(taxa); 
 				
+			//	boolean okToSave = false;
+
 				MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(true);
 				inferenceTask.retrieveTreeBlock(trees, 100);
 				if (trees.size() >0){
 					trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));
+			//		okToSave = true;
 					doneQuery(inferenceTask, trees.getTaxa(), trees);
 				}
 				if (taxa != null)
 					taxa.decrementEditInhibition();
 				MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(false);
 				fireTreeFiller();
+			/*	if (okToSave && autoSave != null && autoSave.getValue()){
+					FileCoordinator fCoord = getFileCoordinator();
+					fCoord.writeFile(getProject().getHomeFile());
+				}
+				*/
+
 				resetAllMenuBars();
 				iQuit();
 			}
@@ -152,8 +163,8 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			}
 		}
 		//DW: put the burden of the autosave query onto the inferenceTask, and add a method to TreeInferer to ask it if autosave
-		MesquiteBoolean autoSave = new MesquiteBoolean(false);
-		inferenceThread = new TreeBlockThread(this, inferenceTask, trees, howManyTrees, autoSave, file);
+	//	MesquiteBoolean autoSave = new MesquiteBoolean(true);
+		inferenceThread = new TreeBlockThread(this, inferenceTask, trees, howManyTrees, file);
 		inferenceThread.start();
 
 	}
@@ -298,15 +309,15 @@ class TreeBlockThread extends FillerThread {
 	MesquiteFile file;
 	int howManyTrees;
 	CommandRecord comRec = null;
-	MesquiteBoolean autoSave = null;
+	//MesquiteBoolean autoSave = null;
 	boolean aborted = false;
-	public TreeBlockThread (TreeInferenceLiaison ownerModule, TreeInferer fillTask, TreeVector trees, int howManyTrees, MesquiteBoolean autoSave, MesquiteFile file) {
+	public TreeBlockThread (TreeInferenceLiaison ownerModule, TreeInferer fillTask, TreeVector trees, int howManyTrees, MesquiteFile file) {
 		super(ownerModule);
 		this.inferenceTask = fillTask;
 		this.trees = trees;
 		this.howManyTrees = howManyTrees;
 		this.file = file;
-		this.autoSave = autoSave;
+//		this.autoSave = autoSave;
 		setCurrent(1);
 		CommandRecord cr = MesquiteThread.getCurrentCommandRecord();
 		boolean sc;
@@ -325,6 +336,13 @@ class TreeBlockThread extends FillerThread {
 	public String getCurrentCommandExplanation(){
 		return null;
 	}
+	
+	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
+	}
+	public  boolean optionsChosen(){
+		return false;
+	}
+
 	/*.............................................*/
 	public void run() {
 		long s = System.currentTimeMillis();
@@ -358,9 +376,11 @@ class TreeBlockThread extends FillerThread {
 				if (trees.size()!=before)
 					ownerModule.doneQuery(inferenceTask, trees.getTaxa(), trees);
 				ownerModule.fireTreeFiller();
-				if (okToSave && autoSave != null && autoSave.getValue()){
-					FileCoordinator fCoord = ownerModule.getFileCoordinator();
-					fCoord.writeFile(file);
+				if (okToSave) {  //WAYNECHECK: why is it saving to the Mesquite block a reference to a continuing tree inference task?
+					if (inferenceTask.getAutoSave()){
+						FileCoordinator fCoord = ownerModule.getFileCoordinator();
+						fCoord.writeFile(file);
+					}
 				}
 			}
 			ownerModule.resetAllMenuBars();

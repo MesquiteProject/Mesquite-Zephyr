@@ -52,7 +52,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	 public String getProgramLocation(){
 		 return "";
 	}
-		/*.................................................................................................................*/
+	 /*.................................................................................................................*/
 		public String getHTMLDescriptionOfStatus(){
 			if (observedStates != null){
 				CharacterData data = observedStates.getParentData();
@@ -232,6 +232,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		double bestScore = MesquiteDouble.unassigned;
 		MesquiteDouble finalScores = new MesquiteDouble();
 
+		runner.setTreeInferer(getTreeInferer());
 		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 		appendSearchDetails();
 		if (trees!=null) {

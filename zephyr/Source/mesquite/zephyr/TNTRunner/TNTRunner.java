@@ -394,7 +394,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		queryOptionsDialog.completeAndShowDialog("Search", "Cancel", null, null);
 
 		if (buttonPressed.getValue()==0)  {
-			if (externalProcRunner.optionsChosen()) {
+			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
+			if (externalProcRunner.optionsChosen() && infererOK) {
 				bootstrapreps = bootStrapRepsField.getValue();
 				numSlaves = slavesField.getValue();
 				otherOptions = otherOptionsField.getText();
@@ -410,8 +411,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				searchStyle = searchStyleChoice.getSelectedIndex();
 				mxram = maxRamField.getValue();
 
-				externalProcRunner.storePreferences();
-				storePreferences();
+				storeRunnerPreferences();
 			}
 		}
 		queryOptionsDialog.dispose();

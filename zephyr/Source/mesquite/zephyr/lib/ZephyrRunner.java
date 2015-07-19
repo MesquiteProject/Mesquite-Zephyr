@@ -16,8 +16,11 @@ import java.util.Random;
 import mesquite.categ.lib.CategoricalData;
 import mesquite.lib.*;
 import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.duties.TreeInferer;
 
 public abstract class ZephyrRunner extends MesquiteModule implements ExternalProcessRequester, OutputFilePathModifier{
+	
+	protected TreeInferer treeInferer = null;
 
 	String[] logFileNames;
 	protected ExternalProcessRunner externalProcRunner;
@@ -46,10 +49,26 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract boolean bootstrapOrJackknife();
 	public abstract boolean showMultipleRuns();
 	
+	public TreeInferer getTreeInferer() {
+		return treeInferer;
+	}
+	public void setTreeInferer(TreeInferer treeInferer) {
+		this.treeInferer = treeInferer;
+	}
+
 	public String getResamplingKindName() {
 		return "Bootstrap";
 	}
 
+	public void storeRunnerPreferences() {
+		if (externalProcRunner!=null)
+			externalProcRunner.storePreferences();
+		storePreferences();
+		if (treeInferer!=null)
+			treeInferer.storePreferences();
+	}
+
+	
 	public abstract boolean doMajRuleConsensusOfResults();
 	public abstract boolean singleTreeFromResampling();
 

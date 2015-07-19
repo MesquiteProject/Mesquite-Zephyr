@@ -560,6 +560,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		tabbedPanel.addPanel("GARLI Program Details", true);
 		addRunnerOptions(dialog);
 		dialog.addLabelSmallText("This version of Zephyr tested on the following GARLI version(s): " + getTestedProgramVersions());
+		if (treeInferer!=null) 
+			treeInferer.addItemsToDialogPanel(dialog);
 
 		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
 		doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
@@ -634,7 +636,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		dialog.completeAndShowDialog(true);
 
 		if (buttonPressed.getValue() == 0) {
-			if (externalProcRunner.optionsChosen()) {
+			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
+			if (externalProcRunner.optionsChosen() && infererOK) {
 				numRuns = numRunsField.getValue();
 				bootstrapreps = bootStrapRepsField.getValue();
 				onlyBest = onlyBestBox.getState();
@@ -650,8 +653,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 				processCharacterModels();
 
-				storePreferences();
-				externalProcRunner.storePreferences();
+				storeRunnerPreferences();
 			}
 		}
 		dialog.dispose();
