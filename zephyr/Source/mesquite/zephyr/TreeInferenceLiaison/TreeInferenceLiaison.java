@@ -347,6 +347,7 @@ class TreeBlockThread extends FillerThread {
 	public void run() {
 		long s = System.currentTimeMillis();
 		int before = trees.size();
+			boolean okToSave = false;
 		try {
 			Debugg.println("RUN ");
 			MesquiteThread.setLoggerCurrentThread(ownerModule.getLogger());
@@ -360,7 +361,6 @@ class TreeBlockThread extends FillerThread {
 			MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(false);
 			Debugg.println("RUN DONE ");
 
-			boolean okToSave = false;
 			if (!ownerModule.isDoomed()){
 				if (!aborted){
 					if (trees.size()==before) {
@@ -376,12 +376,6 @@ class TreeBlockThread extends FillerThread {
 				if (trees.size()!=before)
 					ownerModule.doneQuery(inferenceTask, trees.getTaxa(), trees);
 				ownerModule.fireTreeFiller();
-				if (okToSave) {  //WAYNECHECK: why is it saving to the Mesquite block a reference to a continuing tree inference task?
-					if (inferenceTask.getAutoSave()){
-						FileCoordinator fCoord = ownerModule.getFileCoordinator();
-						fCoord.writeFile(file);
-					}
-				}
 			}
 			ownerModule.resetAllMenuBars();
 		}
@@ -394,7 +388,15 @@ class TreeBlockThread extends FillerThread {
 			ownerModule.alert("Sorry, there was a problem in making the tree block.  An Error was thrown (class " + e.getClass() +"). For more details see Mesquite log file.");
 			throw e;
 		}
+		FileCoordinator fCoord = ownerModule.getFileCoordinator();
 		ownerModule.iQuit();
+		if (okToSave) {  //WAYNECHECK: why is it saving to the Mesquite block a reference to a continuing tree inference task?
+			//DAVID: because the snapshot above is written if THIS exists, i.e. it's the continued existence of the Liaison that triggers the memory, not of the inference task
+			//Thus, we need to call this after this quits, but because things get disposed, need to get reference to file coordinator in advance of asking to quit
+			if (inferenceTask.getAutoSave()){
+				fCoord.writeFile(file);
+			}
+		}
 		threadGoodbye();
 	}
 	public void stopFilling(){
