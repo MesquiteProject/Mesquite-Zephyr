@@ -697,13 +697,11 @@ WAG, gene2 = 501-1000
 		if (!isDoomed()){
 
 			if (success){  //David: abort here
-				if (getProject()!=null)
-					getProject().decrementProjectWindowSuppression();
+				desuppressProjectPanelReset();
 				return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 			}
 		}
-		if (getProject()!=null)
-			getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (data != null)
 			data.setEditorInhibition(false);
 		return null;
@@ -711,28 +709,7 @@ WAG, gene2 = 501-1000
 
 	}	
 
-	/*.................................................................................................................*
-	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
-		logln("Monitoring RAxML run begun.");
-		getProject().incrementProjectWindowSuppression();
 
-		initializeMonitoring();
-		setFilePaths();
-		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
-
-		boolean success = externalProcRunner.monitorExecution();
-
-		if (progIndicator!=null)
-			progIndicator.goAway();
-
-		//deleteSupportDirectory();
-		getProject().decrementProjectWindowSuppression();
-		if (data != null)
-			data.setEditorInhibition(false);
-		if (callBackCommand != null)
-			callBackCommand.doItMainThread(null,  null,  this);
-		return null;
-	}	
 
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
@@ -757,8 +734,7 @@ WAG, gene2 = 501-1000
 		taxa = treeList.getTaxa();
 		finalScore.setValue(finalValue);
 
-		if (getProject()!=null)
-			getProject().incrementProjectWindowSuppression();
+		suppressProjectPanelReset();
 		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
 		CommandRecord scr = new CommandRecord(true);
 		MesquiteThread.setCurrentCommandRecord(scr);
@@ -914,8 +890,7 @@ WAG, gene2 = 501-1000
 		if (!success)
 			logln("Execution of RAxML unsuccessful [2]");
 
-		if (getProject()!=null)
-			getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (data!=null)
 			data.setEditorInhibition(false);
 		//	manager.deleteElement(tv);  // get rid of temporary tree block

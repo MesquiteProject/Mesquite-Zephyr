@@ -171,7 +171,10 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 	public boolean stopInference(){
 		if (inferenceThread!= null)
 			inferenceThread.stopFilling();
+		Debugg.println("STOP INFERENCE " + getProject().refreshSuppression);
 		fireTreeFiller();
+		Debugg.println("STOP INFERENCE2 " + getProject().refreshSuppression);
+
 		iQuit();
 		return true;
 	}

@@ -321,7 +321,7 @@ public class RAxMLExporter extends RAxMLRunnerLocal {
 		MolecularData data = (MolecularData)matrix.getParentData();
 		isProtein = data instanceof ProteinData;
 
-		getProject().incrementProjectWindowSuppression();
+		suppressProjectPanelReset();
 
 		data.setEditorInhibition(true);
 		if(directoryPath == null || baseFileName == null){
@@ -358,8 +358,10 @@ public class RAxMLExporter extends RAxMLRunnerLocal {
 			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipDNA");
 		else if (data instanceof ProteinData)
 			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipProtein");
-		if (exporter==null)
+		if (exporter==null){
+			desuppressProjectPanelReset();
 			return null;
+		}
 		prepareExportFile(exporter);
 
 		boolean fileSaved = false;
@@ -371,6 +373,7 @@ public class RAxMLExporter extends RAxMLRunnerLocal {
 	
 		MesquiteFile.putFileContents(configFilePath, configFileContents, true);//TODO: why ascii = true?
 		
+		desuppressProjectPanelReset();
 		if (!fileSaved){
 			if(!MesquiteThread.isScripting()){
 				logln("Export problems encountered.  Files not written to disk.");

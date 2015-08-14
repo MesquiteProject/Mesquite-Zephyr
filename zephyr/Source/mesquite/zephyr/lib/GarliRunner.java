@@ -796,18 +796,16 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 		if (!isDoomed()){
 			if (success) {
-				getProject().decrementProjectWindowSuppression();
+				desuppressProjectPanelReset();
 				return retrieveTreeBlock(trees, finalScore); // here's where we actually process everything
 			}
 		}
 
-		if (getProject() != null)
-			getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (data != null)
 			data.setEditorInhibition(false);
 		return null;
 	}
-
 	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
 		logln("Preparing to receive GARLI trees.");
@@ -815,7 +813,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		taxa = treeList.getTaxa();
 		finalScore.setValue(finalValue);
 
-		getProject().incrementProjectWindowSuppression();
+		suppressProjectPanelReset();
+		
 		FileCoordinator coord = getFileCoordinator();
 		MesquiteFile tempDataFile = null;
 		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
@@ -883,7 +882,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 		// int numTB = manager.getNumberTreeBlocks(taxa);
 
-		getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (tempDataFile != null)
 			tempDataFile.close();
 		// deleteSupportDirectory();

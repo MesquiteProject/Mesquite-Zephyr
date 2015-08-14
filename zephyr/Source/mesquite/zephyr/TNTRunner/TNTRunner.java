@@ -663,13 +663,12 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 		if (!isDoomed()){
 			if (success){
-			getProject().decrementProjectWindowSuppression();
+				desuppressProjectPanelReset();
 			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 		} else
 			postBean("unsuccessful [1]", false);
 		}
-		if (getProject() != null)
-			getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (data == null)
 			data.setEditorInhibition(false);
 		return null;
@@ -683,7 +682,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		taxa = treeList.getTaxa();
 		//TODO		finalScore.setValue(finalValue);
 
-		getProject().incrementProjectWindowSuppression();
+		suppressProjectPanelReset();
 		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
 		CommandRecord scr = new CommandRecord(true);
 		MesquiteThread.setCurrentCommandRecord(scr);
@@ -727,7 +726,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			postBean("successful", false);
 
 
-		getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (data!=null)
 			data.setEditorInhibition(false);
 		//	manager.deleteElement(tv);  // get rid of temporary tree block

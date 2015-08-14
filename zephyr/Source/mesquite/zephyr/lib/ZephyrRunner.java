@@ -67,8 +67,22 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (treeInferer!=null)
 			treeInferer.storePreferences();
 	}
+	int projectPanelSuppressed = 0;
+	protected void suppressProjectPanelReset(){
+		if (getProject()==null)
+			return;
+		getProject().incrementProjectWindowSuppression();
+		projectPanelSuppressed++;
+	}
+	protected void desuppressProjectPanelReset(){
+		if (getProject()==null){
+			projectPanelSuppressed = 0;
+			return;
+		}
+		getProject().decrementProjectWindowSuppression();
+		projectPanelSuppressed--;
+	}
 
-	
 	public abstract boolean doMajRuleConsensusOfResults();
 	public abstract boolean singleTreeFromResampling();
 
@@ -82,6 +96,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public void endJob(){
 		if (progIndicator!=null)
 			progIndicator.goAway();
+		while (projectPanelSuppressed>0)
+			desuppressProjectPanelReset();
 		super.endJob();
 	}
 	public void initialize (MesquiteModule ownerModule) {
@@ -220,7 +236,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		data.setEditorInhibition(true);
 		rng = new Random(System.currentTimeMillis());
 		unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
-		getProject().incrementProjectWindowSuppression();
+		suppressProjectPanelReset();
 		logln(getProgramName() + " analysis using data matrix " + data.getName());
 		return true;
 	}

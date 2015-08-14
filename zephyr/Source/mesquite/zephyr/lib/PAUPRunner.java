@@ -236,13 +236,12 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		
 		if (!isDoomed()){
 		if (success){
-			getProject().decrementProjectWindowSuppression();
+			desuppressProjectPanelReset();
 			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 		} else
 			postBean("unsuccessful [1]", false);
 		}
-		if (getProject() != null)
-			getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (data != null)
 			data.setEditorInhibition(false);
 		return null;
@@ -260,7 +259,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 		FileCoordinator coord = getFileCoordinator();
 		String treeFilePath = outputFilePaths[OUT_TREEFILE];
-		getProject().incrementProjectWindowSuppression();
+		suppressProjectPanelReset();
 		MesquiteFile tempDataFile = null;
 		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
 		CommandRecord scr = new CommandRecord(true);
@@ -293,13 +292,13 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		}
 		//int numTB = manager.getNumberTreeBlocks(taxa);
 		
-		getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (tempDataFile!=null)
 			tempDataFile.close();
 
 		
 		manager.deleteElement(tv);  // get rid of temporary tree block
-		getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (data!=null)
 			data.setEditorInhibition(false);		
 		if (success) { 
