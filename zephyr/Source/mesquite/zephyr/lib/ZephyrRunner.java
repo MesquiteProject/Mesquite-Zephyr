@@ -67,7 +67,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (treeInferer!=null)
 			treeInferer.storePreferences();
 	}
-	int projectPanelSuppressed = 0;
+	int projectPanelSuppressed = 0;  //Debugg.println are there other things that need bailing on????
 	protected void suppressProjectPanelReset(){
 		if (getProject()==null)
 			return;
@@ -115,12 +115,42 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	}
 	/*.................................................................................................................*/
+	public void setExtraSearchDetails(String s) {
+		if (extraSearchDetails==null)
+			extraSearchDetails = new StringBuffer();
+		extraSearchDetails.setLength(0);
+		extraSearchDetails.append(s);
+
+	}
+	/*.................................................................................................................*/
 	public void appendToSearchDetails(String s) {
 		if (searchDetails!=null) {
 			searchDetails.append(s);
 		}
 	}
-	
+	/*.................................................................................................................*/
+	public void appendToExtraSearchDetails(String s) {
+		if (extraSearchDetails==null)
+			extraSearchDetails = new StringBuffer();
+			extraSearchDetails.append(s);
+	}
+	public StringBuffer getExtraSearchDetails(){
+		return extraSearchDetails;
+	}
+	public void setAddendumToTreeBlockName(String s){
+		if (addendumToTreeBlockName==null)
+			addendumToTreeBlockName = new StringBuffer();
+		addendumToTreeBlockName.setLength(0);
+		addendumToTreeBlockName.append(s);
+	}
+	public void appendToAddendumToTreeBlockName(String s){
+		if (addendumToTreeBlockName==null)
+			addendumToTreeBlockName = new StringBuffer();
+		addendumToTreeBlockName.append(s);
+	}
+	public String getAddendumToTreeBlockName(){
+		return addendumToTreeBlockName.toString();
+	}
 	public void prepareRunnerObject(Object obj){
 	}
 	/*.................................................................................................................*/
@@ -195,6 +225,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	
 	/*.................................................................................................................*/
 	protected StringBuffer searchDetails = new StringBuffer();
+	protected StringBuffer extraSearchDetails = new StringBuffer();
+	protected StringBuffer addendumToTreeBlockName = new StringBuffer();
 	public String getSearchDetails(){
 		return searchDetails.toString();
 	}
@@ -202,6 +234,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
 		temp.addLine("recoverSearchDetails " + ParseUtil.tokenize(searchDetails.toString()));
+		temp.addLine("recoverExtraSearchDetails " + ParseUtil.tokenize(extraSearchDetails.toString()));
+		temp.addLine("recoverAddendumToTreeBlockName " + ParseUtil.tokenize(addendumToTreeBlockName.toString()));
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -209,6 +243,14 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (checker.compare(this.getClass(), "Recovers search details from previous run", "[search details]", commandName, "recoverSearchDetails")) {
 			searchDetails.setLength(0);
 			searchDetails.append(parser.getFirstToken(arguments));
+		}
+		else if (checker.compare(this.getClass(), "Recovers extra search details from previous run", "[search details]", commandName, "recoverExtraSearchDetails")) {
+			extraSearchDetails.setLength(0);
+			extraSearchDetails.append(parser.getFirstToken(arguments));
+		}
+		else if (checker.compare(this.getClass(), "Recovers addendum to tree block name from previous run", "[addendum]", commandName, "recoverAddendumToTreeBlockName")) {
+			addendumToTreeBlockName.setLength(0);
+			addendumToTreeBlockName.append(parser.getFirstToken(arguments));
 		}
 		return null;
 	}	
@@ -283,7 +325,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			progIndicator.start();
 		}
 		setSearchDetails();
-
+		appendToSearchDetails(getExtraSearchDetails().toString());
 		MesquiteMessage.logCurrentTime("\nStart of "+getProgramName()+" analysis: ");
 		
 		timer.start();

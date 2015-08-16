@@ -87,7 +87,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected static final int WORKING_TREEFILE=3;
 
 
-
 	/*.................................................................................................................*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		if (randomIntSeed<0)
@@ -105,6 +104,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
+		
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -117,7 +117,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
-		} else
+		}
+		 else
 			return super.doCommand(commandName, arguments, checker);
 	}	
 	public void reconnectToRequester(MesquiteCommand command){
@@ -630,6 +631,7 @@ WAG, gene2 = 501-1000
 			multipleModelFileName=null;
 
 		String constraintTree = "";
+		
 		if (useConstraintTree>NOCONSTRAINT){
 			getConstraintTreeSource();
 			Tree constraint = null;
@@ -640,16 +642,22 @@ WAG, gene2 = 501-1000
 				return null;
 			}
 			else if (useConstraintTree == SKELETAL){
-				if (!constraint.hasPolytomies(constraint.getRoot()))
+				if (!constraint.hasPolytomies(constraint.getRoot())){
 					constraintTree = constraint.writeTreeByT0Names(false) + ";";
+					appendToExtraSearchDetails("\nSkeletal constraint using tree \"" + constraint.getName() + "\"");
+					appendToAddendumToTreeBlockName("Constrained by tree \"" + constraint.getName() + "\"");
+				}
 				else {
 					discreetAlert("Constraint tree cannot be used as a skeletal constraint because it has polytomies");
 					return null;
 				}
 			}
 			else if (useConstraintTree == MONOPHYLY){
-				if (constraint.hasPolytomies(constraint.getRoot()))
+				if (constraint.hasPolytomies(constraint.getRoot())){
 						constraintTree = constraint.writeTreeByT0Names(false) + ";";
+						appendToExtraSearchDetails("\nPartial resolution constraint using tree \"" + constraint.getName() + "\"");
+						appendToAddendumToTreeBlockName("Constrained by tree \"" + constraint.getName() + "\"");
+			}
 				else {
 					discreetAlert("Constraint tree cannot be used as a partial resolution constraint because it is strictly dichotomous");
 					return null;
@@ -708,7 +716,7 @@ WAG, gene2 = 501-1000
 
 
 	}	
-
+	
 
 
 	/*.................................................................................................................*/

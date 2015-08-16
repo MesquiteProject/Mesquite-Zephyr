@@ -760,10 +760,16 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			}
 			else {
 				constraintTree = constraint.writeTreeSimple(MesquiteTree.BY_NUMBERS, false, false, false, false, ",");
-				if (useConstraintTree == POSITIVECONSTRAINT)
+				if (useConstraintTree == POSITIVECONSTRAINT){
 					constraintTree = "+" + constraintTree+ ";";
-				else if (useConstraintTree == NEGATIVECONSTRAINT)
+					appendToExtraSearchDetails("\nPositive constraint using tree \"" + constraint.getName() + "\"");
+					appendToAddendumToTreeBlockName("Constrained to tree \"" + constraint.getName() + "\"");
+				}
+				else if (useConstraintTree == NEGATIVECONSTRAINT){
 					constraintTree = "-" + constraintTree+ ";";
+					appendToExtraSearchDetails("\nNegative constraint using tree \"" + constraint.getName() + "\"");
+					appendToAddendumToTreeBlockName("Constrained to oppose tree \"" + constraint.getName() + "\"");
+				}
 
 			}
 		}

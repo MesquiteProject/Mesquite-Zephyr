@@ -254,19 +254,24 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	}
 	/*.................................................................................................................*/
 	public String getTreeBlockName(){
+		String s = getProgramName() + getMethodNameForTreeBlock() ;
 		if (runner != null){
 			if (runner.bootstrapOrJackknife()) {
 				if (runner.singleTreeFromResampling()) //this means we have read in all of the bootstrap trees
-					return getProgramName() + getMethodNameForTreeBlock() +" " + runner.getResamplingKindName() +  " Consensus Tree (Matrix: " + observedStates.getName() + ")";
+					s += " " + runner.getResamplingKindName() +  " Consensus Tree (Matrix: " + observedStates.getName();
 				else
-					return getProgramName() +  getMethodNameForTreeBlock() + " " + runner.getResamplingKindName() +  " Trees (Matrix: " + observedStates.getName() + ")";
+					s += " " + runner.getResamplingKindName() +  " Trees (Matrix: " + observedStates.getName();
 			} 
 			else {
-				return getProgramName() +  getMethodNameForTreeBlock() + " Trees (Matrix: " + observedStates.getName() + ")";
+				s +=  " Trees (Matrix: " + observedStates.getName();
 			}
+			String add =  runner.getAddendumToTreeBlockName();
+			if (!StringUtil.blank(add))
+				s += "; " + add;
+			s += ")";
 		}
-		return getProgramName() +  getMethodNameForTreeBlock() + " Trees";
-
+		else s +=  " Trees";
+		return s;
 	}
 
 	/*.................................................................................................................*/
