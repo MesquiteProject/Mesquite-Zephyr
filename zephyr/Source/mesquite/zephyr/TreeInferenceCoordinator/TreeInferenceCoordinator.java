@@ -29,7 +29,7 @@ public class TreeInferenceCoordinator extends FileInit {
 	/*.................................................................................................................*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		if (numModulesAvailable(TreeInferer.class)>0){  //ExternalTreeSearcher
-			getFileCoordinator().addSubmenu(MesquiteTrunk.analysisMenu, "Tree Inference (Experimental)", makeCommand("inferTrees",  this), TreeInferer.class);
+			getFileCoordinator().addSubmenu(MesquiteTrunk.analysisMenu, "Tree Inference", makeCommand("inferTrees",  this), TreeInferer.class);
 			handlers = new Vector();
 			linkTouchedCommand = new MesquiteCommand("linkTouched", this);
 			makeMenu("Inference");
@@ -196,7 +196,7 @@ public class TreeInferenceCoordinator extends FileInit {
 	}
 	/*.................................................................................................................*/
 	public String getNameForMenuItem() {
-		return "Tree Inference (Experimental)";
+		return "Tree Inference";
 	}
 	/*.................................................................................................................*/
 	public String getName() {
