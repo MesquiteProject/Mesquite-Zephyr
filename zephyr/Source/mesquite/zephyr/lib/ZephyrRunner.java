@@ -105,7 +105,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		this.zephyrRunnerEmployer = (ZephyrRunnerEmployer)ownerModule;
 	}
 	/*.................................................................................................................*/
-	public void setSearchDetails() {
+	public void setSearchDetails() {  // for annotation to tree block.  designed to be composed after the tree search started.  
 		if (searchDetails!=null) {
 			searchDetails.setLength(0);
 			searchDetails.append("Trees acquired from " + getProgramName() + " using Mesquite's Zephyr package. \n");
@@ -115,7 +115,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	}
 	/*.................................................................................................................*/
-	public void setExtraSearchDetails(String s) {
+	public void setExtraSearchDetails(String s) {   // for annotation to tree block;  can include things before search is started. 
 		if (extraSearchDetails==null)
 			extraSearchDetails = new StringBuffer();
 		extraSearchDetails.setLength(0);
@@ -123,7 +123,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	}
 	/*.................................................................................................................*/
-	public void appendToSearchDetails(String s) {
+	public void appendToSearchDetails(String s) {   
 		if (searchDetails!=null) {
 			searchDetails.append(s);
 		}
@@ -445,6 +445,13 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public String[] modifyOutputPaths(String[] outputFilePaths){
 		return outputFilePaths;
+	}
+	/*.................................................................................................................*/
+	public String getWindowTitle(){
+		String s = getProgramName() + " inference in progress ";
+		if (data !=null)
+			s+= "["+data.getName() + "]";
+		return s;
 	}
 
 	/*.................................................................................................................*/

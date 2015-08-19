@@ -513,7 +513,7 @@ public class ZephyrUtil {
 	
 	
 	public static String getStandardExtraTreeWindowCommands (boolean doMajRule, boolean isBootstrap, long treeBlockID){
-		String commands = "setSize 400 600; ";
+		String commands = "setSize 400 600;  ";
 		if (doMajRule){  //Debugg.println:  Temporary tree window can't handle this doMajRule, so an error is given when file reread.
 			commands += "getOwnerModule; tell It; setTreeSource  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";
 			commands += " setTreeBlockByID " + treeBlockID + ";";

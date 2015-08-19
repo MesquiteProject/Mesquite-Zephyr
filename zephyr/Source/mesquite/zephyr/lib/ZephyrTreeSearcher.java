@@ -126,12 +126,9 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	public String eachTreeCommands (){
 		return "";
 	}
-	/*.................................................................................................................*
+	/*.................................................................................................................*/
 	public String getExtraIntermediateTreeWindowCommands (){
-		String commands = "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
-		commands += "getTreeWindowMaker;\ntell It; ";
-		commands += " ladderize root; ";
-		commands += " endTell; endTell; ";
+		String commands = " setTitle " +StringUtil.tokenize(runner.getWindowTitle())+"; ";
 		return commands;
 	}
 
