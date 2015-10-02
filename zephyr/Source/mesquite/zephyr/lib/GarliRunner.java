@@ -1007,7 +1007,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 					for (int i=0; i<completedRuns.length; i++)
 						if (!completedRuns[i]) {
 							currentRun=i;
-							Debugg.println("\n ************ current run: " + currentRun + "\n");
+							//Debugg.println("\n ************ current run: " + currentRun + "\n");
 							break;
 						}
 				}
