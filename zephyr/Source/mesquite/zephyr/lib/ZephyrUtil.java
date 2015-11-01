@@ -88,10 +88,21 @@ public class ZephyrUtil {
 		module.decrementMenuResetSuppression();
 		return false;
 	}	
+	/*.................................................................................................................*/
+	public static boolean validPhylipTree(String line){  // check to see if tree is valid
+		Parser parser = new Parser(line);
+		String s = parser.getLastToken();
+		if (!";".equalsIgnoreCase(s)){
+			return false;
+		}
+		return true;
+	}
 
 	/*.................................................................................................................*/
 	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, TaxonNamer namer) {
 		if (StringUtil.blank(line))
+			return null;
+		if (!validPhylipTree(line))
 			return null;
 		MesquiteTree t = new MesquiteTree(taxa);
 		t.setPermitTaxaBlockEnlargement(permitTaxaBlockEnlarge);

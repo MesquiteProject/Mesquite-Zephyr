@@ -75,6 +75,7 @@ public abstract class RAxMLTrees extends ZephyrTreeSearcher implements Likelihoo
 			rerootNode = latestTree.nodeOfTaxonNumber(0);
 		}
 
+
 		MesquiteThread.setCurrentCommandRecord(cr);
 		//Wayne: get tree here from file
 		if (latestTree!=null && latestTree.isValid()) {
