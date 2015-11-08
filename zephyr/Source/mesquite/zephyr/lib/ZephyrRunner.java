@@ -192,7 +192,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	/*.................................................................................................................*/
 	public TaxonNamer getTaxonNamer(){
-		return null;
+		return namer;
 	}
 	/*.................................................................................................................*/
 	public boolean preFlightSuccessful(String command){

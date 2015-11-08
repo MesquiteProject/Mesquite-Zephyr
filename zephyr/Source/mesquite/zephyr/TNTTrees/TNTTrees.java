@@ -82,10 +82,13 @@ public class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
 		latestTree = null;
 
 		String s = MesquiteFile.getFileLastContents(path);
+		
+		TaxonNamer namer = runner.getTaxonNamer();
 
-		int[] taxonNumberTranslation = ((TNTRunner)runner).getTaxonNumberTranslation(taxa);
 
-		latestTree = ZephyrUtil.readTNTTrees(this, null,s,"TNTTree", 0, taxa,true, false, null, taxonNumberTranslation);
+//		int[] taxonNumberTranslation = ((TNTRunner)runner).getTaxonNumberTranslation(taxa);
+
+		latestTree = ZephyrUtil.readTNTTrees(this, null,s,"TNTTree", 0, taxa,true, false, null, namer);
 
 		if (latestTree!=null && latestTree.isValid()) {
 			rerootNode = latestTree.nodeOfTaxonNumber(1);

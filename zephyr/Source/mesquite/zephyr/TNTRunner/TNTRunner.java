@@ -67,6 +67,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	long  randseed = -1;
 	String constraintfile = "none";
 	int totalNumHits = 250;
+	
+
 
 	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
 		EmployeeNeed e = registerEmployeeNeed(ExternalProcessRunner.class, getName() + "  needs a module to run an external process.","");
@@ -617,14 +619,18 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			return null;
 		String dataFileName = "data.ss";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
+
 		FileInterpreterI exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretTNT");
 		if (exporter==null)
 			return null;
 		boolean fileSaved = false;
+		String translationTable = namer.getTranslationTable(taxa);
+		((InterpretHennig86Base)exporter).setTaxonNamer(namer);
 		
 		fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		if (!fileSaved) return null;
 		
+		String translationFileName = IOUtil.translationTableFileName;   
 		setTaxonTranslation(taxa);
 
 
@@ -645,7 +651,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		String programCommand = externalProcRunner.getExecutableCommand();
 
 
-		int numInputFiles = 2;
+		int numInputFiles = 3;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -656,6 +662,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		fileNames[0] = dataFileName;
 		fileContents[1] = commands;
 		fileNames[1] = commandsFileName;
+		fileContents[2] = translationTable;
+		fileNames[2] = translationFileName;
 
 
 		//----------//
@@ -699,18 +707,18 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		success = false;
 		Tree t= null;
 
-		int[] taxonNumberTranslation = getTaxonNumberTranslation(taxa);
+//		int[] taxonNumberTranslation = getTaxonNumberTranslation(taxa);
 		
 		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 		//TreeVector tv = new TreeVector(taxa);
 		if (bootstrapOrJackknife()) {
 			if (resamplingAllConsensusTrees)
-				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT " + getResamplingKindName() + " Rep", 0, readSuccess, false, false, null, taxonNumberTranslation);  // set first tree number as 0 as will remove the first one later.
+				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT " + getResamplingKindName() + " Rep", 0, readSuccess, false, false, null, namer);  // set first tree number as 0 as will remove the first one later.
 			else
-				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT " + getResamplingKindName() + " Majority Rule Tree", 1, readSuccess, false, false, freqRef, taxonNumberTranslation);
+				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT " + getResamplingKindName() + " Majority Rule Tree", 1, readSuccess, false, false, freqRef, namer);
 		}
 		else
-			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTTree", 1, readSuccess, false, harvestOnlyStrictConsensus, null, taxonNumberTranslation);
+			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTTree", 1, readSuccess, false, harvestOnlyStrictConsensus, null, namer);
 		success = t!=null;
 		if (success && bootstrapOrJackknife() && resamplingAllConsensusTrees) {
 			t = t.cloneTree();
