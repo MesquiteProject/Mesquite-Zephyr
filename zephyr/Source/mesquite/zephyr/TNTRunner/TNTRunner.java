@@ -604,6 +604,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				setTaxonNumberInTree(taxa,it,-1);
 
 	}
+	int[] taxonNumberTranslation = null;
+
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
@@ -632,6 +634,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		
 		String translationFileName = IOUtil.translationTableFileName;   
 		setTaxonTranslation(taxa);
+		taxonNumberTranslation = getTaxonNumberTranslation(taxa);
+		namer.setNumberTranslationTable(taxonNumberTranslation);
 
 
 		setFileNames();
@@ -707,7 +711,6 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		success = false;
 		Tree t= null;
 
-//		int[] taxonNumberTranslation = getTaxonNumberTranslation(taxa);
 		
 		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 		//TreeVector tv = new TreeVector(taxa);

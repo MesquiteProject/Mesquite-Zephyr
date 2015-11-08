@@ -22,6 +22,7 @@ import mesquite.categ.lib.DNAData;
 import mesquite.categ.lib.MolecularData;
 import mesquite.categ.lib.ProteinData;
 import mesquite.io.InterpretTNT.InterpretTNT;
+import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.characters.CharInclusionSet;
 import mesquite.lib.characters.CharacterData;
@@ -110,12 +111,24 @@ public class ZephyrUtil {
 		return t;
 	}
 	/*.................................................................................................................*/
-	public  static Tree readTNTTrees(MesquiteModule module, TreeVector trees, String contents, String treeName, int firstTreeNumber, Taxa taxa, boolean firstTree, boolean onlyLastTree, NameReference valuesAtNodes, TaxonNamer namer) {
+	public  static Tree readTNTTrees(MesquiteModule module, TreeVector trees, String path, String contents, String treeName, int firstTreeNumber, Taxa taxa, boolean firstTree, boolean onlyLastTree, NameReference valuesAtNodes, TaxonNamer namer) {
 		FileCoordinator coord = module.getFileCoordinator();
 		if (coord == null) 
 			return  null;
 
 		MesquiteModule.incrementMenuResetSuppression();
+
+		String translationFile = null;
+		String translationTablePath = MesquiteFile.getDirectoryPathFromFilePath(path)+IOUtil.translationTableFileName;
+		translationFile = MesquiteFile.getFileContentsAsString(translationTablePath);
+		if (StringUtil.notEmpty(translationFile)){
+			if (namer==null)
+				namer = new SimpleTaxonNamer();
+			((SimpleTaxonNamer)namer).loadTranslationTable(taxa, translationFile);
+		}
+		else 
+			namer = null;
+
 
 		InterpretTNT exporter = (InterpretTNT)coord.findEmployeeWithName("#InterpretTNT");
 		Parser parser = new Parser();
@@ -129,6 +142,8 @@ public class ZephyrUtil {
 		exporter.resetTreeNumber();
 
 		if (exporter!=null) {
+			if (namer!=null) {
+			}
 			while (StringUtil.notEmpty(line)) {
 				if (!onlyLastTree) {
 					MesquiteTree t = (MesquiteTree)exporter.readTREAD(null, taxa, line, firstTree, null, valuesAtNodes, namer);
@@ -171,7 +186,7 @@ public class ZephyrUtil {
 	public static Tree readTNTTreeFile(MesquiteModule module, TreeVector trees, Taxa taxa, String treeFilePath, String treeName, int firstTreeNumber, MesquiteBoolean success, boolean firstTree, boolean onlyLastTree, NameReference valuesAtNodes, TaxonNamer namer) {
 		Tree t =null;
 		String contents = MesquiteFile.getFileContentsAsString(treeFilePath, -1);
-		t = readTNTTrees(module, trees,contents,treeName, firstTreeNumber, taxa,firstTree, onlyLastTree, valuesAtNodes, namer);
+		t = readTNTTrees(module, trees,treeFilePath, contents,treeName, firstTreeNumber, taxa,firstTree, onlyLastTree, valuesAtNodes, namer);
 
 		if (t!=null) {
 			if (success!=null)
