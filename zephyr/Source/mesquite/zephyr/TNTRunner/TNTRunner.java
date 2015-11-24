@@ -704,6 +704,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
 
 		String treeFilePath = outputFilePaths[OUT_TREEFILE];
+		taxonNumberTranslation = getTaxonNumberTranslation(taxa);
+		namer.setNumberTranslationTable(taxonNumberTranslation);
 
 		runFilesAvailable();
 
