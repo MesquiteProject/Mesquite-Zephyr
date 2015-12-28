@@ -195,7 +195,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			if (StringUtil.blank(extraWindowCommands))
 				extraWindowCommands="";
 			String commands = "makeTreeWindow " + getProject().getTaxaReferenceInternal(taxa) + "  #BasicTreeWindowMaker; tell It; setTreeSource  #StoredTrees;";
-			commands += " tell It; setTaxa " + getProject().getTaxaReferenceInternal(taxa) + " ;  setTreeBlock " + TreeVector.toExternal(whichTreeBlock)  + "; endTell;  getWindow; tell It; setSize 400 300; " + extraWindowCommands + " endTell; showWindowForce; endTell; ";
+			commands += " tell It; setTaxa " + getProject().getTaxaReferenceInternal(taxa) + " ;  setTreeBlockByID " + trees.getID()  + "; endTell;  getWindow; tell It; setSize 400 300; " + extraWindowCommands + " endTell; showWindowForce; endTell; ";
 			MesquiteInteger pos = new MesquiteInteger(0);
 			Puppeteer p = new Puppeteer(this);
 			CommandRecord prev = MesquiteThread.getCurrentCommandRecord();
