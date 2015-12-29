@@ -238,6 +238,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 		runner.setTreeInferer(getTreeInferer());
 		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
+		runner.setRunInProgress(false);
 		appendSearchDetails();
 		if (trees!=null) {
 			trees.setName(getTreeBlockName());

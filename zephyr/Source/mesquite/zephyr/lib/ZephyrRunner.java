@@ -40,6 +40,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected int currentRun=0;
 	protected boolean[] completedRuns=null;
 	protected int previousCurrentRun=0;
+	protected boolean runInProgress = false;
 
 	
 	protected String outgroupTaxSetString = "";
@@ -82,6 +83,13 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 		getProject().decrementProjectWindowSuppression();
 		projectPanelSuppressed--;
+	}
+
+	public boolean getRunInProgress() {
+		return runInProgress;
+	}
+	public void setRunInProgress(boolean runInProgress) {
+		this.runInProgress = runInProgress;
 	}
 
 	public abstract boolean doMajRuleConsensusOfResults();
@@ -314,7 +322,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	
 	/*.................................................................................................................*/
 	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle) {
-
+		runInProgress=true;
+		
 		/*  ============ SETTING UP THE RUN ============  */
 		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, fileContents, fileNames);
 		if (!success){

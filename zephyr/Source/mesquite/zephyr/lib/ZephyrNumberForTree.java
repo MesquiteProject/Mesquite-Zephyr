@@ -179,6 +179,7 @@ public abstract class ZephyrNumberForTree extends NumberForTree implements Recon
 		MesquiteDouble finalScores = new MesquiteDouble();
 
 		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
+		runner.setRunInProgress(false);
 		if (trees!=null) {
 			if (runner.bootstrapOrJackknife()) {
 				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
