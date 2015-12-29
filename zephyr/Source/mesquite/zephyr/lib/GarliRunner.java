@@ -335,6 +335,23 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		noPartitionModel = new GarliCharModel(data instanceof ProteinData);
 
 	}
+	/*.................................................................................................................*/
+	public void appendAdditionalSearchDetails() {
+		appendToSearchDetails("Search details: \n");
+		if (bootstrapOrJackknife()){
+			appendToSearchDetails("   Bootstrap analysis\n");
+			appendToSearchDetails("   "+bootstrapreps + " bootstrap reps");
+		} else {
+			appendToSearchDetails("   Search for maximum-likelihood tree\n");
+			appendToSearchDetails("   "+numRuns + " search rep");
+			if (numRuns>1)
+				appendToSearchDetails("s");
+		}
+/*		MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(), false);
+		if (arguments!=null && !arguments.isBlank()){
+			appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString()); 
+		} */
+	}
 
 	/*.................................................................................................................*/
 	private void writeCharModels(StringBuffer sb, CharacterData data) {

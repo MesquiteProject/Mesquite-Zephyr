@@ -721,13 +721,20 @@ WAG, gene2 = 501-1000
 
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
-		appendToSearchDetails("Search details: ");
+		appendToSearchDetails("Search details: \n");
 		if (bootstrapOrJackknife()){
-			appendToSearchDetails(" number of bootstrap reps: "+bootstrapreps);
-		} else
-			appendToSearchDetails(" number of search reps: "+numRuns);
-		//		if (StringUtil.notEmpty(arguments))
-		//	TODO:		appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments);
+			appendToSearchDetails("   Bootstrap analysis\n");
+			appendToSearchDetails("   "+bootstrapreps + " bootstrap reps");
+		} else {
+			appendToSearchDetails("   Search for maximum-likelihood tree\n");
+			appendToSearchDetails("   "+numRuns + " search rep");
+			if (numRuns>1)
+				appendToSearchDetails("s");
+		}
+		MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(), false);
+		if (arguments!=null && !arguments.isBlank()){
+			appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString());
+		}
 	}
 
 	public  boolean showMultipleRuns() {
