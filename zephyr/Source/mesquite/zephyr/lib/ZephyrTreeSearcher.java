@@ -54,11 +54,18 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	}
 	 /*.................................................................................................................*/
 		public String getHTMLDescriptionOfStatus(){
+			StringBuffer sb = new StringBuffer();
 			if (observedStates != null){
 				CharacterData data = observedStates.getParentData();
 				if (data != null)
-					return "<b>" + getName() + "</b> using the matrix " + data.getName();
+					sb.append( "<b>" + getName() + "</b> using the matrix " + data.getName() +"<br>");
 			}
+			String s = runner.getHTMLDescriptionOfStatus();
+			if (StringUtil.notEmpty(s))
+				sb.append(s+"<br>");
+			s = sb.toString();
+			if (StringUtil.notEmpty(s))
+				return s;
 			return getName();
 		}
 

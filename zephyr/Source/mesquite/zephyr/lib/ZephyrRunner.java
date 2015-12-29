@@ -15,6 +15,7 @@ import java.util.Random;
 
 import mesquite.categ.lib.CategoricalData;
 import mesquite.lib.*;
+import mesquite.lib.characters.CharacterData;
 import mesquite.lib.characters.MCharactersDistribution;
 import mesquite.lib.duties.TreeInferer;
 
@@ -92,6 +93,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	
 	public abstract String[] getLogFileNames();
 	protected SimpleTaxonNamer namer = new SimpleTaxonNamer();
+
+	 /*.................................................................................................................*/
+		public String getHTMLDescriptionOfStatus(){
+			return "";
+		}
 
 	public void endJob(){
 		if (progIndicator!=null)

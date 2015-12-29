@@ -159,6 +159,29 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		return buffer.toString();
 	}
 
+	 /*.................................................................................................................*/
+	public String getHTMLDescriptionOfStatus(){
+		String s = "";
+		if (bootstrapOrJackknife()){
+			s+="Bootstrap analysis<br>";
+			s+="Bootstrap replicates completed: <b>";
+			if (numRunsCompleted>bootstrapreps)
+				s+=numRuns +" of " + bootstrapreps;
+			else
+				s+=numRunsCompleted +" of " + bootstrapreps;
+		}
+		else {
+			s+="Search for ML Tree<br>";
+			s+="Search replicates completed: <b>";
+			if (numRunsCompleted>numRuns)
+				s+=numRuns +" of " + numRuns;
+			else
+				s+=numRunsCompleted +" of " + numRuns;
+		}
+		s+="</b>";
+		return s;
+	}
+
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
 		return "8.0.0 and 8.1.4";
@@ -166,6 +189,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public abstract void addRunnerOptions(ExtensibleDialog dialog);
 	public abstract void processRunnerOptions();
 
+	
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
@@ -724,10 +748,10 @@ WAG, gene2 = 501-1000
 		appendToSearchDetails("Search details: \n");
 		if (bootstrapOrJackknife()){
 			appendToSearchDetails("   Bootstrap analysis\n");
-			appendToSearchDetails("   "+bootstrapreps + " bootstrap reps");
+			appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
 		} else {
 			appendToSearchDetails("   Search for maximum-likelihood tree\n");
-			appendToSearchDetails("   "+numRuns + " search rep");
+			appendToSearchDetails("   "+numRuns + " search replicat");
 			if (numRuns>1)
 				appendToSearchDetails("s");
 		}
@@ -1048,7 +1072,7 @@ WAG, gene2 = 501-1000
 									logln("RAxML bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
 								}
 								else {
-									logln("RAxML Run " + (runNumber+1) + ", final score ln L = " +token );
+									logln("RAxML Run " + (runNumber+1) + ", final score ln L = " +token);
 									if (completedRuns != null && runNumber<completedRuns.length)
 										completedRuns[runNumber]=true;
 								}

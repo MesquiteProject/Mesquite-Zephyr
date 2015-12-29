@@ -158,6 +158,28 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
+	 /*.................................................................................................................*/
+	public String getHTMLDescriptionOfStatus(){
+		String s = "";
+		if (bootstrapOrJackknife()){
+			s+="Bootstrap analysis<br>";
+			s+="Bootstrap replicates completed: <b>";
+			if (numRunsCompleted>bootstrapreps)
+				s+=numRuns +" of " + bootstrapreps;
+			else
+				s+=numRunsCompleted +" of " + bootstrapreps;
+		}
+		else {
+			s+="Search for ML Tree<br>";
+			s+="Search replicates completed: <b>";
+			if (numRunsCompleted>numRuns)
+				s+=numRuns +" of " + numRuns;
+			else
+				s+=numRunsCompleted +" of " + numRuns;
+		}
+		s+="</b>";
+		return s;
+	}
 
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
@@ -340,10 +362,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		appendToSearchDetails("Search details: \n");
 		if (bootstrapOrJackknife()){
 			appendToSearchDetails("   Bootstrap analysis\n");
-			appendToSearchDetails("   "+bootstrapreps + " bootstrap reps");
+			appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
 		} else {
 			appendToSearchDetails("   Search for maximum-likelihood tree\n");
-			appendToSearchDetails("   "+numRuns + " search rep");
+			appendToSearchDetails("   "+numRuns + " search replicate");
 			if (numRuns>1)
 				appendToSearchDetails("s");
 		}

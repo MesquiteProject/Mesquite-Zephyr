@@ -29,6 +29,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 	String taxaAssignedID = null;  
 	FillerThread inferenceThread = null;
 	Taxa taxa = null;
+	static int maximumLogLines = 20;
 	
 	//MesquiteBoolean autoSave = new MesquiteBoolean(true);
 
@@ -43,7 +44,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		String s = inferenceTask.getHTMLDescriptionOfStatus();
 		s += "<hr>";
 		if (inferenceLogger != null){
-			s += "<p>" + inferenceLogger.getStrings(numLines);
+			s += "<p>" + inferenceLogger.getStrings(maximumLogLines);
 			s += "<hr>";
 		}
 		return s;
@@ -292,7 +293,7 @@ class InferenceLogger implements Logger {
 		strings.addElement(s);
 		ownerModule.stringLogged();
 	}
-	public synchronized void log(String s){
+		public synchronized void log(String s){
 		if (strings.size()== 0)
 			strings.addElement(s);
 		else {
