@@ -183,6 +183,23 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		}
 		return s;
 	}
+	/*.................................................................................................................*/
+	public void appendAdditionalSearchDetails() {
+			appendToSearchDetails("Search details: \n");
+			if (bootstrapOrJackknife()){
+				appendToSearchDetails("   Bootstrap analysis\n");
+				appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
+			} else {
+				appendToSearchDetails("   Search for maximum-likelihood tree\n");
+				appendToSearchDetails("   "+numRuns + " search replicat");
+				if (numRuns>1)
+					appendToSearchDetails("s");
+			}
+			MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(), false);
+			if (arguments!=null && !arguments.isBlank()){
+				appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString());
+			}
+	}
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
@@ -745,23 +762,6 @@ WAG, gene2 = 501-1000
 	
 
 
-	/*.................................................................................................................*/
-	public void appendAdditionalSearchDetails() {
-			appendToSearchDetails("Search details: \n");
-			if (bootstrapOrJackknife()){
-				appendToSearchDetails("   Bootstrap analysis\n");
-				appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
-			} else {
-				appendToSearchDetails("   Search for maximum-likelihood tree\n");
-				appendToSearchDetails("   "+numRuns + " search replicat");
-				if (numRuns>1)
-					appendToSearchDetails("s");
-			}
-			MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(), false);
-			if (arguments!=null && !arguments.isBlank()){
-				appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString());
-			}
-	}
 
 	public  boolean showMultipleRuns() {
 		return (!bootstrapOrJackknife() && numRuns>1);
