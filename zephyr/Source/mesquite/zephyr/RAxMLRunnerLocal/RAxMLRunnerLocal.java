@@ -123,6 +123,49 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 	public String getTestedProgramVersions(){
 		return "8.0.0 and 8.1.4";
 	}
+	
+	 /*.................................................................................................................*/
+	public String getHTMLDescriptionOfStatus(){
+		String s = "";
+		if (getRunInProgress()) {
+			if (bootstrapOrJackknife()){
+				s+="Bootstrap analysis<br>";
+				s+="Bootstrap replicates completed: <b>";
+				if (numRunsCompleted>bootstrapreps)
+					s+=numRuns +" of " + bootstrapreps;
+				else
+					s+=numRunsCompleted +" of " + bootstrapreps;
+			}
+			else {
+				s+="Search for ML Tree<br>";
+				s+="Search replicates completed: <b>";
+				if (numRunsCompleted>numRuns)
+					s+=numRuns +" of " + numRuns;
+				else
+					s+=numRunsCompleted +" of " + numRuns;
+			}
+			s+="</b>";
+		}
+		return s;
+	}
+	/*.................................................................................................................*/
+	public void appendAdditionalSearchDetails() {
+			appendToSearchDetails("Search details: \n");
+			if (bootstrapOrJackknife()){
+				appendToSearchDetails("   Bootstrap analysis\n");
+				appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
+			} else {
+				appendToSearchDetails("   Search for maximum-likelihood tree\n");
+				appendToSearchDetails("   "+numRuns + " search replicate");
+				if (numRuns>1)
+					appendToSearchDetails("s");
+			}
+			MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(), false);
+			if (arguments!=null && !arguments.isBlank()){
+				appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString());
+			}
+	}
+
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		threadingRadioButtons= dialog.addRadioButtons(new String[] {"other", "PThreads version"}, threadingVersion);

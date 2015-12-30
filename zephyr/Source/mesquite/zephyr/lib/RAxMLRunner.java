@@ -165,19 +165,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (getRunInProgress()) {
 			if (bootstrapOrJackknife()){
 				s+="Bootstrap analysis<br>";
-				s+="Bootstrap replicates completed: <b>";
-				if (numRunsCompleted>bootstrapreps)
-					s+=numRuns +" of " + bootstrapreps;
-				else
-					s+=numRunsCompleted +" of " + bootstrapreps;
 			}
 			else {
 				s+="Search for ML Tree<br>";
-				s+="Search replicates completed: <b>";
-				if (numRunsCompleted>numRuns)
-					s+=numRuns +" of " + numRuns;
-				else
-					s+=numRunsCompleted +" of " + numRuns;
 			}
 			s+="</b>";
 		}
@@ -191,13 +181,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
 			} else {
 				appendToSearchDetails("   Search for maximum-likelihood tree\n");
-				appendToSearchDetails("   "+numRuns + " search replicat");
+				appendToSearchDetails("   "+numRuns + " search replicate");
 				if (numRuns>1)
 					appendToSearchDetails("s");
-			}
-			MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(), false);
-			if (arguments!=null && !arguments.isBlank()){
-				appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString());
 			}
 	}
 

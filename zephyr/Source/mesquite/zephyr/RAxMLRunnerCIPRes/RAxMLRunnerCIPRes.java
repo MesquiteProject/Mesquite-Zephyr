@@ -96,6 +96,20 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	public String getTestedProgramVersions(){
 		return "8.0.0 and 8.1.4";
 	}
+	/*.................................................................................................................*/
+	public void appendAdditionalSearchDetails() {
+		appendToSearchDetails("CIPRes\n");
+		appendToSearchDetails("Search details: \n");
+			if (bootstrapOrJackknife()){
+				appendToSearchDetails("   Bootstrap analysis\n");
+				appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
+			} else {
+				appendToSearchDetails("   Search for maximum-likelihood tree\n");
+				appendToSearchDetails("   "+numRuns + " search replicate");
+				if (numRuns>1)
+					appendToSearchDetails("s");
+			}
+	}
 
 
 	/*.................................................................................................................*/
