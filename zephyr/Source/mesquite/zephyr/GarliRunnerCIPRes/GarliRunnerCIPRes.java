@@ -92,6 +92,10 @@ public class GarliRunnerCIPRes extends GarliRunner {
 			config.append("\n");
 		}
 	}
+	/*.................................................................................................................*/
+	public int minimumNumSearchReplicates() {
+		return 2;
+	}
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){

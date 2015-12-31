@@ -133,6 +133,13 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		if (taxa == null)
 			taxa = getProject().getTaxa(0);
 	}
+	
+	public boolean storeLatestTree(){
+		return inferenceTask.storeLatestTree();
+	}
+	public boolean canStoreLatestTree(){
+		return inferenceTask.canStoreLatestTree();
+	}
 	/*-----------------------------------------------------------------*/
 	void startInference(){
 		//arguments that should be accepted: (1) tree source, (2) which taxa, (3)  file id, (4) name of tree block, (5) how many trees  [number of taxa block] [identification number of file in which the tree block should be stored] [name of tree block] [how many trees to make]

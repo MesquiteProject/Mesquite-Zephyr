@@ -124,7 +124,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 			MesquiteString passwordString = new MesquiteString();
 			if (password!=null)
 				passwordString.setValue(password);
-			String help = "You will need an account on the CIPRes REST system to use this service.  To register, go to https://www.phylo.org/restusers/register.action";
+			String help = "You need an account on the CIPRes REST system to use this service.  To register, go to https://www.phylo.org/restusers/register.action";
 			new UserNamePasswordDialog(ownerModule.containerOfModule(), "Sign in to CIPRes", help, "", "Username", "Password", answer, usernameString, passwordString);
 			if (answer.getValue()){
 				username=usernameString.getValue();

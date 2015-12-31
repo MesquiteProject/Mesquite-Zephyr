@@ -19,6 +19,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 
 import mesquite.lib.*;
+import mesquite.lib.system.SystemUtil;
 import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
 import mesquite.zephyr.lib.*;
 
@@ -31,13 +32,13 @@ outgroups
 
 public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
 
-	boolean RAxML814orLater = false;
+	//boolean RAxML814orLater = false;
 
 
 	boolean showIntermediateTrees = true;
 
 
-	Checkbox RAxML814orLaterCheckbox;
+	//Checkbox RAxML814orLaterCheckbox;
 
 
 	/*.................................................................................................................*/
@@ -70,10 +71,10 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			return super.doCommand(commandName, arguments, checker);
 	}	
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("RAxML814orLater".equalsIgnoreCase(tag))
-			RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
+		RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
 
 		
 		super.processSingleXMLPreference(tag, content);
@@ -81,7 +82,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 		preferencesSet = true;
 	}
 	
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "RAxML814orLater", RAxML814orLater);  
@@ -98,7 +99,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
-		appendToSearchDetails("CIPRes\n");
+		appendToSearchDetails("CIPRes Analysis, "+StringUtil.getDateTime()+"\n");
 		appendToSearchDetails("Search details: \n");
 			if (bootstrapOrJackknife()){
 				appendToSearchDetails("   Bootstrap analysis\n");
@@ -114,13 +115,13 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
-		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
-		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
+//		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
+		//dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
 		//externalProcRunner.addItemsToDialogPanel(dialog);
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
-		RAxML814orLater = RAxML814orLaterCheckbox.getState();
+//		RAxML814orLater = RAxML814orLaterCheckbox.getState();
 //		externalProcRunner.optionsChosen();
 	}
 	/*.................................................................................................................*/
@@ -145,6 +146,9 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	}
 	
 	static final int DATAFILENUMBER = 0;
+	public int minimumNumSearchReplicates() {
+		return 2;
+	}
 
 	public void prepareRunnerObject(Object obj){
 		if (obj instanceof MultipartEntityBuilder) {
@@ -205,8 +209,8 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 		else {
 			addArgument(builder, sb, "vparam.specify_runs_","1");
 			addArgument(builder, sb, "vparam.altrun_number_",""+LOCnumRuns);
-			//if (RAxML814orLater)
-			//	arguments += " --mesquite";
+		//	if (RAxML814orLater)
+			addArgument(builder, sb, "vparam.mesquite_output_","1");
 		}
 
 		TaxaSelectionSet outgroupSet =null;

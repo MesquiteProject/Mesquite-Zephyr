@@ -193,8 +193,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 	public abstract void addRunnerOptions(ExtensibleDialog dialog);
 	public abstract void processRunnerOptions();
-
-	
+	/*.................................................................................................................*/
+	public int minimumNumSearchReplicates() {
+		return 2;
+	}
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
@@ -242,7 +244,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
 		dialog.addHorizontalLine(1);
 		dialog.addLabel("Maximum Likelihood Tree Search Options", Label.LEFT, false, true);
-		numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
+		if (numRuns< minimumNumSearchReplicates())
+			numRuns = minimumNumSearchReplicates();
+		numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, minimumNumSearchReplicates(), MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 		checkEnabled(doBootstrap);
 

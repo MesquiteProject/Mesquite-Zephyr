@@ -179,6 +179,8 @@ public class TreeInferenceCoordinator extends FileInit {
 				int id = MesquiteInteger.fromString(idS);
 				TreeInferenceHandler handler = findHandlerByID(id);
 				if (handler != null) {
+					if (handler.canStoreLatestTree() & AlertDialog.query(containerOfModule(), "Save tree?", "Save the current tree in the inference?"))
+						handler.storeLatestTree();
 					handler.stopInference();
 					return null;
 				}

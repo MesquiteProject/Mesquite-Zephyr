@@ -564,6 +564,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	public  boolean showMultipleRuns() {
 		return (!bootstrapOrJackknife() && numRuns>1);
 	}
+	/*.................................................................................................................*/
+	public int minimumNumSearchReplicates() {
+		return 1;
+	}
 
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
@@ -613,7 +617,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		IntegerField bootStrapRepsField = dialog.addIntegerField("Bootstrap Reps", bootstrapreps, 8, 0, MesquiteInteger.infinite);
 		dialog.addHorizontalLine(1);
 		dialog.addLabel("Maximum Likelihood Tree Search Options", Label.LEFT, false, true);
-		IntegerField numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
+		if (numRuns<minimumNumSearchReplicates())
+			numRuns = minimumNumSearchReplicates();
+		IntegerField numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, minimumNumSearchReplicates(), MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 
 		dialog.addHorizontalLine(1);
