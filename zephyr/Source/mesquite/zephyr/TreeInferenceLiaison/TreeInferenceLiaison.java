@@ -95,7 +95,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 				if (trees.size() >0){
 					trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));
 			//		okToSave = true;
-					doneQuery(inferenceTask, trees.getTaxa(), trees);
+					saveAndPresentTrees(inferenceTask, trees.getTaxa(), trees);
 				}
 				if (taxa != null)
 					taxa.decrementEditInhibition();
@@ -133,9 +133,30 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		if (taxa == null)
 			taxa = getProject().getTaxa(0);
 	}
-	
+	/*public boolean storeLatestTree(){
+	Tree latestTree = getLatestTree(null, null, null);
+	MesquiteProject proj = getProject();
+	TreesManager manager = (TreesManager)findElementManager(TreeVector.class);
+	TreeVector trees = manager.makeNewTreeBlock(latestTree.getTaxa(), "latest tree", proj.getHomeFile());
+	trees.addElement(latestTree, true);
+	return false;
+}
+*/
+	/*-----------------------------------------------------------------*/
+
 	public boolean storeLatestTree(){
-		return inferenceTask.storeLatestTree();
+		if (inferenceTask==null)
+			return false;
+		Tree latestTree = inferenceTask.getLatestTree(null, null, null);
+		MesquiteProject proj = getProject();
+		TreesManager manager = (TreesManager)findElementManager(TreeVector.class);
+		TreeVector trees = manager.makeNewTreeBlock(latestTree.getTaxa(), 	inferenceTask.getTreeBlockName(false), proj.getHomeFile());
+		trees.addElement(latestTree, true);
+		if (trees.size() >0){
+			trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));
+			saveAndPresentTrees(inferenceTask, latestTree.getTaxa(),  trees);
+		}
+		return true;
 	}
 	public boolean canStoreLatestTree(){
 		return inferenceTask.canStoreLatestTree();
@@ -187,7 +208,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		return true;
 	}
 	/*.................................................................................................................*/
-	void doneQuery(TreeInferer fillTask, Taxa taxa, TreeVector trees){
+	void saveAndPresentTrees(TreeInferer fillTask, Taxa taxa, TreeVector trees){
 		MesquiteModule fCoord = getFileCoordinator();
 		MesquiteModule treeWindowCoord = null;
 		if (fCoord!=null)
@@ -385,7 +406,7 @@ class TreeBlockThread extends FillerThread {
 					}
 				}
 				if (trees.size()!=before)
-					ownerModule.doneQuery(inferenceTask, trees.getTaxa(), trees);
+					ownerModule.saveAndPresentTrees(inferenceTask, trees.getTaxa(), trees);
 				ownerModule.fireTreeFiller();
 			}
 			ownerModule.resetAllMenuBars();

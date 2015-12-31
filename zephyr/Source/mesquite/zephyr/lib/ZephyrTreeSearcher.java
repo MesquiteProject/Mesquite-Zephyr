@@ -241,7 +241,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		runner.setRunInProgress(false);
 		appendSearchDetails();
 		if (trees!=null) {
-			trees.setName(getTreeBlockName());
+			trees.setName(getTreeBlockName(true));
 			if (!runner.bootstrapOrJackknife()) {
 				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
 				if (tree==null)
@@ -258,7 +258,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		return "";
 	}
 	/*.................................................................................................................*/
-	public String getTreeBlockName(){
+	public String getTreeBlockName(boolean completedRun){
 		String s = getProgramName() + getMethodNameForTreeBlock() ;
 		if (runner != null){
 			if (runner.bootstrapOrJackknife()) {
@@ -274,6 +274,8 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			if (!StringUtil.blank(add))
 				s += "; " + add;
 			s += ")";
+			if (!completedRun)
+				s+= " INCOMPLETE SEARCH";
 		}
 		else s +=  " Trees";
 		return s;
@@ -289,7 +291,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			taxa = treeList.getTaxa();
 			initializeObservedStates(taxa);
 //			boolean bootstrap = runner.bootstrap();
-			treeList.setName(getTreeBlockName());
+			treeList.setName(getTreeBlockName(true));
 			treeList.setAnnotation (runner.getSearchDetails(), false);
 			if (!runner.bootstrapOrJackknife()){
 				double bestScore = finalScores.getValue();
