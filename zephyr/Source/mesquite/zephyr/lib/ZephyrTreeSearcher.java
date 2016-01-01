@@ -52,6 +52,10 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	 public String getProgramLocation(){
 		 return "";
 	}
+	 public boolean stopInference(){
+		 return runner.stopExecution();
+	 }
+
 	 /*.................................................................................................................*/
 		public String getHTMLDescriptionOfStatus(){
 			StringBuffer sb = new StringBuffer();

@@ -58,6 +58,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		this.treeInferer = treeInferer;
 	}
 
+	 public boolean stopExecution(){
+		 return externalProcRunner.stopExecution();
+	 }
+
 	public String getResamplingKindName() {
 		return "Bootstrap";
 	}

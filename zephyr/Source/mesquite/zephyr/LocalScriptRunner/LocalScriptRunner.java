@@ -260,7 +260,9 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		return null;
 	}
 	public boolean stopExecution(){
-		scriptRunner = null;
+		if (scriptRunner!=null)
+			scriptRunner.stopExecution();
+		//scriptRunner = null;
 		return false;
 	}
 	/*.................................................................................................................*/
