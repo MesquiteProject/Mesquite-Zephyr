@@ -182,7 +182,6 @@ public class TreeInferenceCoordinator extends FileInit {
 					int response = 1;
 					if (handler.canStoreLatestTree()){
 						response = AlertDialog.query(containerOfModule(), "Save tree?", "Save the current tree in the inference?", "Save", "Don't Save", "Cancel", 2);
-						Debugg.println("response " + response);
 						if (response==0)
 							handler.storeLatestTree();
 					}
