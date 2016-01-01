@@ -633,13 +633,11 @@ WAG, gene2 = 501-1000
 
 		// create local version of data file
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "RAxML", "-Run.");  
-		Debugg.println("tempDir " + tempDir);
 		if (tempDir==null)
 			return null;
 		String dataFileName = getDataFileName();   //replace this with actual file name?
 		String translationFileName = IOUtil.translationTableFileName;   
 		String dataFilePath = tempDir +  dataFileName;
-		Debugg.println("dataFilePath " + dataFilePath);
 		FileInterpreterI exporter = null;
 		if (data instanceof DNAData)
 			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipDNA");
@@ -1017,14 +1015,11 @@ WAG, gene2 = 501-1000
 
 		if (fileNum==OUT_SUMMARYFILE && outputFilePaths.length>OUT_SUMMARYFILE && !StringUtil.blank(outputFilePaths[OUT_SUMMARYFILE])) {   // info file
 			if (MesquiteFile.fileExists(filePath)) {
-				//	Debugg.println("\n\n ========================\nsummaryFilePosition before: " + summaryFilePosition);
 				//String s = MesquiteFile.getFileLastContents(filePath,fPOS);
 				String s = MesquiteFile.getFileContentsAsString(filePath);
 				long lastLength = s.length();
 				s = s.substring((int)summaryFilePosition);
 				summaryFilePosition = lastLength;
-				//	Debugg.println(" summaryFilePosition after: " + summaryFilePosition);
-				//	Debugg.println(" s: " + s);
 				if (!StringUtil.blank(s)) {
 					Parser parser = new Parser();
 					parser.allowComments=false;

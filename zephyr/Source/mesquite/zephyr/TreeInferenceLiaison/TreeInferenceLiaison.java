@@ -200,9 +200,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 	public boolean stopInference(){
 		if (inferenceThread!= null)
 			inferenceThread.stopFilling();
-		Debugg.println("STOP INFERENCE " + getProject().refreshSuppression);
 		fireTreeFiller();
-		Debugg.println("STOP INFERENCE2 " + getProject().refreshSuppression);
 
 		iQuit();
 		return true;
@@ -381,7 +379,6 @@ class TreeBlockThread extends FillerThread {
 		int before = trees.size();
 			boolean okToSave = false;
 		try {
-			Debugg.println("RUN ");
 			MesquiteThread.setLoggerCurrentThread(ownerModule.getLogger());
 			MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(true);
 			Taxa taxa = ownerModule.taxa;
@@ -391,7 +388,6 @@ class TreeBlockThread extends FillerThread {
 			if (taxa != null)
 				taxa.decrementEditInhibition();
 			MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(false);
-			Debugg.println("RUN DONE ");
 
 			if (!ownerModule.isDoomed()){
 				if (!aborted){
@@ -479,7 +475,6 @@ class TreeBlockMonitorThread extends FillerThread {
 	}
 	/*.............................................*/
 	public void run() {
-		Debugg.println("RESTARTED ");
 		ownerModule.setTaxa(taxaIDString);
 		Taxa taxa = ownerModule.taxa;
 		if (taxa != null){

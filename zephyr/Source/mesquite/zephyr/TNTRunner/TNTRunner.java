@@ -850,8 +850,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 						}
 					}
 				count++;
-			} else
-				Debugg.println("*** File does not exist (" + filePath + ") ***");
+			} else if (MesquiteTrunk.debugMode)
+				logln("*** File does not exist (" + filePath + ") ***");
 		}
 
 

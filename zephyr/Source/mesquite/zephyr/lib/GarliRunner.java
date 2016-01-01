@@ -988,8 +988,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 						progIndicator.spin();
 					}
 				count++;
-			} else
-				Debugg.println("*** File does not exist (" + filePath + ") ***");
+			} else if (MesquiteTrunk.debugMode)
+				MesquiteMessage.warnProgrammer("*** File does not exist (" + filePath + ") ***");
 		}
 
 		if (fileNum == CURRENTTREEFILEPATH && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[CURRENTTREEFILEPATH]) && !bootstrapOrJackknife()) {
@@ -1005,7 +1005,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			if (screenFile == null) { // this is the output file
 				if (MesquiteFile.fileExists(filePath))
 					screenFile = MesquiteFile.open(true, filePath);
-				else
+				else if (MesquiteTrunk.debugMode)
 					MesquiteMessage.warnProgrammer("*** File does not exist (" + filePath + ") ***");
 			}
 			if (screenFile != null) {
@@ -1055,7 +1055,6 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 					for (int i=0; i<completedRuns.length; i++)
 						if (!completedRuns[i]) {
 							currentRun=i;
-							//Debugg.println("\n ************ current run: " + currentRun + "\n");
 							break;
 						}
 				}

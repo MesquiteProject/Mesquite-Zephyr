@@ -316,7 +316,6 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		// the process runs
 		if (success) {
 			String preflightFile = externalProcRunner.getPreflightFile(preflightLogFileName);
-			Debugg.println("********  preflightFile: " + preflightFile);
 		}
 		else {
 		}

@@ -229,7 +229,6 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent arg0) {
 		if (dialog!=null) {
-			Debugg.println("arg0: " + arg0);
 			boolean standard=standardSearch;
 			if (arg0.getItemSelectable()==standardSearchBox && standardSearchBox!=null){
 				standard = standardSearchBox.getState();
