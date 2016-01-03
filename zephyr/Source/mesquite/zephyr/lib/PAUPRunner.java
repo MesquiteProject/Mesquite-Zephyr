@@ -243,7 +243,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		}
 		desuppressProjectPanelReset();
 		if (data != null)
-			data.setEditorInhibition(false);
+			data.decrementEditInhibition();
 		return null;
 	}	
 	/*.................................................................................................................*/
@@ -300,7 +300,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		manager.deleteElement(tv);  // get rid of temporary tree block
 		desuppressProjectPanelReset();
 		if (data!=null)
-			data.setEditorInhibition(false);		
+			data.decrementEditInhibition();		
 		if (success) { 
 			postBean("successful", false);
 			return t;

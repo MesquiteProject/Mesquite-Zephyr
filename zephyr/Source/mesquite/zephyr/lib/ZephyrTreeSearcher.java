@@ -53,7 +53,12 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		 return "";
 	}
 	 public boolean stopInference(){
+			if (observedStates != null){
+				CharacterData data = observedStates.getParentData();
+				data.decrementEditInhibition();
+			}
 		 return runner.stopExecution();
+
 	 }
 
 	 /*.................................................................................................................*/

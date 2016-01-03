@@ -293,7 +293,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			return false;
 		}
 		initializeMonitoring();
-		data.setEditorInhibition(true);
+		data.incrementEditInhibition();
 		rng = new Random(System.currentTimeMillis());
 		unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 		suppressProjectPanelReset();
@@ -403,7 +403,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 //		if (getProject() != null)
 //			getProject().decrementProjectWindowSuppression();
 		if (data != null)
-			data.setEditorInhibition(false);
+			data.decrementEditInhibition();
 		if (!isDoomed())
 			if (callBackCommand != null)
 				callBackCommand.doItMainThread(null,  null,  this);

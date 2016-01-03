@@ -148,9 +148,13 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		if (inferenceTask==null)
 			return false;
 		Tree latestTree = inferenceTask.getLatestTree(null, null, null);
+		if (latestTree==null) 
+			return false;
 		MesquiteProject proj = getProject();
+		if (proj==null)
+			return false;
 		TreesManager manager = (TreesManager)findElementManager(TreeVector.class);
-		TreeVector trees = manager.makeNewTreeBlock(latestTree.getTaxa(), 	inferenceTask.getTreeBlockName(false), proj.getHomeFile());
+		TreeVector trees = manager.makeNewTreeBlock(latestTree.getTaxa(), inferenceTask.getTreeBlockName(false), proj.getHomeFile());
 		trees.addElement(latestTree, true);
 		if (trees.size() >0){
 			trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));

@@ -682,7 +682,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		}
 		desuppressProjectPanelReset();
 		if (data == null)
-			data.setEditorInhibition(false);
+			data.decrementEditInhibition();
 		return null;
 	}	
 
@@ -741,7 +741,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 		desuppressProjectPanelReset();
 		if (data!=null)
-			data.setEditorInhibition(false);
+			data.decrementEditInhibition();
 		//	manager.deleteElement(tv);  // get rid of temporary tree block
 		if (success) 
 			return t;

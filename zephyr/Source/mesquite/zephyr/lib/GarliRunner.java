@@ -857,7 +857,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 		desuppressProjectPanelReset();
 		if (data != null)
-			data.setEditorInhibition(false);
+			data.decrementEditInhibition();
 		return null;
 	}
 	/*.................................................................................................................*/
@@ -941,7 +941,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			tempDataFile.close();
 		// deleteSupportDirectory();
 		if (data != null)
-			data.setEditorInhibition(false);
+			data.decrementEditInhibition();
 		if (success) {
 			postBean("successful", false);
 			return t;

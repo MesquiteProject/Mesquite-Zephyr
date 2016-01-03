@@ -185,8 +185,9 @@ public class TreeInferenceCoordinator extends FileInit {
 						if (response==0)
 							handler.storeLatestTree();
 					}
-					if (response<2)
+					if (response<2) {
 						handler.stopInference();
+					}
 					return null;
 				}
 			}

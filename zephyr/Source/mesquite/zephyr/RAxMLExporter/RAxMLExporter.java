@@ -323,7 +323,7 @@ public class RAxMLExporter extends RAxMLRunnerLocal {
 
 		suppressProjectPanelReset();
 
-		data.setEditorInhibition(true);
+		data.incrementEditInhibition();
 		if(directoryPath == null || baseFileName == null){
 			return null;
 		}
@@ -390,7 +390,7 @@ public class RAxMLExporter extends RAxMLRunnerLocal {
 
 		//Considerable code from RAxMLRunner omitted here
 
-		data.setEditorInhibition(false);
+		data.decrementEditInhibition();
 		return null;
 	}	
 

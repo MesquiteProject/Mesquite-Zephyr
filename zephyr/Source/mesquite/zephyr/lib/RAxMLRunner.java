@@ -742,7 +742,7 @@ WAG, gene2 = 501-1000
 		}
 		desuppressProjectPanelReset();
 		if (data != null)
-			data.setEditorInhibition(false);
+			data.decrementEditInhibition();
 		return null;
 
 
@@ -921,7 +921,7 @@ WAG, gene2 = 501-1000
 
 		desuppressProjectPanelReset();
 		if (data!=null)
-			data.setEditorInhibition(false);
+			data.decrementEditInhibition();
 		//	manager.deleteElement(tv);  // get rid of temporary tree block
 		if (success) {
 			postBean("successful", false);
