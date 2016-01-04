@@ -156,18 +156,25 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return extraSearchDetails;
 	}
 	public void setAddendumToTreeBlockName(String s){
+		if (StringUtil.blank(s) || s.equalsIgnoreCase("null"))
+			return;
 		if (addendumToTreeBlockName==null)
 			addendumToTreeBlockName = new StringBuffer();
 		addendumToTreeBlockName.setLength(0);
 		addendumToTreeBlockName.append(s);
 	}
 	public void appendToAddendumToTreeBlockName(String s){
+		if (StringUtil.blank(s) || s.equalsIgnoreCase("null"))
+			return;
 		if (addendumToTreeBlockName==null)
 			addendumToTreeBlockName = new StringBuffer();
 		addendumToTreeBlockName.append(s);
 	}
 	public String getAddendumToTreeBlockName(){
-		return addendumToTreeBlockName.toString();
+		String s= addendumToTreeBlockName.toString();
+		if (StringUtil.blank(s))
+			return "";
+		return s;
 	}
 	public void prepareRunnerObject(Object obj){
 	}
@@ -268,7 +275,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 		else if (checker.compare(this.getClass(), "Recovers addendum to tree block name from previous run", "[addendum]", commandName, "recoverAddendumToTreeBlockName")) {
 			addendumToTreeBlockName.setLength(0);
-			addendumToTreeBlockName.append(parser.getFirstToken(arguments));
+			String s = parser.getFirstToken(arguments);
+			if (StringUtil.notEmpty(s) && !s.equalsIgnoreCase("null"))
+				addendumToTreeBlockName.append(parser.getFirstToken(arguments));
 		}
 		return null;
 	}	
