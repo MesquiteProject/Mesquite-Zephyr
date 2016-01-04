@@ -87,7 +87,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	/*.................................................................................................................*/
 	public void appendSearchDetails() {
 //		runner.appendToSearchDetails("Method: " + getMethodNameForTreeBlock() + " " + runner.getResamplingKindName() + "\nMatrix: " + observedStates.getName() + "\n");
-		runner.appendToSearchDetails("\nMatrix: " + observedStates.getName() + "\n");
+		runner.appendMatrixInformation();
 		runner.appendAdditionalSearchDetails();
 	}
 
@@ -104,6 +104,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			return;
 		String callBackArguments = command.getDefaultArguments();
 		String taxaID = parser.getFirstToken(callBackArguments);
+		appendSearchDetails();
 		if (taxaID !=null)
 			taxa = getProject().getTaxa(taxaID);
 		runner.reconnectToRequester(command);

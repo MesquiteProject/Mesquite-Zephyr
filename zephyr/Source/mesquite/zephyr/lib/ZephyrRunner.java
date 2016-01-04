@@ -147,6 +147,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 	}
 	/*.................................................................................................................*/
+	public void appendMatrixInformation() {   
+		if (data!=null) {
+			appendToSearchDetails("\nMatrix: " + data.getName() + "\n");
+		}
+	}
+	/*.................................................................................................................*/
 	public void appendToExtraSearchDetails(String s) {
 		if (extraSearchDetails==null)
 			extraSearchDetails = new StringBuffer();
