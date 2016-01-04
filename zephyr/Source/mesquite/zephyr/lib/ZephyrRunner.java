@@ -395,7 +395,6 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		
 		logln("Monitoring " + getProgramName() + " run begun.");
 			
-		Debugg.println("data object remembered is " + data);
 		String callBackArguments = callBackCommand.getDefaultArguments();
 		String taxaID = parser.getFirstToken(callBackArguments);
 		if (taxaID !=null)
