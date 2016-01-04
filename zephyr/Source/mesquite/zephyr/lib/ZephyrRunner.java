@@ -258,9 +258,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
+		if (data != null)
+			temp.addLine("recoverData #" + data.getAssignedIDNumber());
 		temp.addLine("recoverSearchDetails " + ParseUtil.tokenize(searchDetails.toString()));
 		temp.addLine("recoverExtraSearchDetails " + ParseUtil.tokenize(extraSearchDetails.toString()));
 		temp.addLine("recoverAddendumToTreeBlockName " + ParseUtil.tokenize(addendumToTreeBlockName.toString()));
+			
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -268,6 +271,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (checker.compare(this.getClass(), "Recovers search details from previous run", "[search details]", commandName, "recoverSearchDetails")) {
 			searchDetails.setLength(0);
 			searchDetails.append(parser.getFirstToken(arguments));
+		}
+		else if (checker.compare(this.getClass(), "Recovers data object when search monitoring resumes", "[matrix id]", commandName, "recoverData")) {
+			data =  (CategoricalData)getProject().getCharacterMatrixByReference((MesquiteFile)null, parser.getFirstToken(arguments), false);
 		}
 		else if (checker.compare(this.getClass(), "Recovers extra search details from previous run", "[search details]", commandName, "recoverExtraSearchDetails")) {
 			extraSearchDetails.setLength(0);
@@ -389,6 +395,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		
 		logln("Monitoring " + getProgramName() + " run begun.");
 			
+		Debugg.println("data object remembered is " + data);
 		String callBackArguments = callBackCommand.getDefaultArguments();
 		String taxaID = parser.getFirstToken(callBackArguments);
 		if (taxaID !=null)
