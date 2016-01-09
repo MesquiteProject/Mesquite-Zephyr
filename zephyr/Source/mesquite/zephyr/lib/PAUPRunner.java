@@ -239,6 +239,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 			desuppressProjectPanelReset();
 			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 		} else
+			reportStdError();
 			postBean("unsuccessful [1]", false);
 		}
 		desuppressProjectPanelReset();
@@ -305,6 +306,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 			postBean("successful", false);
 			return t;
 		} else {
+			reportStdError();
 			postBean("failed", false);
 			return null;
 		}

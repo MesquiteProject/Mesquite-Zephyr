@@ -75,6 +75,9 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public abstract String checkStatus();  
 	public abstract boolean stopExecution();  
 
+	public abstract String getStdErr();  
+	public abstract String getStdOut();  
+
 	/*.................................................................................................................*/
 	public void resetLastModified(int i){
 	}

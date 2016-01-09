@@ -738,6 +738,8 @@ WAG, gene2 = 501-1000
 			if (success){  //David: abort here
 				desuppressProjectPanelReset();
 				return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
+			} else {
+				reportStdError();
 			}
 		}
 		desuppressProjectPanelReset();

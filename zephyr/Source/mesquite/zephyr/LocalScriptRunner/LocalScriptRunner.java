@@ -10,6 +10,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.LocalScriptRunner;
 
 import java.awt.Button;
+import java.awt.Checkbox;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
@@ -24,6 +25,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	String executablePath;
 	StringBuffer extraPreferences;
 	ExternalProcessRequester processRequester;
+	boolean visibleTerminal = false;
 
 	/*.================================================================..*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
@@ -64,6 +66,19 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 
 	/*.................................................................................................................*/
+	public String getStdErr() {
+		if (scriptRunner!=null)
+			return scriptRunner.getStdErr();
+		return "";
+	}
+	/*.................................................................................................................*/
+	public String getStdOut() {
+		if (scriptRunner!=null)
+			return scriptRunner.getStdOut();
+		return "";
+	}
+
+	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String flavor, String content) {
 		if (StringUtil.notEmpty(flavor) && "executablePath".equalsIgnoreCase(tag)){   // it is one with the flavor attribute
 			if (flavor.equalsIgnoreCase(getExecutableName()))   /// check to see if flavor is correct!!!
@@ -73,14 +88,24 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 				StringUtil.appendXMLTag(extraPreferences, 2, "executablePath", flavor, path);  		// store for next time
 			}
 		}
+		super.processSingleXMLPreference(tag, content);
+	}
+	/*.................................................................................................................*/
+	public void processSingleXMLPreference (String tag, String content) {
+		if ("visibleTerminal".equalsIgnoreCase(tag) && visibleTerminalOptionAllowed())
+			visibleTerminal = MesquiteBoolean.fromTrueFalseString(content);
+		super.processSingleXMLPreference(tag, content);
 	}
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), executablePath);  
+		if (visibleTerminalOptionAllowed())
+			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
 		buffer.append(extraPreferences);
 		return buffer.toString();
 	}
+	
 
 	/*.................................................................................................................*/
 	public void resetLastModified(int i){
@@ -91,6 +116,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
+		if (visibleTerminalOptionAllowed())
+			temp.addLine("visibleTerminal "+MesquiteBoolean.toTrueFalseString(visibleTerminal));
 		if (scriptRunner != null){
 			temp.addLine("reviveScriptRunner ");
 			temp.addLine("tell It");
@@ -109,7 +136,16 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			scriptRunner = new ShellScriptRunner();
 			scriptRunner.setOutputProcessor(this);
 			scriptRunner.setWatcher(this);
+			if (visibleTerminalOptionAllowed())
+				scriptRunner.setVisibleTerminal(visibleTerminal);
 			return scriptRunner;
+		}
+		else  if (checker.compare(this.getClass(), "Sets whether or not the Terminal window should be visible on a Mac.", "[true; false]", commandName, "visibleTerminal")) {
+			if (visibleTerminalOptionAllowed()){
+				visibleTerminal = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+				if (scriptRunner != null)
+					scriptRunner.setVisibleTerminal(visibleTerminal);
+			}
 		}
 		else if (checker.compare(this.getClass(), "Sets root directory", null, commandName, "setRootDir")) {
 			rootDir = parser.getFirstToken(arguments);
@@ -125,18 +161,27 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		processRequester.intializeAfterExternalProcessRunnerHired();
 	}
 
+	
 	SingleLineTextField executablePathField =  null;
+	Checkbox visibleTerminalCheckBox =  null;
 
 	// given the opportunity to fill in options for user
 	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
 		executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
 		browseButton.setActionCommand("browse");
+		if (visibleTerminalOptionAllowed())
+			visibleTerminalCheckBox = dialog.addCheckBox("Terminal window visible (this will decrease error-reporting ability)", visibleTerminal);
 
 	}
 	public boolean optionsChosen(){
 		executablePath = executablePathField.getText();
+		if (visibleTerminalCheckBox!=null)
+			visibleTerminal = visibleTerminalCheckBox.getState();
 		return true;
+	}
+	public boolean visibleTerminalOptionAllowed(){
+		return MesquiteTrunk.isMacOSX();
 	}
 
 	/*.................................................................................................................*/
@@ -246,7 +291,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	/*.................................................................................................................*/
 	// starting the run
 	public boolean startExecution(){  //do we assume these are disconnectable?
-		scriptRunner = new ShellScriptRunner(scriptPath, runningFilePath, null, false, getExecutableName(), outputFilePaths, this, this, true);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
+		scriptRunner = new ShellScriptRunner(scriptPath, runningFilePath, null, false, getExecutableName(), outputFilePaths, this, this, visibleTerminal);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
 		return scriptRunner.executeInShell();
 	}
 

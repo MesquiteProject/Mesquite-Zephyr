@@ -343,7 +343,18 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 		return success;
 	}
-	
+	/*.................................................................................................................*/
+	protected void reportStdError() {
+		Debugg.println("**** attempt to report STDERR");
+		if (externalProcRunner==null)
+			return;
+		String s = externalProcRunner.getStdErr();
+		if (StringUtil.notEmpty(s)){
+			logln("\n||||||||||||||||||||||||||\nError file contents:");
+			logln(s);
+		}
+	}
+
 	/*.................................................................................................................*/
 	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle) {
 		runInProgress=true;

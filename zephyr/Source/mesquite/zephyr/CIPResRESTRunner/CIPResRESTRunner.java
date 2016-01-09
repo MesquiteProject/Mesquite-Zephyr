@@ -273,6 +273,16 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		return fileContents;
 	}
 
+	/*.................................................................................................................*/
+	public String getStdErr() {
+
+		return "";  //TODO: Implement!!!
+	}
+	/*.................................................................................................................*/
+	public String getStdOut() {
+
+		return ""; //TODO: Implement!!!
+	}
 
 	/*.................................................................................................................*/
 	public void processOutputFile(String[] outputFilePaths, int fileNum) {

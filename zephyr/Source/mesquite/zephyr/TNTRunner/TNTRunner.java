@@ -295,6 +295,31 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		continueMonitoring(command);
 	}
 
+	 /*.................................................................................................................*/
+	public String getHTMLDescriptionOfStatus(){
+		String s = "";
+		if (getRunInProgress()) {
+			if (bootstrapOrJackknife()){
+				s+=getResamplingKindName()+"<br>";
+			}
+			else {
+				s+="Search for most-parsimonious trees<br>";
+			}
+			s+="</b>";
+		}
+		return s;
+	}
+	/*.................................................................................................................*/
+	public void appendAdditionalSearchDetails() {
+			appendToSearchDetails("Search details: \n");
+			if (bootstrapOrJackknife()){
+				appendToSearchDetails("   "+getResamplingKindName() +"\n");
+				appendToSearchDetails("   "+bootstrapreps + " replicates");
+			} else {
+				appendToSearchDetails("   Search for most-parsimonious trees\n");
+			}
+	}
+
 	/*.................................................................................................................*/
 	void adjustDialogText() {
 		if (bootStrapRepsField!=null)

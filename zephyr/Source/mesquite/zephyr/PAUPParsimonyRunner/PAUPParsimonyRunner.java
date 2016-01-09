@@ -213,6 +213,32 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 		return sb.toString();
 	}
 	
+	
+	 /*.................................................................................................................*/
+	public String getHTMLDescriptionOfStatus(){
+		String s = "";
+		if (getRunInProgress()) {
+			if (bootstrapOrJackknife()){
+				s+=getResamplingKindName()+"<br>";
+			}
+			else {
+				s+="Search for most-parsimonious trees<br>";
+			}
+			s+="</b>";
+		}
+		return s;
+	}
+	/*.................................................................................................................*/
+	public void appendAdditionalSearchDetails() {
+			appendToSearchDetails("Search details: \n");
+			if (bootstrapOrJackknife()){
+				appendToSearchDetails("   "+getResamplingKindName() +"\n");
+				appendToSearchDetails("   "+bootStrapReps + " replicates");
+			} else {
+				appendToSearchDetails("   Search for most-parsimonious trees\n");
+			}
+	}
+
 	/*.................................................................................................................*/
 	void adjustDialogText(boolean standard) {
 		if (channelSearchBox!=null){
