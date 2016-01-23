@@ -168,8 +168,12 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
-		threadingRadioButtons= dialog.addRadioButtons(new String[] {"other", "PThreads version"}, threadingVersion);
+		dialog.addHorizontalLine(1);
+		dialog.addLabel("RAxML parallelization style:");
+		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);
 		numProcessorsField = dialog.addIntegerField("Number of Processors", numProcessors, 8, 1, MesquiteInteger.infinite);
+		dialog.addHorizontalLine(1);
+		
 		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
 		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
 	}
@@ -239,8 +243,11 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 		else if (useConstraintTree == MONOPHYLY)
 			localArguments += " -g constraintTree.tre "; 
 			
-		if (bootstrapOrJackknife() && LOCbootstrapreps>0) {
-			localArguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
+		if (bootstrapOrJackknife()) {
+			if (LOCbootstrapreps>0)
+				localArguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
+			else
+				localArguments += " -# 1 -b " + LOCbootstrapSeed;   // just do one rep
 		}
 		else {
 			if (LOCnumRuns>1)

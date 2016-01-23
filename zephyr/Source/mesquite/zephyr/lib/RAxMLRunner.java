@@ -135,8 +135,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("numRuns".equalsIgnoreCase(tag))
 			numRuns = MesquiteInteger.fromString(content);
-		if ("bootStrapReps".equalsIgnoreCase(tag))
+		if ("bootStrapReps".equalsIgnoreCase(tag)){
 			bootstrapreps = MesquiteInteger.fromString(content);
+			if (bootstrapreps<1) bootstrapreps=1;
+		}
 		if ("onlyBest".equalsIgnoreCase(tag))
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
@@ -240,7 +242,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		dialog.addHorizontalLine(1);
 		dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
 		doBootstrapCheckbox.addItemListener(this);
-		bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
+		bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 1, MesquiteInteger.infinite);
 		seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
 		dialog.addHorizontalLine(1);
 		dialog.addLabel("Maximum Likelihood Tree Search Options", Label.LEFT, false, true);
