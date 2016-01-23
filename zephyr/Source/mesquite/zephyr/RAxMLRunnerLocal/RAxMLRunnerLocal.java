@@ -248,7 +248,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 				localArguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
 			else
 				localArguments += " -# 1 -b " + LOCbootstrapSeed;   // just do one rep
-		}
+			}
 		else {
 			if (LOCnumRuns>1)
 				localArguments += " -# " + LOCnumRuns;
@@ -265,6 +265,10 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 		arguments.setValue(localArguments);
 	}
 
+	/*.................................................................................................................*/
+	protected void reportStdError() {
+		reportStdOutput("RUN UNSUCCESFUL");   //apparently local RAxML does not output problems to stderr, so need to grab stdout
+	}
 
 	/*.................................................................................................................*/
 	public String[] getLogFileNames(){

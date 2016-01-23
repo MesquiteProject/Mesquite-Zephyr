@@ -349,7 +349,17 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			return;
 		String s = externalProcRunner.getStdErr();
 		if (StringUtil.notEmpty(s)){
-			logln("\nERROR REPORTED.  Contents of standard error file: ");
+			logln("\nERROR REPORTED.  \nContents of standard error file: ");
+			logln(s + "\n");
+		}
+	}
+	/*.................................................................................................................*/
+	protected void reportStdOutput(String message) {
+		if (externalProcRunner==null)
+			return;
+		String s = externalProcRunner.getStdOut();
+		if (StringUtil.notEmpty(s)){
+			logln("\n"+message+ "\nContents of output file: ");
 			logln(s + "\n");
 		}
 	}
