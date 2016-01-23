@@ -107,7 +107,7 @@ public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 
 		runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScore);
 		runner.setRunInProgress(false);
-		trees.setName(getTreeBlockName());
+		trees.setName(getTreeBlockName());  //Debugg.println  no other tree searchers do this; probably shouldn't be done here
 
 		return trees;
 	}
