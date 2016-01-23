@@ -260,6 +260,13 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 		FileCoordinator coord = getFileCoordinator();
 		String treeFilePath = outputFilePaths[OUT_TREEFILE];
+		if (!MesquiteFile.fileExists(treeFilePath)) {
+			logln("PAUP* tree file not found");
+			reportStdError();
+			postBean("failed - no tree file found", false);
+			return null;
+		}
+
 		suppressProjectPanelReset();
 		MesquiteFile tempDataFile = null;
 		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
