@@ -202,9 +202,16 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 		addArgument(builder, sb, "vparam.parsimony_seed_val_",""+randomIntSeed);
 
 		
-		if (bootstrapOrJackknife() && LOCbootstrapreps>0) {
-			addArgument(builder, sb, "vparam.bootstrap_",""+LOCbootstrapreps);
-			addArgument(builder, sb, "vparam.mulparambootstrap_seed_",""+LOCbootstrapSeed);
+		if (bootstrapOrJackknife()) {
+			if (LOCbootstrapreps>0) {
+				addArgument(builder, sb, "vparam.choose_bootstrap_","b");
+				addArgument(builder, sb, "vparam.bootstrap_value_",""+LOCbootstrapreps);
+				addArgument(builder, sb, "vparam.seed_value_",""+LOCbootstrapSeed);
+			//	addArgument(builder, sb, "vparam.bootstrap_",""+LOCbootstrapreps);
+			//	addArgument(builder, sb, "vparam.mulparambootstrap_seed_",""+LOCbootstrapSeed);
+			} else
+				Debugg.println("TOO FEW BOOTSTRAP REPS");
+			
 		}
 		else {
 			addArgument(builder, sb, "vparam.specify_runs_","1");
