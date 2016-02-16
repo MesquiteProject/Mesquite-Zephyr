@@ -123,7 +123,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 	public String getTestedProgramVersions(){
 		return "8.0.0 and 8.1.4";
 	}
-	
+
 	 /*.................................................................................................................*/
 	public String getHTMLDescriptionOfStatus(){
 		String s = "";

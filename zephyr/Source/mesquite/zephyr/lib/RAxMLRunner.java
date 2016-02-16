@@ -197,7 +197,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public abstract void processRunnerOptions();
 	/*.................................................................................................................*/
 	public int minimumNumSearchReplicates() {
-		return 2;
+		return 1;
 	}
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
@@ -737,7 +737,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			data.decrementEditInhibition();
 		//	manager.deleteElement(tv);  // get rid of temporary tree block
 		if (success) {
-			postBean("successful", false);
+			if (bootstrapOrJackknife())
+				postBean("successful, bootstrap", false);
+			else 
+				postBean("successful, ML tree", false);
 			return t;
 		}
 		reportStdError();
