@@ -115,6 +115,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	RadioButtons charPartitionButtons = null;
 	Choice partitionChoice = null;
 	Choice rateMatrixChoice = null;
+	Choice stateFreqChoice = null;
 	SingleLineTextField customMatrix;
 	Choice invarSitesChoice = null;
 	Choice rateHetChoice = null;
@@ -425,6 +426,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		if (rateMatrixChoice != null) {
 			rateMatrixChoice.select(charModel.getRatematrixIndex());
 		}
+		if (stateFreqChoice != null) {
+			stateFreqChoice.select(charModel.getStatefrequenciesIndex());
+		}
 		if (customMatrix != null) {
 			customMatrix.setText(charModel.getRatematrix());
 			if (rateMatrixChoice.getSelectedIndex() == 3) {
@@ -499,6 +503,26 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				default:
 					charModel.setRatematrix("6rate");
 				}
+			}
+		}
+
+		if (stateFreqChoice != null) {
+			choiceValue = stateFreqChoice.getSelectedIndex();
+			charModel.setStatefrequenciesIndex(choiceValue);
+
+			switch (choiceValue) {
+			case 0:
+				charModel.setStatefrequencies("equal");
+				break;
+			case 1:
+				charModel.setStatefrequencies("empirical");
+				break;
+			case 2:
+				charModel.setStatefrequencies("estimate");
+				break;
+			default:
+				charModel.setStatefrequencies("estimate");
+
 			}
 		}
 
@@ -667,6 +691,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			// previous
 			customMatrix.setEditable(false);
 			customMatrix.setBackground(ColorDistribution.veryLightGray);
+			stateFreqChoice = dialog.addPopUpMenu("State Frequencies", new String[] {"Equal", "Empirical", "Estimate" }, 2);  
 		}
 		rateMatrixChoice.addItemListener(this);
 		invarSitesChoice = dialog.addPopUpMenu("Invariant Sites", new String[] {"none", "Estimate Proportion" }, 1);
@@ -1238,7 +1263,7 @@ class GarliCharModel {
 	String invariantsites = "estimate";
 	boolean ip = false;
 	int ratematrixIndex = 2;
-	int statefrequenciesIndex = 0;
+	int statefrequenciesIndex = 2;
 	int ratehetmodelIndex = 1;
 	int invariantsitesIndex = 1;
 
