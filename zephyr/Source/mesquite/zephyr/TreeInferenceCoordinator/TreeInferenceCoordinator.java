@@ -80,14 +80,19 @@ public class TreeInferenceCoordinator extends FileInit {
 	}
 	/*.................................................................................................................*/
 	String getStatusHTML(int numLinesPerHandler){
+		String body="";
 		if (handlers.size() == 0)
-			return "No inferences running";
-		String s = "<h2>Inferences in progress</h2><hr size=\"3\" noshade=\"noshade\" />";
-		for (int i = 0; i<handlers.size(); i++) {
-			TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(i);
-			s += e.getHTMLDescriptionOfStatus(numLinesPerHandler) + " <a href = \"kill-" + e.getID() + "\">Stop</a><p><hr size=\"3\" noshade=\"noshade\" />";
+			body+= "No inferences running";
+		else {
+			body += "<h2>Inferences in progress</h2><hr size=\"3\" noshade=\"noshade\" />";
+			for (int i = 0; i<handlers.size(); i++) {
+				TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(i);
+				body += e.getHTMLDescriptionOfStatus(numLinesPerHandler) + " <a href = \"kill-" + e.getID() + "\">Stop</a><p><hr size=\"3\" noshade=\"noshade\" />";
+			}
 		}
-		return s;
+		if (StringUtil.notEmpty(body))
+			return  "<html><body>"+ body+"</body></html>";
+		return "";
 	}
 	/*.................................................................................................................*/
 	void initiateWindow(){
