@@ -163,7 +163,9 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		return true;
 	}
 	public boolean canStoreLatestTree(){
-		return inferenceTask.canStoreLatestTree();
+		if (inferenceTask!=null)
+			return inferenceTask.canStoreLatestTree();
+		else return false;
 	}
 	/*-----------------------------------------------------------------*/
 	void startInference(){
