@@ -21,22 +21,10 @@ import mesquite.zephyr.lib.*;
 public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements Reconnectable, ZephyrRunnerEmployer {
 	protected ZephyrRunner runner;
 	protected TreeSource treeRecoveryTask;
-	protected Tree latestTree = null;
 	protected Taxa taxa;
-	protected long treesInferred;
-	//	private CharMatrixSource matrixSourceTask;
-	//	protected MCharactersDistribution observedStates;
-	int rerootNode = 0;
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences();
-
-		/*	matrixSourceTask = (CharMatrixSource)hireEmployee(CharMatrixSource.class,  "Source of matrix (for " + getName() + ")");
-//		matrixSourceTask = (MatrixSourceCoord)hireCompatibleEmployee(MatrixSourceCoord.class, getCharacterClass(), "Source of matrix (for " + getName() + ")");
-		if (matrixSourceTask == null)
-			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
-
-		 */
 		runner = (ZephyrRunner)hireNamedEmployee(getRunnerClass(), getRunnerModuleName());
 		if (runner ==null)
 			return false;
@@ -83,9 +71,6 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 		if (checker.compare(this.getClass(), "Sets the runner", "[module]", commandName, "getRunner")) {
 			return runner;
 		}
-		//		else if (checker.compare(this.getClass(), "Sets the matrix source", "[module]", commandName, "getMatrixSource")) {
-		//			return matrixSourceTask;
-		//		}
 		else if (checker.compare(this.getClass(), "Sets the tree recovery task", "[module]", commandName, "setTreeRecoveryTask")) {
 			treeRecoveryTask = (TreeSource)hireNamedEmployee(TreeSource.class, "$ #ManyTreesFromFile xxx remain useStandardizedTaxonNames");  //xxx used because ManyTreesFromFiles needs exact argument sequence
 			return treeRecoveryTask;
@@ -101,29 +86,11 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 		return null;
 	}
 
-	/*.................................................................................................................*
-	private boolean initializeObservedStates(Taxa taxa) {
-		if (matrixSourceTask!=null) {
-			if (observedStates ==null) {
-				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
-				if (observedStates==null)
-					return false;
-			}
-		}
-		else return false;
-		return true;
-	}
 	/*.................................................................................................................*/
 
 	public boolean initialize(Taxa taxa) {
 		this.taxa = taxa;
-		/*		if (matrixSourceTask!=null) {
-			matrixSourceTask.initialize(taxa);
-		} else
-			return false;
-		if (!initializeObservedStates(taxa))
-			return false;
-		 */		if (runner ==null) {
+		if (runner ==null) {
 			 runner = (ZephyrRunner)hireNamedEmployee(getRunnerClass(), getRunnerModuleName());
 		 }
 		 if (runner !=null){
@@ -135,7 +102,7 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 	}
 
 	public String getExplanation() {
-		return "If "+ getProgramName() + " is installed, will save a copy of a character matrix and script "+ getProgramName() + " to conduct one or more searches, and harvest the resulting trees, including their scores.";
+		return "If "+ getProgramName() + " is installed, will save a copy of a character matrix and script "+ getProgramName() + " to conduct one or more searches, and harvest the resulting scores.";
 	}
 	public String getName() {
 		return getProgramName() + " Optimal Tree Score";
@@ -150,7 +117,7 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return false;
+		return true;
 	}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){
@@ -160,28 +127,14 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 	public boolean canGiveIntermediateResults(){
 		return false;
 	}
-	/*.................................................................................................................*
-	public Tree getLatestTree(Taxa taxa, MesquiteNumber score, MesquiteString titleForWindow){
-		if (titleForWindow != null)
-			titleForWindow.setValue("Tree from "+ getProgramName());
-		if (score != null)
-			score.setToUnassigned();
-		return latestTree;
-	}
 
-
-//	public void newTreeAvailable(String path, TaxaSelectionSet outgroupTaxSet){
-//	}
 
 		/*.................................................................................................................*/
 
 	public void calculateNumber(MCharactersDistribution data, MesquiteNumber result, MesquiteString resultString) {
-		//CharacterData dData = CharacterData.getData(this,  data, taxa);		
 		if (taxa==null) 
 			taxa=data.getTaxa();
 		TreeVector trees = new TreeVector(taxa);
-		//			MesquiteTree initialTree = new MesquiteTree(taxa);
-		//			initialTree.setToDefaultBush(2, false);
 
 		CommandRecord.tick(getProgramName() + " Tree Search in progress " );
 
@@ -199,41 +152,6 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 			resultString.setValue(""+finalScores.getValue());
 	}
 
-	/*.................................................................................................................*
-	private TreeVector getTrees(Taxa taxa) {
-		TreeVector trees = new TreeVector(taxa);
-		MesquiteTree initialTree = new MesquiteTree(taxa);
-		initialTree.setToDefaultBush(2, false);
-
-		CommandRecord.tick(getProgramName() + " Tree Search in progress " );
-
-		Random rng = new Random(System.currentTimeMillis());
-
-		Tree tree = null;
-
-		double bestScore = MesquiteDouble.unassigned;
-		MesquiteDouble finalScores = new MesquiteDouble();
-
-		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
-		runner.setRunInProgress(false);
-		if (trees!=null) {
-			if (runner.bootstrapOrJackknife()) {
-				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
-				trees.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
-			} 
-			else {
-				//DISCONNECTABLE: here need to split this exit and outside here see if it's done
-				if (tree==null)
-					return null;
-				bestScore = finalScores.getValue();
-
-				//	logln("Best score: " + bestScore);
-				trees.setName(getProgramName() + " Trees (Matrix: " + observedStates.getName() + ")");
-			}
-			treesInferred = trees.getID();
-		}
-		return trees;
-	}
 	/*.................................................................................................................*/
 
 	//TEMPORARY Debugg.println  Should be only in disconnectable tree block fillers
@@ -250,32 +168,5 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 
 
 	}
-	/*.................................................................................................................*
-	public void fillTreeBlock(TreeVector treeList){
-		if (treeList==null || runner==null)
-			return;
-		if (getProject()==null)
-			return;
-		if (getProject().getHomeFile()==null)
-			return;
-		getProject().getHomeFile().setDirtiedByCommand(true);
-		taxa = treeList.getTaxa();
-		if (!initialize(taxa))
-			return;
-
-		//DISCONNECTABLE
-		TreeVector trees = getTrees(taxa);
-		if (trees == null)
-			return;
-		treeList.setName(trees.getName());
-		treeList.setAnnotation ("Parameters: "  + getParameters(), false);
-		if (trees!=null)
-			treeList.addElements(trees, false);
-		trees.dispose();
-		treesInferred = treeList.getID();
-
-	}
-	/*.................................................................................................................*/
-
 
 }

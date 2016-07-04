@@ -11,7 +11,7 @@ package mesquite.zephyr.lib;
 
 import mesquite.lib.*;
 
-public abstract class RAxMLNumberForMatrix extends ZephyrNumberForMatrix {
+public abstract class RAxMLConstraintDiffNumForMatrix extends ZephyrConstraintDiffNumForMatrix {
 
 	/*.................................................................................................................*/
 	public abstract String getRunnerModuleName();

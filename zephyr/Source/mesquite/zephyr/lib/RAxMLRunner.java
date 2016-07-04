@@ -59,6 +59,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected static final int SKELETAL = 2;
 	protected int useConstraintTree = NOCONSTRAINT;
 
+	protected Tree constraint = null;
+
 	long summaryFilePosition =0;
 
 
@@ -99,7 +101,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		return true;
 	}
 
-
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
@@ -124,6 +125,19 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public void reconnectToRequester(MesquiteCommand command){
 		continueMonitoring(command);
 	}
+	public boolean canDoConstrainedSearch() {
+		return true;
+	}
+	
+	public void setConstraintTreeType (int useConstraintTree) {
+		this.useConstraintTree = useConstraintTree;
+	}
+	
+	public int getConstraintTreeType() {
+		return useConstraintTree;
+	}
+
+
 
 	public boolean getPreferencesSet() {
 		return preferencesSet;
@@ -301,6 +315,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 					doBootstrap=false;
 				onlyBest = onlyBestBox.getState();
 				useConstraintTree = constraintButtons.getValue();
+				if (useConstraintTree!=NOCONSTRAINT)
+					setConstrainedSearch(true);
 				otherOptions = otherOptionsField.getText();
 				processRunnerOptions();
 				storeRunnerPreferences();
@@ -323,9 +339,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	protected OneTreeSource constraintTreeTask = null;
 	protected OneTreeSource getConstraintTreeSource(){
+		Debugg.println("\n\n======== start of getConstraintTreeSource ");
 		if (constraintTreeTask == null){
 			constraintTreeTask = (OneTreeSource)hireEmployee(OneTreeSource.class, "Source of constraint tree");
 		}
+		Debugg.println("======== end of getConstraintTreeSource \n");
 		return constraintTreeTask;
 	}
 	public void itemStateChanged(ItemEvent e) {
@@ -440,6 +458,15 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public String getDataFileName() {
 		return "data.phy";
 	}
+	public void setConstrainedSearch(boolean constrainedSearch) {
+		if (useConstraintTree==NOCONSTRAINT && constrainedSearch)
+			useConstraintTree=MONOPHYLY;
+		else if (useConstraintTree!=NOCONSTRAINT && !constrainedSearch)
+			useConstraintTree = NOCONSTRAINT;
+		this.constrainedSearch = constrainedSearch;
+	}
+
+
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
@@ -482,11 +509,14 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		String constraintTree = "";
 		
-		if (useConstraintTree>NOCONSTRAINT){
-			getConstraintTreeSource();
-			Tree constraint = null;
-			if (constraintTreeTask != null)
-				constraint = constraintTreeTask.getTree(taxa);
+		if (useConstraintTree>NOCONSTRAINT || isConstrainedSearch()){
+			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debugg.println
+				useConstraintTree=MONOPHYLY;
+			if (constraint==null) { // we don't have one
+				getConstraintTreeSource();
+				if (constraintTreeTask != null)
+					constraint = constraintTreeTask.getTree(taxa, "This will be the constaint tree");
+			}
 			if (constraint == null){
 				discreetAlert("Constraint tree is not available.");
 				return null;
