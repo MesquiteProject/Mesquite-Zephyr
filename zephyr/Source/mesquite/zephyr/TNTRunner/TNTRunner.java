@@ -708,6 +708,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		desuppressProjectPanelReset();
 		if (data == null)
 			data.decrementEditInhibition();
+		externalProcRunner.finalCleanup();
 		return null;
 	}	
 
@@ -768,6 +769,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		if (data!=null)
 			data.decrementEditInhibition();
 		//	manager.deleteElement(tv);  // get rid of temporary tree block
+		externalProcRunner.finalCleanup();
 		if (success) 
 			return t;
 		return null;
@@ -829,13 +831,15 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 
 		if (fileNum==0 && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0]) && !bootstrapOrJackknife()) {   // tree file
-			String treeFilePath = filePath;
-			if (taxa != null) {
-				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
+			if (ownerModule instanceof NewTreeProcessor){ 
+				String treeFilePath = filePath;
+				if (taxa != null) {
+					TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
+					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 
+				}
+				else ((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
 			}
-			else ((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
 		} 	
 		else	if (fileNum==1 && outputFilePaths.length>1 && !StringUtil.blank(outputFilePaths[1]) && !bootstrapOrJackknife()) {   // log file
 			if (MesquiteFile.fileExists(filePath)) {

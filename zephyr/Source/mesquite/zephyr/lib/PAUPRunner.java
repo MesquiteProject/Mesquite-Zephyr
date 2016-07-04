@@ -245,6 +245,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		desuppressProjectPanelReset();
 		if (data != null)
 			data.decrementEditInhibition();
+		externalProcRunner.finalCleanup();
 		return null;
 	}	
 	/*.................................................................................................................*/
@@ -309,6 +310,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		desuppressProjectPanelReset();
 		if (data!=null)
 			data.decrementEditInhibition();		
+		externalProcRunner.finalCleanup();
 		if (success) { 
 			postBean("successful", false);
 			return t;

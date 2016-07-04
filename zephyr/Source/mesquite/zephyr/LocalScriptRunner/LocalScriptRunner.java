@@ -26,6 +26,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	StringBuffer extraPreferences;
 	ExternalProcessRequester processRequester;
 	boolean visibleTerminal = false;
+	boolean deleteAnalysisDirectory = false;
 
 	/*.================================================================..*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
@@ -94,6 +95,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("visibleTerminal".equalsIgnoreCase(tag) && visibleTerminalOptionAllowed())
 			visibleTerminal = MesquiteBoolean.fromTrueFalseString(content);
+		if ("deleteAnalysisDirectory".equalsIgnoreCase(tag) && visibleTerminalOptionAllowed())
+			deleteAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(content);
 		super.processSingleXMLPreference(tag, content);
 	}
 	/*.................................................................................................................*/
@@ -102,6 +105,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), executablePath);  
 		if (visibleTerminalOptionAllowed())
 			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
+		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
 		buffer.append(extraPreferences);
 		return buffer.toString();
 	}
@@ -118,6 +122,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		Snapshot temp = new Snapshot();
 		if (visibleTerminalOptionAllowed())
 			temp.addLine("visibleTerminal "+MesquiteBoolean.toTrueFalseString(visibleTerminal));
+		temp.addLine("deleteAnalysisDirectory "+MesquiteBoolean.toTrueFalseString(deleteAnalysisDirectory));
 		if (scriptRunner != null){
 			temp.addLine("reviveScriptRunner ");
 			temp.addLine("tell It");
@@ -147,6 +152,9 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 					scriptRunner.setVisibleTerminal(visibleTerminal);
 			}
 		}
+		else  if (checker.compare(this.getClass(), "Sets whether or not the analysis folder should be deleted at the end of the run.", "[true; false]", commandName, "deleteAnalysisDirectory")) {
+			deleteAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+		}
 		else if (checker.compare(this.getClass(), "Sets root directory", null, commandName, "setRootDir")) {
 			rootDir = parser.getFirstToken(arguments);
 		}
@@ -164,6 +172,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	
 	SingleLineTextField executablePathField =  null;
 	Checkbox visibleTerminalCheckBox =  null;
+	Checkbox deleteAnalysisDirectoryCheckBox =  null;
 
 	// given the opportunity to fill in options for user
 	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
@@ -172,12 +181,15 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		browseButton.setActionCommand("browse");
 		if (visibleTerminalOptionAllowed())
 			visibleTerminalCheckBox = dialog.addCheckBox("Terminal window visible (this will decrease error-reporting ability)", visibleTerminal);
+		deleteAnalysisDirectoryCheckBox = dialog.addCheckBox("Delete analysis directory after completion", deleteAnalysisDirectory);
 
 	}
 	public boolean optionsChosen(){
 		executablePath = executablePathField.getText();
 		if (visibleTerminalCheckBox!=null)
 			visibleTerminal = visibleTerminalCheckBox.getState();
+		if (deleteAnalysisDirectoryCheckBox!=null)
+			deleteAnalysisDirectory = deleteAnalysisDirectoryCheckBox.getState();
 		return true;
 	}
 	public boolean visibleTerminalOptionAllowed(){
@@ -348,6 +360,12 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public String[] modifyOutputPaths(String[] outputFilePaths){
 		return processRequester.modifyOutputPaths(outputFilePaths);
 	}
+	/*.................................................................................................................*/
+	public void finalCleanup() {
+		if (deleteAnalysisDirectory)
+			MesquiteFile.deleteDirectory(rootDir);
+	}
+
 	public boolean continueShellProcess(Process proc) {
 		return true;
 	}

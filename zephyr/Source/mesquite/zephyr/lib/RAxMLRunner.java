@@ -237,14 +237,18 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (treeInferer!=null) 
 			treeInferer.addItemsToDialogPanel(dialog);
 
-		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
-		doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
-		dialog.addHorizontalLine(1);
-		dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
-		doBootstrapCheckbox.addItemListener(this);
-		bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 1, MesquiteInteger.infinite);
-		seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
-		dialog.addHorizontalLine(1);
+		if (bootstrapAllowed) {
+			tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
+			doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
+			dialog.addHorizontalLine(1);
+			dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
+			doBootstrapCheckbox.addItemListener(this);
+			bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 1, MesquiteInteger.infinite);
+			seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
+			dialog.addHorizontalLine(1);
+		}
+		else 
+			tabbedPanel.addPanel("Search Replicates", true);
 		dialog.addLabel("Maximum Likelihood Tree Search Options", Label.LEFT, false, true);
 		if (numRuns< minimumNumSearchReplicates())
 			numRuns = minimumNumSearchReplicates();
@@ -289,10 +293,13 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				dnaModel = dnaModelField.getText();
 				proteinModel = proteinModelField.getText();
 				numRuns = numRunsField.getValue();
-				randomIntSeed = seedField.getValue();
-				bootstrapreps = bootStrapRepsField.getValue();
+				if (bootstrapAllowed) {
+					doBootstrap = doBootstrapCheckbox.getState();
+					randomIntSeed = seedField.getValue();
+					bootstrapreps = bootStrapRepsField.getValue();
+				} else
+					doBootstrap=false;
 				onlyBest = onlyBestBox.getState();
-				doBootstrap = doBootstrapCheckbox.getState();
 				useConstraintTree = constraintButtons.getValue();
 				otherOptions = otherOptionsField.getText();
 				processRunnerOptions();
@@ -517,7 +524,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		//	if (preFlightSuccessful(preflightCommand)) {
 		//	}
 		
-		parametersChanged(); //just a way to ping the coordinator to update the window
+		if (updateWindow)
+			parametersChanged(); //just a way to ping the coordinator to update the window
 
 		//setting up the arrays of input file names and contents
 		int numInputFiles = 4;
@@ -556,8 +564,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		desuppressProjectPanelReset();
 		if (data != null)
 			data.decrementEditInhibition();
+		externalProcRunner.finalCleanup();
 		return null;
-
 
 	}	
 	
@@ -605,6 +613,29 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		else if (numRuns==1) {
 			t =readRAxMLTreeFile(treeList, treeFilePath, "RAxMLTree", readSuccess, true);
 			ZephyrUtil.adjustTree(t, outgroupSet);
+			String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);
+			Parser parser = new Parser(summary);
+			parser.setAllowComments(false);
+			parser.allowComments = false;
+			String line = parser.getRawNextDarkLine();
+			while (!StringUtil.blank(line) && count < 1) {
+				if (line.startsWith("Inference[")) {
+					Parser subParser = new Parser();
+					subParser.setString(line);
+					String token = subParser.getFirstToken();   // should be "Inference"
+					while (!StringUtil.blank(token) && ! subParser.atEnd()){
+						if (token.indexOf("likelihood")>=0) {
+							token = subParser.getNextToken();
+							finalValue = -MesquiteDouble.fromString(token);
+							finalScore.setValue(finalValue);
+						}
+						token = subParser.getNextToken();
+					}
+					count++;
+				}
+				parser.setAllowComments(false);
+				line = parser.getRawNextDarkLine();
+			}
 		}
 		else if (numRuns>1) {
 			TreeVector tv = new TreeVector(taxa);
@@ -736,6 +767,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (data!=null)
 			data.decrementEditInhibition();
 		//	manager.deleteElement(tv);  // get rid of temporary tree block
+		externalProcRunner.finalCleanup();
 		if (success) {
 			if (bootstrapOrJackknife())
 				postBean("successful, bootstrap", false);
@@ -807,25 +839,29 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		}
 
 		if (fileNum==WORKING_TREEFILE && outputFilePaths.length>WORKING_TREEFILE && !StringUtil.blank(outputFilePaths[WORKING_TREEFILE]) && !bootstrapOrJackknife() && showIntermediateTrees) {   // tree file
-			String treeFilePath = filePath;
+			if (ownerModule instanceof NewTreeProcessor){ 
+				String treeFilePath = filePath;
 
-			if (taxa != null) {
-				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
+				if (taxa != null) {
+					TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
+					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 
+				}
+				else ((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
 			}
-			else ((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
 		}
 
 		if (fileNum==OUT_TREEFILE && outputFilePaths.length>OUT_TREEFILE && !StringUtil.blank(outputFilePaths[OUT_TREEFILE]) && !bootstrapOrJackknife() && showIntermediateTrees) {   // tree file
-			String treeFilePath = filePath;
+			if (ownerModule instanceof NewTreeProcessor){ 
+				String treeFilePath = filePath;
 
-			if (taxa != null) {
-				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
+				if (taxa != null) {
+					TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
+					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 
+				}
+				else ((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
 			}
-			else ((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
 		}
 
 		//David: if isDoomed() then module is closing down; abort somehow

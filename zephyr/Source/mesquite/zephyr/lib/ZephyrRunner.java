@@ -41,6 +41,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean[] completedRuns=null;
 	protected int previousCurrentRun=0;
 	protected boolean runInProgress = false;
+	protected boolean updateWindow = false;
+	protected boolean bootstrapAllowed = true;
 
 	
 	protected String outgroupTaxSetString = "";
@@ -145,6 +147,14 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (searchDetails!=null) {
 			searchDetails.append(s);
 		}
+	}
+	/*.................................................................................................................*/
+	public void setUpdateWindow(boolean b) {   
+		updateWindow=b;
+	}
+	/*.................................................................................................................*/
+	public void setBootstrapAllowed(boolean b) {   
+		bootstrapAllowed=b;
 	}
 	/*.................................................................................................................*/
 	public void appendMatrixInformation() {   
