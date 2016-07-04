@@ -34,6 +34,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected MesquiteModule ownerModule;
 	protected ZephyrRunnerEmployer zephyrRunnerEmployer;
 	protected boolean selectedTaxaOnly = false;
+	protected boolean optionsHaveBeenSet = false;
 	
 	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
@@ -304,25 +305,32 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return null;
 	}	
 	/*.................................................................................................................*/
+	protected boolean doQueryOptions() {
+		return !optionsHaveBeenSet;
+	}
+	/*.................................................................................................................*/
 	public boolean initializeGetTrees(Class requiredClassOfData, Taxa taxa, MCharactersDistribution matrix) {
 		if (matrix==null )
 			return false;
-		if (!(matrix.getParentData() != null && requiredClassOfData.isInstance(matrix.getParentData()))){
-			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " works only if given a full "+requiredClassOfData.getName()+" object");
-			return false;
-		}
 
 		if (this.taxa != taxa) {
 			if (!initializeTaxa(taxa))
 				return false;
 		}
-		data = (CategoricalData)matrix.getParentData();
-		if (!initializeJustBeforeQueryOptions())
-			return false;
-		
-		if (!MesquiteThread.isScripting() && !queryOptions()){
+		data = (CategoricalData)CharacterData.getData(this,  matrix, taxa);
+		if (!(requiredClassOfData.isInstance(data))){
+			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " works only if given a full "+requiredClassOfData.getName()+" object");
 			return false;
 		}
+
+		if (!initializeJustBeforeQueryOptions())
+			return false;
+
+		if (doQueryOptions() && !MesquiteThread.isScripting() && !queryOptions()){
+			return false;
+		}
+		optionsHaveBeenSet = true;
+		
 		initializeMonitoring();
 		data.incrementEditInhibition();
 		rng = new Random(System.currentTimeMillis());

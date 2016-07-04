@@ -44,38 +44,6 @@ public abstract class RAxMLNumberForMatrix extends ZephyrNumberForMatrix impleme
 	public boolean canGiveIntermediateResults(){
 		return false;
 	}
-	
-
-
-	/*.................................................................................................................*
-
-	public void newTreeAvailable(String path, TaxaSelectionSet outgroupTaxSet){
-		CommandRecord cr = MesquiteThread.getCurrentCommandRecord();  		
-		MesquiteThread.setCurrentCommandRecord(new CommandRecord(true));
-		latestTree = null;
-
-		String s = MesquiteFile.getFileLastDarkLine(path);
-		TaxonNamer namer = runner.getTaxonNamer();
-		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);    
-		if (latestTree instanceof AdjustableTree) {
-			String name = "RAxML Tree";
-			if (runner.showMultipleRuns())
-				name+= ", Run " + (runner.getCurrentRun()+1);
-			((AdjustableTree)latestTree).setName(name);
-		}
-
-		if (latestTree!=null && latestTree.isValid()) {
-			rerootNode = latestTree.nodeOfTaxonNumber(0);
-		}
-
-
-		MesquiteThread.setCurrentCommandRecord(cr);
-		//Wayne: get tree here from file
-		if (latestTree!=null && latestTree.isValid()) {
-			newResultsAvailable(outgroupTaxSet);
-		}
-
-	}
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer

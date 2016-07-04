@@ -307,18 +307,18 @@ public class RAxMLExporter extends RAxMLRunnerLocal {
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble[] finalScore) {//over-rides RAxMLRunner's method
 		if (matrix==null )
 			return null;
-		if (!(matrix.getParentData() != null && matrix.getParentData() instanceof MolecularData)){
-			MesquiteMessage.discreetNotifyUser("Sorry, RAxMLTree works only if given a full MolecularData object");
-			return null;
-		}
 		if (this.taxa != taxa) {
 			if (!initializeTaxa(taxa))
 				return null;
 		}
 
+		MolecularData data = (MolecularData)CharacterData.getData(this, matrix, taxa);
+		if (!(data instanceof MolecularData)){
+			MesquiteMessage.discreetNotifyUser("Sorry, RAxMLTree works only if given a full MolecularData object");
+			return null;
+		}
 		setRAxMLSeed(seed);
 
-		MolecularData data = (MolecularData)matrix.getParentData();
 		isProtein = data instanceof ProteinData;
 
 		suppressProjectPanelReset();

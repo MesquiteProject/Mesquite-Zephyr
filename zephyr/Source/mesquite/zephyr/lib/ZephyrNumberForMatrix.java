@@ -5,7 +5,7 @@ Zephry's web site is http://mesquitezephyr.wikispaces.com
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
-*/
+ */
 
 package mesquite.zephyr.lib;
 
@@ -24,18 +24,19 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 	protected Tree latestTree = null;
 	protected Taxa taxa;
 	protected long treesInferred;
-	private MatrixSourceCoord matrixSourceTask;
-	protected MCharactersDistribution observedStates;
+	//	private CharMatrixSource matrixSourceTask;
+	//	protected MCharactersDistribution observedStates;
 	int rerootNode = 0;
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences();
 
-		matrixSourceTask = (MatrixSourceCoord)hireCompatibleEmployee(MatrixSourceCoord.class, getCharacterClass(), "Source of matrix (for " + getName() + ")");
+		/*	matrixSourceTask = (CharMatrixSource)hireEmployee(CharMatrixSource.class,  "Source of matrix (for " + getName() + ")");
+//		matrixSourceTask = (MatrixSourceCoord)hireCompatibleEmployee(MatrixSourceCoord.class, getCharacterClass(), "Source of matrix (for " + getName() + ")");
 		if (matrixSourceTask == null)
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 
-
+		 */
 		runner = (ZephyrRunner)hireNamedEmployee(getRunnerClass(), getRunnerModuleName());
 		if (runner ==null)
 			return false;
@@ -53,7 +54,6 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 	abstract public String getProgramURL();
 
 	public void initialize(MCharactersDistribution data) {
-		observedStates = data;
 	}
 
 	/*.................................................................................................................*/
@@ -73,7 +73,7 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
 		temp.addLine("getRunner ", runner);
-		temp.addLine("getMatrixSource ", matrixSourceTask);
+		//		temp.addLine("getMatrixSource ", matrixSourceTask);
 		temp.addLine("setTreeRecoveryTask ", treeRecoveryTask); //
 
 		return temp;
@@ -83,9 +83,9 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 		if (checker.compare(this.getClass(), "Sets the runner", "[module]", commandName, "getRunner")) {
 			return runner;
 		}
-		else if (checker.compare(this.getClass(), "Sets the matrix source", "[module]", commandName, "getMatrixSource")) {
-			return matrixSourceTask;
-		}
+		//		else if (checker.compare(this.getClass(), "Sets the matrix source", "[module]", commandName, "getMatrixSource")) {
+		//			return matrixSourceTask;
+		//		}
 		else if (checker.compare(this.getClass(), "Sets the tree recovery task", "[module]", commandName, "setTreeRecoveryTask")) {
 			treeRecoveryTask = (TreeSource)hireNamedEmployee(TreeSource.class, "$ #ManyTreesFromFile xxx remain useStandardizedTaxonNames");  //xxx used because ManyTreesFromFiles needs exact argument sequence
 			return treeRecoveryTask;
@@ -101,6 +101,7 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 		return null;
 	}
 
+	/*.................................................................................................................*
 	private boolean initializeObservedStates(Taxa taxa) {
 		if (matrixSourceTask!=null) {
 			if (observedStates ==null) {
@@ -112,24 +113,25 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 		else return false;
 		return true;
 	}
-	
+	/*.................................................................................................................*/
+
 	public boolean initialize(Taxa taxa) {
 		this.taxa = taxa;
-		if (matrixSourceTask!=null) {
+		/*		if (matrixSourceTask!=null) {
 			matrixSourceTask.initialize(taxa);
 		} else
 			return false;
 		if (!initializeObservedStates(taxa))
 			return false;
-		if (runner ==null) {
-			runner = (ZephyrRunner)hireNamedEmployee(getRunnerClass(), getRunnerModuleName());
-		}
-		if (runner !=null){
-			runner.initializeTaxa(taxa);
-		}
-		else
-			return false;
-		return true;
+		 */		if (runner ==null) {
+			 runner = (ZephyrRunner)hireNamedEmployee(getRunnerClass(), getRunnerModuleName());
+		 }
+		 if (runner !=null){
+			 runner.initializeTaxa(taxa);
+		 }
+		 else
+			 return false;
+		 return true;
 	}
 
 	public String getExplanation() {
@@ -166,36 +168,36 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 			score.setToUnassigned();
 		return latestTree;
 	}
-	
-	
+
+
 //	public void newTreeAvailable(String path, TaxaSelectionSet outgroupTaxSet){
 //	}
-	
+
 		/*.................................................................................................................*/
 
-	 public void calculateNumber(MCharactersDistribution data, MesquiteNumber result, MesquiteString resultString) {
-			//CharacterData dData = CharacterData.getData(this,  data, taxa);		
-		 	if (taxa==null) 
-		 		taxa=data.getTaxa();
-			TreeVector trees = new TreeVector(taxa);
-//			MesquiteTree initialTree = new MesquiteTree(taxa);
-//			initialTree.setToDefaultBush(2, false);
+	public void calculateNumber(MCharactersDistribution data, MesquiteNumber result, MesquiteString resultString) {
+		//CharacterData dData = CharacterData.getData(this,  data, taxa);		
+		if (taxa==null) 
+			taxa=data.getTaxa();
+		TreeVector trees = new TreeVector(taxa);
+		//			MesquiteTree initialTree = new MesquiteTree(taxa);
+		//			initialTree.setToDefaultBush(2, false);
 
-			CommandRecord.tick(getProgramName() + " Tree Search in progress " );
+		CommandRecord.tick(getProgramName() + " Tree Search in progress " );
 
-			Random rng = new Random(System.currentTimeMillis());
+		Random rng = new Random(System.currentTimeMillis());
 
-			MesquiteDouble finalScores = new MesquiteDouble();
+		MesquiteDouble finalScores = new MesquiteDouble();
 
-			runner.getTrees(trees, taxa, data, rng.nextInt(), finalScores);
-			runner.setRunInProgress(false);
-			
-			if (result!=null)
-				result.setValue(finalScores.getValue());
-			
-			if (resultString!=null)
-				resultString.setValue(""+finalScores.getValue());
-		}
+		runner.getTrees(trees, taxa, data, rng.nextInt(), finalScores);
+		runner.setRunInProgress(false);
+
+		if (result!=null)
+			result.setValue(finalScores.getValue());
+
+		if (resultString!=null)
+			resultString.setValue(""+finalScores.getValue());
+	}
 
 	/*.................................................................................................................*
 	private TreeVector getTrees(Taxa taxa) {
@@ -240,15 +242,10 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 			MesquiteDouble finalScores = new MesquiteDouble();
 			runner.retrieveTreeBlock(treeList, finalScores);
 			taxa = treeList.getTaxa();
-			initializeObservedStates(taxa);
-//			boolean bootstrap = runner.bootstrap();
-			if (runner.bootstrapOrJackknife()) {
-				treeList.setName(getProgramName() + " Bootstrap Trees (Matrix: " + observedStates.getName() + ")");
-			} 
-			else {
-				treeList.setName(getProgramName() + " Trees (Matrix: " + observedStates.getName() + ")");
-				double bestScore = finalScores.getValue();
-			}
+			//			initializeObservedStates(taxa);
+			//			boolean bootstrap = runner.bootstrap();
+			double bestScore = finalScores.getValue();
+
 		}
 
 
@@ -276,7 +273,7 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 			treeList.addElements(trees, false);
 		trees.dispose();
 		treesInferred = treeList.getID();
-		
+
 	}
 	/*.................................................................................................................*/
 

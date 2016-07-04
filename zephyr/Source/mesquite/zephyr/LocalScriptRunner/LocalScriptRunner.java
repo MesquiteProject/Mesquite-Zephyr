@@ -221,7 +221,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
 		if (rootDir==null)
 			return false;
-		
+
 		for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
 			if (StringUtil.notEmpty(fileNames[i]) && fileContents[i]!=null) {
 				MesquiteFile.putFileContents(rootDir+fileNames[i], fileContents[i], true);
@@ -364,6 +364,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public void finalCleanup() {
 		if (deleteAnalysisDirectory)
 			MesquiteFile.deleteDirectory(rootDir);
+		rootDir=null;
 	}
 
 	public boolean continueShellProcess(Process proc) {

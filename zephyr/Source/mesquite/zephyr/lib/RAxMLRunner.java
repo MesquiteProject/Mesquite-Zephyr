@@ -449,7 +449,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		setRAxMLSeed(seed);
 		isProtein = data instanceof ProteinData;
 
-		// create local version of data file
+		// create local version of data file; this will then be copied over to the running location
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "RAxML", "-Run.");  
 		if (tempDir==null)
 			return null;
@@ -473,6 +473,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		else if (data instanceof ProteinData)
 			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data, selectedTaxaOnly);
 		if (!fileSaved) return null;
+
 		setFileNames();
 
 		String multipleModelFileContents = IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?
@@ -552,6 +553,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		//----------//
 		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
 
+		MesquiteFile.deleteDirectory(tempDir);
 		if (!isDoomed()){
 
 			if (success){  //David: abort here
