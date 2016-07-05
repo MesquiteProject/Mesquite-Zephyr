@@ -78,6 +78,10 @@ public abstract class ZephyrConstraintDiffNumForMatrix extends ZephyrNumberForMa
 		logln("\nResults from run:");
 		logln("constrained\tunconstrained\tdifference");
 		logln(""+constrainedScore.getValue()+"\t"+unconstrainedScore.getValue()+"\t"+finalScore);
+		
+		trees.dispose();
+		trees = null;
+		logln("\nMemory available after calculateNumber: " + MesquiteTrunk.getMaxAvailableMemory());
 
 		if (result!=null)
 			result.setValue(finalScore);

@@ -282,7 +282,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 			parser.setPunctuationString("");
 			String s = parser.getRawNextDarkLine(); // title line
 			s = parser.getNextToken();  // tree number
-			s = parser.getNextToken();  // score
+			s = parser.getNextToken();  // score of first tree
 			double d = MesquiteDouble.fromString(s);
 			if (MesquiteDouble.isCombinable(d))
 				finalScore.setValue(d);
