@@ -240,7 +240,9 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 		} else
 			reportStdError();
-			postBean("unsuccessful [1]", false);
+			if (!beanWritten)
+				postBean("unsuccessful [1]", false);
+			beanWritten=true;
 		}
 		desuppressProjectPanelReset();
 		if (data != null)
@@ -264,7 +266,9 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		if (!MesquiteFile.fileExists(treeFilePath)) {
 			logln("PAUP* tree file not found");
 			reportStdError();
-			postBean("failed - no tree file found", false);
+			if (!beanWritten)
+				postBean("failed - no tree file found", false);
+			beanWritten=true;
 			return null;
 		}
 
@@ -312,11 +316,15 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 			data.decrementEditInhibition();		
 		externalProcRunner.finalCleanup();
 		if (success) { 
-			postBean("successful", false);
+			if (!beanWritten)
+				postBean("successful", false);
+			beanWritten=true;
 			return t;
 		} else {
 			reportStdError();
-			postBean("failed", false);
+			if (!beanWritten)
+				postBean("failed", false);
+			beanWritten=true;
 			return null;
 		}
 

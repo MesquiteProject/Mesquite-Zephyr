@@ -7,24 +7,24 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.RAxMLConstraintDiffNumForMatrixLocal;
+package mesquite.zephyr.GarliConstraintDiffNumForMatrixLocal;
 
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.characters.CharacterData;
-import mesquite.zephyr.RAxMLRunnerLocal.RAxMLRunnerLocal;
+import mesquite.zephyr.GarliRunnerLocal.GarliRunnerLocal;
 import mesquite.zephyr.lib.*;
 
 
-public class RAxMLConstraintDiffNumForMatrixLocal extends RAxMLConstraintDiffNumForMatrix {
+public class GarliConstraintDiffNumForMatrixLocal extends GarliConstraintDiffNumForMatrix {
 
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.RAxMLRunnerLocal.RAxMLRunnerLocal";
+		return "#mesquite.zephyr.GarliRunnerLocal.GarliRunnerLocal";
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return RAxMLRunnerLocal.class;
+		return GarliRunnerLocal.class;
 	}
 
 	/*.................................................................................................................*/

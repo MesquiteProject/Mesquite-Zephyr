@@ -20,7 +20,7 @@ public class RAxMLNumberForMatrixLocal extends RAxMLNumberForMatrix {
 
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.RAxMLRunner.RAxMLRunnerLocal";
+		return "#mesquite.zephyr.RAxMLRunnerLocal.RAxMLRunnerLocal";
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {

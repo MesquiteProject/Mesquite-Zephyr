@@ -45,6 +45,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean runInProgress = false;
 	protected boolean updateWindow = false;
 	protected boolean bootstrapAllowed = true;
+	protected boolean beanWritten = false;
+	boolean verbose=true;
 
 	
 	protected String outgroupTaxSetString = "";
@@ -102,6 +104,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 		getProject().decrementProjectWindowSuppression();
 		projectPanelSuppressed--;
+	}
+	public boolean isVerbose() {
+		return verbose;
+	}
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
 	}
 
 	public boolean getRunInProgress() {
@@ -348,7 +356,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		rng = new Random(System.currentTimeMillis());
 		unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 		suppressProjectPanelReset();
-		logln(getProgramName() + " analysis using data matrix " + data.getName());
+		if (isVerbose()) 
+			logln(getProgramName() + " analysis using data matrix " + data.getName());
 		return true;
 	}
 
@@ -388,7 +397,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (externalProcRunner==null)
 			return;
 		String s = externalProcRunner.getStdOut();
-		if (StringUtil.notEmpty(s)){
+		if (StringUtil.notEmpty(s) && isVerbose()){
 			logln("\n"+message+ "\nContents of output file: ");
 			logln(s + "\n");
 		}
@@ -402,7 +411,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, fileContents, fileNames);
 		if (!success){
 			// give message about failure
-			postBean("failed, externalProcRunner.setInputFiles", false);
+			if (!beanWritten)
+				postBean("failed, externalProcRunner.setInputFiles", false);
+			beanWritten = true;
 			return false;
 		}
 		logFileNames = getLogFileNames();
@@ -415,7 +426,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 		setSearchDetails();
 		appendToSearchDetails(getExtraSearchDetails().toString());
-		MesquiteMessage.logCurrentTime("\nStart of "+getProgramName()+" analysis: ");
+		if (constrainedSearch) 
+			MesquiteMessage.logCurrentTime("\nStart of constrained "+getProgramName()+" analysis: ");
+		else 
+			MesquiteMessage.logCurrentTime("\nStart of unconstrained "+getProgramName()+" analysis: ");
 		
 		timer.start();
 		timer.fullReset();
@@ -427,21 +441,25 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (success)
 			success = externalProcRunner.monitorExecution();
 		else {
-			postBean("failed, externalProcRunner.startExecution", false);
+			if (!beanWritten)
+				postBean("failed, externalProcRunner.startExecution", false);
+			beanWritten=true;
 			alert("The "+getProgramName()+" run encountered problems. ");  // better error message!
 		}
 
 		// the process completed
-		logln("\n"+getProgramName()+" analysis completed at " + getDateAndTime());
-		double totalTime= timer.timeSinceVeryStartInSeconds();
-		if (totalTime>120.0)
-			logln("Total time: " + StringUtil.secondsToHHMMSS((int)totalTime));
-		else
-			logln("Total time: " + totalTime  + " seconds");
+		if (isVerbose()) {
+			logln("\n"+getProgramName()+" analysis completed at " + getDateAndTime());
+			double totalTime= timer.timeSinceVeryStartInSeconds();
+			if (totalTime>120.0)
+				logln("Total time: " + StringUtil.secondsToHHMMSS((int)totalTime));
+			else
+				logln("Total time: " + totalTime  + " seconds");
+			if (!success)
+				logln("Execution of "+getProgramName()+" unsuccessful [1]");
+		}
 		if (progIndicator!=null)
 			progIndicator.goAway();
-		if (!success)
-			logln("Execution of "+getProgramName()+" unsuccessful [1]");
 		return success;
 	}
 	
@@ -449,7 +467,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
 		
-		logln("Monitoring " + getProgramName() + " run begun.");
+		if (isVerbose()) 
+			logln("Monitoring " + getProgramName() + " run begun.");
 			
 		String callBackArguments = callBackCommand.getDefaultArguments();
 		String taxaID = parser.getFirstToken(callBackArguments);

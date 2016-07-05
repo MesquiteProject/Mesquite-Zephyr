@@ -22,6 +22,8 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 	protected ZephyrRunner runner;
 	protected TreeSource treeRecoveryTask;
 	protected Taxa taxa;
+//	protected StringBuffer outputBuffer= new StringBuffer(0);
+//	protected String outputFilePath;
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences();

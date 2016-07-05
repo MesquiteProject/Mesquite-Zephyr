@@ -339,11 +339,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	protected OneTreeSource constraintTreeTask = null;
 	protected OneTreeSource getConstraintTreeSource(){
-		Debugg.println("\n\n======== start of getConstraintTreeSource ");
 		if (constraintTreeTask == null){
 			constraintTreeTask = (OneTreeSource)hireEmployee(OneTreeSource.class, "Source of constraint tree");
 		}
-		Debugg.println("======== end of getConstraintTreeSource \n");
 		return constraintTreeTask;
 	}
 	public void itemStateChanged(ItemEvent e) {
@@ -469,6 +467,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
+		finalValues=null;
 		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
 			return null;
 
@@ -611,7 +610,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore){
-		logln("Preparing to receive RAxML trees.");
+		if (isVerbose()) 
+			logln("Preparing to receive RAxML trees.");
 		boolean success = false;
 		taxa = treeList.getTaxa();
 		finalScore.setValue(finalValue);
@@ -685,7 +685,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				parser.allowComments = false;
 
 				String line = parser.getRawNextDarkLine();
-				logln("\nSummary of RAxML Search");
+				if (isVerbose()) 
+					logln("\nSummary of RAxML Search");
 
 
 				while (!StringUtil.blank(line) && count < finalValues.length) {
@@ -734,7 +735,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				boolean summaryWritten = false;
 				for (int i=0; i<finalValues.length && i<optimizedValues.length; i++){
 					if (MesquiteDouble.isCombinable(finalValues[i]) && MesquiteDouble.isCombinable(optimizedValues[i])) {
-						logln("  RAxML Run " + (i+1) + " ln L = -" + finalValues[i] + ",  final gamma-based ln L = -" + optimizedValues[i]);
+						if (isVerbose())
+							logln("  RAxML Run " + (i+1) + " ln L = -" + finalValues[i] + ",  final gamma-based ln L = -" + optimizedValues[i]);
 						summaryWritten = true;
 					}
 				}
@@ -800,15 +802,20 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			data.decrementEditInhibition();
 		//	manager.deleteElement(tv);  // get rid of temporary tree block
 		externalProcRunner.finalCleanup();
+		finalValues=null;
 		if (success) {
-			if (bootstrapOrJackknife())
-				postBean("successful, bootstrap", false);
-			else 
-				postBean("successful, ML tree", false);
+			if (!beanWritten)
+				if (bootstrapOrJackknife())
+					postBean("successful, bootstrap", false);
+				else 
+					postBean("successful, ML tree", false);
+			beanWritten=true;
 			return t;
 		}
 		reportStdError();
-		postBean("failed, retrieveTreeBlock", false);
+		if (!beanWritten)
+			postBean("failed, retrieveTreeBlock", false);
+		beanWritten = true;
 		return null;
 	}	
 
@@ -862,7 +869,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 						String gen = parser.getFirstToken(); 
 						String lnL = parser.getNextToken();
 						progIndicator.setText("ln L = " + lnL);
-						logln("    ln L = " + lnL);
+						if (isVerbose())
+							logln("    ln L = " + lnL);
+						else
+							log(".");
 						progIndicator.spin();		
 
 					}
@@ -944,7 +954,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 									logln("RAxML bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
 								}
 								else {
-									logln("RAxML Run " + (runNumber+1) + ", final score ln L = " +token);
+									if (isVerbose())
+										logln("\nRAxML Run " + (runNumber+1) + ", final score ln L = " +token);
 									if (completedRuns != null && runNumber<completedRuns.length)
 										completedRuns[runNumber]=true;
 								}
@@ -974,14 +985,18 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 								timeLeft = (int)((numRuns- numRunsCompleted) * timePerRep);
 							}
 							double timeSoFar = timer.timeSinceVeryStartInSeconds();
-							logln("   Run time " +  StringUtil.secondsToHHMMSS((int)timeSoFar)  + ", approximate time remaining " + StringUtil.secondsToHHMMSS(timeLeft));
-							logln("    Average time per replicate:  " +  StringUtil.secondsToHHMMSS((int)timePerRep));
-							logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
+							if (isVerbose()){
+								logln("   Run time " +  StringUtil.secondsToHHMMSS((int)timeSoFar)  + ", approximate time remaining " + StringUtil.secondsToHHMMSS(timeLeft));
+								logln("    Average time per replicate:  " +  StringUtil.secondsToHHMMSS((int)timePerRep));
+								logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
+							}
 						}
 
 						if (!bootstrapOrJackknife() && runNumber+1<numRuns) {
-							logln("");
-							logln("Beginning Run " + (runNumber+2));
+							if (isVerbose()) {
+								logln("");
+								logln("Beginning Run " + (runNumber+2));
+							}
 						}
 					}
 				}

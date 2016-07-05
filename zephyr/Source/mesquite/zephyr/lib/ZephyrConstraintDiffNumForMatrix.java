@@ -23,7 +23,7 @@ public abstract class ZephyrConstraintDiffNumForMatrix extends ZephyrNumberForMa
 	/*.................................................................................................................*/
 
 	public String getExplanation() {
-		return "If "+ getProgramName() + " is installed, will save a copy of a character matrix and script "+ getProgramName() + " to conduct one or more searches, and harvest the resulting scores.";
+		return "If "+ getProgramName() + " is installed, will script "+ getProgramName() + " to conduct a search for the optimal tree constrained by a specified constraints, and the optimal unconstrained tree, and calculate the difference in their scores.";
 	}
 	public String getName() {
 		return getProgramName() + " Difference between Constrained and Unconstrained Tree Score";
@@ -56,6 +56,11 @@ public abstract class ZephyrConstraintDiffNumForMatrix extends ZephyrNumberForMa
 		MesquiteDouble unconstrainedScore = new MesquiteDouble();
 		MesquiteDouble constrainedScore = new MesquiteDouble();
 		
+		logln("\n_______________");
+		logln("Calculating difference in constrained and unconstrained optimal tree scores");
+		
+		runner.setVerbose(false);
+		
 		runner.setConstrainedSearch(true);  
 		runner.getTrees(trees, taxa, data, rng.nextInt(), constrainedScore);  // find score of constrained trees
 		runner.setRunInProgress(false);
@@ -67,6 +72,12 @@ public abstract class ZephyrConstraintDiffNumForMatrix extends ZephyrNumberForMa
 		
 		if (unconstrainedScore.isCombinable() && constrainedScore.isCombinable())
 			finalScore = constrainedScore.getValue() - unconstrainedScore.getValue();
+		
+//		if (outputBuffer.length()==0)
+//			outputBuffer.append("constrained\tunconstrained\tdifference");
+		logln("\nResults from run:");
+		logln("constrained\tunconstrained\tdifference");
+		logln(""+constrainedScore.getValue()+"\t"+unconstrainedScore.getValue()+"\t"+finalScore);
 
 		if (result!=null)
 			result.setValue(finalScore);
