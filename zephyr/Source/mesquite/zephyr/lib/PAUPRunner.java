@@ -31,6 +31,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	String datafname = null;
 	String ofprefix = "output";
 	String PAUPCommandFileMiddle ="";
+	protected String scoreFileName ="scoreFile.txt";
 	long  randseed = -1;
 	String dataFileName = "";
 	String treeFileName = "";
@@ -174,14 +175,16 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 	static final int OUT_TREEFILE=0;
 	static final int OUT_LOGFILE = 1;
+	static final int OUT_SCOREFILE = 2;
 	public String[] getLogFileNames(){
-		return new String[]{treeFileName,  logFileName};
+		return new String[]{treeFileName,  logFileName, scoreFileName};
 	}
 
 	public void setFileNames () {
 		commandFileName =  "PAUPCommands.txt";
 		treeFileName = ofprefix+".tre";
 		logFileName = ofprefix+".log00.log";
+		scoreFileName = ofprefix+".score.txt";
 	}
 
 	int firstOutgroup = 0;
@@ -272,6 +275,23 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 			return null;
 		}
 
+		String scoreFilePath = outputFilePaths[OUT_SCOREFILE];
+		if (MesquiteFile.fileExists(scoreFilePath) && finalScore!=null) {
+			String contents = MesquiteFile.getFileContentsAsString(scoreFilePath);
+			Parser parser = new Parser(contents);
+			parser.setPunctuationString("");
+			String s = parser.getRawNextDarkLine(); // title line
+			s = parser.getNextToken();  // tree number
+			s = parser.getNextToken();  // score
+			double d = MesquiteDouble.fromString(s);
+			if (MesquiteDouble.isCombinable(d))
+				finalScore.setValue(d);
+/*
+			while (!StringUtil.blank(s)) {
+				
+				s = parser.getRawNextDarkLine();
+			}
+*/		}
 		suppressProjectPanelReset();
 		MesquiteFile tempDataFile = null;
 		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();

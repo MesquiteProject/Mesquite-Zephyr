@@ -209,6 +209,7 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 				sb.append("\tcontree all/strict=yes treefile=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
 			else
 				sb.append("\tsavetrees file=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
+			sb.append("\tpscore 1 / scorefile=" + StringUtil.tokenize(scoreFileName) + ";\n");
 		}
 		return sb.toString();
 	}
@@ -354,12 +355,13 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 
 	/*.................................................................................................................*/
 	public void queryOptionsProcess(ExtensibleDialog dialog) {
-		bootStrapReps = bootStrapRepsField.getValue();
-		if (bootstrapAllowed)
+		if (bootstrapAllowed) {
+			bootStrapReps = bootStrapRepsField.getValue();
 			searchStyle = bootstrapBox.getValue();
+			customSearchOptionsBoot = customSearchOptionsBootField.getText();
+		}
 		getConsensus = getConsensusBox.getState();
 		customSearchOptions = customSearchOptionsField.getText();
-		customSearchOptionsBoot = customSearchOptionsBootField.getText();
 		paupCommands = paupCommandsField.getText();
 		
 		nreps=nrepsField.getValue();
