@@ -152,6 +152,8 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 
 		if (resultString!=null)
 			resultString.setValue(""+finalScores.getValue());
+		trees.dispose();
+		trees=null;
 	}
 
 	/*.................................................................................................................*/

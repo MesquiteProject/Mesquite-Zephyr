@@ -596,6 +596,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (data != null)
 			data.decrementEditInhibition();
 		externalProcRunner.finalCleanup();
+		cleanupAfterSearch();
 		return null;
 
 	}	
@@ -790,7 +791,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 					treeList.addElement(bestTree, false);
 				}
 			} 
-
+			tv.dispose();
+			tv =null;
 		}
 		MesquiteThread.setCurrentCommandRecord(oldCR);
 		success = readSuccess.getValue();
@@ -802,6 +804,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			data.decrementEditInhibition();
 		//	manager.deleteElement(tv);  // get rid of temporary tree block
 		externalProcRunner.finalCleanup();
+		cleanupAfterSearch();
 		finalValues=null;
 		if (success) {
 			if (!beanWritten)

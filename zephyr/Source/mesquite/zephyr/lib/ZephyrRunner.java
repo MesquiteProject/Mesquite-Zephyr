@@ -27,6 +27,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected ExternalProcessRunner externalProcRunner;
 	protected ProgressIndicator progIndicator;
 	protected CategoricalData data;
+	protected boolean createdNewDataObject;
 	protected MesquiteTimer timer = new MesquiteTimer();
 	protected Taxa taxa;
 	protected String unique;
@@ -117,6 +118,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	public void setRunInProgress(boolean runInProgress) {
 		this.runInProgress = runInProgress;
+	}
+	public void cleanupAfterSearch(){
+		if (createdNewDataObject && data!=null) {
+			data.dispose();
+			data=null;
+		}
 	}
 
 	public abstract boolean doMajRuleConsensusOfResults();
@@ -337,6 +344,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			if (!initializeTaxa(taxa))
 				return false;
 		}
+		createdNewDataObject = matrix.getParentData()==null;
 		data = (CategoricalData)CharacterData.getData(this,  matrix, taxa);
 		if (!(requiredClassOfData.isInstance(data))){
 			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " works only if given a full "+requiredClassOfData.getName()+" object");
