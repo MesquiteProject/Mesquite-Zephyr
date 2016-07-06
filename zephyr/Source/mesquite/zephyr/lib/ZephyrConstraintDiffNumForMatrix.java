@@ -56,7 +56,7 @@ public abstract class ZephyrConstraintDiffNumForMatrix extends ZephyrNumberForMa
 		MesquiteDouble unconstrainedScore = new MesquiteDouble();
 		MesquiteDouble constrainedScore = new MesquiteDouble();
 		
-		logln("\n_______________");
+		logln("_______________");
 		logln("Calculating difference in constrained and unconstrained optimal tree scores");
 		
 		runner.setVerbose(false);
@@ -81,7 +81,7 @@ public abstract class ZephyrConstraintDiffNumForMatrix extends ZephyrNumberForMa
 		
 		trees.dispose();
 		trees = null;
-		logln("\nMemory available after calculateNumber: " + MesquiteTrunk.getMaxAvailableMemory());
+	//	Debugg.println("\nMemory available after calculateNumber: " + MesquiteTrunk.getMaxAvailableMemory());
 
 		if (result!=null)
 			result.setValue(finalScore);
