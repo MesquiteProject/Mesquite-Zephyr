@@ -77,6 +77,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return "Bootstrap";
 	}
 
+	/*.................................................................................................................*/
+	 public String getProgramURL() {
+		 return "";
+	 }
+
 	public boolean isConstrainedSearch() {
 		return constrainedSearch;
 	}
@@ -150,7 +155,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	public void initialize (MesquiteModule ownerModule) {
 		this.ownerModule= ownerModule;
-		this.zephyrRunnerEmployer = (ZephyrRunnerEmployer)ownerModule;
+		if (ownerModule instanceof ZephyrRunnerEmployer)
+			this.zephyrRunnerEmployer = (ZephyrRunnerEmployer)ownerModule;
 	}
 	/*.................................................................................................................*/
 	public void setSearchDetails() {  // for annotation to tree block.  designed to be composed after the tree search started.  

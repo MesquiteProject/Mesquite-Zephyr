@@ -239,7 +239,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose RAxML Score.";
 
 		dialog.appendToHelpString(helpString);
-		dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
+		if (zephyrRunnerEmployer!=null)
+			dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
 
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
@@ -252,7 +253,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			treeInferer.addItemsToDialogPanel(dialog);
 
 		if (bootstrapAllowed) {
-			tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
+			tabbedPanel.addPanel("Replicates", true);
 			doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
 			dialog.addHorizontalLine(1);
 			dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
@@ -262,7 +263,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			dialog.addHorizontalLine(1);
 		}
 		else 
-			tabbedPanel.addPanel("Search Replicates", true);
+			tabbedPanel.addPanel("Replicates", true);
 		dialog.addLabel("Maximum Likelihood Tree Search Options", Label.LEFT, false, true);
 		if (numRuns< minimumNumSearchReplicates())
 			numRuns = minimumNumSearchReplicates();
