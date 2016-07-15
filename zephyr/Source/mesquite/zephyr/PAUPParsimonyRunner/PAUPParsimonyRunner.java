@@ -403,7 +403,7 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 	}
 
 	public String getName() {
-		return "PAUP* Parsimony Analysis";
+		return "PAUP* Parsimony";
 	}
 
 

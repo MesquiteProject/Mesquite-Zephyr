@@ -358,7 +358,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 	}
 
 	public String getName() {
-		return "RAxML Local Runner";
+		return "RAxML Likelihood (Local)";
 	}
 
 	/*.................................................................................................................*/

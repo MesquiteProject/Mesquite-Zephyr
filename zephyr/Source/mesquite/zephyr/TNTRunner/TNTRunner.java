@@ -979,7 +979,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	}
 
 	public String getName() {
-		return "TNT Runner";
+		return "TNT Parsimony";
 	}
 
 	/*.................................................................................................................*/

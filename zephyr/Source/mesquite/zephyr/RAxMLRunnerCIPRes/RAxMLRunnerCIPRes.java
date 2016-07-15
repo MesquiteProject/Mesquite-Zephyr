@@ -310,7 +310,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	}
 
 	public String getName() {
-		return "RAxML CIPRes Runner";
+		return "RAxML Likelihood (CIPRes)";
 	}
 
 	/*.................................................................................................................*/
