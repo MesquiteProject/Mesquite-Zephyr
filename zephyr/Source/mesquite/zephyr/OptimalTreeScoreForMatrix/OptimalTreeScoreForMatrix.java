@@ -25,6 +25,10 @@ public class OptimalTreeScoreForMatrix extends NumberForMatrix implements Reconn
 //	protected StringBuffer outputBuffer= new StringBuffer(0);
 //	protected String outputFilePath;
 
+	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
+		EmployeeNeed e = registerEmployeeNeed(ZephyrRunner.class, getName() + "  needs a module to run an external process.","");
+	}
+
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences();
 		runner = (ZephyrRunner)hireEmployee(ZephyrRunner.class, "External tree searcher");
@@ -34,15 +38,6 @@ public class OptimalTreeScoreForMatrix extends NumberForMatrix implements Reconn
 		runner.setBootstrapAllowed(false);
 		return true;
 	}
-	/*.................................................................................................................*
-	abstract public String getRunnerModuleName();
-	/*.................................................................................................................*
-	abstract public Class getRunnerClass();
-	/*.................................................................................................................*
-	abstract public String getProgramName();
-	/*.................................................................................................................*
-	abstract public String getProgramURL();
-
 	/*.................................................................................................................*/
 	public void initialize(MCharactersDistribution data) {
 	}

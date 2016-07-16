@@ -5,7 +5,7 @@ Zephry's web site is http://mesquitezephyr.wikispaces.com
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
-*/
+ */
 
 package mesquite.zephyr.lib;
 
@@ -25,7 +25,7 @@ import mesquite.zephyr.lib.*;
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
  */
 
-public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcessRequester, PAUPCommander {
+public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, ExternalProcessRequester, PAUPCommander {
 	public static final String SCORENAME = "PAUPScore";
 	Random rng;
 	String datafname = null;
@@ -35,13 +35,20 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	long  randseed = -1;
 	String dataFileName = "";
 	String treeFileName = "";
-//	boolean writeOnlySelectedTaxa = false;
+	//	boolean writeOnlySelectedTaxa = false;
 	PAUPCommander paupCommander = this;
 	protected ExtensibleDialog dialog;
 	protected static int REGULARSEARCH=0;
 	protected static int BOOTSTRAPSEARCH=1;
 	protected static int JACKKNIFESEARCH=2;
 	protected int searchStyle = REGULARSEARCH;
+
+	protected static final int NOCONSTRAINT = 0;
+	protected static final int MONOPHYLY = 1;
+	protected static final int BACKBONE = 2;
+	protected int useConstraintTree = NOCONSTRAINT;
+
+	protected Tree constraint = null;
 
 
 	SingleLineTextField PAUPPathField =  null;
@@ -59,18 +66,18 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		externalProcRunner.setProcessRequester(this);
 		rng = new Random(System.currentTimeMillis());
 		loadPreferences();
-				
+
 		return true;
 	}
-	
+
 	/*.................................................................................................................*/
-	 public String getExternalProcessRunnerModuleName(){
-			return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
-	 }
+	public String getExternalProcessRunnerModuleName(){
+		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
+	}
 	/*.................................................................................................................*/
-	 public Class getExternalProcessRunnerClass(){
-			return LocalScriptRunner.class;
-	 }
+	public Class getExternalProcessRunnerClass(){
+		return LocalScriptRunner.class;
+	}
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
@@ -81,6 +88,35 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	/*.................................................................................................................*/
 	public  boolean showMultipleRuns() {
 		return false;
+	}
+	public void setConstrainedSearch(boolean constrainedSearch) {
+		if (useConstraintTree==NOCONSTRAINT && constrainedSearch)
+			useConstraintTree=MONOPHYLY;
+		else if (useConstraintTree!=NOCONSTRAINT && !constrainedSearch)
+			useConstraintTree = NOCONSTRAINT;
+		this.constrainedSearch = constrainedSearch;
+	}
+	public void setConstraintTreeType (int useConstraintTree) {
+		this.useConstraintTree = useConstraintTree;
+	}
+
+	public int getConstraintTreeType() {
+		return useConstraintTree;
+	}
+
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getItemSelectable() == constraintButtons && constraintButtons.getValue()>0){
+
+			getConstraintTreeSource();
+
+		}
+	}
+	protected OneTreeSource constraintTreeTask = null;
+	protected OneTreeSource getConstraintTreeSource(){
+		if (constraintTreeTask == null){
+			constraintTreeTask = (OneTreeSource)hireEmployee(OneTreeSource.class, "Source of constraint tree");
+		}
+		return constraintTreeTask;
 	}
 
 	/*.................................................................................................................*/
@@ -99,40 +135,46 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
-//		if ("writeOnlySelectedTaxa".equalsIgnoreCase(tag))
-//			writeOnlySelectedTaxa = MesquiteBoolean.fromTrueFalseString(content);
+		if ("useConstraintTree".equalsIgnoreCase(tag))
+			useConstraintTree = MesquiteInteger.fromString(content);
+		//		if ("writeOnlySelectedTaxa".equalsIgnoreCase(tag))
+		//			writeOnlySelectedTaxa = MesquiteBoolean.fromTrueFalseString(content);
 		preferencesSet = true;
 	}
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-//		StringUtil.appendXMLTag(buffer, 2, "writeOnlySelectedTaxa", writeOnlySelectedTaxa);  
+		StringUtil.appendXMLTag(buffer, 2, "useConstraintTree", useConstraintTree);  
+		//		StringUtil.appendXMLTag(buffer, 2, "writeOnlySelectedTaxa", writeOnlySelectedTaxa);  
 		buffer.append(prepareMorePreferencesForXML());
 		preferencesSet = true;
 		return buffer.toString();
 	}
 
 	/*.................................................................................................................*/
-   	public String getDataFileName(){
-   		return dataFileName;
-   	}
+	public String getDataFileName(){
+		return dataFileName;
+	}
 	/*.................................................................................................................*/
-   	public String getOutputTreeFileName(){
-   		return treeFileName;
-   	}
+	public String getOutputTreeFileName(){
+		return treeFileName;
+	}
 	/*.................................................................................................................*/
-   	public String PAUPCommandFileStart(){
-   		return "#NEXUS\n\nbegin paup;\n\tset torder=right tcompress outroot=monophyl taxlabels=full nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;\n\tlog file=logfile.txt;\n";
-   	}
-   	
+	public String PAUPCommandFileStart(){
+		String commandStart = "#NEXUS\n\n";
+		commandStart+="begin paup;\n\tset torder=right tcompress outroot=monophyl taxlabels=full nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;"
+				+ "\n\tlog file=logfile.txt;\n";
+		return commandStart;
+	}
+
 	/*.................................................................................................................*/
-	public String getPAUPCommandFileMiddle(String dataFileName, String outputTreeFileName, CategoricalData data){
+	public String getPAUPCommandFileMiddle(String dataFileName, String outputTreeFileName, CategoricalData data, String constraintTree){
 		return "";
 	}
 	/*.................................................................................................................*/
-   	public String PAUPCommandFileEnd(){
-   		return "\tquit;\nend;\n";
-   	}
+	public String PAUPCommandFileEnd(){
+		return "\tquit;\nend;\n";
+	}
 	public PAUPCommander getPaupCommander() {
 		return paupCommander;
 	}
@@ -142,36 +184,39 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	}
 
 	/*.................................................................................................................*/
-   	public void setPAUPCommandFileMiddle(String PAUPCommandFileMiddle){
-   		this.PAUPCommandFileMiddle = PAUPCommandFileMiddle;   		
-   	}
+	public void setPAUPCommandFileMiddle(String PAUPCommandFileMiddle){
+		this.PAUPCommandFileMiddle = PAUPCommandFileMiddle;   		
+	}
 	/*.................................................................................................................*/
-   	public String getPAUPCommandFile(PAUPCommander paupCommander, String fileName, String treeFileName, CategoricalData data){
-   		StringBuffer sb = new StringBuffer();
-   		sb.append(PAUPCommandFileStart());
-   		sb.append(paupCommander.getPAUPCommandFileMiddle(fileName, treeFileName, data));
-   		sb.append(PAUPCommandFileEnd());
-   		return sb.toString();
-   	}
+	public String getPAUPCommandFile(PAUPCommander paupCommander, String fileName, String treeFileName, CategoricalData data, String constraintTree){
+		StringBuffer sb = new StringBuffer();
+		sb.append(PAUPCommandFileStart());
+		if (StringUtil.notEmpty(constraintTree)) {
+			
+		}
+		sb.append(paupCommander.getPAUPCommandFileMiddle(fileName, treeFileName, data, constraintTree));
+		sb.append(PAUPCommandFileEnd());
+		return sb.toString();
+	}
 	/*.................................................................................................................*/
-   	public void setDataFName(String datafname){
-   		this.datafname = datafname;
-   	}
+	public void setDataFName(String datafname){
+		this.datafname = datafname;
+	}
 	/*.................................................................................................................*/
-   	public void setPAUPSeed(long seed){
-   		this.randseed = seed;
-   	}
+	public void setPAUPSeed(long seed){
+		this.randseed = seed;
+	}
 
-//	ProgressIndicator progIndicator;
+	//	ProgressIndicator progIndicator;
 	int count=0;
-	
+
 	double finalValue = MesquiteDouble.unassigned;
-	
+
 	String commandFileName = "";
 	String logFileName = "";
 
-	
-	
+
+
 
 	static final int OUT_TREEFILE=0;
 	static final int OUT_LOGFILE = 1;
@@ -189,7 +234,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 	int firstOutgroup = 0;
 	TaxaSelectionSet outgroupSet;
-	
+
 	/*.................................................................................................................*/
 
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
@@ -197,7 +242,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 			return null;
 		setPAUPSeed(seed);
 		//David: if isDoomed() then module is closing down; abort somehow
-		
+
 		//write data file
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "PAUP","-Run.");  
 		if (tempDir==null)
@@ -210,8 +255,40 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 		setFileNames();
 
-		
-		String commands = getPAUPCommandFile(paupCommander, dataFileName, treeFileName, data);
+
+		String constraintTree = "";
+
+		if (useConstraintTree>NOCONSTRAINT || isConstrainedSearch()){
+			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debugg.println
+				useConstraintTree=MONOPHYLY;
+			if (constraint==null) { // we don't have one
+				getConstraintTreeSource();
+				if (constraintTreeTask != null)
+					constraint = constraintTreeTask.getTree(taxa, "This will be the constaint tree");
+			}
+			if (constraint == null){
+				discreetAlert("Constraint tree is not available.");
+				return null;
+			}
+			else if (useConstraintTree == BACKBONE){
+				constraintTree = constraint.writeTreeSimpleByNames() + ";";
+				appendToExtraSearchDetails("\nBACKBONEl constraint using tree \"" + constraint.getName() + "\"");
+				appendToAddendumToTreeBlockName("Constrained by tree \"" + constraint.getName() + "\"");
+			}
+			else if (useConstraintTree == MONOPHYLY){
+				if (constraint.hasPolytomies(constraint.getRoot())){
+					constraintTree = constraint.writeTreeSimpleByNames() + ";";
+					appendToExtraSearchDetails("\nPartial resolution constraint using tree \"" + constraint.getName() + "\"");
+					appendToAddendumToTreeBlockName("Constrained by tree \"" + constraint.getName() + "\"");
+				}
+				else {
+					discreetAlert("Constraint tree cannot be used as a constraint because it is strictly dichotomous");
+					return null;
+				}
+			}
+		}
+
+		String commands = getPAUPCommandFile(paupCommander, dataFileName, treeFileName, data, constraintTree);
 		logln("\n\nCommands given to PAUP*:");
 		logln(commands);
 		logln("");
@@ -220,6 +297,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 		String programCommand = externalProcRunner.getExecutableCommand();
 		//+ " " + arguments + StringUtil.lineEnding();  
+
+
 
 		int numInputFiles = 2;
 		String[] fileContents = new String[numInputFiles];
@@ -236,13 +315,13 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 		//----------//
 		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
-		
+
 		if (!isDoomed()){
-		if (success){
-			desuppressProjectPanelReset();
-			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
-		} else
-			reportStdError();
+			if (success){
+				desuppressProjectPanelReset();
+				return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
+			} else
+				reportStdError();
 			if (!beanWritten)
 				postBean("unsuccessful [1]", false);
 			beanWritten=true;
@@ -286,12 +365,12 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 			double d = MesquiteDouble.fromString(s);
 			if (MesquiteDouble.isCombinable(d))
 				finalScore.setValue(d);
-/*
+			/*
 			while (!StringUtil.blank(s)) {
-				
+
 				s = parser.getRawNextDarkLine();
 			}
-*/		}
+			 */		}
 		suppressProjectPanelReset();
 		MesquiteFile tempDataFile = null;
 		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
@@ -324,12 +403,12 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 			} 
 		}
 		//int numTB = manager.getNumberTreeBlocks(taxa);
-		
+
 		desuppressProjectPanelReset();
 		if (tempDataFile!=null)
 			tempDataFile.close();
 
-		
+
 		manager.deleteElement(tv);  // get rid of temporary tree block
 		desuppressProjectPanelReset();
 		if (data!=null)
@@ -349,7 +428,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		}
 
 	}
-	
+
 	/*.................................................................................................................*/
 	public void initializeMonitoring(){
 		outgroupSet =null;
@@ -373,7 +452,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	}
 
 	Parser parser = new Parser();
-	
+
 	/*.................................................................................................................*/
 	public String[] modifyOutputPaths(String[] outputFilePaths){
 		return outputFilePaths;
@@ -383,10 +462,10 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 	public void processOutputFile(String[] outputFilePaths, int fileNum) {
 		if (fileNum==0 && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0])) {
-		//	String s = MesquiteFile.getFileLastContents(outputFilePaths[0]);
-		//	if (!StringUtil.blank(s))
+			//	String s = MesquiteFile.getFileLastContents(outputFilePaths[0]);
+			//	if (!StringUtil.blank(s))
 		}
-		
+
 	}
 	/*.................................................................................................................*/
 
@@ -442,11 +521,28 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 	/*.................................................................................................................*/
 	public abstract void queryOptionsProcess(ExtensibleDialog dialog);
 
+	RadioButtons constraintButtons;
+	/*.................................................................................................................*
+	public  void actionPerformed(ActionEvent e) {
+		if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
+
+			MesquiteString arguments = new MesquiteString();
+			getArguments(arguments, "fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, false);
+			String command = externalProcRunner.getExecutableCommand() + arguments.getValue();
+			commandLabel.setText("This command will be used to run RAxML:");
+			commandField.setText(command);
+		}
+		else	if (e.getActionCommand().equalsIgnoreCase("clearCommand")) {
+			commandField.setText("");
+			commandLabel.setText("");
+		}
+	}
+
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
 			return true;
-		
+
 		boolean closeWizard = false;
 
 		if ((MesquiteTrunk.isMacOSXBeforeSnowLeopard()) && MesquiteDialog.currentWizard == null) {
@@ -460,7 +556,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
 		dialog = new ExtensibleDialog(containerOfModule(), getName() + " Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
-//		dialog.addLabel(getName() + " Options and Location");
+		//		dialog.addLabel(getName() + " Options and Location");
 		String helpString = "This module will prepare a matrix for PAUP*, and ask PAUP* do to an analysis.  A command-line version of PAUP* must be installed. ";
 
 		dialog.appendToHelpString(helpString);
@@ -470,13 +566,17 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		tabbedPanel.addPanel("PAUP* Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
 
-		
+
 
 		tabbedPanel.addPanel("General", true);
-		
-//		Checkbox selectedOnlyBox = dialog.addCheckBox("consider only selected taxa", writeOnlySelectedTaxa);
 
 		queryOptionsSetup(dialog, tabbedPanel);
+		
+		tabbedPanel.addPanel("Constraints", true);
+
+		//		Checkbox selectedOnlyBox = dialog.addCheckBox("consider only selected taxa", writeOnlySelectedTaxa);
+		constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Monophyly", "Backbone"}, useConstraintTree);
+		constraintButtons.addItemListener(this);
 
 		//TextArea PAUPOptionsField = queryFilesDialog.addTextArea(PAUPOptions, 20);
 		tabbedPanel.cleanup();
@@ -485,9 +585,14 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
 			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
+			useConstraintTree = constraintButtons.getValue();
+			if (useConstraintTree!=NOCONSTRAINT)
+				setConstrainedSearch(true);
+			else
+				setConstrainedSearch(false);
 			if (externalProcRunner.optionsChosen() && infererOK) {
 				queryOptionsProcess(dialog);
-//				writeOnlySelectedTaxa = selectedOnlyBox.getState();
+				//				writeOnlySelectedTaxa = selectedOnlyBox.getState();
 				storeRunnerPreferences();
 			}
 		}
@@ -506,12 +611,12 @@ public abstract class PAUPRunner extends ZephyrRunner implements ExternalProcess
 
 	public void runFailed(String message) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void runFinished(String message) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
