@@ -125,9 +125,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public void reconnectToRequester(MesquiteCommand command){
 		continueMonitoring(command);
 	}
-	public boolean canDoConstrainedSearch() {
-		return true;
-	}
 	
 	public void setConstraintTreeType (int useConstraintTree) {
 		this.useConstraintTree = useConstraintTree;
@@ -274,10 +271,13 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		tabbedPanel.addPanel("Character Models & Constraints", true);
 		dnaModelField = dialog.addTextField("DNA Model:", dnaModel, 20);
 		proteinModelField = dialog.addTextField("Protein Model:", proteinModel, 20);
-		dialog.addHorizontalLine(1);
-		dialog.addLabel("Constraint tree:", Label.LEFT, false, true);
-		constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Partial Resolution", "Skeletal Constraint"}, useConstraintTree);
-		constraintButtons.addItemListener(this);
+
+		if (getConstrainedSearchAllowed()) {
+			dialog.addHorizontalLine(1);
+			dialog.addLabel("Constraint tree:", Label.LEFT, false, true);
+			constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Partial Resolution", "Skeletal Constraint"}, useConstraintTree);
+			constraintButtons.addItemListener(this);
+		}
 
 		/*		dialog.addHorizontalLine(1);
 		MPISetupField = dialog.addTextField("MPI setup command: ", MPIsetupCommand, 20);
@@ -509,7 +509,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		String constraintTree = "";
 		
-		if (useConstraintTree>NOCONSTRAINT || isConstrainedSearch()){
+		if (getConstrainedSearchAllowed() && (useConstraintTree>NOCONSTRAINT || isConstrainedSearch())){
 			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debugg.println
 				useConstraintTree=MONOPHYLY;
 			if (constraint==null) { // we don't have one

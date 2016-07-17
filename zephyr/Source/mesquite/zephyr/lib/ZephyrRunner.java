@@ -37,6 +37,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean selectedTaxaOnly = false;
 	protected boolean optionsHaveBeenSet = false;
 	protected boolean constrainedSearch = false;
+	protected boolean constrainSearchAllowed = true;
 
 	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
@@ -58,9 +59,6 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract boolean bootstrapOrJackknife();
 	public abstract boolean showMultipleRuns();
 	
-	public boolean canDoConstrainedSearch() {
-		return false;
-	}
 	
 	public TreeInferer getTreeInferer() {
 		return treeInferer;
@@ -73,9 +71,16 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		 return externalProcRunner.stopExecution();
 	 }
 
-	public String getResamplingKindName() {
-		return "Bootstrap";
-	}
+		public String getResamplingKindName() {
+			return "Bootstrap";
+		}
+
+		public boolean getConstrainedSearchAllowed() {
+			return constrainSearchAllowed;
+		}
+		public void setConstainedSearchAllowed(boolean constrainSearchAllowed) {
+			this.constrainSearchAllowed = constrainSearchAllowed;;
+		}
 
 	/*.................................................................................................................*/
 	 public String getProgramURL() {

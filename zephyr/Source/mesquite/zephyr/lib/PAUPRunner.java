@@ -78,6 +78,10 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	public Class getExternalProcessRunnerClass(){
 		return LocalScriptRunner.class;
 	}
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
+		MesquiteFile.suppressReadWriteLogging=!verbose;
+	}
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
@@ -247,7 +251,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "PAUP","-Run.");  
 		if (tempDir==null)
 			return null;
-		dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".nex";   //replace this with actual file name?
+		dataFileName = "dataFile.nex";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 		boolean fileSaved = false;
 		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, selectedTaxaOnly, true, true);
@@ -289,9 +293,11 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		}
 
 		String commands = getPAUPCommandFile(paupCommander, dataFileName, treeFileName, data, constraintTree);
-		logln("\n\nCommands given to PAUP*:");
-		logln(commands);
-		logln("");
+		if (isVerbose()) {
+			logln("\n\nCommands given to PAUP*:");
+			logln(commands);
+			logln("");
+		}
 
 		String arguments = commandFileName;
 
@@ -335,7 +341,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	/*.................................................................................................................*/
 
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
-		logln("Preparing to receive PAUP trees.");
+		if (isVerbose()) 
+			logln("Preparing to receive PAUP trees.");
 		boolean success = false;
 		taxa = treeList.getTaxa();
 		//TODO		finalScore.setValue(finalValue);
@@ -404,7 +411,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		}
 		//int numTB = manager.getNumberTreeBlocks(taxa);
 
-		desuppressProjectPanelReset();
+		//desuppressProjectPanelReset();
 		if (tempDataFile!=null)
 			tempDataFile.close();
 
@@ -572,11 +579,13 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 		queryOptionsSetup(dialog, tabbedPanel);
 		
-		tabbedPanel.addPanel("Constraints", true);
+		if (getConstrainedSearchAllowed()) {
+			tabbedPanel.addPanel("Constraints", true);
 
-		//		Checkbox selectedOnlyBox = dialog.addCheckBox("consider only selected taxa", writeOnlySelectedTaxa);
-		constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Monophyly", "Backbone"}, useConstraintTree);
-		constraintButtons.addItemListener(this);
+			//		Checkbox selectedOnlyBox = dialog.addCheckBox("consider only selected taxa", writeOnlySelectedTaxa);
+			constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Monophyly", "Backbone"}, useConstraintTree);
+			constraintButtons.addItemListener(this);
+		}
 
 		//TextArea PAUPOptionsField = queryFilesDialog.addTextArea(PAUPOptions, 20);
 		tabbedPanel.cleanup();
@@ -585,11 +594,13 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
 			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
-			useConstraintTree = constraintButtons.getValue();
-			if (useConstraintTree!=NOCONSTRAINT)
-				setConstrainedSearch(true);
-			else
-				setConstrainedSearch(false);
+			if (getConstrainedSearchAllowed()) {
+				useConstraintTree = constraintButtons.getValue();
+				if (useConstraintTree!=NOCONSTRAINT)
+					setConstrainedSearch(true);
+				else
+					setConstrainedSearch(false);
+			}
 			if (externalProcRunner.optionsChosen() && infererOK) {
 				queryOptionsProcess(dialog);
 				//				writeOnlySelectedTaxa = selectedOnlyBox.getState();
