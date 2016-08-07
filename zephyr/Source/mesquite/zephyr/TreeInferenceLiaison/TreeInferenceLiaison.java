@@ -229,6 +229,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 				extraWindowCommands="";
 			String commands = "makeTreeWindow " + getProject().getTaxaReferenceInternal(taxa) + "  #BasicTreeWindowMaker; tell It; setTreeSource  #StoredTrees;";
 			commands += " tell It; setTaxa " + getProject().getTaxaReferenceInternal(taxa) + " ;  setTreeBlockByID " + trees.getID()  + "; endTell;  getWindow; tell It; setSize 400 300; " + extraWindowCommands + " endTell; showWindowForce; endTell; ";
+			Debugg.println(commands);
 			MesquiteInteger pos = new MesquiteInteger(0);
 			Puppeteer p = new Puppeteer(this);
 			CommandRecord prev = MesquiteThread.getCurrentCommandRecord();
@@ -271,8 +272,10 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 /* ======================================================================== */
 abstract class FillerThread extends MesquiteThread {
 	TreeInferenceLiaison ownerModule;
+	
 	public FillerThread (TreeInferenceLiaison ownerModule) {
 		super();
+		resetUIOnMe = false;
 		this.ownerModule = ownerModule;
 		setSpontaneousIndicator(false);
 	}
@@ -381,6 +384,7 @@ class TreeBlockThread extends FillerThread {
 
 	/*.............................................*/
 	public void run() {
+		//MesquiteTrunk.mesquiteTrunk.incrementMenuResetSuppression();
 		long s = System.currentTimeMillis();
 		int before = trees.size();
 			boolean okToSave = false;
@@ -431,6 +435,7 @@ class TreeBlockThread extends FillerThread {
 				fCoord.writeFile(file);
 			}
 		}
+		//MesquiteTrunk.mesquiteTrunk.decrementMenuResetSuppression();
 		threadGoodbye();
 	}
 	public void stopFilling(){

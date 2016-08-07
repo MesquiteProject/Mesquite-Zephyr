@@ -468,7 +468,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (!fileSaved) return null;
 		setFileNames();
 
-		String multipleModelFileContents = IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?
+		String multipleModelFileContents = IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
+		//Debugg.println: David: could there be a choice for partByCodPos?  I'd like that
+		
 		if (StringUtil.blank(multipleModelFileContents)) 
 			multipleModelFileName=null;
 
