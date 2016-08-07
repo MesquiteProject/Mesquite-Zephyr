@@ -140,7 +140,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 		return true;
 	}
-
+	/*.................................................................................................................*/
+	 public String getProgramURL() {
+		 return "https://code.google.com/p/garli/";
+	 }
 	/* ................................................................................................................. */
 	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */
 	public String purposeOfEmployee(MesquiteModule employee) {
@@ -593,6 +596,13 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		return 1;
 	}
 
+	public void setConstrainedSearch(boolean constrainedSearch) {
+		if (useConstraintTree==NOCONSTRAINT && constrainedSearch)
+			useConstraintTree=POSITIVECONSTRAINT;  //TODO: Debugg.println
+		else if (useConstraintTree!=NOCONSTRAINT && !constrainedSearch)
+			useConstraintTree = NOCONSTRAINT;
+		this.constrainedSearch = constrainedSearch;
+	}
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options")) // Debugg.println needs to check that options set well enough to proceed anyway
@@ -633,13 +643,19 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		if (treeInferer!=null) 
 			treeInferer.addItemsToDialogPanel(dialog);
 
-		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
-		doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
-		dialog.addHorizontalLine(1);
-		dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
-		doBootstrapCheckbox.addItemListener(this);
-		IntegerField bootStrapRepsField = dialog.addIntegerField("Bootstrap Reps", bootstrapreps, 8, 0, MesquiteInteger.infinite);
-		dialog.addHorizontalLine(1);
+		IntegerField bootStrapRepsField=null;
+		
+		if (bootstrapAllowed) {
+			tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
+			doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
+			dialog.addHorizontalLine(1);
+			dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
+			doBootstrapCheckbox.addItemListener(this);
+			bootStrapRepsField = dialog.addIntegerField("Bootstrap Reps", bootstrapreps, 8, 0, MesquiteInteger.infinite);
+			dialog.addHorizontalLine(1);
+		} else
+			tabbedPanel.addPanel("Search Replicates", true);
+
 		dialog.addLabel("Maximum Likelihood Tree Search Options", Label.LEFT, false, true);
 		if (numRuns<minimumNumSearchReplicates())
 			numRuns = minimumNumSearchReplicates();
@@ -712,12 +728,16 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
 			if (externalProcRunner.optionsChosen() && infererOK) {
 				numRuns = numRunsField.getValue();
-				bootstrapreps = bootStrapRepsField.getValue();
+				if (bootstrapAllowed) {
+					bootstrapreps = bootStrapRepsField.getValue();
+					doBootstrap = doBootstrapCheckbox.getState();
+				}
 				onlyBest = onlyBestBox.getState();
-				doBootstrap = doBootstrapCheckbox.getState();
 				showConfigDetails = showConfigDetailsBox.getState();
 				partitionScheme = charPartitionButtons.getValue();
 				useConstraintTree = constraintButtons.getValue();
+				if (useConstraintTree!=NOCONSTRAINT)
+					setConstrainedSearch(true);
 				linkModels = linkModelsBox.getState();
 				subsetSpecificRates = subsetSpecificRatesBox.getState();
 				processRunnerOptions();
@@ -788,26 +808,30 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 	/* ================================================= */
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
+		finalValues=null;
+		screenFile = null;
+		screenFilePos=0;
+		runNumber = 0;
 		if (!initializeGetTrees(MolecularData.class, taxa, matrix))
 			return null;
 		//David: if isDoomed() then module is closing down; abort somehow
 		setGarliSeed(seed);
 
 		// create the data file
-		String rootDir = MesquiteFileUtil.createDirectoryForFiles(this,MesquiteFileUtil.IN_SUPPORT_DIR, "GARLI", "-Run.");
-		if (rootDir == null)
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this,MesquiteFileUtil.IN_SUPPORT_DIR, "GARLI", "-Run.");
+		if (tempDir == null)
 			return null;
 
 		if (StringUtil.blank(dataFileName))
 			dataFileName = "dataMatrix.nex"; // replace this with actual file name?
 
-		String dataFilePath = rootDir + dataFileName;
+		String dataFilePath = tempDir + dataFileName;
 		if (partitionScheme == noPartition)
-			ZephyrUtil.writeNEXUSFile(taxa, rootDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, false, false);
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, false, false);
 		else if (partitionScheme == partitionByCharacterGroups)
-			ZephyrUtil.writeNEXUSFile(taxa, rootDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, true, false);
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, true, false);
 		else if (partitionScheme == partitionByCodonPosition)
-			ZephyrUtil.writeNEXUSFile(taxa, rootDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, true, true);
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, true, true);
 
 		setFileNames();
 
@@ -822,11 +846,13 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 		//getting constraint tree if requested
 		String constraintTree = "";
-		if (useConstraintTree>NOCONSTRAINT){
+		if (useConstraintTree>NOCONSTRAINT || isConstrainedSearch()){
+			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debugg.println
+				useConstraintTree=POSITIVECONSTRAINT;
 			getConstraintTreeSource();
 			Tree constraint = null;
 			if (constraintTreeTask != null)
-				constraint = constraintTreeTask.getTree(taxa);
+				constraint = constraintTreeTask.getTree(taxa, "This will be the constraint tree");
 			if (constraint == null){
 				discreetAlert("Constraint tree is not available.");
 				return null;
@@ -857,7 +883,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 		fileContents[DATAFILENUMBER] = MesquiteFile.getFileContentsAsString(dataFilePath);
 		fileNames[DATAFILENUMBER] = dataFileName;
-		if (StringUtil.notEmpty(constraintTree)) {
+		if (isConstrainedSearch() && StringUtil.notEmpty(constraintTree)) {
 			fileContents[CONSTRAINTFILENUMBER] = constraintTree;
 			fileNames[CONSTRAINTFILENUMBER] = "constraintTree";
 		}
@@ -870,7 +896,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		for (int i=0; i<numRuns; i++) completedRuns[i]=false;
 
 
-		parametersChanged(); //just a way to ping the coordinator to update the window
+		if (updateWindow)
+			parametersChanged(); //just a way to ping the coordinator to update the window
 		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName());
 
 		if (!isDoomed()){
@@ -883,11 +910,13 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		desuppressProjectPanelReset();
 		if (data != null)
 			data.decrementEditInhibition();
+		externalProcRunner.finalCleanup();
 		return null;
 	}
 	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
-		logln("Preparing to receive GARLI trees.");
+		if (isVerbose())
+			logln("Preparing to receive GARLI trees.");
 		boolean success = false;
 		taxa = treeList.getTaxa();
 		finalScore.setValue(finalValue);
@@ -954,6 +983,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 								bestScore = finalValues[i];
 					}
 					logln("Best score: " + bestScore);
+					finalScore.setValue(bestScore);
 
 				}
 			}
@@ -965,13 +995,19 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		if (tempDataFile != null)
 			tempDataFile.close();
 		// deleteSupportDirectory();
+		externalProcRunner.finalCleanup();
+		finalValues=null;
 		if (data != null)
 			data.decrementEditInhibition();
 		if (success) {
-			postBean("successful", false);
+			if (!beanWritten)
+				postBean("successful", false);
+			beanWritten = true;
 			return t;
 		}
-		postBean("failed, retrieveTreeBlock", false);
+		if (!beanWritten)
+			postBean("failed, retrieveTreeBlock", false);
+		beanWritten=true;
 		return null;
 	}
 
@@ -1018,22 +1054,25 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 
 		if (fileNum == CURRENTTREEFILEPATH && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[CURRENTTREEFILEPATH]) && !bootstrapOrJackknife()) {
-			String treeFilePath = filePath;
-			if (taxa != null) {
-				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
-			} else
-				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
+			if (ownerModule instanceof NewTreeProcessor){ 
+				String treeFilePath = filePath;
+				if (taxa != null) {
+					TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
+					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
+				} else
+					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
+			}
 		}
 
 		if (fileNum == SCREENLOG && outputFilePaths.length > 2 && !StringUtil.blank(outputFilePaths[SCREENLOG])) {
 			if (screenFile == null) { // this is the output file
-				if (MesquiteFile.fileExists(filePath))
+				if (MesquiteFile.fileExists(filePath)) {
 					screenFile = MesquiteFile.open(true, filePath);
+				}
 				else if (MesquiteTrunk.debugMode)
 					MesquiteMessage.warnProgrammer("*** File does not exist (" + filePath + ") ***");
-			}
-			if (screenFile != null) {
+			} 
+			if (screenFile != null && MesquiteFile.fileExists(filePath)) {
 				screenFile.openReading();
 				if (!MesquiteLong.isCombinable(screenFilePos))
 					screenFilePos = 0;
@@ -1091,6 +1130,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 	/*.................................................................................................................*/
 	public boolean bootstrapOrJackknife() {
+		if (!bootstrapAllowed)
+			return false;
 		return doBootstrap;
 	}
 	public  boolean doMajRuleConsensusOfResults(){

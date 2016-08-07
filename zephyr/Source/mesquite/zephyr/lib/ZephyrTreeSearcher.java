@@ -17,7 +17,7 @@ import mesquite.lib.duties.*;
 import mesquite.zephyr.lib.*;
 
 
-public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements Reconnectable, CanRetrieveTreeBlock, ZephyrRunnerEmployer {
+public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements Reconnectable, CanRetrieveTreeBlock, ZephyrRunnerEmployer, NewTreeProcessor {
 	protected ZephyrRunner runner;
 	protected TreeSource treeRecoveryTask;
 	protected Tree latestTree = null;
@@ -38,6 +38,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (runner ==null)
 			return false;
 		runner.initialize(this);
+		runner.setUpdateWindow(true);
 		return true;
 	}
 	/*.................................................................................................................*/

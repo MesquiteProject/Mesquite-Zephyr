@@ -217,7 +217,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			addArgument(builder, sb, "vparam.specify_runs_","1");
 			addArgument(builder, sb, "vparam.altrun_number_",""+LOCnumRuns);
 		//	if (RAxML814orLater)
-			addArgument(builder, sb, "vparam.mesquite_output_","1");
+			//addArgument(builder, sb, "vparam.mesquite_output_","1");
 		}
 
 		TaxaSelectionSet outgroupSet =null;
@@ -310,7 +310,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	}
 
 	public String getName() {
-		return "RAxML CIPRes Runner";
+		return "RAxML Likelihood (CIPRes)";
 	}
 
 	/*.................................................................................................................*/

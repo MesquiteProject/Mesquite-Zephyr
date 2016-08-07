@@ -147,7 +147,7 @@ public class GarliRunnerLocal extends GarliRunner {
 	}
 
 	public String getName() {
-		return "GARLI Local Runner";
+		return "GARLI Likelihood (Local)";
 	}
 
 	public String getProgramName() {

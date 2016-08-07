@@ -324,7 +324,8 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 
 		if (!isPreflight) {
 			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, false);
-			logln("RAxML arguments: \n" + arguments.getValue() + "\n");
+			if (isVerbose())
+				logln("RAxML arguments: \n" + arguments.getValue() + "\n");
 		} else {
 			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, true);
 		}
@@ -357,7 +358,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 	}
 
 	public String getName() {
-		return "RAxML Local Runner";
+		return "RAxML Likelihood (Local)";
 	}
 
 	/*.................................................................................................................*/

@@ -46,7 +46,7 @@ public class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
 	 }
 	 /*.................................................................................................................*/
 	 public String getCitation() {
-		 return "Maddison DR and Maddison KW. 2014.  TNT Tree Searcher, in " + getPackageIntroModule().getPackageCitation();
+		 return "Maddison DR and Will KW. 2014.  TNT Tree Searcher, in " + getPackageIntroModule().getPackageCitation();
 	 }
 
 	 /*.................................................................................................................*/

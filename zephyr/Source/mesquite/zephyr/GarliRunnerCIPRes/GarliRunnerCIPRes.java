@@ -166,7 +166,7 @@ public class GarliRunnerCIPRes extends GarliRunner {
 	}
 
 	public String getName() {
-		return "GARLI CIPRes Runner";
+		return "GARLI Likelihood (CIPRes)";
 	}
 
 
