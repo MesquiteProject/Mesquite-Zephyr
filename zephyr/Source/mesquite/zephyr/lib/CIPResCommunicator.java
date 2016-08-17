@@ -22,78 +22,46 @@ import org.apache.http.entity.mime.content.FileBody;
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
 import mesquite.zephyr.lib.CipresJobFile;
+import mesquite.externalCommunication.lib.*;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
 
-public class CIPResCommunicator implements XMLPreferencesProcessor {
+public class CIPResCommunicator extends RESTCommunicator {
 	static final int defaultMinPollIntervalSeconds = 60;
 	protected int minPollIntervalSeconds =defaultMinPollIntervalSeconds;
 
 
-	String[] outputFilePaths; //local copies of files
 	String rootDir;
 	long[] lastModified;
 	CipresJobFile[] previousCipresJobFiles;
 
-	String xmlPrefsString = null;
 	static boolean preferencesProcessed=false;
-	MesquiteModule ownerModule;
 
 //	String baseURL = "https://www.phylo.org/cipresrest/v1";
 	String baseURL = "https://cipresrest.sdsc.edu/cipresrest/v1";
 	boolean verbose = MesquiteTrunk.debugMode;
 
 	int jobNumber = 3;
-	static String username = "";
-	static String password = ""; 
 	String CIPRESkey = "Mesquite-7C63884588B8438CAE456E115C9643F3";
 
 	OutputFileProcessor outputFileProcessor; // for reconnection
 	ShellScriptWatcher watcher; // for reconnection
 
 	public CIPResCommunicator (MesquiteModule mb, String xmlPrefsString,String[] outputFilePaths) {
-		if (xmlPrefsString != null)
-			XMLUtil.readXMLPreferences(mb, this, xmlPrefsString);
-		this.outputFilePaths = outputFilePaths;
-		ownerModule = mb;
+		super(mb, xmlPrefsString, outputFilePaths);
 	}
-	/*.................................................................................................................*/
-	public Snapshot getSnapshot(MesquiteFile file) { 
-		Snapshot temp = new Snapshot();
-		temp.addLine("setUsername " + ParseUtil.tokenize(username));
-		return temp;
-	}
-	Parser parser = new Parser();
-	/*.................................................................................................................*/
-	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-		if (checker.compare(this.getClass(), "Sets the username", "[username]", commandName, "setUsername")) {
-			username = parser.getFirstToken(arguments);
-		}
-		return null;
-	}	
-	public void processSingleXMLPreference (String tag, String content) {
-		processSingleXMLPreference(tag, null, content);
-
-	}
-
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String flavor, String content) {
-		if ("userName".equalsIgnoreCase(tag))
-			username = StringUtil.cleanXMLEscapeCharacters(content);
-		else if ("jobNumber".equalsIgnoreCase(tag))
+		 if ("jobNumber".equalsIgnoreCase(tag))
 			jobNumber = MesquiteInteger.fromString(content);
+		 super.processSingleXMLPreference(tag, flavor, content);
 	}
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "username", username);  
 		StringUtil.appendXMLTag(buffer, 2, "jobNumber", jobNumber);  
-		return buffer.toString();
-	}
-	/*.................................................................................................................*/
-	public void forgetPassword() {
-		password="";
+		return super.preparePreferencesForXML()+buffer.toString();
 	}
 	/*.................................................................................................................*/
 	public String getRootDir() {
@@ -114,7 +82,7 @@ public class CIPResCommunicator implements XMLPreferencesProcessor {
 	public String getBaseURL() {
 		return baseURL;
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	boolean checkUsernamePassword(boolean tellUserAboutCipres){
 		if (StringUtil.blank(username) || StringUtil.blank(password)){
 			MesquiteBoolean answer = new MesquiteBoolean(false);
