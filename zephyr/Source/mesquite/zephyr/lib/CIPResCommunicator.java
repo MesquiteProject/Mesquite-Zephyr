@@ -5,19 +5,14 @@ import java.util.*;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
 
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
@@ -31,22 +26,14 @@ public class CIPResCommunicator extends RESTCommunicator {
 	static final int defaultMinPollIntervalSeconds = 60;
 	protected int minPollIntervalSeconds =defaultMinPollIntervalSeconds;
 
-
 	String rootDir;
 	long[] lastModified;
 	CipresJobFile[] previousCipresJobFiles;
 
 	static boolean preferencesProcessed=false;
 
-//	String baseURL = "https://www.phylo.org/cipresrest/v1";
-	String baseURL = "https://cipresrest.sdsc.edu/cipresrest/v1";
-	boolean verbose = MesquiteTrunk.debugMode;
-
 	int jobNumber = 3;
 	String CIPRESkey = "Mesquite-7C63884588B8438CAE456E115C9643F3";
-
-	OutputFileProcessor outputFileProcessor; // for reconnection
-	ShellScriptWatcher watcher; // for reconnection
 
 	public CIPResCommunicator (MesquiteModule mb, String xmlPrefsString,String[] outputFilePaths) {
 		super(mb, xmlPrefsString, outputFilePaths);
@@ -80,32 +67,15 @@ public class CIPResCommunicator extends RESTCommunicator {
 
 	/*.................................................................................................................*/
 	public String getBaseURL() {
-		return baseURL;
+		return "https://cipresrest.sdsc.edu";
 	}
-	/*.................................................................................................................*
-	boolean checkUsernamePassword(boolean tellUserAboutCipres){
-		if (StringUtil.blank(username) || StringUtil.blank(password)){
-			MesquiteBoolean answer = new MesquiteBoolean(false);
-			MesquiteString usernameString = new MesquiteString();
-			if (username!=null)
-				usernameString.setValue(username);
-			MesquiteString passwordString = new MesquiteString();
-			if (password!=null)
-				passwordString.setValue(password);
-			String help = "You need an account on the CIPRes REST system to use this service.  To register, go to https://www.phylo.org/restusers/register.action";
-			new UserNamePasswordDialog(ownerModule.containerOfModule(), "Sign in to CIPRes", help, "", "Username", "Password", answer, usernameString, passwordString);
-			if (answer.getValue()){
-				username=usernameString.getValue();
-				password=passwordString.getValue();
-			}
-			ownerModule.storePreferences();
-		}
-		boolean success = StringUtil.notEmpty(username) && StringUtil.notEmpty(password);
-		if (!success && tellUserAboutCipres) {
-			MesquiteMessage.discreetNotifyUser("Use of the CIPRes service requires an account with CIPRes's REST service.  Go to https://www.phylo.org/restusers/register.action to register for an account");
-		}
-		return success;
-
+	/*.................................................................................................................*/
+	public String getRESTURL() {
+		return "https://cipresrest.sdsc.edu/cipresrest/v1";
+	}
+	/*.................................................................................................................*/
+	public String getAPIURL() {
+		return "";
 	}
 
 	/*.................................................................................................................*/
@@ -128,14 +98,6 @@ public class CIPResCommunicator extends RESTCommunicator {
 		return null;
 	}
 
-	/*.................................................................................................................*/
-	public HttpClient getHttpClient(){
-		// from http://www.artima.com/forums/flat.jsp?forum=121&thread=357685
-		CredentialsProvider provider = new BasicCredentialsProvider();
-		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
-		provider.setCredentials(AuthScope.ANY, credentials);
-		return HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
-	}
 	/*.................................................................................................................*/
 
 	public void reportError(Document doc, String noteToUser, boolean resetPassword) {
@@ -258,7 +220,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 	public boolean postJob(HttpClient httpclient, MultipartEntityBuilder builder, MesquiteString jobURL){
 		if (builder==null)
 			return false;
-		String URL = baseURL + "/job/" + username;
+		String URL = getRESTURL() + "/job/" + username;
 		HttpPost httppost = new HttpPost(URL);
 		httppost.addHeader("cipres-appkey", CIPRESkey); 
 
@@ -748,7 +710,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 	/*.................................................................................................................*/
 	/** This method simply lists the tools available */
 	public void  listTools(HttpClient httpclient){
-		Document cipresResponseDoc = cipresQuery(httpclient, baseURL + "/tool", "tools");
+		Document cipresResponseDoc = cipresQuery(httpclient, getRESTURL() + "/tool", "tools");
 		if (cipresResponseDoc!=null) {
 			String elementName = "tool";
 			List tools = cipresResponseDoc.getRootElement().elements(elementName);
@@ -807,7 +769,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 	/*.................................................................................................................*/
 	/** This method returns an array of Strings containing the URLs for the jobs for the current user */
 	public String[] getJobURLs(HttpClient httpclient) {
-		Document cipresResponseDoc = cipresQuery(httpclient, baseURL + "/job/" + username, "joblist");
+		Document cipresResponseDoc = cipresQuery(httpclient, getRESTURL() + "/job/" + username, "joblist");
 		if (cipresResponseDoc!=null) {
 			String[] jobList = getJobURLs(cipresResponseDoc);
 			return jobList;
@@ -817,7 +779,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 	/*.................................................................................................................*/
 	/** Lists to the log the current jobs of the user */
 	public void  listJobs(HttpClient httpclient){
-		Document cipresResponseDoc = cipresQuery(httpclient, baseURL + "/job/" + username, "joblist");
+		Document cipresResponseDoc = cipresQuery(httpclient, getRESTURL() + "/job/" + username, "joblist");
 		if (cipresResponseDoc!=null) {
 			String[] jobList = getJobURLs(cipresResponseDoc);
 			if (jobList!=null)
@@ -880,6 +842,17 @@ public class CIPResCommunicator extends RESTCommunicator {
 			HttpClient httpclient = getHttpClient();
 			listTools(httpclient);
 		}
+	}
+
+	/*.................................................................................................................*/
+	public String getRegistrationURL(){
+		return "https://www.phylo.org/restusers/register.action";
+	}
+
+	/*.................................................................................................................*/
+	public  String getSystemName() {
+		return "CIPRes";
+
 	}
 
 
