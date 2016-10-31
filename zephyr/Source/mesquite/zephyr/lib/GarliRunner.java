@@ -27,7 +27,7 @@ import mesquite.molec.lib.Blaster;
 import mesquite.zephyr.lib.*;
 import mesquite.zephyr.lib.*;
 
-public abstract class GarliRunner extends ZephyrRunner implements ItemListener, ExternalProcessRequester {
+public abstract class GarliRunner extends ZephyrRunner implements ItemListener, ActionListener, ExternalProcessRequester {
 	public static final String SCORENAME = "GARLIScore";
 
 	boolean onlyBest = true;
@@ -141,9 +141,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		return true;
 	}
 	/*.................................................................................................................*/
-	 public String getProgramURL() {
-		 return "https://code.google.com/p/garli/";
-	 }
+	public String getProgramURL() {
+		return "https://code.google.com/p/garli/";
+	}
 	/* ................................................................................................................. */
 	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */
 	public String purposeOfEmployee(MesquiteModule employee) {
@@ -162,7 +162,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
-	 /*.................................................................................................................*/
+	/*.................................................................................................................*/
 	public String getHTMLDescriptionOfStatus(){
 		String s = "";
 		if (getRunInProgress()) {
@@ -365,21 +365,21 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	}
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
-			appendToSearchDetails("Search details: \n");
-			if (bootstrapOrJackknife()){
-				appendToSearchDetails("   Bootstrap analysis\n");
-				appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
-			} else {
-				appendToSearchDetails("   Search for maximum-likelihood tree\n");
-				appendToSearchDetails("   "+numRuns + " search replicate");
-				if (numRuns>1)
-					appendToSearchDetails("s");
-			}
-			/*		MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(), false);
+		appendToSearchDetails("Search details: \n");
+		if (bootstrapOrJackknife()){
+			appendToSearchDetails("   Bootstrap analysis\n");
+			appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
+		} else {
+			appendToSearchDetails("   Search for maximum-likelihood tree\n");
+			appendToSearchDetails("   "+numRuns + " search replicate");
+			if (numRuns>1)
+				appendToSearchDetails("s");
+		}
+		/*		MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(), false);
 		if (arguments!=null && !arguments.isBlank()){
 			appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString()); 
 		} */
-		
+
 	}
 
 	/*.................................................................................................................*/
@@ -603,6 +603,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			useConstraintTree = NOCONSTRAINT;
 		this.constrainedSearch = constrainedSearch;
 	}
+	Button setByModelNameButton;
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options")) // Debugg.println needs to check that options set well enough to proceed anyway
@@ -644,7 +645,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			treeInferer.addItemsToDialogPanel(dialog);
 
 		IntegerField bootStrapRepsField=null;
-		
+
 		if (bootstrapAllowed) {
 			tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
 			doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
@@ -707,6 +708,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			// previous
 			customMatrix.setEditable(false);
 			customMatrix.setBackground(ColorDistribution.veryLightGray);
+			setByModelNameButton = dialog.addAListenedButton("Set by Model Name...",null, this);
+			setByModelNameButton.setActionCommand("setByModelName");
 			stateFreqChoice = dialog.addPopUpMenu("State Frequencies", new String[] {"Equal", "Empirical", "Estimate" }, 2);  
 		}
 		rateMatrixChoice.addItemListener(this);
@@ -922,7 +925,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		finalScore.setValue(finalValue);
 
 		suppressProjectPanelReset();
-		
+
 		FileCoordinator coord = getFileCoordinator();
 		MesquiteFile tempDataFile = null;
 		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
@@ -1192,6 +1195,114 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			constraintTreeTask = (OneTreeSource)hireEmployee(OneTreeSource.class, "Source of constraint tree");
 		}
 		return constraintTreeTask;
+	}
+	/*.................................................................................................................*/
+	public  void actionPerformed(ActionEvent e) {
+		if (e.getActionCommand().equalsIgnoreCase("setByModelName")) {
+			MesquiteString name = new MesquiteString();
+			QueryDialogs.queryString(containerOfModule(), "Set by Model Name", "Model Name:", name);
+			if (!name.isBlank()) {
+				String modelName = name.getValue();
+				 if (modelName.equalsIgnoreCase("JC")) {
+					rateMatrixChoice.select("Equal Rates");
+					customMatrix.setText("1rate");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("F81")) {
+					rateMatrixChoice.select("Equal Rates");
+					customMatrix.setText("1rate");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("K80")) {
+					rateMatrixChoice.select("2-Parameter");
+					customMatrix.setText("2rate");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("HKY")) {
+					rateMatrixChoice.select("2-Parameter");
+					customMatrix.setText("2rate");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TRNef") || modelName.equalsIgnoreCase("TRNe")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 0 0 2 0)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TrN")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 0 0 2 0)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TPM1")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 2 1 0)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TPM1uf") || modelName.equalsIgnoreCase("TPM1u")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 2 1 0)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TPM2")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 0 2 1 2)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TPM2uf") || modelName.equalsIgnoreCase("TPM2u")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 0 2 1 2)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TPM3")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 0 1 2)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TPM3uf") || modelName.equalsIgnoreCase("TPM3u")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 0 1 2)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TIM1ef") || modelName.equalsIgnoreCase("TIM1e")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 2 3 0)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TIM1")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 2 3 0)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TIM2ef") || modelName.equalsIgnoreCase("TIM2e")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 0 2 3 2)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TIM2")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 0 2 3 2)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TIM3ef") || modelName.equalsIgnoreCase("TIM3e")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 0 3 2)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TIM3")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 0 3 2)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TVMef") || modelName.equalsIgnoreCase("TVMe")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 3 1 4)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TVM")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 3 1 4)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("SYM")) {
+					rateMatrixChoice.select("GTR");
+					customMatrix.setText("6rate");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("GTR")) {
+					rateMatrixChoice.select("GTR");
+					customMatrix.setText("6rate");
+					stateFreqChoice.select("Estimate");
+				} 
+
+				if ("Custom".equalsIgnoreCase(rateMatrixChoice.getSelectedItem())) {
+					customMatrix.setEditable(true);
+					customMatrix.setBackground(Color.white);
+				} else {
+					customMatrix.setEditable(false);
+					customMatrix.setBackground(ColorDistribution.veryLightGray);
+				}
+
+			}
+		}
 	}
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent e) {
