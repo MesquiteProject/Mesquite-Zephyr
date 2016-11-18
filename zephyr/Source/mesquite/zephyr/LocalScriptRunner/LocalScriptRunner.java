@@ -199,9 +199,9 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	/*.................................................................................................................*/
 	public String getExecutableCommand(){
 		if (MesquiteTrunk.isWindows())
-			return StringUtil.protectForWindows(executablePath);
+			return StringUtil.protectFilePathForWindows(executablePath);
 		else
-			return StringUtil.protectForUnix(executablePath);
+			return StringUtil.protectFilePathForUnix(executablePath);
 	}
 	
 	String runningFilePath = "";
