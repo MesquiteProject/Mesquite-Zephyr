@@ -188,12 +188,14 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		executablePath = executablePathField.getText();
 		if (visibleTerminalCheckBox!=null)
 			visibleTerminal = visibleTerminalCheckBox.getState();
+		else if (processRequester.localMacRunsRequireTerminalWindow())
+			visibleTerminal=true;
 		if (deleteAnalysisDirectoryCheckBox!=null)
 			deleteAnalysisDirectory = deleteAnalysisDirectoryCheckBox.getState();
 		return true;
 	}
 	public boolean visibleTerminalOptionAllowed(){
-		return MesquiteTrunk.isMacOSX();
+		return MesquiteTrunk.isMacOSX() && !processRequester.localMacRunsRequireTerminalWindow();
 	}
 
 	/*.................................................................................................................*/

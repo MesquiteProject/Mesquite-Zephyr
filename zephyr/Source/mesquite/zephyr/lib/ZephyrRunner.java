@@ -82,6 +82,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			this.constrainSearchAllowed = constrainSearchAllowed;;
 		}
 
+		public boolean localMacRunsRequireTerminalWindow(){
+			return false;
+		}
+
 	/*.................................................................................................................*/
 	 public String getProgramURL() {
 		 return "";

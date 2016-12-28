@@ -268,7 +268,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			if (constraint==null) { // we don't have one
 				getConstraintTreeSource();
 				if (constraintTreeTask != null)
-					constraint = constraintTreeTask.getTree(taxa, "This will be the constaint tree");
+					constraint = constraintTreeTask.getTree(taxa, "This will be the constraint tree");
 			}
 			if (constraint == null){
 				discreetAlert("Constraint tree is not available.");

@@ -48,6 +48,22 @@ public class PAUPParsimonyTrees extends ZephyrTreeSearcher implements ParsimonyA
 	public boolean requestPrimaryChoice(){
 		return true;
 	}
+	
+	public String getExtraTreeWindowCommands (){
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, false)+ eachTreeCommands();
+	}
+
+	
+	public String eachTreeCommands (){
+		String commands="";
+		if (rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) {
+			commands += " rootAlongBranch " + rerootNode + "; ";
+		}
+		commands += " ladderize root; ";
+
+		return commands;
+	}
+
 	/*.................................................................................................................*/
 	public String getMethodNameForTreeBlock() {
 		return " MP";

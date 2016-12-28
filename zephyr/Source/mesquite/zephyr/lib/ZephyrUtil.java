@@ -538,8 +538,8 @@ public class ZephyrUtil {
 	}
 	
 	
-	public static String getStandardExtraTreeWindowCommands (boolean doMajRule, boolean isBootstrap, long treeBlockID){
-		String commands = "setSize 400 600;  ";
+	public static String getStandardExtraTreeWindowCommands (boolean doMajRule, boolean isBootstrap, long treeBlockID, boolean branchLengthsProportional){
+		String commands = "";//"setSize 400 600;  ";
 		if (doMajRule){  //Debugg.println:  Temporary tree window can't handle this doMajRule, so an error is given when file reread.
 			commands += "getOwnerModule; tell It; setTreeSource  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";
 			commands += " setTreeBlockByID " + treeBlockID + ";";
@@ -551,7 +551,7 @@ public class ZephyrUtil {
 		
 		
 		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
-		if (!isBootstrap)
+		if (!isBootstrap && branchLengthsProportional)
 			commands += " tell It; branchLengthsToggle on; endTell; ";
 		commands += " setEdgeWidth 3; endTell; ";  // endTell is for SquareLineTree
 		if (isBootstrap){

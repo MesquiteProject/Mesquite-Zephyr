@@ -137,7 +137,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 
 	public String getExtraTreeWindowCommands (){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred)+ eachTreeCommands();
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, true)+ eachTreeCommands();
 	}
 
 
