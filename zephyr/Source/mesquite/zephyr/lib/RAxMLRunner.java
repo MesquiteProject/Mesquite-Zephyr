@@ -48,6 +48,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected boolean preferencesSet = false;
 	protected boolean isProtein = false;
 
+	protected boolean nobfgs = false;
 	protected int bootstrapreps = 100;
 	protected int bootstrapSeed = Math.abs((int)System.currentTimeMillis());
 	protected static String dnaModel = "GTRGAMMAI";
@@ -73,7 +74,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected javax.swing.JLabel commandLabel;
 	protected SingleLineTextArea commandField;
 	protected IntegerField numRunsField, bootStrapRepsField;
-	protected Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox;
+	protected Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox, nobfgsCheckBox;
 	RadioButtons constraintButtons;
 	RadioButtons threadingRadioButtons;
 	//	int count=0;
@@ -152,6 +153,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		}
 		if ("onlyBest".equalsIgnoreCase(tag))
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
+		if ("nobfgs".equalsIgnoreCase(tag))
+			nobfgs = MesquiteBoolean.fromTrueFalseString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
 			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
 
@@ -166,6 +169,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
+		StringUtil.appendXMLTag(buffer, 2, "nobfgs", nobfgs);  
 		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
 
 		preferencesSet = true;
@@ -284,6 +288,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		 */
 
 		tabbedPanel.addPanel("Other options", true);
+		nobfgsCheckBox = dialog.addCheckBox("no bfgs option", nobfgs);
 		otherOptionsField = dialog.addTextField("Other RAxML options:", otherOptions, 40);
 
 
@@ -315,6 +320,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				} else
 					doBootstrap=false;
 				onlyBest = onlyBestBox.getState();
+				nobfgs = nobfgsCheckBox.getState();
+
 				useConstraintTree = constraintButtons.getValue();
 				if (useConstraintTree!=NOCONSTRAINT)
 					setConstrainedSearch(true);
