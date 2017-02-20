@@ -36,6 +36,8 @@ public class GarliRunnerLocal extends GarliRunner {
 	String dataFileName = "dataMatrix.nex";
 	int bootstrapreps = 100;
 	int availMemory = 1024;
+	int numProcessors = 0;
+	
 
 	/*.................................................................................................................*/
 	 public String getExternalProcessRunnerModuleName(){
@@ -50,10 +52,13 @@ public class GarliRunnerLocal extends GarliRunner {
 	 public Object getProgramArguments(String dataFileName, String configFileName, boolean isPreflight) {
 
 		 MesquiteString arguments = new MesquiteString();
+		 String additionalArguments = "";
+		 if (numProcessors>0)
+			 externalProcRunner.setAdditionalShellScriptCommands("export OMP_NUM_THREADS="+numProcessors);
 		 if (externalProcRunner.isWindows())
-			 arguments.setValue(" --batch " + configFileName);
+			 arguments.setValue(" --batch " + configFileName+additionalArguments);
 		 else
-			 arguments.setValue(""); // GARLI command is very simple as all of the arguments are in the config file
+			 arguments.setValue(additionalArguments); // GARLI command is very simple as all of the arguments are in the config file
 		 return arguments;
 	 }
 
@@ -76,7 +81,7 @@ public class GarliRunnerLocal extends GarliRunner {
 			config.append("\n\nrandseed = " + randseed); // important to be user-editable
 
 			config.append("\nsearchreps = " + numRuns);
-
+			
 			config.append("\n");
 		}
 	}
@@ -91,6 +96,8 @@ public class GarliRunnerLocal extends GarliRunner {
 		
 		if ("availMemory".equalsIgnoreCase(tag))
 			availMemory = MesquiteInteger.fromString(content);
+		if ("numProcessors".equalsIgnoreCase(tag))
+			numProcessors = MesquiteInteger.fromString(content);
 		super.processSingleXMLPreference(tag, content);
 	}
 
@@ -98,6 +105,7 @@ public class GarliRunnerLocal extends GarliRunner {
 	public String preparePreferencesForXML() {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "availMemory", availMemory);
+		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
 		buffer.append(super.preparePreferencesForXML());
 		return buffer.toString();
 	}
@@ -108,15 +116,20 @@ public class GarliRunnerLocal extends GarliRunner {
 		return "2.0";
 	}
 	IntegerField availableMemoryField;
+	IntegerField numProcessorsField;
 
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		externalProcRunner.addItemsToDialogPanel(dialog);
 		availableMemoryField = dialog.addIntegerField("Memory for GARLI (MB)", availMemory, 8, 256, MesquiteInteger.infinite);
+		numProcessorsField = dialog.addIntegerField("Number of Processors (to use all processors, enter 0)", numProcessors, 8, 0, MesquiteInteger.infinite);
+	//	dialog.addLabel("(To use all processors, enter 0)");
+		
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
 		availMemory = availableMemoryField.getValue();
+		numProcessors = numProcessorsField.getValue(); //
 	}
 
 	/*.................................................................................................................*/

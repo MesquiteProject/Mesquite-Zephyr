@@ -238,6 +238,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		runningFilePath = rootDir + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);
 		StringBuffer shellScript = new StringBuffer(1000);
 		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
+		if (StringUtil.notEmpty(additionalShellScriptCommands))
+			shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
 		shellScript.append(programCommand + " " + args+ StringUtil.lineEnding());
 		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
 

@@ -41,6 +41,11 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public String getInputFilePath(int i){ 
 		return null;
 	}
+	protected String additionalShellScriptCommands = "";
+	/*.................................................................................................................*/
+	public void setAdditionalShellScriptCommands(String additionalShellScriptCommands) {
+		this.additionalShellScriptCommands = additionalShellScriptCommands;
+	}
 
 	/*.................................................................................................................*/
 	public String getDirectoryPath(){  
