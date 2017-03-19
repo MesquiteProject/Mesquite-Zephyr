@@ -216,9 +216,9 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 				sb.append("\t" + customSearchOptions + "\n");
 			}
 			if (getConsensus)
-				sb.append("\tcontree all/strict=yes treefile=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
+				sb.append("\t\ncontree all/strict=yes treefile=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
 			else
-				sb.append("\tsavetrees file=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
+				sb.append("\t\nroot rootmethod=outgroup outroot=paraphyl;\nsavetrees file=" + StringUtil.tokenize(outputTreeFileName) + " root;\n");
 			sb.append("\tpscore 1 / scorefile=" + StringUtil.tokenize(scoreFileName) + ";\n");
 		}
 		return sb.toString();

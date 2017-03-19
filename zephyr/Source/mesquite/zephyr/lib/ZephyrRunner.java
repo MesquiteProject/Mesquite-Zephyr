@@ -5,7 +5,7 @@ Zephry's web site is http://mesquitezephyr.wikispaces.com
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
-*/
+ */
 
 package mesquite.zephyr.lib;
 
@@ -20,7 +20,7 @@ import mesquite.lib.characters.MCharactersDistribution;
 import mesquite.lib.duties.TreeInferer;
 
 public abstract class ZephyrRunner extends MesquiteModule implements ExternalProcessRequester, OutputFilePathModifier{
-	
+
 	protected TreeInferer treeInferer = null;
 
 	String[] logFileNames;
@@ -50,7 +50,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean beanWritten = false;
 	boolean verbose=true;
 
-	
+	protected Tree constraint = null;
+
+
 	protected String outgroupTaxSetString = "";
 	protected int outgroupTaxSetNumber = 0;
 
@@ -58,8 +60,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore);
 	public abstract boolean bootstrapOrJackknife();
 	public abstract boolean showMultipleRuns();
-	
-	
+
+
 	public TreeInferer getTreeInferer() {
 		return treeInferer;
 	}
@@ -67,29 +69,30 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		this.treeInferer = treeInferer;
 	}
 
-	 public boolean stopExecution(){
-		 return externalProcRunner.stopExecution();
-	 }
+	public boolean stopExecution(){
+		return externalProcRunner.stopExecution();
+	}
 
-		public String getResamplingKindName() {
-			return "Bootstrap";
-		}
+	public String getResamplingKindName() {
+		return "Bootstrap";
+	}
 
-		public boolean getConstrainedSearchAllowed() {
-			return constrainSearchAllowed;
-		}
-		public void setConstainedSearchAllowed(boolean constrainSearchAllowed) {
-			this.constrainSearchAllowed = constrainSearchAllowed;;
-		}
+	public boolean getConstrainedSearchAllowed() {
+		return constrainSearchAllowed;
+	}
+	public void setConstainedSearchAllowed(boolean constrainSearchAllowed) {
+		this.constrainSearchAllowed = constrainSearchAllowed;;
+	}
+	
 
-		public boolean localMacRunsRequireTerminalWindow(){
-			return false;
-		}
+	public boolean localMacRunsRequireTerminalWindow(){
+		return false;
+	}
 
 	/*.................................................................................................................*/
-	 public String getProgramURL() {
-		 return "";
-	 }
+	public String getProgramURL() {
+		return "";
+	}
 
 	public boolean isConstrainedSearch() {
 		return constrainedSearch;
@@ -146,14 +149,14 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract void reconnectToRequester(MesquiteCommand command);
 	public abstract String getProgramName();
 	public abstract boolean queryOptions();
-	
+
 	public abstract String[] getLogFileNames();
 	protected SimpleTaxonNamer namer = new SimpleTaxonNamer();
 
-	 /*.................................................................................................................*/
-		public String getHTMLDescriptionOfStatus(){
-			return "";
-		}
+	/*.................................................................................................................*/
+	public String getHTMLDescriptionOfStatus(){
+		return "";
+	}
 
 	public void endJob(){
 		if (progIndicator!=null)
@@ -174,8 +177,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			searchDetails.append("Trees acquired from " + getProgramName() + " using Mesquite's Zephyr package. \n");
 			searchDetails.append("Analysis started " + getDateAndTime()+ "\n");
 			if (StringUtil.notEmpty(externalProcRunner.getDirectoryPath()))
-					searchDetails.append("Results stored in folder: " + externalProcRunner.getDirectoryPath()+ "\n");
-	}
+				searchDetails.append("Results stored in folder: " + externalProcRunner.getDirectoryPath()+ "\n");
+		}
 	}
 	/*.................................................................................................................*/
 	public void setExtraSearchDetails(String s) {   // for annotation to tree block;  can include things before search is started. 
@@ -209,7 +212,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public void appendToExtraSearchDetails(String s) {
 		if (extraSearchDetails==null)
 			extraSearchDetails = new StringBuffer();
-			extraSearchDetails.append(s);
+		extraSearchDetails.append(s);
 	}
 	public StringBuffer getExtraSearchDetails(){
 		return extraSearchDetails;
@@ -259,7 +262,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
-		
+
 	}
 	/*.................................................................................................................*/
 	public String getPreflightLogFileName(){
@@ -295,18 +298,18 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	public void setFileNames () {
 	}
-	
-	
+
+
 	public void initializeMonitoring () {
 	}
-	
+
 
 	/*.................................................................................................................*/
 	/** Override this to provide any subclass-specific initialization code needed before QueryOptions is called. */
 	public boolean initializeJustBeforeQueryOptions(){
 		return true;
 	}
-	
+
 	/*.................................................................................................................*/
 	protected StringBuffer searchDetails = new StringBuffer();
 	protected StringBuffer extraSearchDetails = new StringBuffer();
@@ -322,7 +325,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		temp.addLine("recoverSearchDetails " + ParseUtil.tokenize(searchDetails.toString()));
 		temp.addLine("recoverExtraSearchDetails " + ParseUtil.tokenize(extraSearchDetails.toString()));
 		temp.addLine("recoverAddendumToTreeBlockName " + ParseUtil.tokenize(addendumToTreeBlockName.toString()));
-			
+
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -373,7 +376,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			return false;
 		}
 		optionsHaveBeenSet = true;
-		
+
 		initializeMonitoring();
 		data.incrementEditInhibition();
 		rng = new Random(System.currentTimeMillis());
@@ -386,7 +389,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	/*.................................................................................................................*/
 	public boolean runPreflightCommand (String preflightCommand) {
-		
+
 		boolean success = externalProcRunner.setPreflightInputFiles(preflightCommand);
 
 		String preflightLogFileName = getPreflightLogFileName();
@@ -394,8 +397,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 		// starting the process
 		success = externalProcRunner.startExecution();
-		
-		
+
+
 		// the process runs
 		if (success) {
 			String preflightFile = externalProcRunner.getPreflightFile(preflightLogFileName);
@@ -429,7 +432,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle) {
 		runInProgress=true;
-		
+
 		/*  ============ SETTING UP THE RUN ============  */
 		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, fileContents, fileNames);
 		if (!success){
@@ -453,13 +456,13 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			MesquiteMessage.logCurrentTime("\nStart of constrained "+getProgramName()+" analysis: ");
 		else 
 			MesquiteMessage.logCurrentTime("\nStart of unconstrained "+getProgramName()+" analysis: ");
-		
+
 		timer.start();
 		timer.fullReset();
 
 		// starting the process
 		success = externalProcRunner.startExecution();
-		
+
 		// the process runs
 		if (success)
 			success = externalProcRunner.monitorExecution();
@@ -485,20 +488,20 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			progIndicator.goAway();
 		return success;
 	}
-	
+
 
 	/*.................................................................................................................*/
 	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
-		
+
 		if (isVerbose()) 
 			logln("Monitoring " + getProgramName() + " run begun.");
-			
+
 		String callBackArguments = callBackCommand.getDefaultArguments();
 		String taxaID = parser.getFirstToken(callBackArguments);
 		if (taxaID !=null)
 			taxa = getProject().getTaxa(taxaID);
-		
-	//	getProject().incrementProjectWindowSuppression();
+
+		//	getProject().incrementProjectWindowSuppression();
 
 		initializeMonitoring();
 		setFileNames();
@@ -509,18 +512,18 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (inferer != null)
 			((TreeInferer)inferer).bringIntermediatesWindowToFront();*/
 		boolean success = externalProcRunner.monitorExecution();
-		
-		
+
+
 		if (progIndicator!=null)
 			progIndicator.goAway();
-//		if (getProject() != null)
-//			getProject().decrementProjectWindowSuppression();
+		//		if (getProject() != null)
+		//			getProject().decrementProjectWindowSuppression();
 		if (data != null)
 			data.decrementEditInhibition();
 		if (!isDoomed())
 			if (callBackCommand != null)
 				callBackCommand.doItMainThread(null,  null,  this);
-		
+
 		return null;
 	}	
 

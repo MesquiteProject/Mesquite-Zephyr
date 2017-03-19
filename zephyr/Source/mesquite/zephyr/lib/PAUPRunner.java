@@ -25,7 +25,7 @@ import mesquite.zephyr.lib.*;
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
  */
 
-public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, ExternalProcessRequester, PAUPCommander {
+public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, ExternalProcessRequester, PAUPCommander, ConstrainedSearcher {
 	public static final String SCORENAME = "PAUPScore";
 	Random rng;
 	String datafname = null;
@@ -48,7 +48,6 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	protected static final int BACKBONE = 2;
 	protected int useConstraintTree = NOCONSTRAINT;
 
-	protected Tree constraint = null;
 
 
 	SingleLineTextField PAUPPathField =  null;
@@ -481,6 +480,13 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		}
 
 	}
+
+	public String getConstraintTreeName() {
+		if (constraint==null)
+			return null;
+		return constraint.getName();
+	}
+
 
 	/*.................................................................................................................*
    	public void setPAUPPath(String PAUPPath){

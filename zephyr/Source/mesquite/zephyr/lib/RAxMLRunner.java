@@ -30,7 +30,7 @@ outgroups
 
  */
 
-public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
+public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester, ConstrainedSearcher  {
 
 	boolean onlyBest = true;
 
@@ -60,7 +60,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected static final int SKELETAL = 2;
 	protected int useConstraintTree = NOCONSTRAINT;
 
-	protected Tree constraint = null;
 
 	long summaryFilePosition =0;
 
@@ -214,6 +213,13 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public int minimumNumSearchReplicates() {
 		return 1;
 	}
+	public String getConstraintTreeName() {
+		if (constraint==null)
+			return null;
+		return constraint.getName();
+	}
+
+
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
