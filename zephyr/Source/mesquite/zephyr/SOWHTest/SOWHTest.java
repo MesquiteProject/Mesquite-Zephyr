@@ -92,9 +92,11 @@ public class SOWHTest extends TreeWindowAssistantA    {
 			containingWindow.addSidePanel(panel = new SOWHPanel(), 250);
 		}
 
+		makeMenu("SOWH Test");
+
 		//	addMenuItem( "Choose Character...", makeCommand("chooseCharacter",  this));
-		//	addMenuItem( "Close Character-Associated Diversification Analysis", makeCommand("close",  this));
-		addMenuSeparator();
+		addMenuItem( "Close SOWH Test", makeCommand("close",  this));
+		//addMenuSeparator();
 
 		return true;
 	}
@@ -200,6 +202,11 @@ public class SOWHTest extends TreeWindowAssistantA    {
 
 		if (checker.compare(this.getClass(), "Provokes Calculation", null, commandName, "doCounts")) {
 			doCounts();
+		}
+		else if (checker.compare(this.getClass(), "Quits", null, commandName, "close")) {
+			if (panel != null && containingWindow != null)
+				containingWindow.removeSidePanel(panel);
+			iQuit();
 		}
 		else if (checker.compare(this.getClass(), "Quits", null, commandName, "close")) {
 			if (panel != null && containingWindow != null)
@@ -454,6 +461,8 @@ public class SOWHTest extends TreeWindowAssistantA    {
 
 		panel.setStatus(false);
 		panel.repaint();
+		
+		logln("SOWH Test completed.");
 		//		window.append("\n\n  " + rs);
 	}
 	/*.................................................................................................................*/
