@@ -79,7 +79,7 @@ public class SOWHTest extends TreeWindowAssistantA    {
 
 		runner = (ZephyrRunner)hireEmployee(ConstrainedSearcher.class, "External tree searcher");
 		
-		if (runner ==null)
+		if (runner ==null || !(runner instanceof ZephyrRunner))
 			return false;
 		runner.initialize(this);
 		runner.setBootstrapAllowed(false);
@@ -163,19 +163,16 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		iQuit();
 	}
 	/*.................................................................................................................*/
-	public boolean satisfiesSnapshotMode(){
-		return false;
-	}
-
-	/*.................................................................................................................*
 	public Snapshot getSnapshot(MesquiteFile file) { 
-		final Snapshot temp = new Snapshot();
+		return null;   // returning null ensures it won't be saved in file.
+		
+		/*final Snapshot temp = new Snapshot();
 		temp.addLine("setCalculator ", numberTask); 
 		temp.addLine("setMatrixSource ", matrixSourceTask); 
 		temp.addLine("setCharacter " + CharacterStates.toExternal(current)); 
 		temp.addLine("doCounts");
 
-		return temp;
+		return temp;*/
 	}
 		/*.................................................................................................................*/
 	public boolean queryOptions() {
@@ -308,13 +305,14 @@ public class SOWHTest extends TreeWindowAssistantA    {
 	/*.................................................................................................................*/
 	/** This calculates the value of the test statistic, delta.  Delta is the tree score of the optimal tree that is constrained to match the
 	 * constraint tree minus the tree score of the optimal unconstrained tree.  This method invokes the tree searcher, whatever it might be.
+	 * If rep >= 0, then this is the replicate number.
+	 * If rep is < 0, this indicates calculating the observed matrix value.
 	 */
 	public double calculateDelta(MCharactersDistribution data, int rep, int totalReps) {
 		if (taxa==null) 
 			taxa=data.getTaxa();
 		TreeVector trees = new TreeVector(taxa);
 
-		CommandRecord.tick(runner.getProgramName() + " SOWH test in progress, replicate " + (rep+1) + " of " + totalReps );
 
 		Random rng = new Random(System.currentTimeMillis());
 
@@ -323,11 +321,16 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		MesquiteDouble unconstrainedScore = new MesquiteDouble();
 		MesquiteDouble constrainedScore = new MesquiteDouble();
 
-		if (rep>=0) {
+		if (rep>=0) {  // one of the simulation replicates
+			CommandRecord.tick(runner.getProgramName() + " SOWH test in progress, replicate " + (rep+1) + " of " + totalReps );
 			logln("_______________");
 			logln("Replicate " + (rep+1) + " of " + totalReps);
-		} else
+			runner.setExtraQueryOptionsTitle("Simulated Matrix");
+		} else {
+			CommandRecord.tick(runner.getProgramName() + " SOWH test in progress, calculating observed value" );
 			logln("Calculating observed value of delta");
+			runner.setExtraQueryOptionsTitle("Observed Matrix");
+		}
 
 		runner.setVerbose(rep<0);
 
@@ -421,7 +424,7 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		stateClass = observedStates.getStateClass();
 		//		window.setText("");
 		clearLastResult();
-		panel.setStatus(true);
+		panel.setCalculating(true);
 		panel.repaint();
 		panel.setCalculatingObserved(true);
 		double observedDelta = calculateDelta(observedStates, -1, -1);
@@ -459,7 +462,7 @@ public class SOWHTest extends TreeWindowAssistantA    {
 
 		}
 
-		panel.setStatus(false);
+		panel.setCalculating(false);
 		panel.repaint();
 		
 		logln("SOWH Test completed.");
@@ -488,7 +491,8 @@ public class SOWHTest extends TreeWindowAssistantA    {
 }
 
 class SOWHPanel extends MousePanel{
-	int titleHeight = 50;
+	int numRowsInTitle = 3;
+	int titleHeight = 3*22+4;
 	int pValueHeight = 30;
 	TextArea text;
 	StringBuffer initialText;
@@ -497,6 +501,7 @@ class SOWHPanel extends MousePanel{
 	int topOfText = titleHeight+pValueHeight + 2;
 	double pValue = MesquiteDouble.unassigned;
 	boolean calculatingObserved = true;
+	boolean hasCalculated = false;
 	
 	public SOWHPanel(){
 		super();
@@ -510,8 +515,10 @@ class SOWHPanel extends MousePanel{
 		setBackground(Color.darkGray);
 		text.setBackground(Color.white);
 	}
-	public void setStatus(boolean calculating){
+	public void setCalculating(boolean calculating){
 		this.calculating = calculating;
+		if (calculating)
+			hasCalculated = true;
 	}
 	public void appendToInitialPanelText(String t){
 		initialText.append(t);
@@ -528,7 +535,7 @@ class SOWHPanel extends MousePanel{
 		g.fillRect(0,titleHeight, getBounds().width, pValueHeight);
 		if (MesquiteDouble.isCombinable(pValue)) {
 			g.setColor(Color.blue);
-			g.drawString("p value: " + MesquiteDouble.toStringDigitsSpecified(pValue, 4), 8, titleHeight+pValueHeight-6);
+			g.drawString("p value: " + MesquiteDouble.toStringDigitsSpecified(pValue, 4), 8, titleHeight+pValueHeight-8);
 		}
 	}
 	public boolean isCalculatingObserved() {
@@ -556,6 +563,8 @@ class SOWHPanel extends MousePanel{
 		if (!calculating){
 			g.setColor(Color.white);
 			g.drawString("SOWH Test", 8, 20);
+			if (hasCalculated)
+				g.drawString("Calculations complete", 8, 44);
 		}
 		else{
 			g.setColor(Color.black);
@@ -563,9 +572,11 @@ class SOWHPanel extends MousePanel{
 			g.setColor(Color.red);
 			g.drawString("SOWH Test", 8, 20);
 			if (calculatingObserved)
-				g.drawString("Calculating Observed Value...", 8, 46);
-			else
-				g.drawString("Calculating Values under Hypothesis...", 8, 46);
+				g.drawString("Calculating Observed Value...", 8, 44);
+			else {
+				g.drawString("Calculating Values", 8, 44);
+				g.drawString("under the Hypothesis...", 14, 62);
+			}
 		}
 		drawPValue(g);
 	}

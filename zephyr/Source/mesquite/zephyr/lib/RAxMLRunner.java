@@ -237,7 +237,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		}
 
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), "RAxML Options & Locations",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
+		String title = "RAxML Options & Locations";
+		String extra = getExtraQueryOptionsTitle();
+		if (StringUtil.notEmpty(extra))
+			title += " ("+extra+")";
+		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), title,buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 		//	dialog.addLabel("RAxML - Options and Locations");
 		String helpString = "This module will prepare a matrix for RAxML, and ask RAxML do to an analysis.  A command-line version of RAxML must be installed. "
 				+ "You can ask it to do multiple searches for optimal trees, OR to do a bootstrap analysis (but not both). "

@@ -38,6 +38,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean optionsHaveBeenSet = false;
 	protected boolean constrainedSearch = false;
 	protected boolean constrainSearchAllowed = true;
+	protected String extraQueryOptionsTitle = "";
 
 	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
@@ -87,6 +88,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	public boolean localMacRunsRequireTerminalWindow(){
 		return false;
+	}
+	public String getExtraQueryOptionsTitle() {
+		return extraQueryOptionsTitle;
+	}
+	public void setExtraQueryOptionsTitle(String extraQueryOptionsTitle) {
+		this.extraQueryOptionsTitle = extraQueryOptionsTitle;
 	}
 
 	/*.................................................................................................................*/
