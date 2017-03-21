@@ -877,7 +877,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public void runFilesAvailable(int fileNum) {
 
 		String[] logFileNames = getLogFileNames();
-		if ((progIndicator!=null && progIndicator.isAborted()) || logFileNames==null)
+		if ((progIndicator!=null && progIndicator.isAborted())) {
+			setUserAborted(true);
+			return;
+		}
+		if (logFileNames==null)
 			return;
 		String[] outputFilePaths = new String[logFileNames.length];
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);

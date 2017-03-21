@@ -20,6 +20,7 @@ import java.util.Random;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
+import mesquite.lib.simplicity.InterfaceManager;
 import mesquite.molec.lib.Blaster;
 import mesquite.zephyr.lib.ConstrainedSearcher;
 import mesquite.zephyr.lib.ZephyrRunner;
@@ -59,7 +60,11 @@ public class SOWHTest extends TreeWindowAssistantA    {
 	protected MCharactersDistribution observedStates;
 	long originalSeed=System.currentTimeMillis(); //0L;
 	Random rng;
+	boolean userAborted = false;
+	
 	int totalReps = 100;
+	double observedDelta = MesquiteDouble.unassigned;
+	boolean calculateObservedDelta = true;
 
 
 
@@ -93,7 +98,6 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		}
 
 		makeMenu("SOWH Test");
-
 		//	addMenuItem( "Choose Character...", makeCommand("chooseCharacter",  this));
 		addMenuItem( "Close SOWH Test", makeCommand("close",  this));
 		//addMenuSeparator();
@@ -174,22 +178,33 @@ public class SOWHTest extends TreeWindowAssistantA    {
 
 		return temp;*/
 	}
-		/*.................................................................................................................*/
+	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
 		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), "SOWH Test Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 		dialog.addLabel("Options for SOWH Test");
+
+		int radioValue = 1;
+		if (calculateObservedDelta)
+			radioValue=0;
+		RadioButtons calculateObservedDeltaRadios = dialog.addRadioButtons(new String[] {"calculate observed value of test statistic (delta)","use pre-calculated observed value"}, radioValue);
+		DoubleField observedDeltaField = dialog.addDoubleField("pre-calculated observed value:", observedDelta, 8);
 
 		IntegerField totalRepsField = dialog.addIntegerField("Number of simulated matricess to examine:",  totalReps,5,1,MesquiteInteger.infinite);
 
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
 			totalReps = totalRepsField.getValue();
+			radioValue=calculateObservedDeltaRadios.getValue();
+			calculateObservedDelta = (radioValue==0);
+			if (!calculateObservedDelta)
+				observedDelta = observedDeltaField.getValue();
 			storePreferences();
 		}
 		dialog.dispose();
 		return (buttonPressed.getValue()==0);
 	}
+
 
 	/*.................................................................................................................*/
 	MesquiteInteger pos = new MesquiteInteger();
@@ -292,7 +307,7 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		MesquiteLong seed = new MesquiteLong(rng.nextInt());
 
 		for (int ic = 0; ic<numChars; ic++) {
-			states = charSimulatorTask.getSimulatedCharacter(states, hypothesisTree, seed); 
+			states = charSimulatorTask.getSimulatedCharacter(states, hypothesisTree, seed, ic); 
 			matrix.transferFrom(ic, states);
 		}
 		matrix.setName("Matrix " + matrixNumber + " simulated by " + charSimulatorTask.getName());
@@ -337,26 +352,35 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		//First, do the constrained search
 		runner.setConstainedSearchAllowed(true);
 		runner.setConstrainedSearch(true);  
-		runner.getTrees(trees, taxa, data, rng.nextInt(), constrainedScore);  // find score of constrained trees
+		runner.getTrees(trees, taxa, data, rng.nextInt(), constrainedScore);  // find score of constrained tree
+		if (runner.getUserAborted())
+			userAborted = true;
 		runner.setRunInProgress(false);
 
-		//Now, do the unconstrained search
-		runner.setConstainedSearchAllowed(false);
-		runner.setConstrainedSearch(false);
-		runner.getTrees(trees, taxa, data, rng.nextInt(), unconstrainedScore);   // find score of unconstrained trees
-		runner.setRunInProgress(false);
+		if (!userAborted) {
+			//Now, do the unconstrained search
+			runner.setConstainedSearchAllowed(false);
+			runner.setConstrainedSearch(false);
+			runner.getTrees(trees, taxa, data, rng.nextInt(), unconstrainedScore);   // find score of unconstrained trees
+			if (runner.getUserAborted())
+				userAborted = true;
+			runner.setRunInProgress(false);
+		}
+
 
 		runner.setVerbose(true);
-
-		if (unconstrainedScore.isCombinable() && constrainedScore.isCombinable())
-			finalScore = constrainedScore.getValue() - unconstrainedScore.getValue();
-
-		logln("\ndelta = "+finalScore + "  (=" + constrainedScore.getValue()+"-"+unconstrainedScore.getValue()+")");
-
 		trees.dispose();
 		trees = null;
 
-		return finalScore;
+		if (!userAborted) {
+			if (unconstrainedScore.isCombinable() && constrainedScore.isCombinable())
+				finalScore = constrainedScore.getValue() - unconstrainedScore.getValue();
+			logln("\ndelta = "+finalScore + "  (=" + constrainedScore.getValue()+"-"+unconstrainedScore.getValue()+")");
+			return finalScore;
+		} else 
+			logln("\nUSER ABORTED");
+		return MesquiteDouble.unassigned;
+
 	}
 
 	/*.................................................................................................................*/
@@ -423,11 +447,15 @@ public class SOWHTest extends TreeWindowAssistantA    {
 			rs.setValue("Sorry, no matrix was not obtained.  The SOWH analysis could not be completed.");
 		stateClass = observedStates.getStateClass();
 		//		window.setText("");
-		clearLastResult();
+
 		panel.setCalculating(true);
 		panel.repaint();
-		panel.setCalculatingObserved(true);
-		double observedDelta = calculateDelta(observedStates, -1, -1);
+		if (calculateObservedDelta) {
+			panel.setCalculatingObserved(true);
+			observedDelta = calculateDelta(observedStates, -1, -1);
+			if (userAborted)
+				return;
+		}
 		panel.setCalculatingObserved(false);
 
 		StringBuffer initialText = new StringBuffer();
@@ -443,7 +471,7 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		initialText.append("\ndelta\tp-value");
 		saveResults(initialText);
 		
-		if (!MesquiteThread.isScripting())
+		if (!MesquiteThread.isScripting() && calculateObservedDelta)
 			if (!runner.queryOptions()){  // prompt again so that searches can be less thorough
 				return;
 		}
@@ -452,6 +480,9 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		for (int rep = 0; rep<totalReps; rep++) {
 			MCharactersDistribution simulatedStates = getSimulatedMatrix(taxa,(rep+1));
 			double simulatedDelta = calculateDelta(simulatedStates, rep, totalReps);
+			if (userAborted) {
+				return;
+			}
 			simulatedDeltas[rep] = simulatedDelta;
 			double pValue = calculatePValue(observedDelta,simulatedDeltas);
 			repReport.append("\n  "  + simulatedDelta+ "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4));
@@ -580,5 +611,10 @@ class SOWHPanel extends MousePanel{
 		}
 		drawPValue(g);
 	}
+	
+	public void mouseUp(int modifiers, int x, int y, MesquiteTool toolTouching) {
+		Debugg.println("x: " + x + ", y: " + y);
+	}
+
 }
 

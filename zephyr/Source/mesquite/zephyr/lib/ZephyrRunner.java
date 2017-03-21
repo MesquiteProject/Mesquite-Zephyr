@@ -39,6 +39,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean constrainedSearch = false;
 	protected boolean constrainSearchAllowed = true;
 	protected String extraQueryOptionsTitle = "";
+	private boolean userAborted = false;
 
 	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
@@ -94,6 +95,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	public void setExtraQueryOptionsTitle(String extraQueryOptionsTitle) {
 		this.extraQueryOptionsTitle = extraQueryOptionsTitle;
+	}
+	public boolean getUserAborted() {
+		return userAborted;
+	}
+	public void setUserAborted(boolean userAborted) {
+		this.userAborted = userAborted;
 	}
 
 	/*.................................................................................................................*/
@@ -598,8 +605,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(boolean[] filesAvailable) {
-		if ((progIndicator!=null && progIndicator.isAborted()))
+		if ((progIndicator!=null && progIndicator.isAborted())) {
+			setUserAborted(true);
 			return;
+		}
 		String filePath = null;
 		int fileNum=-1;
 		String[] outputFilePaths = new String[filesAvailable.length];

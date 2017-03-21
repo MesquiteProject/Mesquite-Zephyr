@@ -842,7 +842,11 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 	public void runFilesAvailable(int fileNum) {
 		String[] logFileNames = getLogFileNames();
-		if ((progIndicator!=null && progIndicator.isAborted()) || logFileNames==null)
+		if ((progIndicator!=null && progIndicator.isAborted())) {
+			setUserAborted(true);
+			return;
+		}
+		if (logFileNames==null)
 			return;
 		String[] outputFilePaths = new String[logFileNames.length];
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
@@ -921,6 +925,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 	public boolean continueShellProcess(Process proc){
 		if (progIndicator.isAborted()) {
+			setUserAborted(true);
 			try {
 				Writer stream;
 				stream = new OutputStreamWriter((BufferedOutputStream)proc.getOutputStream());
