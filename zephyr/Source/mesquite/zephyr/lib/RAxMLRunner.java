@@ -522,6 +522,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		String multipleModelFileContents = IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
 		//Debugg.println: David: could there be a choice for partByCodPos?  I'd like that
+		Debugg.println("multipleModelFileContents " + multipleModelFileContents);
 		
 		if (StringUtil.blank(multipleModelFileContents)) 
 			multipleModelFileName=null;

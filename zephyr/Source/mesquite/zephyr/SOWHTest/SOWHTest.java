@@ -19,18 +19,18 @@ import java.util.Random;
 
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
+import mesquite.lib.characters.CharacterData;
 import mesquite.lib.duties.*;
-import mesquite.lib.simplicity.InterfaceManager;
-import mesquite.molec.lib.Blaster;
 import mesquite.zephyr.lib.ConstrainedSearcher;
 import mesquite.zephyr.lib.ZephyrRunner;
 import mesquite.categ.lib.CategoricalData;
 import mesquite.diverse.lib.*;
+import mesquite.io.lib.IOUtil;
 
 
 // see SimMatricesOnTrees for CharacterSimulator bookkeeping
 
-public class SOWHTest extends TreeWindowAssistantA    {
+public class SOWHTest extends TreeWindowAssistantA     {
 	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
 		EmployeeNeed e = registerEmployeeNeed(NumForCharAndTreeDivers.class, getName() + "  needs a method to calculate diversification statistics.",
 				"You can choose the diversification calculation initially or under the Diversification Measure submenu.");
@@ -40,6 +40,7 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		EmployeeNeed e2 = registerEmployeeNeed(ZephyrRunner.class, getName() + "  needs a module to run an external process.","");
 		EmployeeNeed e3 = registerEmployeeNeed(MatrixSourceCoord.class, getName() + "  needs a module to provide a matrix.","");
 		EmployeeNeed e4 = registerEmployeeNeed(CharacterSimulator.class, getName() + "  needs a module to simulate matrices.","");
+		EmployeeNeed e5 = registerEmployeeNeed(DataAlterer.class, getName() + "  needs a module to alter matrices.","");
 	}
 	/*.................................................................................................................*/
 	int current = 0;
@@ -47,6 +48,7 @@ public class SOWHTest extends TreeWindowAssistantA    {
 	protected ZephyrRunner runner;
 	protected ConstrainedSearcher constrainedSearcher;
 	CharacterSimulator charSimulatorTask;
+	DataAlterer altererTask;
 
 	Tree hypothesisTree;
 	Tree constraintTree;
@@ -65,6 +67,7 @@ public class SOWHTest extends TreeWindowAssistantA    {
 	int totalReps = 100;
 	double observedDelta = MesquiteDouble.unassigned;
 	boolean calculateObservedDelta = true;
+	boolean alterData = false;
 
 
 
@@ -135,6 +138,27 @@ public class SOWHTest extends TreeWindowAssistantA    {
 			return false;
 		return true;
 	}
+	/*.................................................................................................................*/
+	public void processSingleXMLPreference (String tag, String content) {
+		if ("totalReps".equalsIgnoreCase(tag)) {
+			totalReps = MesquiteInteger.fromString(content);
+		}
+/*		else if ("alignmentMethodText".equalsIgnoreCase(tag)) {
+			alignmentMethodText = StringUtil.cleanXMLEscapeCharacters(content);
+		}
+		else if ("useMaxCores".equalsIgnoreCase(tag))
+			useMaxCores = MesquiteBoolean.fromTrueFalseString(content);
+*/
+		super.processSingleXMLPreference(tag, content);
+	}
+	/*.................................................................................................................*/
+	public String preparePreferencesForXML () {
+		StringBuffer buffer = new StringBuffer(200);
+		StringUtil.appendXMLTag(buffer, 2, "totalReps", totalReps);  
+
+		return super.preparePreferencesForXML()+buffer.toString();
+	}
+
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
@@ -183,6 +207,11 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
 		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), "SOWH Test Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 		dialog.addLabel("Options for SOWH Test");
+		StringBuffer sb = new StringBuffer();
+		sb.append("You can either enter the value you previously calculated for delta, the test statistic, or you can ask Mesquite to calculate it now. ");
+		sb.append("The advantage of calculating it in advance is that you then have more careful control over how you calculate it. ");
+		sb.append("<br><br> The test statistic, delta, is the tree score for the optimal constrained tree minus the tree score for the optimal unconstrained tree. ");
+		dialog.appendToHelpString(sb.toString());
 
 		int radioValue = 1;
 		if (calculateObservedDelta)
@@ -190,12 +219,14 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		RadioButtons calculateObservedDeltaRadios = dialog.addRadioButtons(new String[] {"calculate observed value of test statistic (delta)","use pre-calculated observed value"}, radioValue);
 		DoubleField observedDeltaField = dialog.addDoubleField("pre-calculated observed value:", observedDelta, 8);
 
-		IntegerField totalRepsField = dialog.addIntegerField("Number of simulated matricess to examine:",  totalReps,5,1,MesquiteInteger.infinite);
-
+		IntegerField totalRepsField = dialog.addIntegerField("Number of simulated matrices to examine:",  totalReps,5,1,MesquiteInteger.infinite);
+		Checkbox alterDataCheckbox = dialog.addCheckBox("Alter data after simulation", alterData);
+		
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
 			totalReps = totalRepsField.getValue();
 			radioValue=calculateObservedDeltaRadios.getValue();
+			alterData =alterDataCheckbox.getState();
 			calculateObservedDelta = (radioValue==0);
 			if (!calculateObservedDelta)
 				observedDelta = observedDeltaField.getValue();
@@ -205,12 +236,16 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		return (buttonPressed.getValue()==0);
 	}
 
+	/*.................................................................................................................*/
+	void hireDataAltererIfNeeded () {
+		if (alterData && altererTask==null)
+			altererTask = (DataAlterer)hireEmployee(DataAlterer.class, "Alterer of data");
+	}
 
 	/*.................................................................................................................*/
 	MesquiteInteger pos = new MesquiteInteger();
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-
 
 		if (checker.compare(this.getClass(), "Provokes Calculation", null, commandName, "doCounts")) {
 			doCounts();
@@ -323,9 +358,9 @@ public class SOWHTest extends TreeWindowAssistantA    {
 	 * If rep >= 0, then this is the replicate number.
 	 * If rep is < 0, this indicates calculating the observed matrix value.
 	 */
-	public double calculateDelta(MCharactersDistribution data, int rep, int totalReps) {
+	public double calculateDelta(MCharactersDistribution matrix, int rep, int totalReps) {
 		if (taxa==null) 
-			taxa=data.getTaxa();
+			taxa=matrix.getTaxa();
 		TreeVector trees = new TreeVector(taxa);
 
 
@@ -352,7 +387,7 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		//First, do the constrained search
 		runner.setConstainedSearchAllowed(true);
 		runner.setConstrainedSearch(true);  
-		runner.getTrees(trees, taxa, data, rng.nextInt(), constrainedScore);  // find score of constrained tree
+		runner.getTrees(trees, taxa, matrix, rng.nextInt(), constrainedScore);  // find score of constrained tree
 		if (runner.getUserAborted())
 			userAborted = true;
 		runner.setRunInProgress(false);
@@ -361,7 +396,7 @@ public class SOWHTest extends TreeWindowAssistantA    {
 			//Now, do the unconstrained search
 			runner.setConstainedSearchAllowed(false);
 			runner.setConstrainedSearch(false);
-			runner.getTrees(trees, taxa, data, rng.nextInt(), unconstrainedScore);   // find score of unconstrained trees
+			runner.getTrees(trees, taxa, matrix, rng.nextInt(), unconstrainedScore);   // find score of unconstrained trees
 			if (runner.getUserAborted())
 				userAborted = true;
 			runner.setRunInProgress(false);
@@ -441,11 +476,14 @@ public class SOWHTest extends TreeWindowAssistantA    {
 		}
 
 		MesquiteString rs = new MesquiteString();
-
-		CategoricalData data = (CategoricalData)observedStates.getParentData();
+		
 		if (observedStates == null )
 			rs.setValue("Sorry, no matrix was not obtained.  The SOWH analysis could not be completed.");
+
+		CategoricalData data = (CategoricalData)observedStates.getParentData();
 		stateClass = observedStates.getStateClass();
+		
+		
 		//		window.setText("");
 
 		panel.setCalculating(true);
@@ -476,12 +514,28 @@ public class SOWHTest extends TreeWindowAssistantA    {
 				return;
 		}
 
+		hireDataAltererIfNeeded();
+		
 		StringBuffer repReport = new StringBuffer();
 		for (int rep = 0; rep<totalReps; rep++) {
+			panel.setReplicate(rep+1);
 			MCharactersDistribution simulatedStates = getSimulatedMatrix(taxa,(rep+1));
+			boolean createdNewDataObject = simulatedStates.getParentData()==null;
+			CharacterData simulatedData = (CategoricalData)CharacterData.getData(this,  simulatedStates, taxa);
+			if (simulatedData!=null) {
+				((MAdjustableDistribution)simulatedStates).setParentData(simulatedData);
+				IOUtil.copyCurrentSpecSets(data,simulatedData);
+				if (altererTask!=null && alterData)
+					altererTask.alterData(simulatedData, null, null);
+
+			}
 			double simulatedDelta = calculateDelta(simulatedStates, rep, totalReps);
 			if (userAborted) {
 				return;
+			}
+			if (createdNewDataObject && simulatedData!=null) {
+				simulatedData.dispose();
+				simulatedData=null;
 			}
 			simulatedDeltas[rep] = simulatedDelta;
 			double pValue = calculatePValue(observedDelta,simulatedDeltas);
@@ -523,7 +577,7 @@ public class SOWHTest extends TreeWindowAssistantA    {
 
 class SOWHPanel extends MousePanel{
 	int numRowsInTitle = 3;
-	int titleHeight = 3*22+4;
+	int titleHeight = 56;
 	int pValueHeight = 30;
 	TextArea text;
 	StringBuffer initialText;
@@ -533,6 +587,7 @@ class SOWHPanel extends MousePanel{
 	double pValue = MesquiteDouble.unassigned;
 	boolean calculatingObserved = true;
 	boolean hasCalculated = false;
+	int rep = 0;
 	
 	public SOWHPanel(){
 		super();
@@ -559,6 +614,9 @@ class SOWHPanel extends MousePanel{
 	}
 	public void setPValue(double pValue){
 		this.pValue = pValue;
+	}
+	public void setReplicate(int rep){
+		this.rep = rep;
 	}
 	
 	public void drawPValue(Graphics g){
@@ -605,8 +663,8 @@ class SOWHPanel extends MousePanel{
 			if (calculatingObserved)
 				g.drawString("Calculating Observed Value...", 8, 44);
 			else {
-				g.drawString("Calculating Values", 8, 44);
-				g.drawString("under the Hypothesis...", 14, 62);
+				g.drawString("Simulation Replicate " + rep, 8, 44);
+				//g.drawString("" + rep, 14, 62);
 			}
 		}
 		drawPValue(g);
