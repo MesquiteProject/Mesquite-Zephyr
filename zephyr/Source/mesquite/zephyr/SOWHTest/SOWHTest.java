@@ -220,7 +220,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		DoubleField observedDeltaField = dialog.addDoubleField("pre-calculated observed value:", observedDelta, 8);
 
 		IntegerField totalRepsField = dialog.addIntegerField("Number of simulated matrices to examine:",  totalReps,5,1,MesquiteInteger.infinite);
-		Checkbox alterDataCheckbox = dialog.addCheckBox("Alter data after simulation", alterData);
+		Checkbox alterDataCheckbox = dialog.addCheckBox("Alter data after each simulation, before tree inference", alterData);
 		
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
@@ -524,7 +524,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			CharacterData simulatedData = (CategoricalData)CharacterData.getData(this,  simulatedStates, taxa);
 			if (simulatedData!=null) {
 				((MAdjustableDistribution)simulatedStates).setParentData(simulatedData);
-				IOUtil.copyCurrentSpecSets(data,simulatedData);
+				IOUtil.copyCurrentSpecSets(data,simulatedData);  // WAYNECHECK: is this ok?
 				if (altererTask!=null && alterData)
 					altererTask.alterData(simulatedData, null, null);
 
