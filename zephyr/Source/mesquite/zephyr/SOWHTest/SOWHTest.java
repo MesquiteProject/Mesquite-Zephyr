@@ -202,6 +202,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 
 		return temp;*/
 	}
+	
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
@@ -221,6 +222,8 @@ public class SOWHTest extends TreeWindowAssistantA     {
 
 		IntegerField totalRepsField = dialog.addIntegerField("Number of simulated matrices to examine:",  totalReps,5,1,MesquiteInteger.infinite);
 		Checkbox alterDataCheckbox = dialog.addCheckBox("Alter data after each simulation, before tree inference", alterData);
+		if (runner !=null)
+			runner.addItemsToSOWHDialogPanel(dialog);
 		
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
@@ -230,6 +233,8 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			calculateObservedDelta = (radioValue==0);
 			if (!calculateObservedDelta)
 				observedDelta = observedDeltaField.getValue();
+			if (runner !=null) 
+				runner.SOWHoptionsChosen();  // TODO: what if false?
 			storePreferences();
 		}
 		dialog.dispose();

@@ -9,6 +9,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
+import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.Choice;
 import java.util.Random;
@@ -86,6 +87,15 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		this.constrainSearchAllowed = constrainSearchAllowed;;
 	}
 	
+	Checkbox deleteAnalysisDirectoryCheckBox =  null;
+
+	public  void addItemsToSOWHDialogPanel(ExtensibleDialog dialog){
+	}
+	
+	public boolean SOWHoptionsChosen(){
+		return true;
+	}
+
 
 	public boolean localMacRunsRequireTerminalWindow(){
 		return false;

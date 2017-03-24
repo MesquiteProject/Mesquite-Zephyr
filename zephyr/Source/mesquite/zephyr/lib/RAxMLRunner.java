@@ -389,6 +389,16 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		this.randseed = seed;
 	}
 
+	Checkbox useOptimizedScoreAsBestCheckBox =  null;
+	public  void addItemsToSOWHDialogPanel(ExtensibleDialog dialog){
+		useOptimizedScoreAsBestCheckBox = dialog.addCheckBox("use final gamma-based optimized RAxML score", useOptimizedScoreAsBest);
+	}
+	
+	public boolean SOWHoptionsChosen(){
+		if (useOptimizedScoreAsBestCheckBox!=null)
+			useOptimizedScoreAsBest = useOptimizedScoreAsBestCheckBox.getState();
+		return true;
+	}
 
 	/*.................................................................................................................*/
 	private Tree readRAxMLTreeFile(TreeVector trees, String treeFilePath, String treeName, MesquiteBoolean success, boolean lastTree) {
