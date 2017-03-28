@@ -219,6 +219,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			radioValue=0;
 		RadioButtons calculateObservedDeltaRadios = dialog.addRadioButtons(new String[] {"calculate observed value of test statistic (delta)","use pre-calculated observed value"}, radioValue);
 		DoubleField observedDeltaField = dialog.addDoubleField("pre-calculated observed value:", observedDelta, 8);
+		dialog.addHorizontalLine(1);
 
 		IntegerField totalRepsField = dialog.addIntegerField("Number of simulated matrices to examine:",  totalReps,5,1,MesquiteInteger.infinite);
 		Checkbox alterDataCheckbox = dialog.addCheckBox("Alter data after each simulation, before tree inference", alterData);
@@ -417,8 +418,10 @@ public class SOWHTest extends TreeWindowAssistantA     {
 				finalScore = constrainedScore.getValue() - unconstrainedScore.getValue();
 			logln("\ndelta = "+finalScore + "  (=" + constrainedScore.getValue()+"-"+unconstrainedScore.getValue()+")");
 			return finalScore;
-		} else 
-			logln("\nUSER ABORTED");
+		} else {
+			logln("\nSOWH Test aborted by user.");
+			panel.setAborted(true);
+		}
 		return MesquiteDouble.unassigned;
 
 	}
@@ -549,6 +552,17 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			appendToReportFile("\n"  + simulatedDelta + "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4));
 			panel.setPValue(pValue);
 			panel.repaint();
+			if (rep==totalReps-1) {
+				if (AlertDialog.query(containerOfModule(), "More replicates?", "Do you want to do more replicates" , "More Replicates", "No")){
+					MesquiteInteger moreReps= new MesquiteInteger(100);
+					if (QueryDialogs.queryInteger(containerOfModule(), "Number of additional replicates", "Number of additional replicates", true, moreReps)){
+						if (moreReps.isCombinable()) {
+							totalReps+=moreReps.getValue();
+							simulatedDeltas = DoubleArray.copyIntoDifferentSize(simulatedDeltas, totalReps, MesquiteDouble.unassigned);
+						}
+					}
+				}
+			}
 
 		}
 
@@ -592,6 +606,7 @@ class SOWHPanel extends MousePanel{
 	double pValue = MesquiteDouble.unassigned;
 	boolean calculatingObserved = true;
 	boolean hasCalculated = false;
+	boolean aborted = false;
 	int rep = 0;
 	
 	public SOWHPanel(){
@@ -632,11 +647,12 @@ class SOWHPanel extends MousePanel{
 			g.drawString("p value: " + MesquiteDouble.toStringDigitsSpecified(pValue, 4), 8, titleHeight+pValueHeight-8);
 		}
 	}
-	public boolean isCalculatingObserved() {
-		return calculatingObserved;
-	}
 	public void setCalculatingObserved(boolean calculatingObserved) {
 		this.calculatingObserved = calculatingObserved;
+		repaint();
+	}
+	public void setAborted(boolean aborted) {
+		this.aborted = aborted;
 		repaint();
 	}
 
@@ -660,12 +676,17 @@ class SOWHPanel extends MousePanel{
 			if (hasCalculated)
 				g.drawString("Calculations complete", 8, 44);
 		}
+		else if (aborted){
+			g.setColor(Color.white);
+			g.drawString("SOWH Test", 8, 20);
+			g.drawString("Calculations aborted", 8, 44);
+		}
 		else{
 			g.setColor(Color.black);
 			g.fillRect(0,0, getBounds().width, titleHeight);
 			g.setColor(Color.red);
 			g.drawString("SOWH Test", 8, 20);
-			if (calculatingObserved)
+			 if (calculatingObserved)
 				g.drawString("Calculating Observed Value...", 8, 44);
 			else {
 				g.drawString("Simulation Replicate " + rep, 8, 44);
@@ -675,9 +696,6 @@ class SOWHPanel extends MousePanel{
 		drawPValue(g);
 	}
 	
-	public void mouseUp(int modifiers, int x, int y, MesquiteTool toolTouching) {
-		Debugg.println("x: " + x + ", y: " + y);
-	}
 
 }
 
