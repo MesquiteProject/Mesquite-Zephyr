@@ -455,6 +455,20 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		MesquiteFile.putFileContents(reportFilePath, results.toString(), false);
 
 	}
+	
+	private String getInitialText(CharacterData data){
+		StringBuffer initialText = new StringBuffer();
+		initialText.append("\nTesting a phylogenetic hypothesis with the Swofford-Olsen-Waddell-Hillis test\n");
+		initialText.append("\nHypothesis Tree: " + hypothesisTree.getName() );
+		if (StringUtil.notEmpty(constrainedSearcher.getConstraintTreeName()))
+			initialText.append("\nConstraint Tree: " + constrainedSearcher.getConstraintTreeName());
+		initialText.append("\nObserved Matrix: " + data.getName() +  "\n");
+		initialText.append("\n\nValue of the test statistic for observed matrix\n  "  + observedDelta);
+
+		initialText.append("\n\nValues of the test statistic for simulated matrices");
+		return initialText.toString();
+
+	}
 	/*.................................................................................................................*/
 	public void appendToReportFile(String s) {
 		if (StringUtil.blank(reportFilePath))
@@ -505,17 +519,9 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		panel.setCalculatingObserved(false);
 
 		StringBuffer initialText = new StringBuffer();
-		initialText.append("\nTesting a phylogenetic hypothesis with the Swofford-Olsen-Waddell-Hillis test\n");
-		initialText.append("\nHypothesis Tree: " + hypothesisTree.getName() );
-		initialText.append("\nConstraint Tree: " + constrainedSearcher.getConstraintTreeName());
-		initialText.append("\nObserved Matrix: " + data.getName() +  "\n");
-		initialText.append("\n\nValue of the test statistic for observed matrix\n  "  + observedDelta);
-
-		initialText.append("\n\nValues of the test statistic for simulated matrices");
+		initialText.append(getInitialText(data));
 		panel.appendToInitialPanelText(initialText.toString());
 		panel.setText("");
-		initialText.append("\ndelta\tp-value");
-		saveResults(initialText);
 		
 		if (!MesquiteThread.isScripting() && calculateObservedDelta)
 			if (!runner.queryOptions()){  // prompt again so that searches can be less thorough
@@ -525,6 +531,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		hireDataAltererIfNeeded();
 		
 		StringBuffer repReport = new StringBuffer();
+		repReport.append("\ndelta\tp-value");
 		for (int rep = 0; rep<totalReps; rep++) {
 			panel.setReplicate(rep+1);
 			MCharactersDistribution simulatedStates = getSimulatedMatrix(taxa,(rep+1));
@@ -547,6 +554,13 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			}
 			simulatedDeltas[rep] = simulatedDelta;
 			double pValue = calculatePValue(observedDelta,simulatedDeltas);
+			if (rep==0) {
+				initialText.setLength(0);
+				initialText.append(getInitialText(data));
+				panel.setInitialText(initialText.toString());
+				saveResults(initialText);
+			}
+
 			repReport.append("\n  "  + simulatedDelta+ "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4));
 			panel.setText("\nReplicates completed: "+ (rep+1) + "\n\n" + repReport.toString());
 			appendToReportFile("\n"  + simulatedDelta + "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4));
@@ -625,6 +639,10 @@ class SOWHPanel extends MousePanel{
 		this.calculating = calculating;
 		if (calculating)
 			hasCalculated = true;
+	}
+	public void setInitialText(String t){
+		initialText.setLength(0);
+		initialText.append(t);
 	}
 	public void appendToInitialPanelText(String t){
 		initialText.append(t);
