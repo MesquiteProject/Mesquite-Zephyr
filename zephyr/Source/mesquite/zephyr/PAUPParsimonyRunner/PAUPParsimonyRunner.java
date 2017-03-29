@@ -169,7 +169,7 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 			sb.append("auto;\n");
 		else
 			sb.append("no;\n");
-		if (getConstrainedSearchAllowed() && StringUtil.notEmpty(constraintTree)) {
+		if (isConstrainedSearch() && StringUtil.notEmpty(constraintTree)) {
 			if (useConstraintTree == BACKBONE)
 				sb.append("\tconstraints constraintTree (BACKBONE) =  " + constraintTree +";\n"); 
 			else if (useConstraintTree == MONOPHYLY)
@@ -182,7 +182,7 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 			
 			if (standardSearchBoot){
 				sb.append("\ths addseq=random nreps=" + nrepsBoot);
-				if (getConstrainedSearchAllowed()&& isConstrainedSearch())
+				if ( isConstrainedSearch())
 						sb.append(" constraint=constraintTree enforce"); 
 				if (channelSearchBoot && chuckScoreBoot>0 && nchuckBoot>0)
 					sb.append(" chuckscore=" + chuckScoreBoot + " nchuck="+nchuckBoot);
@@ -204,7 +204,7 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 			sb.append(paupCommands+"\n");
 			if (standardSearch){
 				sb.append("\ths addseq=random nreps=" + nreps);
-				if (getConstrainedSearchAllowed() && isConstrainedSearch())
+				if (isConstrainedSearch())
 					sb.append(" constraint=constraintTree enforce"); 
 				if (channelSearch && chuckScore>0 && nchuck>0)
 					sb.append(" chuckscore=" + chuckScore + " nchuck="+nchuck);

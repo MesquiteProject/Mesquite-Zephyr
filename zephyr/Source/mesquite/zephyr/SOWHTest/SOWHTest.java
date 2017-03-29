@@ -391,8 +391,9 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		runner.setVerbose(rep<0);
 
 		//First, do the constrained search
-		runner.setConstainedSearchAllowed(true);
+		runner.setConstainedSearchAllowed(false);
 		runner.setConstrainedSearch(true);  
+		runner.resetSOWHOptionsConstrained();
 		runner.getTrees(trees, taxa, matrix, rng.nextInt(), constrainedScore);  // find score of constrained tree
 		if (runner.getUserAborted())
 			userAborted = true;
@@ -400,8 +401,9 @@ public class SOWHTest extends TreeWindowAssistantA     {
 
 		if (!userAborted) {
 			//Now, do the unconstrained search
-			runner.setConstainedSearchAllowed(false);
+			//runner.setConstainedSearchAllowed(false);
 			runner.setConstrainedSearch(false);
+			runner.resetSOWHOptionsUnconstrained();
 			runner.getTrees(trees, taxa, matrix, rng.nextInt(), unconstrainedScore);   // find score of unconstrained trees
 			if (runner.getUserAborted())
 				userAborted = true;
@@ -414,10 +416,11 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		trees = null;
 
 		if (!userAborted) {
-			if (unconstrainedScore.isCombinable() && constrainedScore.isCombinable())
+			if (unconstrainedScore.isCombinable() && constrainedScore.isCombinable()){
 				finalScore = constrainedScore.getValue() - unconstrainedScore.getValue();
-			logln("\ndelta = "+finalScore + "  (=" + constrainedScore.getValue()+"-"+unconstrainedScore.getValue()+")");
-			return finalScore;
+				logln("\ndelta = "+finalScore + "  (=" + constrainedScore.getValue()+"-"+unconstrainedScore.getValue()+")");
+				return finalScore;
+			}
 		} else {
 			logln("\nSOWH Test aborted by user.");
 			panel.setAborted(true);
@@ -477,6 +480,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		logBuffer.append("Mesquite version: " + MesquiteTrunk.mesquiteTrunk.getVersion()+", build number " + MesquiteTrunk.mesquiteTrunk.getBuildNumber()+"\n");
 		logBuffer.append("Zephyr version: " + getVersion()+"\n");
 		logBuffer.append("Phylogeny inferences conducted by " + runner.getName()+"\n");
+		logBuffer.append(runner.getSOWHDetails()+"\n");
 		return logBuffer.toString();
 
 	}
@@ -543,6 +547,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		
 		StringBuffer repReport = new StringBuffer();
 		repReport.append("\ndelta\tp-value");
+		
 		for (int rep = 0; rep<totalReps; rep++) {
 			panel.setReplicate(rep+1);
 			MCharactersDistribution simulatedStates = getSimulatedMatrix(taxa,(rep+1));
@@ -562,6 +567,10 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			if (createdNewDataObject && simulatedData!=null) {
 				simulatedData.dispose();
 				simulatedData=null;
+			}
+			if (!MesquiteDouble.isCombinable(simulatedDelta)) {
+				rep--;
+				continue;
 			}
 			simulatedDeltas[rep] = simulatedDelta;
 			double pValue = calculatePValue(observedDelta,simulatedDeltas);

@@ -254,9 +254,9 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		return communicator.sendJobToCipres(builder, executableCIPResName, jobURL);
 	}
 
-	public boolean monitorExecution(){
+	public boolean monitorExecution(ProgressIndicator progIndicator){
 		 if (communicator!=null && jobURL!=null)
-			 return communicator.monitorAndCleanUpShell(jobURL.getValue());
+			 return communicator.monitorAndCleanUpShell(jobURL.getValue(), progIndicator);
 		 return false;
 	}
 

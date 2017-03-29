@@ -655,7 +655,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 		}
 	}
 	/*.................................................................................................................*/
-	public boolean monitorAndCleanUpShell(String jobURL){
+	public boolean monitorAndCleanUpShell(String jobURL, ProgressIndicator progIndicator){
 		boolean stillGoing = true;
 
 		if (!checkUsernamePassword(true)) {
@@ -675,7 +675,11 @@ public class CIPResCommunicator extends RESTCommunicator {
 			//	if (jobSubmitted(jobURL))
 			//		processOutputFiles();
 			try {
-				Thread.sleep(minPollIntervalSeconds*1000);
+				for (int i=0; i<minPollIntervalSeconds; i++) {
+					if (progIndicator!=null)
+						progIndicator.spin();
+					Thread.sleep(1000);
+				}
 			}
 			catch (InterruptedException e){
 				MesquiteMessage.notifyProgrammer("InterruptedException in CIPRes monitoring");

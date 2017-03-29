@@ -311,9 +311,9 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		return scriptRunner.executeInShell();
 	}
 
-	public boolean monitorExecution(){
+	public boolean monitorExecution(ProgressIndicator progIndicator){
 		 if (scriptRunner!=null)
-			 return scriptRunner.monitorAndCleanUpShell();
+			 return scriptRunner.monitorAndCleanUpShell(progIndicator);
 		 return false;
 	}
 

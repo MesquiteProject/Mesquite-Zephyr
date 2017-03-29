@@ -95,6 +95,13 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean SOWHoptionsChosen(){
 		return true;
 	}
+	public void resetSOWHOptionsConstrained(){
+	}
+	public void resetSOWHOptionsUnconstrained(){
+	}
+	public String getSOWHDetails(){
+		return "";
+	}
 
 
 	public boolean localMacRunsRequireTerminalWindow(){
@@ -489,7 +496,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 		// the process runs
 		if (success)
-			success = externalProcRunner.monitorExecution();
+			success = externalProcRunner.monitorExecution(progIndicator);
 		else {
 			if (!beanWritten)
 				postBean("failed, externalProcRunner.startExecution", false);
@@ -535,7 +542,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		/*	MesquiteModule inferer = findEmployerWithDuty(TreeInferer.class);
 		if (inferer != null)
 			((TreeInferer)inferer).bringIntermediatesWindowToFront();*/
-		boolean success = externalProcRunner.monitorExecution();
+		boolean success = externalProcRunner.monitorExecution(progIndicator);
 
 
 		if (progIndicator!=null)

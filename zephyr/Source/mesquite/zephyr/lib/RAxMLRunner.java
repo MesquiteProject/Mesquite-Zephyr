@@ -59,6 +59,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected static final int MONOPHYLY = 1;
 	protected static final int SKELETAL = 2;
 	protected int useConstraintTree = NOCONSTRAINT;
+	protected int SOWHConstraintTree = MONOPHYLY;
 
 
 	long summaryFilePosition =0;
@@ -285,7 +286,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 		checkEnabled(doBootstrap);
 
-		tabbedPanel.addPanel("Character Models & Constraints", true);
+		if (getConstrainedSearchAllowed())
+			tabbedPanel.addPanel("Character Models & Constraints", true);
+		else
+			tabbedPanel.addPanel("Character Models", true);
 		dnaModelField = dialog.addTextField("DNA Model:", dnaModel, 20);
 		proteinModelField = dialog.addTextField("Protein Model:", proteinModel, 20);
 
@@ -335,9 +339,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				onlyBest = onlyBestBox.getState();
 				nobfgs = nobfgsCheckBox.getState();
 
-				useConstraintTree = constraintButtons.getValue();
-				if (useConstraintTree!=NOCONSTRAINT)
-					setConstrainedSearch(true);
+				if (getConstrainedSearchAllowed()) {
+					useConstraintTree = constraintButtons.getValue();
+					if (useConstraintTree!=NOCONSTRAINT)
+						setConstrainedSearch(true);
+				}
 				otherOptions = otherOptionsField.getText();
 				processRunnerOptions();
 				storeRunnerPreferences();
@@ -390,14 +396,43 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 
 	Checkbox useOptimizedScoreAsBestCheckBox =  null;
+	RadioButtons SOWHConstraintButtons = null;
 	public  void addItemsToSOWHDialogPanel(ExtensibleDialog dialog){
 		useOptimizedScoreAsBestCheckBox = dialog.addCheckBox("use final gamma-based optimized RAxML score", useOptimizedScoreAsBest);
+		if (SOWHConstraintTree==MONOPHYLY)
+			SOWHConstraintButtons = dialog.addRadioButtons (new String[]{"Regular constraint", "Backbone constraint"}, 0);
+		else if (SOWHConstraintTree==SKELETAL)
+			SOWHConstraintButtons = dialog.addRadioButtons (new String[]{"Regular constraint", "Backbone constraint"}, 1);
+
 	}
 	
 	public boolean SOWHoptionsChosen(){
 		if (useOptimizedScoreAsBestCheckBox!=null)
 			useOptimizedScoreAsBest = useOptimizedScoreAsBestCheckBox.getState();
+		if (SOWHConstraintButtons!=null) {
+			int constraint = SOWHConstraintButtons.getValue();
+			if (constraint==0)
+				SOWHConstraintTree = MONOPHYLY;
+			else if (constraint==1)
+				SOWHConstraintTree = SKELETAL;
+			useConstraintTree = SOWHConstraintTree;
+		}
 		return true;
+	}
+	public void resetSOWHOptionsConstrained(){
+		useConstraintTree = SOWHConstraintTree;
+	}
+	public void resetSOWHOptionsUnconstrained(){
+		useConstraintTree = NOCONSTRAINT;
+	}
+	public String getSOWHDetails(){
+		StringBuffer sb = new StringBuffer();
+		sb.append("Number of search replicates for each simulated matrix: " + numRuns + "\n");
+		if (SOWHConstraintTree==MONOPHYLY)
+			sb.append("Constraint type used in SOWH test: Regular constraint\n");
+		else if (SOWHConstraintTree==SKELETAL)
+			sb.append("Constraint type used in SOWH test: Backbone constraint\n");
+		return sb.toString();
 	}
 
 	/*.................................................................................................................*/
@@ -555,7 +590,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		String constraintTree = "";
 		
-		if (getConstrainedSearchAllowed() && (useConstraintTree>NOCONSTRAINT || isConstrainedSearch())){
+		if ((useConstraintTree>NOCONSTRAINT || isConstrainedSearch())){
 			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debugg.println
 				useConstraintTree=MONOPHYLY;
 			if (constraint==null) { // we don't have one

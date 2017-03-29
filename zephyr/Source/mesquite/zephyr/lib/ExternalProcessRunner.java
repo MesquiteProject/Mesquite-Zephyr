@@ -76,7 +76,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 
 	// starting the run
 	public abstract boolean startExecution();  //do we assume these are disconnectable?
-	public abstract boolean monitorExecution();
+	public abstract boolean monitorExecution(ProgressIndicator progIndicator);
 	public abstract String checkStatus();  
 	public abstract boolean stopExecution();  
 	/*.................................................................................................................*/
