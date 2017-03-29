@@ -99,14 +99,13 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			containingWindow = (MesquiteWindow)f;
 			containingWindow.addSidePanel(panel = new SOWHPanel(), 250);
 		}
-
-		makeMenu("SOWH Test");
-		//	addMenuItem( "Choose Character...", makeCommand("chooseCharacter",  this));
+		MesquiteMenuSpec mms = makeMenu("SOWH Test");
 		addMenuItem( "Close SOWH Test", makeCommand("close",  this));
-		//addMenuSeparator();
 
 		return true;
 	}
+	
+	
 	private boolean initializeObservedStates(Taxa taxa) {
 		if (matrixSourceTask!=null) {
 			if (observedStates ==null) {
@@ -230,12 +229,19 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
-			totalReps = totalRepsField.getValue();
 			radioValue=calculateObservedDeltaRadios.getValue();
-			alterData =alterDataCheckbox.getState();
-			calculateObservedDelta = (radioValue==0);
-			if (!calculateObservedDelta)
+			if (radioValue!=0) {
 				observedDelta = observedDeltaField.getValue();
+				if (!MesquiteDouble.isCombinable(observedDelta)){
+					if (AlertDialog.query(containerOfModule(), "Warning", "Pre-calculated observed value was chosen, but no value was entered. Do you wish to ask that it be calculated, or cancel the SOWH test?", "Calculate", "Cancel"))
+						calculateObservedDelta = true;
+					else
+						return false;
+				} else
+					calculateObservedDelta = (radioValue==0);
+			}
+			totalReps = totalRepsField.getValue();
+			alterData =alterDataCheckbox.getState();
 			if (runner !=null) 
 				runner.SOWHoptionsChosen();  // TODO: what if false?
 			storePreferences();
@@ -505,18 +511,24 @@ public class SOWHTest extends TreeWindowAssistantA     {
 
 	/** This method does the core calculations for the SOWH test. */
 	public void doCounts() {
-		if (taxa == null || panel == null)
+		if (taxa == null || panel == null) {
+			iQuit();
 			return;
+		}
 		if (observedStates==null)
 			initialize(taxa);
 		
 		if (!MesquiteThread.isScripting())
-			if (!queryOptions())
+			if (!queryOptions()) {
+				iQuit();
 				return;
+			}
 
 		reportFilePath = MesquiteFile.saveFileAsDialog("Save SOWH Test report file", new StringBuffer("SOWH Test"));
-		if (reportFilePath==null)
+		if (reportFilePath==null) {
+			iQuit();
 			return;
+		}
 
 		double[] simulatedDeltas = new double[totalReps];
 		for (int rep = 0; rep<totalReps; rep++) {
