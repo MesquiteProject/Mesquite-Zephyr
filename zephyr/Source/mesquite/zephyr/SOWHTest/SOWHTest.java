@@ -21,8 +21,7 @@ import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.characters.CharacterData;
 import mesquite.lib.duties.*;
-import mesquite.zephyr.lib.ConstrainedSearcher;
-import mesquite.zephyr.lib.ZephyrRunner;
+import mesquite.zephyr.lib.*;
 import mesquite.categ.lib.CategoricalData;
 import mesquite.diverse.lib.*;
 import mesquite.io.lib.IOUtil;
@@ -37,7 +36,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		e.setPriority(2);
 		EmployeeNeed ew = registerEmployeeNeed(CharSourceCoordObed.class, getName() + "  needs a source of characters.",
 				"The source of characters is arranged initially");
-		EmployeeNeed e2 = registerEmployeeNeed(ZephyrRunner.class, getName() + "  needs a module to run an external process.","");
+		EmployeeNeed e2 = registerEmployeeNeed(ZephyrRunner.class, getName() + "  needs a module to search for trees.","");
 		EmployeeNeed e3 = registerEmployeeNeed(MatrixSourceCoord.class, getName() + "  needs a module to provide a matrix.","");
 		EmployeeNeed e4 = registerEmployeeNeed(CharacterSimulator.class, getName() + "  needs a module to simulate matrices.","");
 		EmployeeNeed e5 = registerEmployeeNeed(DataAlterer.class, getName() + "  needs a module to alter matrices.","");
@@ -85,7 +84,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			return sorry("Simulated Matrices on Trees can't start because not appropiate character simulator module was obtained");
 		}
 
-		runner = (ZephyrRunner)hireEmployee(ConstrainedSearcher.class, "External tree searcher");
+		runner = (ZephyrRunner)hireEmployee(ConstrainedSearcherTreeScoreProvider.class, "External tree searcher");
 		
 		if (runner ==null || !(runner instanceof ZephyrRunner))
 			return false;
@@ -474,14 +473,14 @@ public class SOWHTest extends TreeWindowAssistantA     {
 	
 	private String getInitialText(CharacterData data){
 		StringBuffer initialText = new StringBuffer();
-		initialText.append("\nTesting a phylogenetic hypothesis with the Swofford-Olsen-Waddell-Hillis test\n");
+		initialText.append("\nTesting a phylogenetic hypothesis with\n the Swofford-Olsen-Waddell-Hillis test\n");
 		initialText.append("\nHypothesis Tree: " + hypothesisTree.getName() );
 		if (StringUtil.notEmpty(constrainedSearcher.getConstraintTreeName()))
 			initialText.append("\nConstraint Tree: " + constrainedSearcher.getConstraintTreeName());
 		initialText.append("\nObserved Matrix: " + data.getName() +  "\n");
-		initialText.append("\n\nValue of the test statistic for observed matrix\n  "  + observedDelta);
+		initialText.append("\n\nValue of the test statistic for\n   observed matrix:  "  + observedDelta);
 
-		initialText.append("\n\nValues of the test statistic for simulated matrices");
+		initialText.append("\n\nValues of the test statistic for\n   simulated matrices\n");
 		return initialText.toString();
 
 	}
@@ -507,8 +506,15 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			return;
 		MesquiteFile.appendFileContents(reportFilePath, s, false);
 	}
-
-
+	/*.................................................................................................................*/
+	public String getListHeading() {
+		return "\nrep\tdelta\tp-value\n-------------------------------"; 
+	}
+	/*.................................................................................................................*/
+	public String getReplicateLine(int rep, double delta, double pValue) {
+		return "\n" + rep+"\t"+ delta + "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4);
+	}
+	/*.................................................................................................................*/
 	/** This method does the core calculations for the SOWH test. */
 	public void doCounts() {
 		if (taxa == null || panel == null) {
@@ -537,8 +543,10 @@ public class SOWHTest extends TreeWindowAssistantA     {
 
 		MesquiteString rs = new MesquiteString();
 		
-		if (observedStates == null )
+		if (observedStates == null ) {
 			rs.setValue("Sorry, no matrix was not obtained.  The SOWH analysis could not be completed.");
+			iQuit();
+		}
 
 		CategoricalData data = (CategoricalData)observedStates.getParentData();
 		stateClass = observedStates.getStateClass();
@@ -551,6 +559,11 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		if (calculateObservedDelta) {
 			panel.setCalculatingObserved(true);
 			observedDelta = calculateDelta(observedStates, -1, -1);
+			if (!MesquiteDouble.isCombinable(observedDelta)){
+				MesquiteMessage.discreetNotifyUser("The observed value of the test statistic could not be calculated.  The SOWH analysis could not be completed." );
+				iQuit();
+				return;
+			}
 			if (userAborted)
 				return;
 		}
@@ -569,7 +582,6 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		hireDataAltererIfNeeded();
 		
 		StringBuffer repReport = new StringBuffer();
-		repReport.append("\ndelta\tp-value");
 		
 		for (int rep = 0; rep<totalReps; rep++) {
 			panel.setReplicate(rep+1);
@@ -602,11 +614,12 @@ public class SOWHTest extends TreeWindowAssistantA     {
 				initialText.append(getInitialText(data));
 				panel.setInitialText(initialText.toString());
 				saveResults(getStartOfReportFileText() +"\n"+ initialText.toString());
+				appendToReportFile("\n"+getListHeading());
 			}
 
-			repReport.append("\n  "  + simulatedDelta+ "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4));
-			panel.setText("\nReplicates completed: "+ (rep+1) + "\n\n" + repReport.toString());
-			appendToReportFile("\n"  + simulatedDelta + "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4));
+			repReport.insert(0,getReplicateLine(rep, simulatedDelta, pValue));
+			panel.setText("\nReplicates completed: "+ (rep+1) + " of " +totalReps + "\n" + getListHeading() + repReport.toString());
+			appendToReportFile(getReplicateLine(rep, simulatedDelta, pValue));
 			panel.setPValue(pValue);
 			panel.repaint();
 			if (rep==totalReps-1) {

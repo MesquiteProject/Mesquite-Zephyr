@@ -32,6 +32,10 @@ public class ConstraintDiffOptimalTreeScoreForMatrix extends OptimalTreeScoreFor
 	public String getNameForMenuItem() {
 		return "Difference in Optimal Tree Score for Matrix...";
 	}
+	/*.................................................................................................................*/
+	public boolean loadModule(){
+		return false;
+	}
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){

@@ -25,7 +25,7 @@ import mesquite.zephyr.lib.*;
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
  */
 
-public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
+public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener, ConstrainedSearcherTreeScoreProvider {
 
 	int bootStrapReps = 500;
 	boolean getConsensus = false;

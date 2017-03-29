@@ -25,7 +25,7 @@ import mesquite.zephyr.lib.*;
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
  */
 
-public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, ExternalProcessRequester, PAUPCommander, ConstrainedSearcher {
+public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, ExternalProcessRequester, PAUPCommander {
 	public static final String SCORENAME = "PAUPScore";
 	Random rng;
 	String datafname = null;

@@ -24,6 +24,10 @@ public class OptimalTreeScoreForMatrix extends NumberForMatrix implements Reconn
 	protected Taxa taxa;
 //	protected StringBuffer outputBuffer= new StringBuffer(0);
 //	protected String outputFilePath;
+	/*.................................................................................................................*/
+	public boolean loadModule(){
+		return false;
+	}
 
 	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
 		EmployeeNeed e = registerEmployeeNeed(ZephyrRunner.class, getName() + "  needs a module to run an external process.","");
