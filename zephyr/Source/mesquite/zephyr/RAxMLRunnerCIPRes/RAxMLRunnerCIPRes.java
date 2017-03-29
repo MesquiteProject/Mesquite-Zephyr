@@ -146,6 +146,8 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	}
 	
 	static final int DATAFILENUMBER = 0;
+	static final int MULTIMODELFILENUMBER = 1;
+	static final int CONSTRAINTFILENUMBER = 3;
 	public int minimumNumSearchReplicates() {
 		return 2;
 	}
@@ -156,6 +158,23 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			final File file = new File(externalProcRunner.getInputFilePath(DATAFILENUMBER));
 			FileBody fb = new FileBody(file);
 			builder.addPart("input.infile_", fb);  
+			if (useConstraintTree==SKELETAL || useConstraintTree==MONOPHYLY) {
+				final File constraintFile = new File(externalProcRunner.getInputFilePath(CONSTRAINTFILENUMBER));
+				if (constraintFile!=null && constraintFile.exists()) {
+					FileBody fb2 = new FileBody(constraintFile);
+					if (useConstraintTree == SKELETAL) 
+						builder.addPart("input.binary_backbone_", fb2);  
+					else if (useConstraintTree == MONOPHYLY)
+						builder.addPart("input.constraint_", fb2);  
+				}
+			}
+			final File modelFile = new File(externalProcRunner.getInputFilePath(MULTIMODELFILENUMBER));
+			if (modelFile!=null && modelFile.exists()) {
+				FileBody fb2 = new FileBody(modelFile);
+				builder.addPart("input.partition_", fb2);  
+			}
+			
+
 		}
 	}
 
@@ -189,10 +208,13 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			addArgument(builder, sb, "vparam.dna_gtrcat_","GTRGAMMA");
 	//	builder.addTextBody("vparam.dna_gtrcat_",LOCdnaModel);
 
-		/*
-		if (StringUtil.notEmpty(LOCMultipleModelFile))
-			arguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
-
+		
+		if (StringUtil.notEmpty(LOCMultipleModelFile)){
+			//addArgument(builder, sb, "input.partition_",multipleModelFileName);
+		}
+			
+			//arguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
+/*
 		if (!StringUtil.blank(LOCotherOptions)) 
 			arguments += " " + LOCotherOptions;
 
@@ -201,7 +223,15 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 		addArgument(builder, sb, "vparam.provide_parsimony_seed_","1");
 		addArgument(builder, sb, "vparam.parsimony_seed_val_",""+randomIntSeed);
 
-		
+/*		if (useConstraintTree == SKELETAL) 
+			addArgument(builder, sb, "input.binary_backbone_",constraintTreeFileName);
+		//localArguments += " -r constraintTree.tre "; 
+		else if (useConstraintTree == MONOPHYLY)
+			addArgument(builder, sb, "input.constraint_",constraintTreeFileName);
+		//localArguments += " -g constraintTree.tre "; 
+*/
+
+
 		if (bootstrapOrJackknife()) {
 			if (LOCbootstrapreps>0) {
 				addArgument(builder, sb, "vparam.choose_bootstrap_","b");
@@ -221,6 +251,8 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 		//	if (RAxML814orLater)
 			//addArgument(builder, sb, "vparam.mesquite_output_","1");
 		}
+		
+		
 
 		TaxaSelectionSet outgroupSet =null;
 		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
@@ -276,7 +308,8 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 		if (!isPreflight) {
 			getArguments(arguments, sb, dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
-			logln("RAxML arguments: \n" + sb.toString() + "\n");
+			if (isVerbose())
+				logln("RAxML arguments: \n" + sb.toString() + "\n");
 		} else {
 			getArguments(arguments, sb, dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}

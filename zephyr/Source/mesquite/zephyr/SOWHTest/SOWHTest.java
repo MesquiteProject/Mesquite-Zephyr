@@ -448,11 +448,11 @@ public class SOWHTest extends TreeWindowAssistantA     {
 	/*.................................................................................................................*/
 	String reportFilePath=null;
 	/*.................................................................................................................*/
-	public void saveResults(StringBuffer results) {
+	public void saveResults(String results) {
 		if (StringUtil.blank(reportFilePath))
 			return;
 
-		MesquiteFile.putFileContents(reportFilePath, results.toString(), false);
+		MesquiteFile.putFileContents(reportFilePath, results, false);
 
 	}
 	
@@ -467,6 +467,17 @@ public class SOWHTest extends TreeWindowAssistantA     {
 
 		initialText.append("\n\nValues of the test statistic for simulated matrices");
 		return initialText.toString();
+
+	}
+	/** This method provides text for the start of the report file */
+	private String getStartOfReportFileText(){
+		StringBuffer logBuffer = new StringBuffer();
+		logBuffer.append("SOWH Test\n");
+		logBuffer.append(StringUtil.getDateTime()+"\n");
+		logBuffer.append("Mesquite version: " + MesquiteTrunk.mesquiteTrunk.getVersion()+", build number " + MesquiteTrunk.mesquiteTrunk.getBuildNumber()+"\n");
+		logBuffer.append("Zephyr version: " + getVersion()+"\n");
+		logBuffer.append("Phylogeny inferences conducted by " + runner.getName()+"\n");
+		return logBuffer.toString();
 
 	}
 	/*.................................................................................................................*/
@@ -558,7 +569,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 				initialText.setLength(0);
 				initialText.append(getInitialText(data));
 				panel.setInitialText(initialText.toString());
-				saveResults(initialText);
+				saveResults(getStartOfReportFileText() +"\n"+ initialText.toString());
 			}
 
 			repReport.append("\n  "  + simulatedDelta+ "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4));

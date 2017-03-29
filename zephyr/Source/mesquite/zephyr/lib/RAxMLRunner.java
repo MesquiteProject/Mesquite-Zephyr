@@ -468,6 +468,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 
 	protected String multipleModelFileName;
+	protected String constraintTreeFileName="constraintTree.tre";
 
 	/*.................................................................................................................*/
 	public void setFileNames () {
@@ -618,7 +619,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		fileContents[2] = translationTable;
 		fileNames[2] = translationFileName;
 		fileContents[3] = constraintTree;
-		fileNames[3] = "constraintTree.tre";
+		fileNames[3] = constraintTreeFileName;
 
 		numRunsCompleted = 0;
 		completedRuns = new boolean[numRuns];
