@@ -713,7 +713,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			stateFreqChoice = dialog.addPopUpMenu("State Frequencies", new String[] {"Equal", "Empirical", "Estimate" }, 2);  
 		}
 		rateMatrixChoice.addItemListener(this);
-		invarSitesChoice = dialog.addPopUpMenu("Invariant Sites", new String[] {"none", "Estimate Proportion" }, 1);
+		invarSitesChoice = dialog.addPopUpMenu("Invariable Sites", new String[] {"none", "Estimate Proportion" }, 1);
 		rateHetChoice = dialog.addPopUpMenu("Gamma Site-to-Site Rate Model",new String[] { "none", "Estimate Shape Parameter" }, 1);
 		numRateCatField = dialog.addIntegerField("Number of Rate Categories for Gamma", numratecats, 4, 1, 20);
 

@@ -79,7 +79,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 		rng = new Random(originalSeed);
 
-		charSimulatorTask= (CharacterSimulator)hireEmployee(CharacterSimulator.class, "Character simulator");
+		charSimulatorTask= (CharacterSimulator)hireEmployee(CharacterSimulator.class, "Character Simulator");
 		if (charSimulatorTask == null) {
 			return sorry("Simulated Matrices on Trees can't start because not appropiate character simulator module was obtained");
 		}
@@ -512,7 +512,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 	}
 	/*.................................................................................................................*/
 	public String getReplicateLine(int rep, double delta, double pValue) {
-		return "\n" + rep+"\t"+ delta + "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4);
+		return "\n" + (rep+1)+"\t"+ MesquiteDouble.toStringDigitsSpecified(delta, 8) + "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4);
 	}
 	/*.................................................................................................................*/
 	/** This method does the core calculations for the SOWH test. */
