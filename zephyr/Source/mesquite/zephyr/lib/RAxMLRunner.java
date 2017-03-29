@@ -425,7 +425,12 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public void resetSOWHOptionsUnconstrained(){
 		useConstraintTree = NOCONSTRAINT;
 	}
-	public String getSOWHDetails(){
+	public String getSOWHDetailsObserved(){
+		StringBuffer sb = new StringBuffer();
+		sb.append("Number of search replicates for observed matrix: " + numRuns);
+		return sb.toString();
+	}
+	public String getSOWHDetailsSimulated(){
 		StringBuffer sb = new StringBuffer();
 		sb.append("Number of search replicates for each simulated matrix: " + numRuns + "\n");
 		if (SOWHConstraintTree==MONOPHYLY)

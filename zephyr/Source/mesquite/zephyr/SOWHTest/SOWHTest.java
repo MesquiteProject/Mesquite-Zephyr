@@ -398,6 +398,9 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		if (runner.getUserAborted())
 			userAborted = true;
 		runner.setRunInProgress(false);
+		if (rep<0){
+			observedRunDetails = runner.getSOWHDetailsObserved();
+		}
 
 		if (!userAborted) {
 			//Now, do the unconstrained search
@@ -472,6 +475,8 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		return initialText.toString();
 
 	}
+	
+	String observedRunDetails = "";
 	/** This method provides text for the start of the report file */
 	private String getStartOfReportFileText(){
 		StringBuffer logBuffer = new StringBuffer();
@@ -479,8 +484,10 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		logBuffer.append(StringUtil.getDateTime()+"\n");
 		logBuffer.append("Mesquite version: " + MesquiteTrunk.mesquiteTrunk.getVersion()+", build number " + MesquiteTrunk.mesquiteTrunk.getBuildNumber()+"\n");
 		logBuffer.append("Zephyr version: " + getVersion()+"\n");
-		logBuffer.append("Phylogeny inferences conducted by " + runner.getName()+"\n");
-		logBuffer.append(runner.getSOWHDetails()+"\n");
+		logBuffer.append("Phylogeny inferences conducted by " + runner.getName()+"\n\n");
+		if (StringUtil.notEmpty(observedRunDetails))
+			logBuffer.append(observedRunDetails+"\n");
+		logBuffer.append(runner.getSOWHDetailsSimulated()+"\n");
 		return logBuffer.toString();
 
 	}
@@ -587,7 +594,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			panel.setPValue(pValue);
 			panel.repaint();
 			if (rep==totalReps-1) {
-				if (AlertDialog.query(containerOfModule(), "More replicates?", "Do you want to do more replicates" , "More Replicates", "No")){
+				if (AlertDialog.query(containerOfModule(), "More replicates?", "Do you want to do more replicates?" , "More Replicates", "No")){
 					MesquiteInteger moreReps= new MesquiteInteger(100);
 					if (QueryDialogs.queryInteger(containerOfModule(), "Number of additional replicates", "Number of additional replicates", true, moreReps)){
 						if (moreReps.isCombinable()) {

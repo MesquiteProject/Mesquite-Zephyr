@@ -99,7 +99,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	public void resetSOWHOptionsUnconstrained(){
 	}
-	public String getSOWHDetails(){
+	public String getSOWHDetailsObserved(){
+		return "";
+	}
+	public String getSOWHDetailsSimulated(){
 		return "";
 	}
 
