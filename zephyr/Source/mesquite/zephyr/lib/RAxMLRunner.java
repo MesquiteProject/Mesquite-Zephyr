@@ -400,9 +400,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public  void addItemsToSOWHDialogPanel(ExtensibleDialog dialog){
 		useOptimizedScoreAsBestCheckBox = dialog.addCheckBox("use final gamma-based optimized RAxML score", useOptimizedScoreAsBest);
 		if (SOWHConstraintTree==MONOPHYLY)
-			SOWHConstraintButtons = dialog.addRadioButtons (new String[]{"Regular constraint", "Backbone constraint"}, 0);
+			SOWHConstraintButtons = dialog.addRadioButtons (new String[]{"Regular constraint", "Skeletal constraint"}, 0);
 		else if (SOWHConstraintTree==SKELETAL)
-			SOWHConstraintButtons = dialog.addRadioButtons (new String[]{"Regular constraint", "Backbone constraint"}, 1);
+			SOWHConstraintButtons = dialog.addRadioButtons (new String[]{"Regular constraint", "Skeletal constraint"}, 1);
 
 	}
 	
@@ -436,7 +436,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (SOWHConstraintTree==MONOPHYLY)
 			sb.append("Constraint type used in SOWH test: Regular constraint\n");
 		else if (SOWHConstraintTree==SKELETAL)
-			sb.append("Constraint type used in SOWH test: Backbone constraint\n");
+			sb.append("Constraint type used in SOWH test: Skeletal constraint\n");
 		return sb.toString();
 	}
 

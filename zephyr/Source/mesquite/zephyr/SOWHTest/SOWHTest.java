@@ -223,8 +223,10 @@ public class SOWHTest extends TreeWindowAssistantA     {
 
 		IntegerField totalRepsField = dialog.addIntegerField("Number of simulated matrices to examine:",  totalReps,5,1,MesquiteInteger.infinite);
 		Checkbox alterDataCheckbox = dialog.addCheckBox("Alter data after each simulation, before tree inference", alterData);
-		if (runner !=null)
+		if (runner !=null) {
+			dialog.addHorizontalLine(1);
 			runner.addItemsToSOWHDialogPanel(dialog);
+		}
 		
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
@@ -394,7 +396,8 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		runner.setConstainedSearchAllowed(false);
 		runner.setConstrainedSearch(true);  
 		runner.resetSOWHOptionsConstrained();
-		runner.getTrees(trees, taxa, matrix, rng.nextInt(), constrainedScore);  // find score of constrained tree
+		if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), constrainedScore)==null)  // find score of constrained tree
+			return MesquiteDouble.unassigned;  
 		if (runner.getUserAborted())
 			userAborted = true;
 		runner.setRunInProgress(false);
@@ -407,7 +410,8 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			//runner.setConstainedSearchAllowed(false);
 			runner.setConstrainedSearch(false);
 			runner.resetSOWHOptionsUnconstrained();
-			runner.getTrees(trees, taxa, matrix, rng.nextInt(), unconstrainedScore);   // find score of unconstrained trees
+			if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), unconstrainedScore)==null)
+					return MesquiteDouble.unassigned;   // find score of unconstrained trees
 			if (runner.getUserAborted())
 				userAborted = true;
 			runner.setRunInProgress(false);
@@ -570,14 +574,14 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			double simulatedDelta = calculateDelta(simulatedStates, rep, totalReps);
 			if (userAborted) {
 				return;
-			}
+			} 
 			if (createdNewDataObject && simulatedData!=null) {
 				simulatedData.dispose();
 				simulatedData=null;
 			}
 			if (!MesquiteDouble.isCombinable(simulatedDelta)) {
-				rep--;
-				continue;
+				MesquiteMessage.discreetNotifyUser("There was a problem with the SOWH test and it was terminated.");
+				return;
 			}
 			simulatedDeltas[rep] = simulatedDelta;
 			double pValue = calculatePValue(observedDelta,simulatedDeltas);
