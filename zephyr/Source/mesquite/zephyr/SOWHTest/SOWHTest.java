@@ -603,9 +603,12 @@ public class SOWHTest extends TreeWindowAssistantA     {
 				simulatedData.dispose();
 				simulatedData=null;
 			}
-			if (!MesquiteDouble.isCombinable(simulatedDelta)) {
-				MesquiteMessage.discreetNotifyUser("There was a problem with the SOWH test and it was terminated.");
-				return;
+			if (!MesquiteDouble.isCombinable(simulatedDelta)) {  
+				logln("WARNING: replicate " + (rep+1) + " of the SOWH test failed to yield a valid value; replicate being repeated");
+				rep--;
+				continue;
+				//MesquiteMessage.discreetNotifyUser("There was a problem with the SOWH test and it was terminated.");
+				//return;
 			}
 			simulatedDeltas[rep] = simulatedDelta;
 			double pValue = calculatePValue(observedDelta,simulatedDeltas);
