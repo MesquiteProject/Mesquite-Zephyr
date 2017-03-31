@@ -442,21 +442,29 @@ public class SOWHTest extends TreeWindowAssistantA     {
 	}
 
 	/*.................................................................................................................*/
-	double calculatePValue(double observed, double[] simulated) {
+	/** Calculates the pValue by seeing how many of the simulated values are greater than or equal to the observed value.
+	 * Also calculates the fraction of the values that are less than 0. */
+	double calculatePValue(double observed, double[] simulated, MesquiteDouble fractionNegative) {
 		DoubleArray.sort(simulated);
 		int count = 0;
 		int asExtreme = 0;
+		int negative = 0;
 		for (int i=0; i<simulated.length; i++) {
 			if (MesquiteDouble.isCombinable(simulated[i])) {
 				count++;
+				if (simulated[i]<0)
+					negative++;
 				if (observed<=simulated[i])
 					asExtreme++;
 			} else {
 				break;
 			}
 		}
-		if (count>0)
+		if (count>0) {
+			if (fractionNegative!=null)
+				fractionNegative.setValue(negative*1.0/count);
 			return (asExtreme*1.0)/count;
+		}
 
 		return MesquiteDouble.unassigned;
 	}
@@ -507,8 +515,12 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		MesquiteFile.appendFileContents(reportFilePath, s, false);
 	}
 	/*.................................................................................................................*/
-	public String getListHeading() {
-		return "\nrep\tdelta\tp-value\n-------------------------------"; 
+	public String getListHeading(boolean extraValuesForFile) {
+		String s= "\nrep\tdelta\tp-value";
+		if (extraValuesForFile)
+			s+="\tfraction-negative";
+		s+="\n-------------------------------"; 
+		return s;
 	}
 	/*.................................................................................................................*/
 	public String getReplicateLine(int rep, double delta, double pValue) {
@@ -581,6 +593,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 
 		hireDataAltererIfNeeded();
 		
+		MesquiteDouble fractionNegative = new MesquiteDouble(0.0);
 		StringBuffer repReport = new StringBuffer();
 		
 		for (int rep = 0; rep<totalReps; rep++) {
@@ -611,18 +624,21 @@ public class SOWHTest extends TreeWindowAssistantA     {
 				//return;
 			}
 			simulatedDeltas[rep] = simulatedDelta;
-			double pValue = calculatePValue(observedDelta,simulatedDeltas);
+			double pValue = calculatePValue(observedDelta,simulatedDeltas,fractionNegative);
 			if (rep==0) {
 				initialText.setLength(0);
 				initialText.append(getInitialText(data));
 				panel.setInitialText(initialText.toString());
 				saveResults(getStartOfReportFileText() +"\n"+ initialText.toString());
-				appendToReportFile("\n"+getListHeading());
+				appendToReportFile("\n"+getListHeading(true));
 			}
 
 			repReport.insert(0,getReplicateLine(rep, simulatedDelta, pValue));
-			panel.setText("\nReplicates completed: "+ (rep+1) + " of " +totalReps + "\n" + getListHeading() + repReport.toString());
-			appendToReportFile(getReplicateLine(rep, simulatedDelta, pValue));
+			StringBuffer panelText = new StringBuffer();
+			panelText.append("\nReplicates completed: "+ (rep+1) + " of " +totalReps + "\n");
+			panelText.append("\nFraction of delta values <0: "+ fractionNegative.toString(4)+"\n");
+			panel.setText(panelText.toString()+ getListHeading(false) + repReport.toString());
+			appendToReportFile(getReplicateLine(rep, simulatedDelta, pValue)+"\t"+fractionNegative.toString(4));
 			panel.setPValue(pValue);
 			panel.repaint();
 			if (rep==totalReps-1) {
@@ -658,7 +674,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 	/*.................................................................................................................*/
 	/** returns an explanation of what the module does.*/
 	public String getExplanation() {
-		return "Conducts a SOWH Test." ;
+		return "Conducts a Swofford-Olsen-Waddell-Hillis test for phylogenetic structure." ;
 	}
 	public void endJob() {
 		if (panel != null && containingWindow != null)
