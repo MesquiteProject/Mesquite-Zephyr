@@ -261,7 +261,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
 
 		if (checker.compare(this.getClass(), "Provokes Calculation", null, commandName, "doCounts")) {
-			doCounts();
+			doSOWHTest();
 		}
 		else if (checker.compare(this.getClass(), "Quits", null, commandName, "close")) {
 			if (panel != null && containingWindow != null)
@@ -286,7 +286,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		this.hypothesisTree=tree;
 		taxa = tree.getTaxa();
 		if ((tree.getID() != oldTreeID || tree.getVersionNumber() != oldTreeVersion) && !MesquiteThread.isScripting()) {
-			doCounts();  //only do counts if tree has changed
+			doSOWHTest();  //only do counts if tree has changed
 		}
 		oldTreeID = tree.getID();
 		oldTreeVersion = tree.getVersionNumber();
@@ -528,7 +528,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 	}
 	/*.................................................................................................................*/
 	/** This method does the core calculations for the SOWH test. */
-	public void doCounts() {
+	public void doSOWHTest() {
 		if (taxa == null || panel == null) {
 			iQuit();
 			return;
@@ -595,6 +595,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 		
 		MesquiteDouble fractionNegative = new MesquiteDouble(0.0);
 		StringBuffer repReport = new StringBuffer();
+		int uncombinableSimulatedDelta=0;
 		
 		for (int rep = 0; rep<totalReps; rep++) {
 			panel.setReplicate(rep+1);
@@ -618,6 +619,7 @@ public class SOWHTest extends TreeWindowAssistantA     {
 			}
 			if (!MesquiteDouble.isCombinable(simulatedDelta)) {  
 				logln("WARNING: replicate " + (rep+1) + " of the SOWH test failed to yield a valid value; replicate being repeated");
+				uncombinableSimulatedDelta++;
 				rep--;
 				continue;
 				//MesquiteMessage.discreetNotifyUser("There was a problem with the SOWH test and it was terminated.");
@@ -653,6 +655,10 @@ public class SOWHTest extends TreeWindowAssistantA     {
 				}
 			}
 
+		}
+		
+		if (isPrerelease() || MesquiteTrunk.debugMode) {
+			logln("Number of replicates with uncombinable delta values: " + uncombinableSimulatedDelta);
 		}
 
 		panel.setCalculating(false);
