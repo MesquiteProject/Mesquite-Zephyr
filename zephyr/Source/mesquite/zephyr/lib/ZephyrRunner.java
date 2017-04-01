@@ -89,6 +89,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	
 	Checkbox deleteAnalysisDirectoryCheckBox =  null;
 
+	public  boolean smallerIsBetter (){
+		return true;
+	}
 	public  void addItemsToSOWHDialogPanel(ExtensibleDialog dialog){
 	}
 	

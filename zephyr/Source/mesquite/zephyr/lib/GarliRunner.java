@@ -27,7 +27,7 @@ import mesquite.molec.lib.Blaster;
 import mesquite.zephyr.lib.*;
 import mesquite.zephyr.lib.*;
 
-public abstract class GarliRunner extends ZephyrRunner implements ItemListener, ActionListener, ExternalProcessRequester {
+public abstract class GarliRunner extends ZephyrRunner implements ItemListener, ActionListener, ExternalProcessRequester, ConstrainedSearcherTreeScoreProvider {
 	public static final String SCORENAME = "GARLIScore";
 
 	boolean onlyBest = true;
@@ -102,6 +102,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	protected static final int POSITIVECONSTRAINT = 1;
 	protected static final int NEGATIVECONSTRAINT = 2;
 	protected int useConstraintTree = NOCONSTRAINT;
+	protected int SOWHConstraintTree = POSITIVECONSTRAINT;
+
+	Tree constraint = null;
+
 
 
 	/*
@@ -578,6 +582,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	public String getTestedProgramVersions() {
 		return "2.0";
 	}
+	public  boolean smallerIsBetter (){
+		return false;
+	}
 
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
@@ -602,6 +609,48 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		else if (useConstraintTree!=NOCONSTRAINT && !constrainedSearch)
 			useConstraintTree = NOCONSTRAINT;
 		this.constrainedSearch = constrainedSearch;
+	}
+	
+	Checkbox useOptimizedScoreAsBestCheckBox =  null;
+	RadioButtons SOWHConstraintButtons = null;
+	public  void addItemsToSOWHDialogPanel(ExtensibleDialog dialog){
+		if (SOWHConstraintTree==POSITIVECONSTRAINT)
+			SOWHConstraintButtons = dialog.addRadioButtons (new String[]{"Positive constraint", "Negative constraint"}, 0);
+		else if (SOWHConstraintTree==NEGATIVECONSTRAINT)
+			SOWHConstraintButtons = dialog.addRadioButtons (new String[]{"Positive constraint", "Negative constraint"}, 1);
+
+	}
+	
+	public boolean SOWHoptionsChosen(){
+		if (SOWHConstraintButtons!=null) {
+			int constraint = SOWHConstraintButtons.getValue();
+			if (constraint==0)
+				SOWHConstraintTree = POSITIVECONSTRAINT;
+			else if (constraint==1)
+				SOWHConstraintTree = NEGATIVECONSTRAINT;
+			useConstraintTree = SOWHConstraintTree;
+		}
+		return true;
+	}
+	public void resetSOWHOptionsConstrained(){
+		useConstraintTree = SOWHConstraintTree;
+	}
+	public void resetSOWHOptionsUnconstrained(){
+		useConstraintTree = NOCONSTRAINT;
+	}
+	public String getSOWHDetailsObserved(){
+		StringBuffer sb = new StringBuffer();
+		sb.append("Number of search replicates for observed matrix: " + numRuns);
+		return sb.toString();
+	}
+	public String getSOWHDetailsSimulated(){
+		StringBuffer sb = new StringBuffer();
+		sb.append("Number of search replicates for each simulated matrix: " + numRuns + "\n");
+		if (SOWHConstraintTree==POSITIVECONSTRAINT)
+			sb.append("Constraint type used in SOWH test: Positive constraint\n");
+		else if (SOWHConstraintTree==NEGATIVECONSTRAINT)
+			sb.append("Constraint type used in SOWH test: Negative constraint\n");
+		return sb.toString();
 	}
 	Button setByModelNameButton;
 	/*.................................................................................................................*/
@@ -634,7 +683,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose GARLI Score.";
 
 		dialog.appendToHelpString(helpString);
-		dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
+		if (zephyrRunnerEmployer!=null)
+			dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 
@@ -663,10 +713,12 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		IntegerField numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, minimumNumSearchReplicates(), MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 
-		dialog.addHorizontalLine(1);
-		dialog.addLabel("Constraint tree:", Label.LEFT, false, true);
-		constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Positive Constraint", "Negative Constraint"}, useConstraintTree);
-		constraintButtons.addItemListener(this);
+		if (getConstrainedSearchAllowed()) {
+			dialog.addHorizontalLine(1);
+			dialog.addLabel("Constraint tree:", Label.LEFT, false, true);
+			constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Positive Constraint", "Negative Constraint"}, useConstraintTree);
+			constraintButtons.addItemListener(this);
+		}
 
 		tabbedPanel.addPanel("Character Models", true);
 		if (!data.hasCharacterGroups()) {
@@ -738,9 +790,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				onlyBest = onlyBestBox.getState();
 				showConfigDetails = showConfigDetailsBox.getState();
 				partitionScheme = charPartitionButtons.getValue();
-				useConstraintTree = constraintButtons.getValue();
-				if (useConstraintTree!=NOCONSTRAINT)
-					setConstrainedSearch(true);
+				if (getConstrainedSearchAllowed()) {
+					useConstraintTree = constraintButtons.getValue();
+					if (useConstraintTree!=NOCONSTRAINT)
+						setConstrainedSearch(true);
+				}
 				linkModels = linkModelsBox.getState();
 				subsetSpecificRates = subsetSpecificRatesBox.getState();
 				processRunnerOptions();
@@ -853,7 +907,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debugg.println
 				useConstraintTree=POSITIVECONSTRAINT;
 			getConstraintTreeSource();
-			Tree constraint = null;
+			constraint = null;
 			if (constraintTreeTask != null)
 				constraint = constraintTreeTask.getTree(taxa, "This will be the constraint tree");
 			if (constraint == null){
@@ -1396,6 +1450,13 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	public String getExecutableName() {
 		return "GARLI";
 	}
+	public String getConstraintTreeName() {
+		if (constraint==null)
+			return null;
+		return constraint.getName();
+	}
+
+
 
 	public void runFailed(String message) {
 		// TODO Auto-generated method stub
@@ -1490,6 +1551,7 @@ class GarliCharModel {
 		sb.append("\ninvariantsites = " + invariantsites);
 
 	}
+	
 
 	public int getRatematrixIndex() {
 		return ratematrixIndex;
@@ -1530,5 +1592,6 @@ class GarliCharModel {
 	public int getVersionOfFirstRelease(){
 		return -100;  
 	}
+	
 
 }

@@ -29,7 +29,7 @@ import mesquite.io.lib.IOUtil;
 
 // see SimMatricesOnTrees for CharacterSimulator bookkeeping
 
-public class SOWHTest extends TreeWindowAssistantA     {
+public class SOWHTest extends TreeWindowAssistantA      {
 	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
 		EmployeeNeed e = registerEmployeeNeed(NumForCharAndTreeDivers.class, getName() + "  needs a method to calculate diversification statistics.",
 				"You can choose the diversification calculation initially or under the Diversification Measure submenu.");
@@ -429,8 +429,14 @@ public class SOWHTest extends TreeWindowAssistantA     {
 
 		if (!userAborted) {
 			if (unconstrainedScore.isCombinable() && constrainedScore.isCombinable()){
-				finalScore = constrainedScore.getValue() - unconstrainedScore.getValue();
-				logln("\ndelta = "+finalScore + "  (=" + constrainedScore.getValue()+"-"+unconstrainedScore.getValue()+")");
+				if (runner.smallerIsBetter()) {
+					finalScore = constrainedScore.getValue() - unconstrainedScore.getValue();
+					logln("\ndelta = "+finalScore + "  (=" + constrainedScore.getValue()+"-"+unconstrainedScore.getValue()+")");
+				}
+				else {
+					finalScore = unconstrainedScore.getValue() - constrainedScore.getValue();
+					logln("\ndelta = "+finalScore + "  (=" + (-constrainedScore.getValue())+"-"+(-unconstrainedScore.getValue())+")");
+				}
 				return finalScore;
 			}
 		} else {
