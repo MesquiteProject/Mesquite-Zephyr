@@ -532,6 +532,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 	public String getReplicateLine(int rep, double delta, double pValue) {
 		return "\n" + (rep+1)+"\t"+ MesquiteDouble.toStringDigitsSpecified(delta, 8) + "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4);
 	}
+	double totalTime=0;
 	/*.................................................................................................................*/
 	/** This method does the core calculations for the SOWH test. */
 	public void doSOWHTest() {
@@ -569,9 +570,6 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		CategoricalData data = (CategoricalData)observedStates.getParentData();
 		stateClass = observedStates.getStateClass();
 		
-		
-		//		window.setText("");
-
 		panel.setCalculating(true);
 		panel.repaint();
 		if (calculateObservedDelta) {
@@ -602,6 +600,9 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		MesquiteDouble fractionNegative = new MesquiteDouble(0.0);
 		StringBuffer repReport = new StringBuffer();
 		int uncombinableSimulatedDelta=0;
+		MesquiteTimer timer = new MesquiteTimer();
+		timer.start();
+		totalTime = 0;
 		
 		for (int rep = 0; rep<totalReps; rep++) {
 			panel.setReplicate(rep+1);
@@ -649,6 +650,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			appendToReportFile(getReplicateLine(rep, simulatedDelta, pValue)+"\t"+fractionNegative.toString(4));
 			panel.setPValue(pValue);
 			panel.repaint();
+			totalTime += timer.timeSinceLastInSeconds();
 			if (rep==totalReps-1) {
 				if (AlertDialog.query(containerOfModule(), "More replicates?", "Do you want to do more replicates?" , "More Replicates", "No")){
 					MesquiteInteger moreReps= new MesquiteInteger(100);
@@ -660,6 +662,11 @@ public class SOWHTest extends TreeWindowAssistantA      {
 					}
 				}
 			}
+			timer.timeSinceLast();  // do this to reset the timer so that we don't get penalized for the alert dialog asking if more replicates.
+			double totalTimeInSeconds = timer.timeSinceVeryStartInSeconds();
+			double timePerReplicate = totalTime/(rep+1);
+			String timeRemaining = StringUtil.secondsToHHMMSS((int)(timePerReplicate*(totalReps-rep-1)));
+			logln("\nSOWH Test running time: "+ StringUtil.secondsToHHMMSS((int)totalTimeInSeconds) + ".  Estimated time remaining: " + timeRemaining);
 
 		}
 		

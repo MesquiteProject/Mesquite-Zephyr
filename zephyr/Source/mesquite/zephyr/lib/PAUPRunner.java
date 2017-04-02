@@ -286,6 +286,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 				}
 				else {
 					discreetAlert("Constraint tree cannot be used as a constraint because it is strictly dichotomous");
+					if (constraintTreeTask != null)
+						constraintTreeTask.reset();
 					return null;
 				}
 			}

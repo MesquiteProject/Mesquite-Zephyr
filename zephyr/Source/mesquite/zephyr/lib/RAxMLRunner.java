@@ -600,8 +600,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				useConstraintTree=MONOPHYLY;
 			if (constraint==null) { // we don't have one
 				getConstraintTreeSource();
-				if (constraintTreeTask != null)
+				if (constraintTreeTask != null){
 					constraint = constraintTreeTask.getTree(taxa, "This will be the constraint tree");
+				}
 			}
 			if (constraint == null){
 				discreetAlert("Constraint tree is not available.");
@@ -615,6 +616,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				}
 				else {
 					discreetAlert("Constraint tree cannot be used as a skeletal constraint because it has polytomies");
+					constraint=null;
+					if (constraintTreeTask != null)
+						constraintTreeTask.reset();  //WAYNECHECK: added reset as otherwise you got into an infinite loop as it never allowed you to reset the context tree
 					return null;
 				}
 			}
@@ -626,6 +630,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			}
 				else {
 					discreetAlert("Constraint tree cannot be used as a partial resolution constraint because it is strictly dichotomous");
+					constraint=null;
+					if (constraintTreeTask != null)
+						constraintTreeTask.reset();
 					return null;
 			}
 			}
