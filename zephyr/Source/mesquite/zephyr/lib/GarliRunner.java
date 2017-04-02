@@ -929,6 +929,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 			}
 		}
+		setRootNameForDirectoryInProcRunner();
+
 
 		// setting up the arrays of input file names and contents
 		int numInputFiles = 3;

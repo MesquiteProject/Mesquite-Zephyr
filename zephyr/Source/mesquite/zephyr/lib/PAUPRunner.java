@@ -293,6 +293,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			}
 		}
 
+		setRootNameForDirectoryInProcRunner();
+
 		String commands = getPAUPCommandFile(paupCommander, dataFileName, treeFileName, data, constraintTree);
 		if (isVerbose()) {
 			logln("\n\nCommands given to PAUP*:");
