@@ -164,6 +164,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	// setting the requester, to whom this runner will communicate about the run
 	public  void setProcessRequester(ExternalProcessRequester processRequester){
 		setExecutableName(processRequester.getProgramName());
+		setRootNameForDirectory(processRequester.getRootNameForDirectory());
 		this.processRequester = processRequester;
 		loadPreferences();
 		processRequester.intializeAfterExternalProcessRunnerHired();
@@ -220,7 +221,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
 		//String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 		if (rootDir==null) 
-			rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+			rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getRootNameForDirectory(), "-Run.");
 		if (rootDir==null)
 			return false;
 
@@ -251,7 +252,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	// the actual data & scripts.  
 	public boolean setPreflightInputFiles(String script){  //assumes for now that all input files are in the same directory
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
-		rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getRootNameForDirectory(), "-Run.");
 		if (rootDir==null)
 			return false;
 		

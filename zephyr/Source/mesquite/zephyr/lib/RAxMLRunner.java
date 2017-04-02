@@ -560,6 +560,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		isProtein = data instanceof ProteinData;
 
 		// create local version of data file; this will then be copied over to the running location
+		
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "RAxML", "-Run.");  
 		if (tempDir==null)
 			return null;
@@ -637,6 +638,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			}
 			}
 		}
+		setRootNameForDirectoryInProcRunner();
 		//now establish the commands for invoking RAxML
 		Object arguments = getProgramArguments(dataFileName, false);
 		Object preflightArguments = getProgramArguments(dataFileName, true);

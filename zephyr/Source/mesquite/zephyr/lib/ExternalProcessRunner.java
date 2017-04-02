@@ -13,6 +13,7 @@ import mesquite.lib.*;
 
 public abstract class ExternalProcessRunner extends MesquiteModule {
 	String executableName;
+	String rootNameForDirectory;
 
 	public Class getDutyClass() {
 		return ExternalProcessRunner.class;
@@ -31,7 +32,15 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public void setExecutableName(String executableName) {
 		this.executableName = executableName;
 	}
+	public String getRootNameForDirectory() {
+		return rootNameForDirectory;
+	}
+	public void setRootNameForDirectory(String rootNameForDirectory) {
+		this.rootNameForDirectory = rootNameForDirectory;
+	}
+
 	public abstract String getExecutableCommand();
+
 
 
 	public  boolean canCalculateTimeRemaining(int repsCompleted){
