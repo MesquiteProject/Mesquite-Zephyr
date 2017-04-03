@@ -401,8 +401,13 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		runner.setConstainedSearchAllowed(false);
 		runner.setConstrainedSearch(true);  
 		runner.resetSOWHOptionsConstrained();
-		if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), constrainedScore)==null)  // find score of constrained tree
+		if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), constrainedScore)==null){  // find score of constrained tree
+			if (runner.getUserAborted()) {
+				panel.setAborted(true);
+				userAborted = true;
+			}
 			return MesquiteDouble.unassigned;  
+		}
 		if (runner.getUserAborted())
 			userAborted = true;
 		runner.setRunInProgress(false);
@@ -415,8 +420,13 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			//runner.setConstainedSearchAllowed(false);
 			runner.setConstrainedSearch(false);
 			runner.resetSOWHOptionsUnconstrained();
-			if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), unconstrainedScore)==null)
+			if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), unconstrainedScore)==null) {
+					if (runner.getUserAborted()) {
+						panel.setAborted(true);
+						userAborted = true;
+					}
 					return MesquiteDouble.unassigned;   // find score of unconstrained trees
+			}
 			if (runner.getUserAborted())
 				userAborted = true;
 			runner.setRunInProgress(false);
@@ -580,7 +590,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 				iQuit();
 				return;
 			}
-			if (userAborted)
+			if (userAborted) 
 				return;
 		}
 		panel.setCalculatingObserved(false);
@@ -604,7 +614,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		timer.start();
 		totalTime = 0;
 		
-		for (int rep = 0; rep<totalReps; rep++) {
+		for (int rep = 0; rep<totalReps && !userAborted; rep++) {
 			panel.setReplicate(rep+1);
 			MCharactersDistribution simulatedStates = getSimulatedMatrix(taxa,(rep+1));
 			boolean createdNewDataObject = simulatedStates.getParentData()==null;
@@ -617,14 +627,16 @@ public class SOWHTest extends TreeWindowAssistantA      {
 
 			}
 			double simulatedDelta = calculateDelta(simulatedStates, rep, totalReps);
-			if (userAborted) {
-				return;
-			} 
 			if (createdNewDataObject && simulatedData!=null) {
 				simulatedData.dispose();
 				simulatedData=null;
 			}
+			if (userAborted) {
+				return;
+			} 
 			if (!MesquiteDouble.isCombinable(simulatedDelta)) {  
+				if (userAborted)
+					return;
 				logln("WARNING: replicate " + (rep+1) + " of the SOWH test failed to yield a valid value; replicate being repeated");
 				uncombinableSimulatedDelta++;
 				rep--;

@@ -24,6 +24,8 @@ public interface ExternalProcessRequester {
 	
 	public String getRootNameForDirectory();
 	
+	public void setUserAborted(boolean userAborted);
+	
 	public String getExecutableName();
 	
 	public void prepareRunnerObject(Object obj);

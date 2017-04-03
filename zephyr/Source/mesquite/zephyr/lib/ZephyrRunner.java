@@ -125,6 +125,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public void setUserAborted(boolean userAborted) {
 		this.userAborted = userAborted;
 	}
+	
+
 
 	/*.................................................................................................................*/
 	public String getProgramURL() {
