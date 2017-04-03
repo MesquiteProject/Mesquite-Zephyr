@@ -428,6 +428,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public String getSOWHDetailsObserved(){
 		StringBuffer sb = new StringBuffer();
 		sb.append("Number of search replicates for observed matrix: " + numRuns);
+		sb.append("DNA model: " + dnaModel);
+		if (useOptimizedScoreAsBest)
+			sb.append("Using final gamma-based scores");
 		return sb.toString();
 	}
 	public String getSOWHDetailsSimulated(){
@@ -437,6 +440,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			sb.append("Constraint type used in SOWH test: Regular constraint\n");
 		else if (SOWHConstraintTree==SKELETAL)
 			sb.append("Constraint type used in SOWH test: Skeletal constraint\n");
+		sb.append("DNA model: " + dnaModel);
+		if (useOptimizedScoreAsBest)
+			sb.append("Using final gamma-based scores");
 		return sb.toString();
 	}
 
