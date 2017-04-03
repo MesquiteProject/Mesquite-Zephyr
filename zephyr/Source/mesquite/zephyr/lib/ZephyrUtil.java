@@ -92,7 +92,11 @@ public class ZephyrUtil {
 	/*.................................................................................................................*/
 	public static boolean validPhylipTree(String line){  // check to see if tree is valid
 		Parser parser = new Parser(line);
-		String s = parser.getLastToken();
+		String s = parser.getFirstToken();
+		if (!s.startsWith("(")){
+			return false;
+		}
+		s = parser.getLastToken();
 		if (!";".equalsIgnoreCase(s)){
 			return false;
 		}

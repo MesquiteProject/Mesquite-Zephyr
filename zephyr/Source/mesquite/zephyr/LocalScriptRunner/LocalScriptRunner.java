@@ -315,7 +315,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public boolean monitorExecution(ProgressIndicator progIndicator){
 		 if (scriptRunner!=null) {
 			 boolean success = scriptRunner.monitorAndCleanUpShell(progIndicator);
-			 if (progIndicator.isAborted())
+			 if (progIndicator!=null && progIndicator.isAborted())
 				 processRequester.setUserAborted(true);
 			 return success;
 		 }
