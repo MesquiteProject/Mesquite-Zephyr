@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
  */
 
-package mesquite.zephyr.GarliRunner;
+package mesquite.zephyr.lib;
 
 import java.awt.*;
 import java.io.*;
@@ -17,35 +17,37 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
 import mesquite.molec.lib.Blaster;
-import mesquite.zephyr.GarliTrees.*;
+import mesquite.zephyr.lib.*;
 import mesquite.zephyr.lib.*;
 
-public class GarliRunner extends ZephyrRunner implements ActionListener,
-		ItemListener, ExternalProcessRequester {
+public abstract class GarliRunner extends ZephyrRunner implements ItemListener, ActionListener, ExternalProcessRequester, ConstrainedSearcherTreeScoreProvider {
 	public static final String SCORENAME = "GARLIScore";
 
 	boolean onlyBest = true;
 	boolean doBootstrap = false;
-	int numRuns = 5;
+	protected int numRuns = 5;
 	String outgroupTaxSetString = "";
 	int outgroupTaxSetNumber = 0;
 	boolean preferencesSet = false;
-	SingleLineTextField garliPathField = null;
-	SingleLineTextField constraintFileField = null;
+	protected SingleLineTextField garliPathField = null;
+	RadioButtons constraintButtons;
 	TaxaSelectionSet outgroupSet = null;
 
 	String ofprefix = "output";
 
 	String dataFileName = null;
 	int bootstrapreps = 100;
-	int availMemory = 1024;
 
 	boolean showConfigDetails = false;
+
+	protected int previousCurrentRun=0;
 
 	boolean linkModels = false;
 	boolean subsetSpecificRates = false;
@@ -61,7 +63,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	int partitionScheme = partitionByCharacterGroups;
 	int currentPartitionSubset = 0;
 
-	long randseed = -1;
+	protected long randseed = -1;
 	double brlenweight = 0.2;
 	double randnniweight = 0.1;
 	double randsprweight = 0.3;
@@ -75,7 +77,6 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	double uniqueswapbias = 0.1;
 	double distanceswapbias = 1.0;
 	int inferinternalstateprobs = 0;
-	String constraintfile = "";
 
 	String ratematrix = "6rate";
 	String statefrequencies = "estimate";
@@ -86,6 +87,26 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	GarliCharModel[] charGroupModels;
 	GarliCharModel[] codonPositionModels;
 	GarliCharModel noPartitionModel;
+
+	protected static final int DATAFILENUMBER = 0;
+	protected static final int CONSTRAINTFILENUMBER = 1;
+	protected static final int CONFIGFILENUMBER = 2;
+
+	protected static final int MAINLOGFILE = 0;
+	protected static final int CURRENTTREEFILEPATH = 1;
+	protected static final int SCREENLOG = 2;
+	protected static final int TREEFILE = 3;
+	protected static final int BESTTREEFILE = 4;
+
+	protected static final int NOCONSTRAINT = 0;
+	protected static final int POSITIVECONSTRAINT = 1;
+	protected static final int NEGATIVECONSTRAINT = 2;
+	protected int useConstraintTree = NOCONSTRAINT;
+	protected int SOWHConstraintTree = POSITIVECONSTRAINT;
+
+	Tree constraint = null;
+
+
 
 	/*
 	 * [model0] datatype = nucleotide ratematrix = 6rate statefrequencies =
@@ -98,6 +119,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	RadioButtons charPartitionButtons = null;
 	Choice partitionChoice = null;
 	Choice rateMatrixChoice = null;
+	Choice stateFreqChoice = null;
 	SingleLineTextField customMatrix;
 	Choice invarSitesChoice = null;
 	Choice rateHetChoice = null;
@@ -108,25 +130,32 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	// String rootDir;
 
 	public void getEmployeeNeeds() { // This gets called on startup to harvest
-										// information; override this and
-										// inside, call registerEmployeeNeed
-		EmployeeNeed e = registerEmployeeNeed(ExternalProcessRunner.class,
-				getName() + "  needs a module to run an external process.", "");
+		// information; override this and
+		// inside, call registerEmployeeNeed
+		EmployeeNeed e = registerEmployeeNeed(ExternalProcessRunner.class, getName() + "  needs a module to run an external process.", "");
 	}
 
-	public boolean startJob(String arguments, Object condition,
-			boolean hiredByName) {
-		externalProcRunner = (ExternalProcessRunner) hireEmployee(
-				ExternalProcessRunner.class, "External Process Runner (for "
-						+ getName() + ")");
-		if (externalProcRunner == null) {
-			return sorry("Couldn't find an external process runner");
+	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
+		if (!hireExternalProcessRunner()){
+			return sorry("Couldn't hire an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
 
+
 		return true;
 	}
-
+	/*.................................................................................................................*/
+	public String getProgramURL() {
+		return "https://code.google.com/p/garli/";
+	}
+	/* ................................................................................................................. */
+	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */
+	public String purposeOfEmployee(MesquiteModule employee) {
+		if (employee instanceof OneTreeSource){
+			return "for a source of a constraint tree for GARLI"; // to be overridden
+		}
+		return "for " + getName(); // to be overridden
+	}
 	public void intializeAfterExternalProcessRunnerHired() {
 		loadPreferences();
 	}
@@ -137,15 +166,35 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
+	/*.................................................................................................................*/
+	public String getHTMLDescriptionOfStatus(){
+		String s = "";
+		if (getRunInProgress()) {
+			if (bootstrapOrJackknife()){
+				s+="Bootstrap analysis<br>";
+				s+="Bootstrap replicates completed: <b>";
+				if (numRunsCompleted>bootstrapreps)
+					s+=numRuns +" of " + bootstrapreps;
+				else
+					s+=numRunsCompleted +" of " + bootstrapreps;
+			}
+			else {
+				s+="Search for ML Tree<br>";
+				s+="Search replicates completed: <b>";
+				if (numRunsCompleted>numRuns)
+					s+=numRuns +" of " + numRuns;
+				else
+					s+=numRunsCompleted +" of " + numRuns;
+			}
+			s+="</b>";
+		}
+		return s;
+	}
 
 	/*.................................................................................................................*/
-	public Object doCommand(String commandName, String arguments,
-			CommandChecker checker) {
-		if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner",
-				"[name of module]", commandName, "setExternalProcessRunner")) {
-			ExternalProcessRunner temp = (ExternalProcessRunner) replaceEmployee(
-					ExternalProcessRunner.class, arguments,
-					"External Process Runner", externalProcRunner);
+	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
+		if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner", "[name of module]", commandName, "setExternalProcessRunner")) {
+			ExternalProcessRunner temp = (ExternalProcessRunner) replaceEmployee(ExternalProcessRunner.class, arguments,"External Process Runner", externalProcRunner);
 			if (temp != null) {
 				externalProcRunner = temp;
 				parametersChanged();
@@ -159,38 +208,31 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	public void reconnectToRequester(MesquiteCommand command) {
 		continueMonitoring(command);
 	}
+	/*.................................................................................................................*/
+
+	public void appendToConfigFileGeneral(StringBuffer config) {
+	}
+	/*.................................................................................................................*/
 
 	public String getGARLIConfigurationFile(CharacterData data) {
 		StringBuffer sb = new StringBuffer();
-		// sb.append("\n = " + nnnnn);
 		sb.append("[general] ");
-		sb.append("\ndatafname=" + dataFileName);
-		sb.append("\nofprefix=" + ofprefix);
-		sb.append("\noutputcurrentbesttree = 1");
-		// sb.append("\noutputcurrentbesttree = 1");
 
-		if (StringUtil.blank(constraintfile))
-			sb.append("\nconstraintfile = none");
-		else
-			sb.append("\nconstraintfile = constraint"); // important to be
-														// user-editable
-		sb.append("\n\nrandseed = " + randseed); // important to be
-													// user-editable
+		appendToConfigFileGeneral(sb);
 
-		String garliGeneralOptions = "\nstreefname = random \n";
-		garliGeneralOptions += "availablememory = " + availMemory + " \n";
-		garliGeneralOptions += "logevery = 10 \nsaveevery = 100 \nrefinestart = 1 \noutputeachbettertopology = 1"
-				+ "\nenforcetermconditions = 1 \ngenthreshfortopoterm = 10000 \nscorethreshforterm = 0.05 \nsignificanttopochange = 0.01 \noutputphyliptree = 0 \noutputmostlyuselessfiles = 0 \nwritecheckpoints = 0 \nrestart = 0";
-		sb.append(garliGeneralOptions);
+		sb.append("\nlogevery = 10 \nsaveevery = 100 \nrefinestart = 1 \noutputeachbettertopology = 1");
+		sb.append("\nenforcetermconditions = 1 \ngenthreshfortopoterm = 10000 \nscorethreshforterm = 0.05 \nsignificanttopochange = 0.01 \noutputphyliptree = 0  \nwritecheckpoints = 0 \nrestart = 0");
 
 		sb.append("\n");
+
+
+		sb.append("\noutputcurrentbesttree = 1");
 
 		outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,
 				TaxaSelectionSet.class);
 		if (outgroupSet != null) {
 			sb.append("\noutgroups = " + outgroupSet.getListOfOnBits(" "));
 		}
-		sb.append("\nsearchreps = " + numRuns);
 
 		sb.append("\n");
 		if (linkModels)
@@ -201,6 +243,10 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			sb.append("\nsubsetSpecificRates = " + 1);
 		else
 			sb.append("\nsubsetSpecificRates = " + 0);
+		if (data instanceof ProteinData){
+			sb.append("\ndatatype = aminoacid");
+		}
+
 		writeCharModels(sb, data);
 
 		sb.append("\n");
@@ -225,8 +271,8 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 		if (bootstrapOrJackknife())
 			sb.append("\n\nbootstrapreps = " + bootstrapreps); // important to
-																// be
-																// user-editable
+		// be
+		// user-editable
 		sb.append("\ninferinternalstateprobs = " + inferinternalstateprobs);
 		return sb.toString();
 	}
@@ -249,8 +295,6 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			numRuns = MesquiteInteger.fromString(content);
 		if ("bootStrapReps".equalsIgnoreCase(tag))
 			bootstrapreps = MesquiteInteger.fromString(content);
-		if ("availMemory".equalsIgnoreCase(tag))
-			availMemory = MesquiteInteger.fromString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
 			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
 		if ("onlyBest".equalsIgnoreCase(tag))
@@ -265,7 +309,6 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	public String preparePreferencesForXML() {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);
-		StringUtil.appendXMLTag(buffer, 2, "availMemory", availMemory);
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);
@@ -304,8 +347,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		if (data == null)
 			return;
 		CharactersGroup[] parts = null;
-		CharacterPartition characterPartition = (CharacterPartition) data
-				.getCurrentSpecsSet(CharacterPartition.class);
+		CharacterPartition characterPartition = (CharacterPartition) data.getCurrentSpecsSet(CharacterPartition.class);
 		if (characterPartition != null) {
 			parts = characterPartition.getGroups();
 		}
@@ -315,14 +357,32 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				extra++;
 			charGroupModels = new GarliCharModel[parts.length + extra];
 			for (int i = 0; i < parts.length + extra; i++) {
-				charGroupModels[i] = new GarliCharModel();
+				charGroupModels[i] = new GarliCharModel(data instanceof ProteinData);
 			}
 		}
 		codonPositionModels = new GarliCharModel[4];
 		for (int i = 0; i < 4; i++) {
-			codonPositionModels[i] = new GarliCharModel();
+			codonPositionModels[i] = new GarliCharModel(data instanceof ProteinData);
 		}
-		noPartitionModel = new GarliCharModel();
+		noPartitionModel = new GarliCharModel(data instanceof ProteinData);
+
+	}
+	/*.................................................................................................................*/
+	public void appendAdditionalSearchDetails() {
+		appendToSearchDetails("Search details: \n");
+		if (bootstrapOrJackknife()){
+			appendToSearchDetails("   Bootstrap analysis\n");
+			appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
+		} else {
+			appendToSearchDetails("   Search for maximum-likelihood tree\n");
+			appendToSearchDetails("   "+numRuns + " search replicate");
+			if (numRuns>1)
+				appendToSearchDetails("s");
+		}
+		/*		MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(), false);
+		if (arguments!=null && !arguments.isBlank()){
+			appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString()); 
+		} */
 
 	}
 
@@ -373,6 +433,9 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		if (rateMatrixChoice != null) {
 			rateMatrixChoice.select(charModel.getRatematrixIndex());
 		}
+		if (stateFreqChoice != null) {
+			stateFreqChoice.select(charModel.getStatefrequenciesIndex());
+		}
 		if (customMatrix != null) {
 			customMatrix.setText(charModel.getRatematrix());
 			if (rateMatrixChoice.getSelectedIndex() == 3) {
@@ -422,24 +485,51 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		if (rateMatrixChoice != null) {
 			choiceValue = rateMatrixChoice.getSelectedIndex();
 			charModel.setRatematrixIndex(choiceValue);
+			if (data instanceof ProteinData){
+				String val = rateMatrixChoice.getItem(choiceValue);
+				charModel.setRatematrix(val);
+			}
+			else {
+
+				switch (choiceValue) {
+				case 0:
+					charModel.setRatematrix("1rate");
+					break;
+				case 1:
+					charModel.setRatematrix("2rate");
+					break;
+				case 2:
+					charModel.setRatematrix("6rate");
+					break;
+					/*
+					 * case 3 : charModel.setRatematrix("fixed"); break;
+					 */
+				case 3: // Custom
+					charModel.setRatematrix(customMatrix.getText());
+					break;
+				default:
+					charModel.setRatematrix("6rate");
+				}
+			}
+		}
+
+		if (stateFreqChoice != null) {
+			choiceValue = stateFreqChoice.getSelectedIndex();
+			charModel.setStatefrequenciesIndex(choiceValue);
+
 			switch (choiceValue) {
 			case 0:
-				charModel.setRatematrix("1rate");
+				charModel.setStatefrequencies("equal");
 				break;
 			case 1:
-				charModel.setRatematrix("2rate");
+				charModel.setStatefrequencies("empirical");
 				break;
 			case 2:
-				charModel.setRatematrix("6rate");
-				break;
-			/*
-			 * case 3 : charModel.setRatematrix("fixed"); break;
-			 */
-			case 3: // Custom
-				charModel.setRatematrix(customMatrix.getText());
+				charModel.setStatefrequencies("estimate");
 				break;
 			default:
-				charModel.setRatematrix("6rate");
+				charModel.setStatefrequencies("estimate");
+
 			}
 		}
 
@@ -492,7 +582,77 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	public String getTestedProgramVersions() {
 		return "2.0";
 	}
+	public  boolean smallerIsBetter (){
+		return false;
+	}
 
+	/*.................................................................................................................*/
+	public void addRunnerOptions(ExtensibleDialog dialog) {
+		externalProcRunner.addItemsToDialogPanel(dialog);
+	}
+	/*.................................................................................................................*/
+	public void processRunnerOptions() {
+		externalProcRunner.optionsChosen();
+	}
+	/*.................................................................................................................*/
+	public  boolean showMultipleRuns() {
+		return (!bootstrapOrJackknife() && numRuns>1);
+	}
+	/*.................................................................................................................*/
+	public int minimumNumSearchReplicates() {
+		return 1;
+	}
+
+	public void setConstrainedSearch(boolean constrainedSearch) {
+		if (useConstraintTree==NOCONSTRAINT && constrainedSearch)
+			useConstraintTree=POSITIVECONSTRAINT;  //TODO: Debugg.println
+		else if (useConstraintTree!=NOCONSTRAINT && !constrainedSearch)
+			useConstraintTree = NOCONSTRAINT;
+		this.constrainedSearch = constrainedSearch;
+	}
+	
+	Checkbox useOptimizedScoreAsBestCheckBox =  null;
+	RadioButtons SOWHConstraintButtons = null;
+	public  void addItemsToSOWHDialogPanel(ExtensibleDialog dialog){
+		if (SOWHConstraintTree==POSITIVECONSTRAINT)
+			SOWHConstraintButtons = dialog.addRadioButtons (new String[]{"Positive constraint", "Negative constraint"}, 0);
+		else if (SOWHConstraintTree==NEGATIVECONSTRAINT)
+			SOWHConstraintButtons = dialog.addRadioButtons (new String[]{"Positive constraint", "Negative constraint"}, 1);
+
+	}
+	
+	public boolean SOWHoptionsChosen(){
+		if (SOWHConstraintButtons!=null) {
+			int constraint = SOWHConstraintButtons.getValue();
+			if (constraint==0)
+				SOWHConstraintTree = POSITIVECONSTRAINT;
+			else if (constraint==1)
+				SOWHConstraintTree = NEGATIVECONSTRAINT;
+			useConstraintTree = SOWHConstraintTree;
+		}
+		return true;
+	}
+	public void resetSOWHOptionsConstrained(){
+		useConstraintTree = SOWHConstraintTree;
+	}
+	public void resetSOWHOptionsUnconstrained(){
+		useConstraintTree = NOCONSTRAINT;
+	}
+	public String getSOWHDetailsObserved(){
+		StringBuffer sb = new StringBuffer();
+		sb.append("Number of search replicates for observed matrix: " + numRuns);
+		return sb.toString();
+	}
+	public String getSOWHDetailsSimulated(){
+		StringBuffer sb = new StringBuffer();
+		sb.append("Number of search replicates for each simulated matrix: " + numRuns + "\n");
+		if (SOWHConstraintTree==POSITIVECONSTRAINT)
+			sb.append("Constraint type used in SOWH test: Positive constraint\n");
+		else if (SOWHConstraintTree==NEGATIVECONSTRAINT)
+			sb.append("Constraint type used in SOWH test: Negative constraint\n");
+		return sb.toString();
+	}
+	Button setByModelNameButton;
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options")) // Debugg.println needs to check that options set well enough to proceed anyway
@@ -523,25 +683,42 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose GARLI Score.";
 
 		dialog.appendToHelpString(helpString);
-		dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
+		if (zephyrRunnerEmployer!=null)
+			dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 
 		tabbedPanel.addPanel("GARLI Program Details", true);
-		externalProcRunner.addItemsToDialogPanel(dialog);
-		IntegerField availableMemoryField = dialog.addIntegerField("Memory for GARLI (MB)", availMemory, 8, 256, MesquiteInteger.infinite);
+		addRunnerOptions(dialog);
 		dialog.addLabelSmallText("This version of Zephyr tested on the following GARLI version(s): " + getTestedProgramVersions());
+		if (treeInferer!=null) 
+			treeInferer.addItemsToDialogPanel(dialog);
 
-		tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
-		doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
-		dialog.addHorizontalLine(1);
-		dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
-		doBootstrapCheckbox.addItemListener(this);
-		IntegerField bootStrapRepsField = dialog.addIntegerField("Bootstrap Reps", bootstrapreps, 8, 0, MesquiteInteger.infinite);
-		dialog.addHorizontalLine(1);
+		IntegerField bootStrapRepsField=null;
+
+		if (bootstrapAllowed) {
+			tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
+			doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
+			dialog.addHorizontalLine(1);
+			dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
+			doBootstrapCheckbox.addItemListener(this);
+			bootStrapRepsField = dialog.addIntegerField("Bootstrap Reps", bootstrapreps, 8, 0, MesquiteInteger.infinite);
+			dialog.addHorizontalLine(1);
+		} else
+			tabbedPanel.addPanel("Search Replicates", true);
+
 		dialog.addLabel("Maximum Likelihood Tree Search Options", Label.LEFT, false, true);
-		IntegerField numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, 1, MesquiteInteger.infinite);
+		if (numRuns<minimumNumSearchReplicates())
+			numRuns = minimumNumSearchReplicates();
+		IntegerField numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, minimumNumSearchReplicates(), MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
+
+		if (getConstrainedSearchAllowed()) {
+			dialog.addHorizontalLine(1);
+			dialog.addLabel("Constraint tree:", Label.LEFT, false, true);
+			constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Positive Constraint", "Negative Constraint"}, useConstraintTree);
+			constraintButtons.addItemListener(this);
+		}
 
 		tabbedPanel.addPanel("Character Models", true);
 		if (!data.hasCharacterGroups()) {
@@ -552,7 +729,11 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			if (partitionScheme == partitionByCodonPosition)
 				partitionScheme = noPartition;
 		}
-		charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
+		if (data instanceof ProteinData)
+			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups" }, partitionScheme);
+		else
+			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
+
 		charPartitionButtons.addItemListener(this);
 		if (!data.hasCharacterGroups()) {
 			charPartitionButtons.setEnabled(1, false);
@@ -569,22 +750,25 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		preparePartitionChoice(partitionChoice, partitionScheme);
 		partitionChoice.addItemListener(this);
 
-		rateMatrixChoice = dialog.addPopUpMenu("Rate Matrix", new String[] {"Equal Rates", "2-Parameter", "GTR       ", "Custom" }, 2);
-		rateMatrixChoice.addItemListener(this);
-		customMatrix = dialog.addTextField("6rate", 20); // since 2 is selected
-															// as default in
-															// previous
-		customMatrix.setEditable(false);
-		customMatrix.setBackground(ColorDistribution.veryLightGray);
+		if (data instanceof ProteinData)
+			rateMatrixChoice = dialog.addPopUpMenu("Rate Matrix", new String[] {"poisson", "jones", "dayhoff", "wag", "mtmam", "mtrev" }, 2); 
+		else{
+			rateMatrixChoice = dialog.addPopUpMenu("Rate Matrix", new String[] {"Equal Rates", "2-Parameter", "GTR       ", "Custom" }, 2);  //corresponding to 1rate, 2rate, 6rate, custom
+			customMatrix = dialog.addTextField("6rate", 20); // since 2 is selected
 
-		invarSitesChoice = dialog.addPopUpMenu("Invariant Sites", new String[] {"none", "Estimate Proportion" }, 1);
+			// as default in
+			// previous
+			customMatrix.setEditable(false);
+			customMatrix.setBackground(ColorDistribution.veryLightGray);
+			setByModelNameButton = dialog.addAListenedButton("Set by Model Name...",null, this);
+			setByModelNameButton.setActionCommand("setByModelName");
+			stateFreqChoice = dialog.addPopUpMenu("State Frequencies", new String[] {"Equal", "Empirical", "Estimate" }, 2);  
+		}
+		rateMatrixChoice.addItemListener(this);
+		invarSitesChoice = dialog.addPopUpMenu("Invariable Sites", new String[] {"none", "Estimate Proportion" }, 1);
 		rateHetChoice = dialog.addPopUpMenu("Gamma Site-to-Site Rate Model",new String[] { "none", "Estimate Shape Parameter" }, 1);
 		numRateCatField = dialog.addIntegerField("Number of Rate Categories for Gamma", numratecats, 4, 1, 20);
 
-		tabbedPanel.addPanel("Constraint File", true);
-		constraintFileField = dialog.addTextField("Path to Constraint File:",constraintfile, 40);
-		Button constraintFileBrowseButton = dialog.addAListenedButton("Browse...", null, this);
-		constraintFileBrowseButton.setActionCommand("constraintBrowse");
 
 		tabbedPanel.addPanel("Other options", true);
 		Checkbox showConfigDetailsBox = dialog.addCheckBox("show config file",
@@ -596,24 +780,30 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		dialog.completeAndShowDialog(true);
 
 		if (buttonPressed.getValue() == 0) {
-			if (externalProcRunner.optionsChosen()) {
-				constraintfile = constraintFileField.getText();
+			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
+			if (externalProcRunner.optionsChosen() && infererOK) {
 				numRuns = numRunsField.getValue();
-				bootstrapreps = bootStrapRepsField.getValue();
+				if (bootstrapAllowed) {
+					bootstrapreps = bootStrapRepsField.getValue();
+					doBootstrap = doBootstrapCheckbox.getState();
+				}
 				onlyBest = onlyBestBox.getState();
-				doBootstrap = doBootstrapCheckbox.getState();
 				showConfigDetails = showConfigDetailsBox.getState();
 				partitionScheme = charPartitionButtons.getValue();
+				if (getConstrainedSearchAllowed()) {
+					useConstraintTree = constraintButtons.getValue();
+					if (useConstraintTree!=NOCONSTRAINT)
+						setConstrainedSearch(true);
+				}
 				linkModels = linkModelsBox.getState();
 				subsetSpecificRates = subsetSpecificRatesBox.getState();
-				availMemory = availableMemoryField.getValue();
+				processRunnerOptions();
 
 				// garliOptions = garliOptionsField.getText();
 
 				processCharacterModels();
 
-				storePreferences();
-				externalProcRunner.storePreferences();
+				storeRunnerPreferences();
 			}
 		}
 		dialog.dispose();
@@ -624,16 +814,6 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	}
 
 	/*.................................................................................................................*/
-	public void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase("constraintBrowse")) {
-			MesquiteString directoryName = new MesquiteString();
-			MesquiteString fileName = new MesquiteString();
-			constraintfile = MesquiteFile.openFileDialog("Choose Constraint File", directoryName, fileName);
-			if (StringUtil.notEmpty(constraintfile))
-				constraintFileField.setText(constraintfile);
-		}
-	}
-
 	/*.................................................................................................................*/
 	public void setGarliSeed(long seed) {
 		this.randseed = seed;
@@ -642,7 +822,7 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	int count = 0;
 	double finalValue = MesquiteDouble.unassigned;
 	double[] finalValues = null;
-	int runNumber = 0;
+	protected int runNumber = 0;
 
 	/*.................................................................................................................*/
 	public void initializeMonitoring() {
@@ -655,18 +835,11 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		}
 	}
 
-	String configFileName;
+	protected String configFileName;
 
-	/*.................................................................................................................*/
-	public void setFileNames() {
-		configFileName = "garli.conf";
+	public int getCurrentRun() {
+		return runNumber;
 	}
-
-	static final int MAINLOGFILE = 0;
-	static final int CURRENTTREEFILEPATH = 1;
-	static final int SCREENLOG = 2;
-	static final int TREEFILE = 3;
-	static final int BESTTREEFILE = 4;
 
 	/*.................................................................................................................*/
 	public String[] getLogFileNames() {
@@ -687,9 +860,15 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		setUpCharModels(data);
 		return true;
 	}
+	/*.................................................................................................................*/
+	abstract public Object getProgramArguments(String dataFileName, String configFileName, boolean isPreflight) ;
 
 	/* ================================================= */
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
+		finalValues=null;
+		screenFile = null;
+		screenFilePos=0;
+		runNumber = 0;
 		if (!initializeGetTrees(MolecularData.class, taxa, matrix))
 			return null;
 		//David: if isDoomed() then module is closing down; abort somehow
@@ -699,7 +878,9 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this,MesquiteFileUtil.IN_SUPPORT_DIR, "GARLI", "-Run.");
 		if (tempDir == null)
 			return null;
-		dataFileName = "tempData"+ MesquiteFile.massageStringToFilePathSafe(unique) + ".nex"; // replace this with actual file name?
+
+		if (StringUtil.blank(dataFileName))
+			dataFileName = "dataMatrix.nex"; // replace this with actual file name?
 
 		String dataFilePath = tempDir + dataFileName;
 		if (partitionScheme == noPartition)
@@ -713,11 +894,43 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 		// setting up the GARLI config file
 		String config = getGARLIConfigurationFile(data);
+		//		String configFilePath = tempDir+configFileName;
+		//		MesquiteFile.putFileContents(configFilePath, config, true);
 		if (!MesquiteThread.isScripting() && showConfigDetails) {
 			config = MesquiteString.queryMultiLineString(getModuleWindow(),"GARLI Config File", "GARLI Config File", config, 30, false, true);
 			if (StringUtil.blank(config))
 				return null;
 		}
+		//getting constraint tree if requested
+		String constraintTree = "";
+		if (useConstraintTree>NOCONSTRAINT || isConstrainedSearch()){
+			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debugg.println
+				useConstraintTree=POSITIVECONSTRAINT;
+			getConstraintTreeSource();
+			constraint = null;
+			if (constraintTreeTask != null)
+				constraint = constraintTreeTask.getTree(taxa, "This will be the constraint tree");
+			if (constraint == null){
+				discreetAlert("Constraint tree is not available.");
+				return null;
+			}
+			else {
+				constraintTree = constraint.writeTreeSimple(MesquiteTree.BY_NUMBERS, false, false, false, false, ",");
+				if (useConstraintTree == POSITIVECONSTRAINT){
+					constraintTree = "+" + constraintTree+ ";";
+					appendToExtraSearchDetails("\nPositive constraint using tree \"" + constraint.getName() + "\"");
+					appendToAddendumToTreeBlockName("Constrained to tree \"" + constraint.getName() + "\"");
+				}
+				else if (useConstraintTree == NEGATIVECONSTRAINT){
+					constraintTree = "-" + constraintTree+ ";";
+					appendToExtraSearchDetails("\nNegative constraint using tree \"" + constraint.getName() + "\"");
+					appendToAddendumToTreeBlockName("Constrained to oppose tree \"" + constraint.getName() + "\"");
+				}
+
+			}
+		}
+		setRootNameForDirectoryInProcRunner();
+
 
 		// setting up the arrays of input file names and contents
 		int numInputFiles = 3;
@@ -727,45 +940,48 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			fileContents[i] = "";
 			fileNames[i] = "";
 		}
-		fileContents[0] = MesquiteFile.getFileContentsAsString(dataFilePath);
-		fileNames[0] = dataFileName;
-		if (StringUtil.notEmpty(constraintfile)) {
-			fileContents[1] = MesquiteFile.getFileContentsAsString(constraintfile);
-			fileNames[1] = "constraint";
+		fileContents[DATAFILENUMBER] = MesquiteFile.getFileContentsAsString(dataFilePath);
+		fileNames[DATAFILENUMBER] = dataFileName;
+		if (isConstrainedSearch() && StringUtil.notEmpty(constraintTree)) {
+			fileContents[CONSTRAINTFILENUMBER] = constraintTree;
+			fileNames[CONSTRAINTFILENUMBER] = "constraintTree";
 		}
-		fileContents[2] = config;
-		fileNames[2] = configFileName;
+		fileContents[CONFIGFILENUMBER] = config;
+		fileNames[CONFIGFILENUMBER] = configFileName;
 
 		String GARLIcommand = externalProcRunner.getExecutableCommand();
-		if (externalProcRunner.isWindows())
-			GARLIcommand += " --batch " + configFileName + StringUtil.lineEnding();
-		else
-			GARLIcommand += StringUtil.lineEnding(); // GARLI command is very simple as all of the arguments are in the config file
+		Object arguments = getProgramArguments(dataFileName, configFileName, false);
+		completedRuns = new boolean[numRuns];
+		for (int i=0; i<numRuns; i++) completedRuns[i]=false;
 
-		boolean success = runProgramOnExternalProcess(GARLIcommand, fileContents, fileNames, ownerModule.getName());
+
+		if (updateWindow)
+			parametersChanged(); //just a way to ping the coordinator to update the window
+		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName());
 
 		if (!isDoomed()){
-		if (success) {
-			getProject().decrementProjectWindowSuppression();
-			return retrieveTreeBlock(trees, finalScore); // here's where we actually process everything
-		}
+			if (success) {
+				desuppressProjectPanelReset();
+				return retrieveTreeBlock(trees, finalScore); // here's where we actually process everything
+			}
 		}
 
-		if (getProject() != null)
-			getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (data != null)
-			data.setEditorInhibition(false);
+			data.decrementEditInhibition();
+		externalProcRunner.finalCleanup();
 		return null;
 	}
-
 	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
-		logln("Preparing to receive GARLI trees.");
+		if (isVerbose())
+			logln("Preparing to receive GARLI trees.");
 		boolean success = false;
 		taxa = treeList.getTaxa();
 		finalScore.setValue(finalValue);
 
-		getProject().incrementProjectWindowSuppression();
+		suppressProjectPanelReset();
+
 		FileCoordinator coord = getFileCoordinator();
 		MesquiteFile tempDataFile = null;
 		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
@@ -775,8 +991,14 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		// define file paths and set tree files as needed.
 		setFileNames();
 		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
+		if (completedRuns == null){
+			completedRuns = new boolean[numRuns];
+			for (int i=0; i<numRuns; i++) completedRuns[i]=false;
+		}
 
 		// read in the tree files
+		TreesManager manager = (TreesManager) findElementManager(TreeVector.class);
+		int oldnumTB = manager.getNumberTreeBlocks(taxa);
 		if (onlyBest || numRuns == 1 || bootstrapOrJackknife())
 			tempDataFile = (MesquiteFile) coord.doCommand("includeTreeFile", StringUtil.tokenize(outputFilePaths[TREEFILE]) + " " + StringUtil.tokenize("#InterpretNEXUS") + " suppressImportFileSave useStandardizedTaxonNames taxa = " + coord.getProject().getTaxaReference(taxa), CommandChecker.defaultChecker); // TODO: never scripting???
 		else
@@ -786,57 +1008,65 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 		MesquiteThread.setCurrentCommandRecord(oldCR);
 
-		TreesManager manager = (TreesManager) findElementManager(TreeVector.class);
 		Tree t = null;
 		int numTB = manager.getNumberTreeBlocks(taxa);
-		TreeVector tv = manager.getTreeBlock(taxa, numTB - 1);
-		if (tv != null) {
-			t = tv.getTree(0);
-			ZephyrUtil.adjustTree(t, outgroupSet);
+		if (numTB> oldnumTB){
+			TreeVector tv = manager.getTreeBlock(taxa, numTB - 1);
+			if (tv != null) {
+				t = tv.getTree(0);
+				ZephyrUtil.adjustTree(t, outgroupSet);
 
-			if (t != null)
-				success = true;
+				if (t != null)
+					success = true;
 
-			if (treeList != null) {
-				double bestScore = MesquiteDouble.unassigned;
-				for (int i = 0; i < tv.getNumberOfTrees(); i++) {
-					Tree newTree = tv.getTree(i);
-					ZephyrUtil.adjustTree(newTree, outgroupSet);
+				if (treeList != null) {
+					double bestScore = MesquiteDouble.unassigned;
+					for (int i = 0; i < tv.getNumberOfTrees(); i++) {
+						Tree newTree = tv.getTree(i);
+						ZephyrUtil.adjustTree(newTree, outgroupSet);
 
-					if (finalValues != null && i < finalValues.length
-							&& MesquiteDouble.isCombinable(finalValues[i])) {
-						MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
-						s.setName(GarliRunner.SCORENAME);
-						((Attachable) newTree).attachIfUniqueName(s);
+						if (finalValues != null && i < finalValues.length
+								&& MesquiteDouble.isCombinable(finalValues[i])) {
+							MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
+							s.setName(GarliRunner.SCORENAME);
+							((Attachable) newTree).attachIfUniqueName(s);
+						}
+
+						treeList.addElement(newTree, false);
+
+						if (finalValues != null && i < finalValues.length
+								&& MesquiteDouble.isCombinable(finalValues[i]))
+							if (MesquiteDouble.isUnassigned(bestScore))
+								bestScore = finalValues[i]; // Debugg.println must refind final values, best score
+							else if (bestScore < finalValues[i])
+								bestScore = finalValues[i];
 					}
+					logln("Best score: " + bestScore);
+					finalScore.setValue(bestScore);
 
-					treeList.addElement(newTree, false);
-
-					if (finalValues != null && i < finalValues.length
-							&& MesquiteDouble.isCombinable(finalValues[i]))
-						if (MesquiteDouble.isUnassigned(bestScore))
-							bestScore = finalValues[i]; // Debugg.println must refind final values, best score
-						else if (bestScore < finalValues[i])
-							bestScore = finalValues[i];
 				}
-				logln("Best score: " + bestScore);
-
 			}
+			manager.deleteElement(tv); // get rid of temporary tree block
 		}
 		// int numTB = manager.getNumberTreeBlocks(taxa);
 
-		getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (tempDataFile != null)
 			tempDataFile.close();
 		// deleteSupportDirectory();
+		externalProcRunner.finalCleanup();
+		finalValues=null;
 		if (data != null)
-			data.setEditorInhibition(false);
-		manager.deleteElement(tv); // get rid of temporary tree block
+			data.decrementEditInhibition();
 		if (success) {
-			postBean("successful", false);
+			if (!beanWritten)
+				postBean("successful", false);
+			beanWritten = true;
 			return t;
 		}
-		postBean("failed, retrieveTreeBlock", false);
+		if (!beanWritten)
+			postBean("failed, retrieveTreeBlock", false);
+		beanWritten=true;
 		return null;
 	}
 
@@ -845,17 +1075,23 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	int numRunsCompleted = 0;
 	long screenFilePos = 0;
 	MesquiteFile screenFile = null;
+	/*.................................................................................................................*/
+	public boolean mpiVersion() {
+		return false;
+	}
 
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
 		String[] logFileNames = getLogFileNames();
-		if ((progIndicator != null && progIndicator.isAborted())
-				|| logFileNames == null)
+		if ((progIndicator!=null && progIndicator.isAborted())) {
+			setUserAborted(true);
+			return;
+		}
+		if (logFileNames == null)
 			return;
 		String[] outputFilePaths = new String[logFileNames.length];
-		outputFilePaths[fileNum] = externalProcRunner
-				.getOutputFilePath(logFileNames[fileNum]);
+		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
 		String filePath = outputFilePaths[fileNum];
 
 		/*
@@ -864,52 +1100,50 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		 * outputFilePaths[fileNum];
 		 */
 
-		if (fileNum == MAINLOGFILE && outputFilePaths.length > 0
-				&& !StringUtil.blank(outputFilePaths[MAINLOGFILE])
-				&& !bootstrapOrJackknife()) { // screen log
+		if (fileNum == MAINLOGFILE && outputFilePaths.length > 0 && !StringUtil.blank(outputFilePaths[MAINLOGFILE]) && !bootstrapOrJackknife()) { // screen log
 			if (MesquiteFile.fileExists(filePath)) {
 				String s = MesquiteFile.getFileLastContents(filePath);
 				if (!StringUtil.blank(s))
 					if (progIndicator != null) {
 						parser.setString(s);
 						String gen = parser.getFirstToken(); // generation
-																// number
-						progIndicator.setText("Generation: " + gen
-								+ ", ln L = " + parser.getNextToken());
+						// number
+						progIndicator.setText("Generation: " + gen + ", ln L = " + parser.getNextToken());
 						progIndicator.spin();
-
 					}
 				count++;
-			} else
-				Debugg.println("*** File does not exist (" + filePath + ") ***");
+			} else if (MesquiteTrunk.debugMode)
+				MesquiteMessage.warnProgrammer("*** File does not exist (" + filePath + ") ***");
 		}
 
 		if (fileNum == CURRENTTREEFILEPATH && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[CURRENTTREEFILEPATH]) && !bootstrapOrJackknife()) {
-			String treeFilePath = filePath;
-			if (taxa != null) {
-				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
-			} else
-				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
+			if (ownerModule instanceof NewTreeProcessor){ 
+				String treeFilePath = filePath;
+				if (taxa != null) {
+					TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
+					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
+				} else
+					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
+			}
 		}
 
-		if (fileNum == SCREENLOG && outputFilePaths.length > 2
-				&& !StringUtil.blank(outputFilePaths[SCREENLOG])) {
+		if (fileNum == SCREENLOG && outputFilePaths.length > 2 && !StringUtil.blank(outputFilePaths[SCREENLOG])) {
 			if (screenFile == null) { // this is the output file
-				if (MesquiteFile.fileExists(filePath))
+				if (MesquiteFile.fileExists(filePath)) {
 					screenFile = MesquiteFile.open(true, filePath);
-				else
+				}
+				else if (MesquiteTrunk.debugMode)
 					MesquiteMessage.warnProgrammer("*** File does not exist (" + filePath + ") ***");
-			}
-			if (screenFile != null) {
+			} 
+			if (screenFile != null && MesquiteFile.fileExists(filePath)) {
 				screenFile.openReading();
 				if (!MesquiteLong.isCombinable(screenFilePos))
 					screenFilePos = 0;
 				screenFile.goToFilePosition(screenFilePos);
 				String s = screenFile.readLine();
 				while (s != null) { // &&
-									// screenFile.getFilePosition()<screenFile.existingLength()-2)
-									// {
+					// screenFile.getFilePosition()<screenFile.existingLength()-2)
+					// {
 					if (s.startsWith("Final score")) {
 						parser.setString(s);
 						String s1 = parser.getFirstToken(); // Final
@@ -918,11 +1152,14 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 						s1 = parser.getNextToken(); // number
 						if (finalValues != null && runNumber < finalValues.length)
 							finalValues[runNumber] = MesquiteDouble.fromString(s1);
-						runNumber++;
 						if (bootstrapOrJackknife())
-							logln("GARLI bootstrap replicate " + runNumber + " of " + getTotalReps() + ", ln L = " + s1);
-						else
-							logln("GARLI search replicate " + runNumber + " of " + getTotalReps() + ", ln L = " + s1);
+							logln("GARLI bootstrap replicate " + (runNumber+1) + " of " + getTotalReps() + " completed, ln L = " + s1);
+						else {
+							logln("GARLI search replicate " + (runNumber+1) + " of " + getTotalReps() + " completed, ln L = " + s1);
+							if (completedRuns != null && runNumber>=0 && runNumber<completedRuns.length)
+								completedRuns[runNumber]=true;
+						}
+						runNumber++;
 						numRunsCompleted++;
 						double timePerRep = timer.timeSinceVeryStartInSeconds()/ numRunsCompleted; // this is time per rep
 						int timeLeft = 0;
@@ -941,6 +1178,14 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 				screenFilePos = screenFile.getFilePosition();
 				screenFile.closeReading();
+				if (completedRuns != null && !bootstrapOrJackknife()) {  // let's see what the earliest non-completed run is
+					for (int i=0; i<completedRuns.length; i++)
+						if (!completedRuns[i]) {
+							currentRun=i;
+							break;
+						}
+				}
+
 			}
 		}
 
@@ -948,6 +1193,8 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 
 	/*.................................................................................................................*/
 	public boolean bootstrapOrJackknife() {
+		if (!bootstrapAllowed)
+			return false;
 		return doBootstrap;
 	}
 	public  boolean doMajRuleConsensusOfResults(){
@@ -1001,6 +1248,123 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 		onlyBestBox.setEnabled(!doBoot);
 	}
 
+	/*.................................................................................................................*/
+	protected OneTreeSource constraintTreeTask = null;
+	protected OneTreeSource getConstraintTreeSource(){
+		if (constraintTreeTask == null){
+			constraintTreeTask = (OneTreeSource)hireEmployee(OneTreeSource.class, "Source of constraint tree");
+		}
+		return constraintTreeTask;
+	}
+	/*.................................................................................................................*/
+	public  void actionPerformed(ActionEvent e) {
+		if (e.getActionCommand().equalsIgnoreCase("setByModelName")) {
+			MesquiteString name = new MesquiteString();
+			QueryDialogs.queryString(containerOfModule(), "Set by Model Name", "Model Name:", name);
+			if (!name.isBlank()) {
+				String modelName = name.getValue();
+				 if (modelName.equalsIgnoreCase("JC")) {
+					rateMatrixChoice.select("Equal Rates");
+					customMatrix.setText("1rate");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("F81")) {
+					rateMatrixChoice.select("Equal Rates");
+					customMatrix.setText("1rate");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("K80")) {
+					rateMatrixChoice.select("2-Parameter");
+					customMatrix.setText("2rate");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("HKY")) {
+					rateMatrixChoice.select("2-Parameter");
+					customMatrix.setText("2rate");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TRNef") || modelName.equalsIgnoreCase("TRNe")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 0 0 2 0)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TrN")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 0 0 2 0)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TPM1")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 2 1 0)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TPM1uf") || modelName.equalsIgnoreCase("TPM1u")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 2 1 0)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TPM2")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 0 2 1 2)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TPM2uf") || modelName.equalsIgnoreCase("TPM2u")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 0 2 1 2)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TPM3")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 0 1 2)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TPM3uf") || modelName.equalsIgnoreCase("TPM3u")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 0 1 2)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TIM1ef") || modelName.equalsIgnoreCase("TIM1e")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 2 3 0)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TIM1")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 2 3 0)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TIM2ef") || modelName.equalsIgnoreCase("TIM2e")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 0 2 3 2)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TIM2")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 0 2 3 2)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TIM3ef") || modelName.equalsIgnoreCase("TIM3e")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 0 3 2)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TIM3")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 0 3 2)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("TVMef") || modelName.equalsIgnoreCase("TVMe")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 3 1 4)");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("TVM")) {
+					rateMatrixChoice.select("Custom");
+					customMatrix.setText("(0 1 2 3 1 4)");
+					stateFreqChoice.select("Estimate");
+				} else if (modelName.equalsIgnoreCase("SYM")) {
+					rateMatrixChoice.select("GTR");
+					customMatrix.setText("6rate");
+					stateFreqChoice.select("Equal");
+				} else if (modelName.equalsIgnoreCase("GTR")) {
+					rateMatrixChoice.select("GTR");
+					customMatrix.setText("6rate");
+					stateFreqChoice.select("Estimate");
+				} 
+
+				if ("Custom".equalsIgnoreCase(rateMatrixChoice.getSelectedItem())) {
+					customMatrix.setEditable(true);
+					customMatrix.setBackground(Color.white);
+				} else {
+					customMatrix.setEditable(false);
+					customMatrix.setBackground(ColorDistribution.veryLightGray);
+				}
+
+			}
+		}
+	}
+	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent e) {
 		if (charPartitionButtons.isAButton(e.getItemSelectable())) { // button for the partition scheme
 			processCharacterModels();
@@ -1031,35 +1395,49 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 			} else
 				setCharacterModels();
 
-		} else if (e.getItemSelectable() == rateMatrixChoice) {
-			String matrix = "";
-			int choiceValue = rateMatrixChoice.getSelectedIndex();
-			switch (choiceValue) {
-			case 0:
-				matrix = "1rate";
-				break;
-			case 1:
-				matrix = "2rate";
-				break;
-			case 2:
-				matrix = "6rate";
-				break;
-			case 3: // Custom
-				matrix = customMatrix.getText();
-				if (matrix == null || "1rate 2rate 6rate".indexOf(matrix) >= 0) // Debugg.println keep previous custom matrices remembered for users who switch back to them?
+		} 
+		else if (e.getItemSelectable() == constraintButtons && constraintButtons.getValue()>0){
 
-					matrix = "(a a a a a a)";
-				break;
-			default:
-				matrix = "6rate";
+			getConstraintTreeSource();
+
+		}
+		else if (e.getItemSelectable() == rateMatrixChoice) {
+			if (data instanceof ProteinData){
 			}
-			customMatrix.setText(matrix);
-			if (choiceValue == 3) {
-				customMatrix.setEditable(true);
-				customMatrix.setBackground(Color.white);
-			} else {
-				customMatrix.setEditable(false);
-				customMatrix.setBackground(ColorDistribution.veryLightGray);
+			else {
+				String matrix = "";
+				int choiceValue = rateMatrixChoice.getSelectedIndex();
+				switch (choiceValue) {
+				case 0:
+					matrix = "1rate";
+					break;
+				case 1:
+					matrix = "2rate";
+					break;
+				case 2:
+					matrix = "6rate";
+					break;
+				case 3: // Custom
+					if (customMatrix != null){
+						matrix = customMatrix.getText();
+						if (matrix == null || "1rate 2rate 6rate".indexOf(matrix) >= 0) // Debugg.println keep previous custom matrices remembered for users who switch back to them?
+
+							matrix = "(a a a a a a)";
+					}
+					break;
+				default:
+					matrix = "6rate";
+				}
+				if (customMatrix != null){
+					customMatrix.setText(matrix);
+					if (choiceValue == 3) {
+						customMatrix.setEditable(true);
+						customMatrix.setBackground(Color.white);
+					} else {
+						customMatrix.setEditable(false);
+						customMatrix.setBackground(ColorDistribution.veryLightGray);
+					}
+				}
 			}
 		} else if (e.getItemSelectable() == doBootstrapCheckbox) {
 			checkEnabled(doBootstrapCheckbox.getState());
@@ -1070,6 +1448,17 @@ public class GarliRunner extends ZephyrRunner implements ActionListener,
 	public String getProgramName() {
 		return "GARLI";
 	}
+
+	public String getExecutableName() {
+		return "GARLI";
+	}
+	public String getConstraintTreeName() {
+		if (constraint==null)
+			return null;
+		return constraint.getName();
+	}
+
+
 
 	public void runFailed(String message) {
 		// TODO Auto-generated method stub
@@ -1091,11 +1480,21 @@ class GarliCharModel {
 	String ratehetmodel = "gamma";
 	int numratecats = 4;
 	String invariantsites = "estimate";
-
+	boolean ip = false;
 	int ratematrixIndex = 2;
-	int statefrequenciesIndex = 0;
+	int statefrequenciesIndex = 2;
 	int ratehetmodelIndex = 1;
 	int invariantsitesIndex = 1;
+
+	public GarliCharModel(boolean protein){
+		ip = protein;
+		if (ip)
+			ratematrix = "dayhoff";
+	}
+	public boolean isProtein() {
+		return ip;
+	}
+
 
 	public String getRatematrix() {
 		return ratematrix;
@@ -1142,8 +1541,10 @@ class GarliCharModel {
 		if (modelNumber >= 0)
 			sb.append("\n[model" + modelNumber + "]");
 
+
 		sb.append("\nratematrix = " + ratematrix);
 		sb.append("\nstatefrequencies = " + statefrequencies);
+
 		sb.append("\nratehetmodel = " + ratehetmodel);
 		if (numratecats > 1 && "none".equalsIgnoreCase(ratehetmodel))
 			sb.append("\nnumratecats = 1");
@@ -1152,6 +1553,7 @@ class GarliCharModel {
 		sb.append("\ninvariantsites = " + invariantsites);
 
 	}
+	
 
 	public int getRatematrixIndex() {
 		return ratematrixIndex;
@@ -1192,5 +1594,6 @@ class GarliCharModel {
 	public int getVersionOfFirstRelease(){
 		return -100;  
 	}
+	
 
 }

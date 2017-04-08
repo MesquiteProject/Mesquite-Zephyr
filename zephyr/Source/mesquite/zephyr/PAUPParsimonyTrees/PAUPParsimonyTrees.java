@@ -16,10 +16,10 @@ import java.util.Random;
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.zephyr.PAUPParsimonyRunner.PAUPParsimonyRunner;
-import mesquite.zephyr.RAxMLRunner.RAxMLRunner;
+import mesquite.zephyr.RAxMLRunnerLocal.RAxMLRunnerLocal;
 import mesquite.zephyr.lib.*;
 
-public class PAUPParsimonyTrees extends ZephyrTreeSearcher {
+public class PAUPParsimonyTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
 
 	/*.................................................................................................................*
 
@@ -48,6 +48,22 @@ public class PAUPParsimonyTrees extends ZephyrTreeSearcher {
 	public boolean requestPrimaryChoice(){
 		return true;
 	}
+	
+	public String getExtraTreeWindowCommands (){
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, false)+ eachTreeCommands();
+	}
+
+	
+	public String eachTreeCommands (){
+		String commands="";
+		if (rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) {
+			commands += " rootAlongBranch " + rerootNode + "; ";
+		}
+		commands += " ladderize root; ";
+
+		return commands;
+	}
+
 	/*.................................................................................................................*/
 	public String getMethodNameForTreeBlock() {
 		return " MP";

@@ -25,7 +25,7 @@ import mesquite.zephyr.lib.*;
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
  */
 
-public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
+public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener, ConstrainedSearcherTreeScoreProvider {
 
 	int bootStrapReps = 500;
 	boolean getConsensus = false;
@@ -160,7 +160,7 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 	return buffer.toString();
 	}
 	/*.................................................................................................................*/
-	public String getPAUPCommandFileMiddle(String dataFileName, String outputTreeFileName, CategoricalData data){
+	public String getPAUPCommandFileMiddle(String dataFileName, String outputTreeFileName, CategoricalData data, String constraintTree){
 		StringBuffer sb = new StringBuffer();
 		sb.append("\texec " + StringUtil.tokenize(dataFileName) + ";\n");
 		sb.append("\tset criterion=parsimony ;\n");
@@ -169,6 +169,12 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 			sb.append("auto;\n");
 		else
 			sb.append("no;\n");
+		if (isConstrainedSearch() && StringUtil.notEmpty(constraintTree)) {
+			if (useConstraintTree == BACKBONE)
+				sb.append("\tconstraints constraintTree (BACKBONE) =  " + constraintTree +";\n"); 
+			else if (useConstraintTree == MONOPHYLY)
+				sb.append("\tconstraints constraintTree (MONOPHYLY) =  " + constraintTree +";\n"); 
+		}
 		
 		
 		if (bootstrapOrJackknife()) {  //bootstrap or jackknife
@@ -176,6 +182,8 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 			
 			if (standardSearchBoot){
 				sb.append("\ths addseq=random nreps=" + nrepsBoot);
+				if ( isConstrainedSearch())
+						sb.append(" constraint=constraintTree enforce"); 
 				if (channelSearchBoot && chuckScoreBoot>0 && nchuckBoot>0)
 					sb.append(" chuckscore=" + chuckScoreBoot + " nchuck="+nchuckBoot);
 				sb.append(";\n");
@@ -196,6 +204,8 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 			sb.append(paupCommands+"\n");
 			if (standardSearch){
 				sb.append("\ths addseq=random nreps=" + nreps);
+				if (isConstrainedSearch())
+					sb.append(" constraint=constraintTree enforce"); 
 				if (channelSearch && chuckScore>0 && nchuck>0)
 					sb.append(" chuckscore=" + chuckScore + " nchuck="+nchuck);
 				sb.append(" rstatus;\n");
@@ -206,13 +216,40 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 				sb.append("\t" + customSearchOptions + "\n");
 			}
 			if (getConsensus)
-				sb.append("\tcontree all/strict=yes treefile=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
+				sb.append("\t\ncontree all/strict=yes treefile=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
 			else
-				sb.append("\tsavetrees file=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
+				sb.append("\t\nroot rootmethod=outgroup outroot=paraphyl;\nsavetrees file=" + StringUtil.tokenize(outputTreeFileName) + " root;\n");
+			sb.append("\tpscore 1 / scorefile=" + StringUtil.tokenize(scoreFileName) + ";\n");
 		}
 		return sb.toString();
 	}
 	
+	
+	 /*.................................................................................................................*/
+	public String getHTMLDescriptionOfStatus(){
+		String s = "";
+		if (getRunInProgress()) {
+			if (bootstrapOrJackknife()){
+				s+=getResamplingKindName()+"<br>";
+			}
+			else {
+				s+="Search for most-parsimonious trees<br>";
+			}
+			s+="</b>";
+		}
+		return s;
+	}
+	/*.................................................................................................................*/
+	public void appendAdditionalSearchDetails() {
+			appendToSearchDetails("Search details: \n");
+			if (bootstrapOrJackknife()){
+				appendToSearchDetails("   "+getResamplingKindName() +"\n");
+				appendToSearchDetails("   "+bootStrapReps + " replicates");
+			} else {
+				appendToSearchDetails("   Search for most-parsimonious trees\n");
+			}
+	}
+
 	/*.................................................................................................................*/
 	void adjustDialogText(boolean standard) {
 		if (channelSearchBox!=null){
@@ -229,7 +266,6 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent arg0) {
 		if (dialog!=null) {
-			Debugg.println("arg0: " + arg0);
 			boolean standard=standardSearch;
 			if (arg0.getItemSelectable()==standardSearchBox && standardSearchBox!=null){
 				standard = standardSearchBox.getState();
@@ -249,8 +285,10 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 //		helpString+= "\nAny PAUP commands entered in the Additional Commands field will be executed in PAUP immediately before the bootstrap or hs command.";
 //		dialog.appendToHelpString(helpString);
 
-		dialog.addHorizontalLine(1);
-		bootstrapBox = dialog.addRadioButtons(new String[] {"regular search", "bootstrap resampling", "jackknife resampling"}, searchStyle);
+		if (bootstrapAllowed) {
+			dialog.addHorizontalLine(1);
+			bootstrapBox = dialog.addRadioButtons(new String[] {"regular search", "bootstrap resampling", "jackknife resampling"}, searchStyle);
+		}
 		dialog.addHorizontalLine(1);
 		
 		dialog.addLabel("Additional commands before search command: ");
@@ -291,31 +329,33 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 
 		
 		
-		tabbedPanel.addPanel("Resampled Searches", true);
-		bootStrapRepsField = dialog.addIntegerField("Bootstrap/Jackknife Replicates", bootStrapReps, 8, 1, MesquiteInteger.infinite);
-		
-		bootstrapPanelLabel = dialog.addLabel("Below are the search commands for each replicate: ", Label.LEFT, true, false);
-		CheckboxGroup searchGroupBoot = new CheckboxGroup();
-		dialog.addHorizontalLine(1);
-		standardSearchBootBox = dialog.addCheckBox("pre-built search", standardSearchBoot);
-		standardSearchBootBox.setCheckboxGroup(searchGroupBoot);
-		
-		nrepsBootField = dialog.addIntegerField("Number of search replicates", nrepsBoot, 8, 1, MesquiteInteger.infinite);
-		
-		channelSearchBootBox = dialog.addCheckBox("channeled search", channelSearchBoot);
-		nchuckBootField = dialog.addIntegerField("Save no more than", nchuckBoot, 8, 1, MesquiteInteger.infinite);
-		dialog.suppressNewPanel();
-		chuckScoreBootField = dialog.addIntegerField("trees of length greater than or equal to", chuckScoreBoot, 8, 1, MesquiteInteger.infinite);
-		
-		dialog.addHorizontalLine(1);
-		customSearchBootBox = dialog.addCheckBox("custom search", !standardSearchBoot);
-		customSearchBootBox.addItemListener(this);
-		customSearchBootBox.setCheckboxGroup(searchGroupBoot);
+		if (bootstrapAllowed) {
+			tabbedPanel.addPanel("Resampled Searches", true);
+			bootStrapRepsField = dialog.addIntegerField("Bootstrap/Jackknife Replicates", bootStrapReps, 8, 1, MesquiteInteger.infinite);
 
-		dialog.addLabel("Custom Search Commands");
-		customSearchOptionsBootField = dialog.addTextAreaSmallFont(customSearchOptionsBoot, 4,60);
-		dialog.addHorizontalLine(1);
-		dialog.addLabel("(To conduct resampling, Bootstrap or Jackknife must be selected in the General panel) ", Label.LEFT, true, true);
+			bootstrapPanelLabel = dialog.addLabel("Below are the search commands for each replicate: ", Label.LEFT, true, false);
+			CheckboxGroup searchGroupBoot = new CheckboxGroup();
+			dialog.addHorizontalLine(1);
+			standardSearchBootBox = dialog.addCheckBox("pre-built search", standardSearchBoot);
+			standardSearchBootBox.setCheckboxGroup(searchGroupBoot);
+
+			nrepsBootField = dialog.addIntegerField("Number of search replicates", nrepsBoot, 8, 1, MesquiteInteger.infinite);
+
+			channelSearchBootBox = dialog.addCheckBox("channeled search", channelSearchBoot);
+			nchuckBootField = dialog.addIntegerField("Save no more than", nchuckBoot, 8, 1, MesquiteInteger.infinite);
+			dialog.suppressNewPanel();
+			chuckScoreBootField = dialog.addIntegerField("trees of length greater than or equal to", chuckScoreBoot, 8, 1, MesquiteInteger.infinite);
+
+			dialog.addHorizontalLine(1);
+			customSearchBootBox = dialog.addCheckBox("custom search", !standardSearchBoot);
+			customSearchBootBox.addItemListener(this);
+			customSearchBootBox.setCheckboxGroup(searchGroupBoot);
+
+			dialog.addLabel("Custom Search Commands");
+			customSearchOptionsBootField = dialog.addTextAreaSmallFont(customSearchOptionsBoot, 4,60);
+			dialog.addHorizontalLine(1);
+			dialog.addLabel("(To conduct resampling, Bootstrap or Jackknife must be selected in the General panel) ", Label.LEFT, true, true);
+		}
 
 		
 		adjustDialogText(standardSearch);	
@@ -325,11 +365,13 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 
 	/*.................................................................................................................*/
 	public void queryOptionsProcess(ExtensibleDialog dialog) {
-		bootStrapReps = bootStrapRepsField.getValue();
-		searchStyle = bootstrapBox.getValue();
+		if (bootstrapAllowed) {
+			bootStrapReps = bootStrapRepsField.getValue();
+			searchStyle = bootstrapBox.getValue();
+			customSearchOptionsBoot = customSearchOptionsBootField.getText();
+		}
 		getConsensus = getConsensusBox.getState();
 		customSearchOptions = customSearchOptionsField.getText();
-		customSearchOptionsBoot = customSearchOptionsBootField.getText();
 		paupCommands = paupCommandsField.getText();
 		
 		nreps=nrepsField.getValue();
@@ -339,17 +381,21 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 		standardSearch=standardSearchBox.getState();
 		secondarySearchNoChannel = secondarySearchNoChannelBox.getState();
 		
-		nrepsBoot=nrepsBootField.getValue();
-		nchuckBoot=nchuckBootField.getValue();
-		chuckScoreBoot=chuckScoreBootField.getValue();
-		channelSearchBoot=channelSearchBootBox.getState();
-		standardSearchBoot=standardSearchBootBox.getState();
+		if (bootstrapAllowed) {
+			nrepsBoot=nrepsBootField.getValue();
+			nchuckBoot=nchuckBootField.getValue();
+			chuckScoreBoot=chuckScoreBootField.getValue();
+			channelSearchBoot=channelSearchBootBox.getState();
+			standardSearchBoot=standardSearchBootBox.getState();
+		}
 		
 		maxTrees = maxTreesField.getValue();
 		maxTreesIncrease = maxTreesIncreaseBox.getState();
 
 	}
 	public boolean bootstrapOrJackknife() {
+		if (!bootstrapAllowed)
+			return false;
 		return searchStyle==BOOTSTRAPSEARCH || searchStyle==JACKKNIFESEARCH;
 	}
 
@@ -367,7 +413,7 @@ public class PAUPParsimonyRunner extends PAUPRunner implements ItemListener {
 	}
 
 	public String getName() {
-		return "PAUP* Parsimony Analysis";
+		return "PAUP* Parsimony";
 	}
 
 

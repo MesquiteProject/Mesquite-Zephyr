@@ -17,7 +17,7 @@ import mesquite.io.lib.InterpretPhylip;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.FileInterpreterI;
-import mesquite.zephyr.RAxMLRunner.*;
+import mesquite.zephyr.RAxMLRunnerLocal.*;
 import mesquite.zephyr.lib.*;
 
 /*TODO: Eventually will become a module to run RAxML on a remote cluster.
@@ -27,7 +27,7 @@ import mesquite.zephyr.lib.*;
 
 //TODO: add functionality to commandField
 
-public class RAxMLExporter extends RAxMLRunner {
+public class RAxMLExporter extends RAxMLRunnerLocal {
 	String baseFileName = "untitled";
 	String directoryPath;
 	static final int threadingOther =0;
@@ -279,7 +279,7 @@ public class RAxMLExporter extends RAxMLRunner {
 					}
 				}
 			}
-		} else if (writeCodPosPartition && partByCodPos) {//TODO: never accessed because in the only call of this method, partByCodPos is false.
+		} else if (writeCodPosPartition && partByCodPos) {//TODO: never accessed because in the only call of this method, partByCodPos is false.  //not anymore
 			//codon positions if nucleotide
 			int numberCharSets = 0; //TODO: Never used?
 				CodonPositionsSet codSet = (CodonPositionsSet)data.getCurrentSpecsSet(CodonPositionsSet.class);
@@ -307,23 +307,23 @@ public class RAxMLExporter extends RAxMLRunner {
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble[] finalScore) {//over-rides RAxMLRunner's method
 		if (matrix==null )
 			return null;
-		if (!(matrix.getParentData() != null && matrix.getParentData() instanceof MolecularData)){
-			MesquiteMessage.discreetNotifyUser("Sorry, RAxMLTree works only if given a full MolecularData object");
-			return null;
-		}
 		if (this.taxa != taxa) {
 			if (!initializeTaxa(taxa))
 				return null;
 		}
 
+		MolecularData data = (MolecularData)CharacterData.getData(this, matrix, taxa);
+		if (!(data instanceof MolecularData)){
+			MesquiteMessage.discreetNotifyUser("Sorry, RAxMLTree works only if given a full MolecularData object");
+			return null;
+		}
 		setRAxMLSeed(seed);
 
-		MolecularData data = (MolecularData)matrix.getParentData();
 		isProtein = data instanceof ProteinData;
 
-		getProject().incrementProjectWindowSuppression();
+		suppressProjectPanelReset();
 
-		data.setEditorInhibition(true);
+		data.incrementEditInhibition();
 		if(directoryPath == null || baseFileName == null){
 			return null;
 		}
@@ -333,7 +333,7 @@ public class RAxMLExporter extends RAxMLRunner {
 		String configFile = baseFileName + ".config";//TODO: necessary only for ZephyrUtil.saveExportFile call (see note in that class regarding unused variables)?
 		String configFilePath = directoryPath + configFile;
 
-		String multipleModelFileContents = getMultipleModelFileString(data, false);
+		String multipleModelFileContents = getMultipleModelFileString(data, true);  //TODO: turned to true by Wayne
 		String multipleModelFilePath = null;
 		String multipleModelFileName = baseFileName + "_parts.txt";
 		if (StringUtil.notEmpty(multipleModelFileContents)) {
@@ -358,8 +358,10 @@ public class RAxMLExporter extends RAxMLRunner {
 			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipDNA");
 		else if (data instanceof ProteinData)
 			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipProtein");
-		if (exporter==null)
+		if (exporter==null){
+			desuppressProjectPanelReset();
 			return null;
+		}
 		prepareExportFile(exporter);
 
 		boolean fileSaved = false;
@@ -371,6 +373,7 @@ public class RAxMLExporter extends RAxMLRunner {
 	
 		MesquiteFile.putFileContents(configFilePath, configFileContents, true);//TODO: why ascii = true?
 		
+		desuppressProjectPanelReset();
 		if (!fileSaved){
 			if(!MesquiteThread.isScripting()){
 				logln("Export problems encountered.  Files not written to disk.");
@@ -387,7 +390,7 @@ public class RAxMLExporter extends RAxMLRunner {
 
 		//Considerable code from RAxMLRunner omitted here
 
-		data.setEditorInhibition(false);
+		data.decrementEditInhibition();
 		return null;
 	}	
 

@@ -13,6 +13,7 @@ import mesquite.lib.*;
 
 public abstract class ExternalProcessRunner extends MesquiteModule {
 	String executableName;
+	String rootNameForDirectory;
 
 	public Class getDutyClass() {
 		return ExternalProcessRunner.class;
@@ -31,11 +32,28 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public void setExecutableName(String executableName) {
 		this.executableName = executableName;
 	}
+	public String getRootNameForDirectory() {
+		return rootNameForDirectory;
+	}
+	public void setRootNameForDirectory(String rootNameForDirectory) {
+		this.rootNameForDirectory = rootNameForDirectory;
+	}
+
 	public abstract String getExecutableCommand();
+
 
 
 	public  boolean canCalculateTimeRemaining(int repsCompleted){
 		return true;
+	}
+
+	public String getInputFilePath(int i){ 
+		return null;
+	}
+	protected String additionalShellScriptCommands = "";
+	/*.................................................................................................................*/
+	public void setAdditionalShellScriptCommands(String additionalShellScriptCommands) {
+		this.additionalShellScriptCommands = additionalShellScriptCommands;
 	}
 
 	/*.................................................................................................................*/
@@ -56,8 +74,9 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 
 	// the actual data & scripts.  
 	public abstract boolean setPreflightInputFiles(String script);
-	public abstract boolean setInputFiles(String script, String[] fileContents, String[] fileNames);  //assumes for now that all input files are in the same directory
+	public abstract boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames);  //assumes for now that all input files are in the same directory
 	public abstract void setOutputFileNamesToWatch(String[] fileNames);
+	public abstract void setOutputFileNameToWatch(int index, String fileName);
 	public abstract String getOutputFilePath(String fileName);
 	public abstract String[] getOutputFilePaths();
 	public abstract String getLastLineOfOutputFile(String fileName);
@@ -66,9 +85,20 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 
 	// starting the run
 	public abstract boolean startExecution();  //do we assume these are disconnectable?
-	public abstract boolean monitorExecution();
+	public abstract boolean monitorExecution(ProgressIndicator progIndicator);
 	public abstract String checkStatus();  
 	public abstract boolean stopExecution();  
+	/*.................................................................................................................*/
+	public void finalCleanup() {
+	}
+
+
+	public abstract String getStdErr();  
+	public abstract String getStdOut();  
+
+	/*.................................................................................................................*/
+	public void resetLastModified(int i){
+	}
 
 	//results can be harvested by getOutputFile	
 }

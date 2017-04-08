@@ -19,6 +19,7 @@ import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
+import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 import mesquite.zephyr.TNTTrees.*;
 import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
@@ -67,19 +68,29 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	String constraintfile = "none";
 	int totalNumHits = 250;
 
+
+
 	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
 		EmployeeNeed e = registerEmployeeNeed(ExternalProcessRunner.class, getName() + "  needs a module to run an external process.","");
 	}
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
-		externalProcRunner = (ExternalProcessRunner)hireEmployee(ExternalProcessRunner.class, "External Process Runner (for " + getName() + ")"); 
-		if (externalProcRunner==null){
-			return sorry("Couldn't find an external process runner");
+		if (!hireExternalProcessRunner()){
+			return sorry("Couldn't hire an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
 
 		return true;
 	}
+	/*.................................................................................................................*/
+	public String getExternalProcessRunnerModuleName(){
+		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
+	}
+	/*.................................................................................................................*/
+	public Class getExternalProcessRunnerClass(){
+		return LocalScriptRunner.class;
+	}
+
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
@@ -171,12 +182,16 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		resamplingAllConsensusTrees=false;
 		harvestOnlyStrictConsensus=false;
 		bootstrapreps = 100;
-		
+
 	}
 	public void setDefaultTNTCommandsOtherOptions(){
 		otherOptions = "";   
 		convertGapsToMissing = true;
 	}
+	public boolean localMacRunsRequireTerminalWindow(){
+		return true;
+	}
+
 	/*.................................................................................................................*/
 	void formCommandFile(String dataFileName, int firstOutgroup) {
 		if (parallel) {
@@ -185,8 +200,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		commands += getTNTCommand("mxram " + mxram);
 
 		commands += getTNTCommand("report+0/1/0");
-		commands += getTNTCommand("p " + dataFileName);
 		commands += getTNTCommand("log "+logFileName) ; 
+		commands += getTNTCommand("p " + dataFileName);
 		commands += getTNTCommand("vversion");
 		if (MesquiteInteger.isCombinable(firstOutgroup) && firstOutgroup>=0)
 			commands += getTNTCommand("outgroup " + firstOutgroup);
@@ -205,7 +220,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				saveTreesString= " savetrees "; 
 			String bootSearchString = " [xmult; bb]";
 			bootSearchString="";
-			
+
 			if (parallel) {
 				int numRepsPerSlave = bootstrapreps/numSlaves;
 				if (numRepsPerSlave*numSlaves<bootstrapreps) numRepsPerSlave++;
@@ -226,14 +241,16 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 					commands +=  getTNTCommand("ttags =");		
 				}
 				commands +=  getTNTCommand("tsave *" + treeFileName);				
-				if (searchStyle==BOOTSTRAPSEARCH)
-					commands += getTNTCommand("resample boot " + saveTreesString +" replications " + bootstrapreps + bootSearchString); // + getComDelim();   
-				else if (searchStyle==JACKKNIFESEARCH)
-					commands += getTNTCommand("resample jak cut 50 " + saveTreesString +" replications " + bootstrapreps + bootSearchString); // + getComDelim();   
-				else if (searchStyle==SYMSEARCH)
-					commands += getTNTCommand("resample sym cut 50 " + saveTreesString +" replications " + bootstrapreps + bootSearchString); // + getComDelim();   
-				else if (searchStyle==POISSONSEARCH)
-					commands += getTNTCommand("resample poisson cut 50 " + saveTreesString +" replications " + bootstrapreps + bootSearchString); // + getComDelim();   
+				if (bootstrapAllowed) {
+					if (searchStyle==BOOTSTRAPSEARCH)
+						commands += getTNTCommand("resample boot " + saveTreesString +" replications " + bootstrapreps + bootSearchString); // + getComDelim();   
+					else if (searchStyle==JACKKNIFESEARCH)
+						commands += getTNTCommand("resample jak cut 50 " + saveTreesString +" replications " + bootstrapreps + bootSearchString); // + getComDelim();   
+					else if (searchStyle==SYMSEARCH)
+						commands += getTNTCommand("resample sym cut 50 " + saveTreesString +" replications " + bootstrapreps + bootSearchString); // + getComDelim();   
+					else if (searchStyle==POISSONSEARCH)
+						commands += getTNTCommand("resample poisson cut 50 " + saveTreesString +" replications " + bootstrapreps + bootSearchString); // + getComDelim();   
+				}
 				if (!resamplingAllConsensusTrees)
 					commands += getTNTCommand("save *") ; 
 				else 
@@ -282,6 +299,31 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 	public void reconnectToRequester(MesquiteCommand command){
 		continueMonitoring(command);
+	}
+
+	/*.................................................................................................................*/
+	public String getHTMLDescriptionOfStatus(){
+		String s = "";
+		if (getRunInProgress()) {
+			if (bootstrapOrJackknife()){
+				s+=getResamplingKindName()+"<br>";
+			}
+			else {
+				s+="Search for most-parsimonious trees<br>";
+			}
+			s+="</b>";
+		}
+		return s;
+	}
+	/*.................................................................................................................*/
+	public void appendAdditionalSearchDetails() {
+		appendToSearchDetails("Search details: \n");
+		if (bootstrapOrJackknife()){
+			appendToSearchDetails("   "+getResamplingKindName() +"\n");
+			appendToSearchDetails("   "+bootstrapreps + " replicates");
+		} else {
+			appendToSearchDetails("   Search for most-parsimonious trees\n");
+		}
 	}
 
 	/*.................................................................................................................*/
@@ -345,7 +387,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 
 		tabbedPanel.addPanel("Search Options", true);
-		Choice searchStyleChoice = queryOptionsDialog.addPopUpMenu("Type of search/resampling:", new String[] {"Regular Search",  "Bootstrap", "Jackknife", "Symmetric Resampled",  "Poisson Bootstrap"}, searchStyle);
+		Choice searchStyleChoice=null;
+		if (bootstrapAllowed)
+			searchStyleChoice = queryOptionsDialog.addPopUpMenu("Type of search/resampling:", new String[] {"Regular Search",  "Bootstrap", "Jackknife", "Symmetric Resampled",  "Poisson Bootstrap"}, searchStyle);
 		queryOptionsDialog.addLabel("Regular Search Commands");
 		searchField = queryOptionsDialog.addTextAreaSmallFont(searchArguments, 7,80);
 		searchScriptPathField = queryOptionsDialog.addTextField("Path to TNT run file containing search commands", searchScriptPath, 40);
@@ -354,13 +398,15 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		harvestOnlyStrictConsensusBox = queryOptionsDialog.addCheckBox("only acquire strict consensus", harvestOnlyStrictConsensus);
 		queryOptionsDialog.addHorizontalLine(1);
 		//		Checkbox doBootstrapBox = queryOptionsDialog.addCheckBox("do bootstrapping", doBootstrap);
-		bootStrapRepsField = queryOptionsDialog.addIntegerField("Resampling Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
-		queryOptionsDialog.addLabel("Resampling Search Commands");
-		bootstrapSearchField = queryOptionsDialog.addTextAreaSmallFont(bootstrapSearchArguments, 7,80);
-		bootSearchScriptPathField = queryOptionsDialog.addTextField("Path to TNT run file containing search commands for resampled", bootSearchScriptPath, 30);
-		Button browseBootSearchScriptPathButton = queryOptionsDialog.addAListenedButton("Browse...",null, this);
-		browseSearchScriptPathButton.setActionCommand("browseBootSearchScript");
-		 resamplingAllConsensusTreesBox = queryOptionsDialog.addCheckBox("allow TNT to calculate consensus tree", !resamplingAllConsensusTrees);
+		if (bootstrapAllowed) {
+			bootStrapRepsField = queryOptionsDialog.addIntegerField("Resampling Replicates", bootstrapreps, 8, 0, MesquiteInteger.infinite);
+			queryOptionsDialog.addLabel("Resampling Search Commands");
+			bootstrapSearchField = queryOptionsDialog.addTextAreaSmallFont(bootstrapSearchArguments, 7,80);
+			bootSearchScriptPathField = queryOptionsDialog.addTextField("Path to TNT run file containing search commands for resampled", bootSearchScriptPath, 30);
+			Button browseBootSearchScriptPathButton = queryOptionsDialog.addAListenedButton("Browse...",null, this);
+			browseSearchScriptPathButton.setActionCommand("browseBootSearchScript");
+			resamplingAllConsensusTreesBox = queryOptionsDialog.addCheckBox("allow TNT to calculate consensus tree", !resamplingAllConsensusTrees);
+		}
 
 		adjustDialogText();
 		queryOptionsDialog.addHorizontalLine(1);
@@ -385,8 +431,16 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		queryOptionsDialog.completeAndShowDialog("Search", "Cancel", null, null);
 
 		if (buttonPressed.getValue()==0)  {
-			if (externalProcRunner.optionsChosen()) {
-				bootstrapreps = bootStrapRepsField.getValue();
+			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
+			if (externalProcRunner.optionsChosen() && infererOK) {
+				if (bootstrapAllowed) {
+					bootstrapreps = bootStrapRepsField.getValue();
+					bootstrapSearchArguments = bootstrapSearchField.getText();
+					bootSearchScriptPath = bootSearchScriptPathField.getText();
+					harvestOnlyStrictConsensus = harvestOnlyStrictConsensusBox.getState();
+					resamplingAllConsensusTrees = !resamplingAllConsensusTreesBox.getState();
+					searchStyle = searchStyleChoice.getSelectedIndex();
+				}
 				numSlaves = slavesField.getValue();
 				otherOptions = otherOptionsField.getText();
 				convertGapsToMissing = convertGapsBox.getState();
@@ -394,15 +448,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				//				doBootstrap = doBootstrapBox.getState();
 				searchArguments = searchField.getText();
 				searchScriptPath = searchScriptPathField.getText();
-				bootstrapSearchArguments = bootstrapSearchField.getText();
-				bootSearchScriptPath = bootSearchScriptPathField.getText();
-				harvestOnlyStrictConsensus = harvestOnlyStrictConsensusBox.getState();
-				resamplingAllConsensusTrees = !resamplingAllConsensusTreesBox.getState();
-				searchStyle = searchStyleChoice.getSelectedIndex();
 				mxram = maxRamField.getValue();
 
-				externalProcRunner.storePreferences();
-				storePreferences();
+				storeRunnerPreferences();
 			}
 		}
 		queryOptionsDialog.dispose();
@@ -537,6 +585,65 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	}
 
 	/*.................................................................................................................*/
+	public static final NameReference TNTtoAnalyze = NameReference.getNameReference("TNTtoAnalyze"); 
+
+	//this stores matrix-specific information on the taxa to be included in the run
+	Associable taxaInfo; 
+	public Associable getTaxaInfo(CharacterData data, boolean makeIfNotPresent){
+		if (makeIfNotPresent && taxaInfo == null){
+			taxaInfo = new TaxaInfo(data.getNumTaxa(), data);
+		}
+		return taxaInfo;
+	}
+
+	/* .......................................... DNAData .................................................. */
+	public long getTaxonNumberInTree(Taxa taxa, int it) {
+		Associable tInfo = getTaxaInfo(data, true);
+		if (tInfo!=null) {
+			return (int)tInfo.getAssociatedLong(TNTtoAnalyze,it);
+		}
+		return -1;
+	}
+	/* .......................................... MolecularData .................................................. */
+	public void setTaxonNumberInTree(Taxa taxa, int it, int value) {
+		Associable tInfo = getTaxaInfo(data, true);
+		if (tInfo!=null) {
+			tInfo.setAssociatedLong(TNTtoAnalyze, it, value);
+		}
+	}
+
+	/*.................................................................................................................*/
+	public int[] getTaxonNumberTranslation(Taxa taxa) {
+		int max = -1;
+		for (int it = 0; it<taxa.getNumTaxa(); it++){
+			long translateNumber = getTaxonNumberInTree(taxa,it);
+			if (MesquiteLong.isCombinable(translateNumber) && translateNumber>max) {
+				max=(int)translateNumber;
+			}
+		}
+		int[] translate = new int[max+1];
+		for (int it = 0; it<data.getNumTaxa(); it++) {
+			long translateNumber = getTaxonNumberInTree(taxa,it);
+			if (MesquiteLong.isCombinable(translateNumber) && translateNumber>=0) {
+				translate[(int)translateNumber]=it;
+			}
+		}
+		return translate;
+	}
+	/*.................................................................................................................*/
+	public void setTaxonTranslation(Taxa taxa) {
+		int countTaxa = 0;
+		for (int it = 0; it<data.getNumTaxa(); it++)
+			if ((!selectedTaxaOnly || taxa.getSelected(it)) && (data.hasDataForTaxon(it, false))) {
+				setTaxonNumberInTree(taxa,it,countTaxa);
+				countTaxa++;
+			} else
+				setTaxonNumberInTree(taxa,it,-1);
+
+	}
+	int[] taxonNumberTranslation = null;
+
+	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
 			return null;
@@ -549,14 +656,24 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "TNT","-Run.");  
 		if (tempDir==null)
 			return null;
-		String dataFileName = "tempData" + MesquiteFile.massageStringToFilePathSafe(unique) + ".ss";   //replace this with actual file name?
+		String dataFileName = "data.ss";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
+
 		FileInterpreterI exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretTNT");
 		if (exporter==null)
 			return null;
 		boolean fileSaved = false;
+		String translationTable = namer.getTranslationTable(taxa);
+		((InterpretHennig86Base)exporter).setTaxonNamer(namer);
+
 		fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		if (!fileSaved) return null;
+
+		String translationFileName = IOUtil.translationTableFileName;   
+		setTaxonTranslation(taxa);
+		taxonNumberTranslation = getTaxonNumberTranslation(taxa);
+		namer.setNumberTranslationTable(taxonNumberTranslation);
+
 
 		setFileNames();
 
@@ -569,17 +686,13 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		logln(commands);
 		logln("");
 
-		String arguments = "";
-		if (MesquiteTrunk.isWindows())
-			arguments += " proc " + commandsFileName;
-		else
-			arguments += " proc " + commandsFileName;
+		MesquiteString arguments = new MesquiteString();
+		arguments.setValue(" proc " + commandsFileName);
 
-		String programCommand = externalProcRunner.getExecutableCommand()+arguments;
-		programCommand += StringUtil.lineEnding();  
+		String programCommand = externalProcRunner.getExecutableCommand();
 
 
-		int numInputFiles = 2;
+		int numInputFiles = 3;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -590,22 +703,27 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		fileNames[0] = dataFileName;
 		fileContents[1] = commands;
 		fileNames[1] = commandsFileName;
+		fileContents[2] = translationTable;
+		fileNames[2] = translationFileName;
 
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, fileContents, fileNames,  ownerModule.getName());
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
 
 		if (!isDoomed()){
 			if (success){
-			getProject().decrementProjectWindowSuppression();
-			return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
-		} else
-			postBean("unsuccessful [1]", false);
+				desuppressProjectPanelReset();
+				return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
+			} else {
+				if (!beanWritten)
+					postBean("unsuccessful [1]", false);
+				beanWritten=true;
+			}
 		}
-		if (getProject() != null)
-			getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (data == null)
-			data.setEditorInhibition(false);
+			data.decrementEditInhibition();
+		externalProcRunner.finalCleanup();
 		return null;
 	}	
 
@@ -617,7 +735,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		taxa = treeList.getTaxa();
 		//TODO		finalScore.setValue(finalValue);
 
-		getProject().incrementProjectWindowSuppression();
+		suppressProjectPanelReset();
 		CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
 		CommandRecord scr = new CommandRecord(true);
 		MesquiteThread.setCurrentCommandRecord(scr);
@@ -627,6 +745,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
 
 		String treeFilePath = outputFilePaths[OUT_TREEFILE];
+		taxonNumberTranslation = getTaxonNumberTranslation(taxa);
+		namer.setNumberTranslationTable(taxonNumberTranslation);
 
 		runFilesAvailable();
 
@@ -634,16 +754,17 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		success = false;
 		Tree t= null;
 
+
 		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 		//TreeVector tv = new TreeVector(taxa);
 		if (bootstrapOrJackknife()) {
 			if (resamplingAllConsensusTrees)
-				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT " + getResamplingKindName() + " Rep", 0, readSuccess, false, false, null);  // set first tree number as 0 as will remove the first one later.
+				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT " + getResamplingKindName() + " Rep", 0, readSuccess, false, false, null, namer);  // set first tree number as 0 as will remove the first one later.
 			else
-				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT " + getResamplingKindName() + " Majority Rule Tree", 1, readSuccess, false, false, freqRef);
+				t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNT " + getResamplingKindName() + " Majority Rule Tree", 1, readSuccess, false, false, freqRef, namer);
 		}
 		else
-			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTTree", 1, readSuccess, false, harvestOnlyStrictConsensus, null);
+			t =ZephyrUtil.readTNTTreeFile(this,treeList, taxa,treeFilePath, "TNTTree", 1, readSuccess, false, harvestOnlyStrictConsensus, null, namer);
 		success = t!=null;
 		if (success && bootstrapOrJackknife() && resamplingAllConsensusTrees) {
 			t = t.cloneTree();
@@ -654,15 +775,21 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		success = readSuccess.getValue();
 		if (!success) {
 			logln("Execution of TNT unsuccessful [2]");
-			postBean("unsuccessful [2]", false);
-		} else
-			postBean("successful", false);
+			if (!beanWritten)
+				postBean("unsuccessful [2]", false);
+			beanWritten=true;
+		} else {
+			if (!beanWritten)
+				postBean("successful", false);
+			beanWritten=true;
+		}
 
 
-		getProject().decrementProjectWindowSuppression();
+		desuppressProjectPanelReset();
 		if (data!=null)
-			data.setEditorInhibition(false);
+			data.decrementEditInhibition();
 		//	manager.deleteElement(tv);  // get rid of temporary tree block
+		externalProcRunner.finalCleanup();
 		if (success) 
 			return t;
 		return null;
@@ -671,6 +798,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 
 	public String getProgramName() {
+		return "TNT";
+	}
+
+	public String getExecutableName() {
 		return "TNT";
 	}
 
@@ -690,10 +821,6 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	//	MesquiteFile screenFile = null;
 
 	/*.................................................................................................................*
-	public String[] modifyOutputPaths(String[] outputFilePaths){
-		return outputFilePaths;
-	}
-	/*.................................................................................................................*
 	public String getOutputFileToReadPath(String originalPath) {
 		//File file = new File(originalPath);
 		//File fileCopy = new File(originalPath + "2");
@@ -705,11 +832,21 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		}
 		return originalPath;
 	}
+
+		/*.................................................................................................................*/
+	public  boolean showMultipleRuns() {
+		return false;
+	}
+
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
 		String[] logFileNames = getLogFileNames();
-		if ((progIndicator!=null && progIndicator.isAborted()) || logFileNames==null)
+		if ((progIndicator!=null && progIndicator.isAborted())) {
+			setUserAborted(true);
+			return;
+		}
+		if (logFileNames==null)
 			return;
 		String[] outputFilePaths = new String[logFileNames.length];
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
@@ -718,13 +855,15 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 
 		if (fileNum==0 && outputFilePaths.length>0 && !StringUtil.blank(outputFilePaths[0]) && !bootstrapOrJackknife()) {   // tree file
-			String treeFilePath = filePath;
-			if (taxa != null) {
-				TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-				((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
+			if (ownerModule instanceof NewTreeProcessor){ 
+				String treeFilePath = filePath;
+				if (taxa != null) {
+					TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
+					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 
+				}
+				else ((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
 			}
-			else ((ZephyrTreeSearcher)ownerModule).newTreeAvailable(treeFilePath, null);
 		} 	
 		else	if (fileNum==1 && outputFilePaths.length>1 && !StringUtil.blank(outputFilePaths[1]) && !bootstrapOrJackknife()) {   // log file
 			if (MesquiteFile.fileExists(filePath)) {
@@ -764,8 +903,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 						}
 					}
 				count++;
-			} else
-				Debugg.println("*** File does not exist (" + filePath + ") ***");
+			} else if (MesquiteTrunk.debugMode)
+				logln("*** File does not exist (" + filePath + ") ***");
 		}
 
 
@@ -786,6 +925,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 	public boolean continueShellProcess(Process proc){
 		if (progIndicator.isAborted()) {
+			setUserAborted(true);
 			try {
 				Writer stream;
 				stream = new OutputStreamWriter((BufferedOutputStream)proc.getOutputStream());
@@ -813,6 +953,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	}
 
 	public boolean bootstrapOrJackknife() {
+		if (!bootstrapAllowed)
+			return false;
 		return searchStyle==BOOTSTRAPSEARCH || searchStyle==JACKKNIFESEARCH || searchStyle==SYMSEARCH || searchStyle==POISSONSEARCH;
 	}
 	public  boolean doMajRuleConsensusOfResults(){
@@ -846,7 +988,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	}
 
 	public String getName() {
-		return "TNT Runner";
+		return "TNT Parsimony";
 	}
 
 	/*.................................................................................................................*/

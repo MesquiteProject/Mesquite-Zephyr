@@ -22,4 +22,17 @@ public interface ExternalProcessRequester {
 	
 	public String getProgramName();
 	
+	public String getRootNameForDirectory();
+	
+	public void setUserAborted(boolean userAborted);
+	
+	public String getExecutableName();
+	
+	public void prepareRunnerObject(Object obj);
+	
+	public String[] modifyOutputPaths(String[] outputFilePaths);
+	
+	public boolean localMacRunsRequireTerminalWindow();
+
+	
 }

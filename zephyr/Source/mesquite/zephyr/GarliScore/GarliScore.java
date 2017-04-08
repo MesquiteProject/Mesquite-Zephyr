@@ -11,7 +11,7 @@ package mesquite.zephyr.GarliScore;
 
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
-import mesquite.zephyr.GarliRunner.*;
+import mesquite.zephyr.lib.*;
 
 
 public class GarliScore extends NumberForTree {

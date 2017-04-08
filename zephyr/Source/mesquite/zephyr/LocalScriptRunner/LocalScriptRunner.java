@@ -10,6 +10,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.LocalScriptRunner;
 
 import java.awt.Button;
+import java.awt.Checkbox;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
@@ -24,6 +25,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	String executablePath;
 	StringBuffer extraPreferences;
 	ExternalProcessRequester processRequester;
+	boolean visibleTerminal = false;
+	boolean deleteAnalysisDirectory = false;
 
 	/*.================================================================..*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
@@ -64,6 +67,19 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 
 	/*.................................................................................................................*/
+	public String getStdErr() {
+		if (scriptRunner!=null)
+			return scriptRunner.getStdErr();
+		return "";
+	}
+	/*.................................................................................................................*/
+	public String getStdOut() {
+		if (scriptRunner!=null)
+			return scriptRunner.getStdOut();
+		return "";
+	}
+
+	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String flavor, String content) {
 		if (StringUtil.notEmpty(flavor) && "executablePath".equalsIgnoreCase(tag)){   // it is one with the flavor attribute
 			if (flavor.equalsIgnoreCase(getExecutableName()))   /// check to see if flavor is correct!!!
@@ -73,19 +89,40 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 				StringUtil.appendXMLTag(extraPreferences, 2, "executablePath", flavor, path);  		// store for next time
 			}
 		}
+		super.processSingleXMLPreference(tag, content);
+	}
+	/*.................................................................................................................*/
+	public void processSingleXMLPreference (String tag, String content) {
+		if ("visibleTerminal".equalsIgnoreCase(tag) && visibleTerminalOptionAllowed())
+			visibleTerminal = MesquiteBoolean.fromTrueFalseString(content);
+		if ("deleteAnalysisDirectory".equalsIgnoreCase(tag) && visibleTerminalOptionAllowed())
+			deleteAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(content);
+		super.processSingleXMLPreference(tag, content);
 	}
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), executablePath);  
+		if (visibleTerminalOptionAllowed())
+			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
+		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
 		buffer.append(extraPreferences);
 		return buffer.toString();
+	}
+	
+
+	/*.................................................................................................................*/
+	public void resetLastModified(int i){
+		scriptRunner.resetLastModified(i);
 	}
 
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
+		if (visibleTerminalOptionAllowed())
+			temp.addLine("visibleTerminal "+MesquiteBoolean.toTrueFalseString(visibleTerminal));
+		temp.addLine("deleteAnalysisDirectory "+MesquiteBoolean.toTrueFalseString(deleteAnalysisDirectory));
 		if (scriptRunner != null){
 			temp.addLine("reviveScriptRunner ");
 			temp.addLine("tell It");
@@ -104,7 +141,19 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			scriptRunner = new ShellScriptRunner();
 			scriptRunner.setOutputProcessor(this);
 			scriptRunner.setWatcher(this);
+			if (visibleTerminalOptionAllowed())
+				scriptRunner.setVisibleTerminal(visibleTerminal);
 			return scriptRunner;
+		}
+		else  if (checker.compare(this.getClass(), "Sets whether or not the Terminal window should be visible on a Mac.", "[true; false]", commandName, "visibleTerminal")) {
+			if (visibleTerminalOptionAllowed()){
+				visibleTerminal = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+				if (scriptRunner != null)
+					scriptRunner.setVisibleTerminal(visibleTerminal);
+			}
+		}
+		else  if (checker.compare(this.getClass(), "Sets whether or not the analysis folder should be deleted at the end of the run.", "[true; false]", commandName, "deleteAnalysisDirectory")) {
+			deleteAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
 		}
 		else if (checker.compare(this.getClass(), "Sets root directory", null, commandName, "setRootDir")) {
 			rootDir = parser.getFirstToken(arguments);
@@ -115,31 +164,47 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	// setting the requester, to whom this runner will communicate about the run
 	public  void setProcessRequester(ExternalProcessRequester processRequester){
 		setExecutableName(processRequester.getProgramName());
+		setRootNameForDirectory(processRequester.getRootNameForDirectory());
 		this.processRequester = processRequester;
 		loadPreferences();
 		processRequester.intializeAfterExternalProcessRunnerHired();
 	}
 
+	
 	SingleLineTextField executablePathField =  null;
+	Checkbox visibleTerminalCheckBox =  null;
+	Checkbox deleteAnalysisDirectoryCheckBox =  null;
 
 	// given the opportunity to fill in options for user
 	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
 		executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
 		browseButton.setActionCommand("browse");
+		if (visibleTerminalOptionAllowed())
+			visibleTerminalCheckBox = dialog.addCheckBox("Terminal window visible (this will decrease error-reporting ability)", visibleTerminal);
+		deleteAnalysisDirectoryCheckBox = dialog.addCheckBox("Delete analysis directory after completion", deleteAnalysisDirectory);
 
 	}
 	public boolean optionsChosen(){
 		executablePath = executablePathField.getText();
+		if (visibleTerminalCheckBox!=null)
+			visibleTerminal = visibleTerminalCheckBox.getState();
+		else if (processRequester.localMacRunsRequireTerminalWindow())
+			visibleTerminal=true;
+		if (deleteAnalysisDirectoryCheckBox!=null)
+			deleteAnalysisDirectory = deleteAnalysisDirectoryCheckBox.getState();
 		return true;
+	}
+	public boolean visibleTerminalOptionAllowed(){
+		return MesquiteTrunk.isMacOSX() && !processRequester.localMacRunsRequireTerminalWindow();
 	}
 
 	/*.................................................................................................................*/
 	public String getExecutableCommand(){
 		if (MesquiteTrunk.isWindows())
-			return StringUtil.protectForWindows(executablePath);
+			return "call " + StringUtil.protectFilePathForWindows(executablePath);
 		else
-			return StringUtil.protectForUnix(executablePath);
+			return StringUtil.protectFilePathForUnix(executablePath);
 	}
 	
 	String runningFilePath = "";
@@ -153,34 +218,41 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
-	public boolean setInputFiles(String script, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
-		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
+	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
+		//String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 		if (rootDir==null) 
-			rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+			rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getRootNameForDirectory(), "-Run.");
 		if (rootDir==null)
 			return false;
-		
+
 		for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
 			if (StringUtil.notEmpty(fileNames[i]) && fileContents[i]!=null) {
 				MesquiteFile.putFileContents(rootDir+fileNames[i], fileContents[i], true);
 			}
 		}
-
-		runningFilePath = rootDir + "running" + MesquiteFile.massageStringToFilePathSafe(unique);
+		String args = null;
+		if (arguments instanceof MesquiteString)
+			args = ((MesquiteString)arguments).getValue();
+		else if (arguments instanceof String)
+			args = (String)arguments;
+			
+		runningFilePath = rootDir + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);
 		StringBuffer shellScript = new StringBuffer(1000);
 		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
-		shellScript.append(script);
+		if (StringUtil.notEmpty(additionalShellScriptCommands))
+			shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
+		shellScript.append(programCommand + " " + args+ StringUtil.lineEnding());
 		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
 
-		scriptPath = rootDir + "Script" + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
-		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
+		scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
+		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), false);
 		return true;
 	}
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
 	public boolean setPreflightInputFiles(String script){  //assumes for now that all input files are in the same directory
 		String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
-		rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getRootNameForDirectory(), "-Run.");
 		if (rootDir==null)
 			return false;
 		
@@ -189,7 +261,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		shellScript.append(script);
 
 		scriptPath = rootDir + "preflight.bat";
-		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), true);
+		MesquiteFile.putFileContents(scriptPath, shellScript.toString(), false);
 		return true;
 	}
 
@@ -202,6 +274,13 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 				outputFilePaths[i]=rootDir+fileNames[i];
 				outputFileNames[i]=fileNames[i];
 			}
+		}
+	}
+	/*.................................................................................................................*/
+	public void setOutputFileNameToWatch(int index, String fileName){
+		if (outputFileNames!=null && index>=0 && index < outputFileNames.length) {
+				outputFilePaths[index]=rootDir+fileName;
+				outputFileNames[index]=fileName;
 		}
 	}
 
@@ -229,13 +308,17 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	/*.................................................................................................................*/
 	// starting the run
 	public boolean startExecution(){  //do we assume these are disconnectable?
-		scriptRunner = new ShellScriptRunner(scriptPath, runningFilePath, null, false, getExecutableName(), outputFilePaths, this, this, true);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
+		scriptRunner = new ShellScriptRunner(scriptPath, runningFilePath, null, false, getExecutableName(), outputFilePaths, this, this, visibleTerminal);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
 		return scriptRunner.executeInShell();
 	}
 
-	public boolean monitorExecution(){
-		 if (scriptRunner!=null)
-			 return scriptRunner.monitorAndCleanUpShell();
+	public boolean monitorExecution(ProgressIndicator progIndicator){
+		 if (scriptRunner!=null) {
+			 boolean success = scriptRunner.monitorAndCleanUpShell(progIndicator);
+			 if (progIndicator!=null && progIndicator.isAborted())
+				 processRequester.setUserAborted(true);
+			 return success;
+		 }
 		 return false;
 	}
 
@@ -243,7 +326,9 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		return null;
 	}
 	public boolean stopExecution(){
-		scriptRunner = null;
+		if (scriptRunner!=null)
+			scriptRunner.stopExecution();
+		//scriptRunner = null;
 		return false;
 	}
 	/*.................................................................................................................*/
@@ -282,8 +367,15 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 	/*.................................................................................................................*/
 	public String[] modifyOutputPaths(String[] outputFilePaths){
-		return outputFilePaths;
+		return processRequester.modifyOutputPaths(outputFilePaths);
 	}
+	/*.................................................................................................................*/
+	public void finalCleanup() {
+		if (deleteAnalysisDirectory)
+			MesquiteFile.deleteDirectory(rootDir);
+		rootDir=null;
+	}
+
 	public boolean continueShellProcess(Process proc) {
 		return true;
 	}

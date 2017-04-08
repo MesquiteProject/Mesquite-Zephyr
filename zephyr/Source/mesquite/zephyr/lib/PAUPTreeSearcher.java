@@ -18,7 +18,7 @@ import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
 import mesquite.zephyr.lib.*;
 
-public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher  {
+public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 //	Taxa taxa;
 //	private MatrixSourceCoord matrixSourceTask;
 //	protected MCharactersDistribution observedStates;
@@ -96,7 +96,7 @@ public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher  {
 	private TreeVector getTrees(Taxa taxa) {
 		TreeVector trees = new TreeVector(taxa);
 
-		CommandRecord.tick("PAUP Tree Search in progress " );
+		CommandRecord.tick("PAUP* Tree Search in progress " );
 
 		Random rng = new Random(System.currentTimeMillis());
 
@@ -106,7 +106,8 @@ public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher  {
 
 
 		runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScore);
-		trees.setName(getTreeBlockName());
+		runner.setRunInProgress(false);
+		trees.setName(getTreeBlockName());  //Debugg.println  no other tree searchers do this; probably shouldn't be done here
 
 		return trees;
 	}

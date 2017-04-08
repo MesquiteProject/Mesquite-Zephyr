@@ -11,6 +11,7 @@ package mesquite.zephyr.TNTTrees;
 
 import java.util.*;
 
+import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -18,13 +19,12 @@ import mesquite.zephyr.TNTRunner.TNTRunner;
 import mesquite.zephyr.lib.*;
 
 
-public class TNTTrees extends ZephyrTreeSearcher {
-	TNTRunner tntRunner;
+public class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
 	TreeSource treeRecoveryTask;
-	Taxa taxa;
-	private MatrixSourceCoord matrixSourceTask;
-	protected MCharactersDistribution observedStates;
-	int rerootNode = 0;
+	//Taxa taxa;
+	//private MatrixSourceCoord matrixSourceTask;
+	//protected MCharactersDistribution observedStates;
+	//int rerootNode = 0;
 
 
 	/*.................................................................................................................*/
@@ -46,7 +46,7 @@ public class TNTTrees extends ZephyrTreeSearcher {
 	 }
 	 /*.................................................................................................................*/
 	 public String getCitation() {
-		 return "Maddison DR and Maddison KW. 2014.  TNT Tree Searcher, in " + getPackageIntroModule().getPackageCitation();
+		 return "Maddison DR and Will KW. 2014.  TNT Tree Searcher, in " + getPackageIntroModule().getPackageCitation();
 	 }
 
 	 /*.................................................................................................................*/
@@ -83,9 +83,14 @@ public class TNTTrees extends ZephyrTreeSearcher {
 		latestTree = null;
 
 		String s = MesquiteFile.getFileLastContents(path);
+		
+		TaxonNamer namer = runner.getTaxonNamer();
 
 
-		latestTree = ZephyrUtil.readTNTTrees(this, null,s,"TNTTree", 0, taxa,true, false, null);
+//		int[] taxonNumberTranslation = ((TNTRunner)runner).getTaxonNumberTranslation(taxa);
+
+
+		latestTree = ZephyrUtil.readTNTTrees(this, null,path, s,"TNTTree", 0, taxa,true, false, null, namer);
 
 		if (latestTree!=null && latestTree.isValid()) {
 			rerootNode = latestTree.nodeOfTaxonNumber(1);
