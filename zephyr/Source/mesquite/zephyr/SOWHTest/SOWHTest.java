@@ -25,7 +25,7 @@ import mesquite.zephyr.lib.*;
 import mesquite.categ.lib.CategoricalData;
 import mesquite.diverse.lib.*;
 import mesquite.io.lib.IOUtil;
-
+import org.apache.commons.math3.stat.interval.*;
 
 // see SimMatricesOnTrees for CharacterSimulator bookkeeping
 
@@ -312,6 +312,9 @@ public class SOWHTest extends TreeWindowAssistantA      {
 
 
 	/*.................................................................................................................*/
+	private void calculateConfidenceInterval(MesquiteDouble lower, MesquiteDouble higher) {
+	}
+	/*.................................................................................................................*/
 	private MCharactersDistribution getSimulatedMatrix(Taxa taxa, int matrixNumber){
 		if (hypothesisTree == null) {
 			return null;
@@ -460,7 +463,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 	/*.................................................................................................................*/
 	/** Calculates the pValue by seeing how many of the simulated values are greater than or equal to the observed value.
 	 * Also calculates the fraction of the values that are less than 0. */
-	double calculatePValue(double observed, double[] simulated, MesquiteDouble fractionNegative) {
+	double calculatePValue(double observed, double[] simulated, MesquiteDouble fractionNegative, MesquiteDouble lower, MesquiteDouble upper) {
 		DoubleArray.sort(simulated);
 		int count = 0;
 		int asExtreme = 0;
@@ -479,6 +482,21 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		if (count>0) {
 			if (fractionNegative!=null)
 				fractionNegative.setValue(negative*1.0/count);
+			ConfidenceInterval ci = null;
+			if (count>5) {
+				try {
+					ClopperPearsonInterval cpi = new ClopperPearsonInterval();
+					ci = cpi.createInterval(count, asExtreme, 0.95);
+				} catch (Exception e) {
+					ci = null;
+				}
+				if (ci!=null) {
+					if (lower!=null)
+						lower.setValue(ci.getLowerBound());
+					if (upper!=null)
+						upper.setValue(ci.getUpperBound());
+				}
+			}
 			return (asExtreme*1.0)/count;
 		}
 
@@ -533,8 +551,11 @@ public class SOWHTest extends TreeWindowAssistantA      {
 	/*.................................................................................................................*/
 	public String getListHeading(boolean extraValuesForFile) {
 		String s= "\nrep\tdelta\tp-value";
-		if (extraValuesForFile)
+		if (extraValuesForFile){
+			s+="\tlower-bound-p-value";
+			s+="\tupper-bound-p-value";
 			s+="\tfraction-negative";
+		}
 		s+="\n-------------------------------"; 
 		return s;
 	}
@@ -608,6 +629,8 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		hireDataAltererIfNeeded();
 		
 		MesquiteDouble fractionNegative = new MesquiteDouble(0.0);
+		MesquiteDouble lower = new MesquiteDouble();
+		MesquiteDouble upper = new MesquiteDouble();
 		StringBuffer repReport = new StringBuffer();
 		int uncombinableSimulatedDelta=0;
 		MesquiteTimer timer = new MesquiteTimer();
@@ -645,7 +668,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 				//return;
 			}
 			simulatedDeltas[rep] = simulatedDelta;
-			double pValue = calculatePValue(observedDelta,simulatedDeltas,fractionNegative);
+			double pValue = calculatePValue(observedDelta,simulatedDeltas,fractionNegative, lower, upper);
 			if (rep==0) {
 				initialText.setLength(0);
 				initialText.append(getInitialText(data));
@@ -653,13 +676,21 @@ public class SOWHTest extends TreeWindowAssistantA      {
 				saveResults(getStartOfReportFileText() +"\n"+ initialText.toString());
 				appendToReportFile("\n"+getListHeading(true));
 			}
+			//Debugg.println("\n\npValue: " + pValue+ ".  lower: " + lower.getValue()+ ", upper: "+ upper.getValue());
 
 			repReport.insert(0,getReplicateLine(rep, simulatedDelta, pValue));
 			StringBuffer panelText = new StringBuffer();
 			panelText.append("\nReplicates completed: "+ (rep+1) + " of " +totalReps + "\n");
+			if (lower.isCombinable() && upper.isCombinable()){
+				panelText.append("\nLower Bound on p-value (95% CI): "+ lower.toString(4)+"\n-value: "+ MesquiteDouble.toStringDigitsSpecified(pValue, 4)+"\nUpper Bound on p-value (95% CI): "+ upper.toString(4)+"\n");
+				panelText.append("  (Bounds calculated using Clopper-Pearson method)\n");
+			}
 			panelText.append("\nFraction of delta values <0: "+ fractionNegative.toString(4)+"\n");
 			panel.setText(panelText.toString()+ getListHeading(false) + repReport.toString());
-			appendToReportFile(getReplicateLine(rep, simulatedDelta, pValue)+"\t"+fractionNegative.toString(4));
+			if (lower.isCombinable() && upper.isCombinable())
+				appendToReportFile(getReplicateLine(rep, simulatedDelta, pValue)+"\t"+lower.toString(4)+"\t"+upper.toString(4)+"\t"+fractionNegative.toString(4));
+			else
+				appendToReportFile(getReplicateLine(rep, simulatedDelta, pValue)+"\t"+fractionNegative.toString(4));
 			panel.setPValue(pValue);
 			panel.repaint();
 			totalTime += timer.timeSinceLastInSeconds();
