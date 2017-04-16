@@ -62,6 +62,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 	long originalSeed=System.currentTimeMillis(); //0L;
 	Random rng;
 	boolean userAborted = false;
+	boolean constraintTreeFailure = false;
 	
 	int totalReps = 100;
 	double observedDelta = MesquiteDouble.unassigned;
@@ -262,6 +263,8 @@ public class SOWHTest extends TreeWindowAssistantA      {
 
 		if (checker.compare(this.getClass(), "Provokes Calculation", null, commandName, "doCounts")) {
 			doSOWHTest();
+			if (constraintTreeFailure)
+				iQuit();
 		}
 		else if (checker.compare(this.getClass(), "Quits", null, commandName, "close")) {
 			if (panel != null && containingWindow != null)
@@ -408,6 +411,9 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			if (runner.getUserAborted()) {
 				panel.setAborted(true);
 				userAborted = true;
+			}
+			if (runner.constraintTreeIsNull()) {  // we failed to get a constraint tree; need to abandon ship
+				constraintTreeFailure=true;
 			}
 			return MesquiteDouble.unassigned;  
 		}
@@ -611,8 +617,13 @@ public class SOWHTest extends TreeWindowAssistantA      {
 				iQuit();
 				return;
 			}
-			if (userAborted) 
+			if (userAborted) {
 				return;
+			} 
+			if (constraintTreeFailure) {
+				iQuit();
+				return;
+			} 
 		}
 		panel.setCalculatingObserved(false);
 
@@ -655,6 +666,10 @@ public class SOWHTest extends TreeWindowAssistantA      {
 				simulatedData=null;
 			}
 			if (userAborted) {
+				return;
+			} 
+			if (constraintTreeFailure) {
+				iQuit();
 				return;
 			} 
 			if (!MesquiteDouble.isCombinable(simulatedDelta)) {  

@@ -72,6 +72,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		this.treeInferer = treeInferer;
 	}
 
+	public boolean constraintTreeIsNull() {
+		return constraint == null;
+	}
+
 	public boolean stopExecution(){
 		return externalProcRunner.stopExecution();
 	}
