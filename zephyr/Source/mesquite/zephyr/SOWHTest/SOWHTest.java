@@ -188,9 +188,13 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		whichWindow.dispose();
 		iQuit();
 	}
+	//
+	public boolean rehireMeInSnapshot(){
+		return false;
+	}
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
-		return null;   // returning null ensures it won't be saved in file.
+		return null;   
 		
 		/*final Snapshot temp = new Snapshot();
 		temp.addLine("setCalculator ", numberTask); 
