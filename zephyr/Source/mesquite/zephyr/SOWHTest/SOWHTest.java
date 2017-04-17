@@ -23,7 +23,6 @@ import mesquite.lib.characters.CharacterData;
 import mesquite.lib.duties.*;
 import mesquite.zephyr.lib.*;
 import mesquite.categ.lib.CategoricalData;
-import mesquite.diverse.lib.*;
 import mesquite.io.lib.IOUtil;
 import org.apache.commons.math3.stat.interval.*;
 
@@ -491,7 +490,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			if (fractionNegative!=null)
 				fractionNegative.setValue(negative*1.0/count);
 			ConfidenceInterval ci = null;
-			if (count>5) {
+			if (count>=5) {
 				try {
 					ClopperPearsonInterval cpi = new ClopperPearsonInterval();
 					ci = cpi.createInterval(count, asExtreme, 0.95);
@@ -701,8 +700,9 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			StringBuffer panelText = new StringBuffer();
 			panelText.append("\nReplicates completed: "+ (rep+1) + " of " +totalReps + "\n");
 			if (lower.isCombinable() && upper.isCombinable()){
-				panelText.append("\nLower Bound on p-value (95% CI): "+ lower.toString(4)+"\n-value: "+ MesquiteDouble.toStringDigitsSpecified(pValue, 4)+"\nUpper Bound on p-value (95% CI): "+ upper.toString(4)+"\n");
-				panelText.append("  (Bounds calculated using Clopper-Pearson method)\n");
+				panelText.append("\np-value: "+ MesquiteDouble.toStringDigitsSpecified(pValue, 4));
+				panelText.append("\n95% Confidence Interval of p-value: \n  "+ lower.toString(4)+" – "+ upper.toString(4)+"\n");
+				panelText.append("(Bounds calculated using Clopper-Pearson method)\n");
 			}
 			panelText.append("\nFraction of delta values <0: "+ fractionNegative.toString(4)+"\n");
 			panel.setText(panelText.toString()+ getListHeading(false) + repReport.toString());
