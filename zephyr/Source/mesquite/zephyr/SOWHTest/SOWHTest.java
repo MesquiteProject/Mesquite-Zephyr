@@ -700,7 +700,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			StringBuffer panelText = new StringBuffer();
 			panelText.append("\nReplicates completed: "+ (rep+1) + " of " +totalReps + "\n");
 			if (lower.isCombinable() && upper.isCombinable()){
-				panelText.append("\np-value: "+ MesquiteDouble.toStringDigitsSpecified(pValue, 4));
+				panelText.append("\nCurrent p-value: "+ MesquiteDouble.toStringDigitsSpecified(pValue, 4));
 				panelText.append("\n95% Confidence Interval of p-value: \n  "+ lower.toString(4)+" – "+ upper.toString(4)+"\n");
 				panelText.append("(Bounds calculated using Clopper-Pearson method)\n");
 			}
