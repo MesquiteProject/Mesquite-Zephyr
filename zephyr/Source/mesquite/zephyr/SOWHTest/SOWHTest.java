@@ -31,11 +31,6 @@ import org.apache.commons.math3.stat.interval.*;
 
 public class SOWHTest extends TreeWindowAssistantA      {
 	public void getEmployeeNeeds(){  //This gets called on startup to harvest information; override this and inside, call registerEmployeeNeed
-		EmployeeNeed e = registerEmployeeNeed(NumForCharAndTreeDivers.class, getName() + "  needs a method to calculate diversification statistics.",
-				"You can choose the diversification calculation initially or under the Diversification Measure submenu.");
-		e.setPriority(2);
-		EmployeeNeed ew = registerEmployeeNeed(CharSourceCoordObed.class, getName() + "  needs a source of characters.",
-				"The source of characters is arranged initially");
 		EmployeeNeed e2 = registerEmployeeNeed(ZephyrRunner.class, getName() + "  needs a module to search for trees.","");
 		EmployeeNeed e3 = registerEmployeeNeed(MatrixSourceCoord.class, getName() + "  needs a module to provide a matrix.","");
 		EmployeeNeed e4 = registerEmployeeNeed(CharacterSimulator.class, getName() + "  needs a module to simulate matrices.","");
@@ -137,6 +132,14 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			return false;
 		return true;
 	}
+
+	private void fireAllEmployees () {
+		fireEmployee(altererTask);
+		fireEmployee(matrixSourceTask);
+		fireEmployee(charSimulatorTask);
+		fireEmployee(runner);
+	}
+	
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("totalReps".equalsIgnoreCase(tag)) {
@@ -269,11 +272,6 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			doSOWHTest();
 			if (constraintTreeFailure)
 				iQuit();
-		}
-		else if (checker.compare(this.getClass(), "Quits", null, commandName, "close")) {
-			if (panel != null && containingWindow != null)
-				containingWindow.removeSidePanel(panel);
-			iQuit();
 		}
 		else if (checker.compare(this.getClass(), "Quits", null, commandName, "close")) {
 			if (panel != null && containingWindow != null)
@@ -622,6 +620,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 				return;
 			}
 			if (userAborted) {
+				fireAllEmployees();
 				return;
 			} 
 			if (constraintTreeFailure) {
@@ -670,6 +669,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 				simulatedData=null;
 			}
 			if (userAborted) {
+				fireAllEmployees();
 				return;
 			} 
 			if (constraintTreeFailure) {
@@ -740,6 +740,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		panel.repaint();
 		
 		logln("SOWH Test completed.");
+		fireAllEmployees();
 		//		window.append("\n\n  " + rs);
 	}
 	/*.................................................................................................................*/
