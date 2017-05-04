@@ -241,7 +241,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	/*.................................................................................................................*/
 
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
+		if (!initializeGetTrees(new Class[] {CategoricalData.class}, taxa, matrix))
 			return null;
 		setPAUPSeed(seed);
 		//David: if isDoomed() then module is closing down; abort somehow
@@ -253,7 +253,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		dataFileName = "dataFile.nex";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 		boolean fileSaved = false;
-		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, selectedTaxaOnly, true, true);
+		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  catData,false, selectedTaxaOnly, true, true);
 		if (!fileSaved) return null;
 
 		setFileNames();
@@ -295,7 +295,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 		setRootNameForDirectoryInProcRunner();
 
-		String commands = getPAUPCommandFile(paupCommander, dataFileName, treeFileName, data, constraintTree);
+		String commands = getPAUPCommandFile(paupCommander, dataFileName, treeFileName, catData, constraintTree);
 		if (isVerbose()) {
 			logln("\n\nCommands given to PAUP*:");
 			logln(commands);

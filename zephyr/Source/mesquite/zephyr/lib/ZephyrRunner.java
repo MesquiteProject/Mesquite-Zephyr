@@ -27,7 +27,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	String[] logFileNames;
 	protected ExternalProcessRunner externalProcRunner;
 	protected ProgressIndicator progIndicator;
-	protected CategoricalData data;
+	protected CategoricalData catData;
+	protected CharacterData data;
 	protected boolean createdNewDataObject;
 	protected MesquiteTimer timer = new MesquiteTimer();
 	protected Taxa taxa;
@@ -407,7 +408,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return !optionsHaveBeenSet;
 	}
 	/*.................................................................................................................*/
-	public boolean initializeGetTrees(Class requiredClassOfData, Taxa taxa, MCharactersDistribution matrix) {
+	public boolean initializeGetTrees(Class[] requiredClassesOfData, Taxa taxa, MCharactersDistribution matrix) {
 		if (matrix==null )
 			return false;
 
@@ -416,10 +417,27 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 				return false;
 		}
 		createdNewDataObject = matrix.getParentData()==null;
-		data = (CategoricalData)CharacterData.getData(this,  matrix, taxa);
-		if (!(requiredClassOfData.isInstance(data))){
-			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " works only if given a full "+requiredClassOfData.getName()+" object");
-			return false;
+		data = CharacterData.getData(this,  matrix, taxa);
+		if (data instanceof CategoricalData)
+			catData=(CategoricalData)data;
+		if (requiredClassesOfData!=null) {
+			boolean match = false;
+			for (int i = 0; i<requiredClassesOfData.length; i++) {
+				if ((requiredClassesOfData[i].isInstance(data))){
+					match=true;
+				}
+			}
+			if (!match){
+				String requiredClasses = "";
+				for (int i = 0; i<requiredClassesOfData.length; i++) {
+					if (i>0)
+						requiredClasses+="or ";
+					requiredClasses+=requiredClassesOfData[i].getName()+" ";
+				}
+				MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " works only if given a full "+requiredClasses+"object");
+				return false;
+
+			}
 		}
 
 		if (!initializeJustBeforeQueryOptions())

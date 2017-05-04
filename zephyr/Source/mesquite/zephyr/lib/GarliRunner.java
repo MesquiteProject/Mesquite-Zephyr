@@ -857,7 +857,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 	/*.................................................................................................................*/
 	public boolean initializeJustBeforeQueryOptions() {
-		setUpCharModels(data);
+		setUpCharModels(catData);
 		return true;
 	}
 	/*.................................................................................................................*/
@@ -869,7 +869,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		screenFile = null;
 		screenFilePos=0;
 		runNumber = 0;
-		if (!initializeGetTrees(MolecularData.class, taxa, matrix))
+		if (!initializeGetTrees(new Class[] {MolecularData.class}, taxa, matrix))
 			return null;
 		//David: if isDoomed() then module is closing down; abort somehow
 		setGarliSeed(seed);
@@ -884,16 +884,16 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 		String dataFilePath = tempDir + dataFileName;
 		if (partitionScheme == noPartition)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, false, false);
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, catData, true, selectedTaxaOnly, false, false);
 		else if (partitionScheme == partitionByCharacterGroups)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, true, false);
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, catData, true, selectedTaxaOnly, true, false);
 		else if (partitionScheme == partitionByCodonPosition)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, true, true);
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, catData, true, selectedTaxaOnly, true, true);
 
 		setFileNames();
 
 		// setting up the GARLI config file
-		String config = getGARLIConfigurationFile(data);
+		String config = getGARLIConfigurationFile(catData);
 		//		String configFilePath = tempDir+configFileName;
 		//		MesquiteFile.putFileContents(configFilePath, config, true);
 		if (!MesquiteThread.isScripting() && showConfigDetails) {

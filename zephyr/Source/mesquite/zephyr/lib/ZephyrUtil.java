@@ -65,7 +65,7 @@ public class ZephyrUtil {
 	}	
 	/*.................................................................................................................*/
 	//TODO: Many unused variables in method call (taxa, directoryPath, fileName)?
-	public static boolean saveExportFile(MesquiteModule module, FileInterpreterI exporter, String path, CategoricalData data, boolean selectedTaxaOnly) {
+	public static boolean saveExportFile(MesquiteModule module, FileInterpreterI exporter, String path, CharacterData data, boolean selectedTaxaOnly) {
 		if (data==null)
 			return false;
 
