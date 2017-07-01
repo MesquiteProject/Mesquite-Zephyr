@@ -241,8 +241,15 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
 		if (StringUtil.notEmpty(additionalShellScriptCommands))
 			shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
-		  					// 30 June 2017: added redirect of stdout and stderr
-		shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName + " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+		  					// 30 June 2017: added redirect of stderr
+//		shellScript.append(programCommand + " " + args+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+		if (visibleTerminal) {
+			//shellScript.append(programCommand + " " + args+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+			shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+		}
+		else
+			shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+//		shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
 //		shellScript.append(programCommand + " " + args + StringUtil.lineEnding());
 		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
 
@@ -379,7 +386,18 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 
 	public boolean continueShellProcess(Process proc) {
+		String stdErr = getStdErr();
+		if (StringUtil.notEmpty(stdErr))
+			return false;
 		return true;
+	}
+	public boolean fatalErrorDetected() {
+		if (processRequester.errorsAreFatal()) { 
+			String stdErr = getStdErr();
+			if (StringUtil.notEmpty(stdErr))
+				return true;
+		}
+		return false;
 	}
 	
 	

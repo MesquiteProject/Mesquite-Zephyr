@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPDistanceTrees;
+package mesquite.zephyr.PAUPLikelihoodTrees;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -15,10 +15,10 @@ import java.util.Random;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
-import mesquite.zephyr.PAUPDistanceRunner.PAUPDistanceRunner;
+import mesquite.zephyr.PAUPLikelihoodRunner.PAUPLikelihoodRunner;
 import mesquite.zephyr.lib.*;
 
-public class PAUPDistanceTrees extends ZephyrTreeSearcher implements DistanceAnalysis {
+public class PAUPLikelihoodTrees extends ZephyrTreeSearcher implements LikelihoodAnalysis {
 
 	/*.................................................................................................................*
 
@@ -65,7 +65,7 @@ public class PAUPDistanceTrees extends ZephyrTreeSearcher implements DistanceAna
 
 	/*.................................................................................................................*/
 	public String getMethodNameForTreeBlock() {
-		return " Distance";
+		return " ML";
 	}
 
 
@@ -79,23 +79,23 @@ public class PAUPDistanceTrees extends ZephyrTreeSearcher implements DistanceAna
 
 
 	public String getExplanation() {
-		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a distance search, and harvest the resulting trees.";
+		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a likelihood search, and harvest the resulting trees.";
 	}
 	public String getName() {
-		return "PAUP (Distance)";
+		return "PAUP (Likelihood)";
 	}
 	public String getNameForMenuItem() {
-		return "PAUP (Distance)...";
+		return "PAUP (Likelihood)...";
 	}
 
 	
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.PAUPDistanceRunner";
+		return "#mesquite.zephyr.PAUPLikelihoodRunner";
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return PAUPDistanceRunner.class;
+		return PAUPLikelihoodRunner.class;
 	}
 
 	/*.................................................................................................................*/

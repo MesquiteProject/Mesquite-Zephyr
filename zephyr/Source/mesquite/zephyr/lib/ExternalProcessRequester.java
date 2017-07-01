@@ -34,5 +34,7 @@ public interface ExternalProcessRequester {
 	
 	public boolean localMacRunsRequireTerminalWindow();
 
+	public boolean errorsAreFatal();
+
 	
 }

@@ -59,7 +59,7 @@ public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 	}
 	/*.................................................................................................................*/
 	public String getCitation()  {
-		return "Please remember to cite the version of PAUP* you used.";
+		return "Please remember to cite the version of PAUP you used.";
 	}
 
 	/*.................................................................................................................*/
@@ -96,7 +96,7 @@ public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 	private TreeVector getTrees(Taxa taxa) {
 		TreeVector trees = new TreeVector(taxa);
 
-		CommandRecord.tick("PAUP* Tree Search in progress " );
+		CommandRecord.tick("PAUP Tree Search in progress " );
 
 		Random rng = new Random(System.currentTimeMillis());
 

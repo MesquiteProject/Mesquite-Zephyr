@@ -27,6 +27,7 @@ import mesquite.zephyr.lib.*;
 
 public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, ExternalProcessRequester, PAUPCommander {
 	public static final String SCORENAME = "PAUPScore";
+	public static final String PAUPURL = "http://people.sc.fsu.edu/~dswofford/paup_test/";
 	Random rng;
 	String datafname = null;
 	String ofprefix = "output";
@@ -166,8 +167,9 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	/*.................................................................................................................*/
 	public String PAUPCommandFileStart(){
 		String commandStart = "#NEXUS\n\n";
-		commandStart+="begin paup;\n\tset torder=right tcompress outroot=monophyl taxlabels=full nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;"
-				+ "\n\tlog file=logfile.txt replace=yes;\n";
+		commandStart+="begin paup;\n"
+		        +"\tset torder=right tcompress outroot=monophyl taxlabels=full nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;\n"
+				+ "\tlog file=logfile.txt replace=yes;\n";
 		return commandStart;
 	}
 
@@ -302,7 +304,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 		String commands = getPAUPCommandFile(paupCommander, dataFileName, treeFileName, data, constraintTree);
 		if (isVerbose()) {
-			logln("\n\nCommands given to PAUP*:");
+			logln("\n\nCommands given to PAUP:");
 			logln(commands);
 			logln("");
 		}
@@ -361,7 +363,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		FileCoordinator coord = getFileCoordinator();
 		String treeFilePath = outputFilePaths[OUT_TREEFILE];
 		if (!MesquiteFile.fileExists(treeFilePath)) {
-			logln("PAUP* tree file not found");
+			logln("PAUP tree file not found");
 			reportStdError();
 			if (!beanWritten)
 				postBean("failed - no tree file found", false);
@@ -567,11 +569,11 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	}
 
 	public String getProgramName() {
-		return "PAUP*";
+		return "PAUP";
 	}
 
 	public String getExecutableName() {
-		return "PAUP*";
+		return "PAUP";
 	}
 
 	public boolean getPreferencesSet() {
@@ -632,13 +634,13 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			titleExtra += " ("+extra+")";
 		dialog = new ExtensibleDialog(containerOfModule(), getName() + " Options"+titleExtra,buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 		//		dialog.addLabel(getName() + " Options and Location");
-		String helpString = "This module will prepare a matrix for PAUP*, and ask PAUP* do to an analysis.  A command-line version of PAUP* must be installed. ";
+		String helpString = "This module will prepare a matrix for PAUP, and ask PAUP do to an analysis.  A command-line version of PAUP must be installed. ";
 
 		dialog.appendToHelpString(helpString);
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 
-		tabbedPanel.addPanel("PAUP* Program Details", true);
+		tabbedPanel.addPanel("PAUP Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
 
 

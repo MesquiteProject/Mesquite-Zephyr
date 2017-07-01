@@ -309,6 +309,12 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	public boolean continueShellProcess(Process proc) {
 		return true;
 	}
-	
+	public boolean fatalErrorDetected() {
+		String stdErr = getStdErr();
+		if (StringUtil.notEmpty(stdErr))
+			return true;
+		return false;
+	}
+
 	
 }

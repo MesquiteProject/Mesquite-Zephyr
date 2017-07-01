@@ -130,6 +130,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		this.userAborted = userAborted;
 	}
 	
+	public boolean errorsAreFatal(){
+		return true;
+	}
 
 
 	/*.................................................................................................................*/

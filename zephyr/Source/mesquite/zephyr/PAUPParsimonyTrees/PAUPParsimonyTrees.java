@@ -72,20 +72,20 @@ public class PAUPParsimonyTrees extends ZephyrTreeSearcher implements ParsimonyA
 	/*.................................................................................................................*
 	public String resampled(){
 		if (runner.bootstrapOrJackknife()) {
-			return "PAUP* " + " Trees (Matrix: " + observedStates.getName() + ")";
+			return "PAUP " + " Trees (Matrix: " + observedStates.getName() + ")";
 		} 
 		else {
-			return "PAUP* MP Trees (Matrix: " + observedStates.getName() + ")";
+			return "PAUP MP Trees (Matrix: " + observedStates.getName() + ")";
 
 		}
 	}
 	/*.................................................................................................................*
 	public String getTreeBlockName(){
 		if (runner.bootstrapOrJackknife()) {
-			return "PAUP* " + " Trees (Matrix: " + observedStates.getName() + ")";
+			return "PAUP " + " Trees (Matrix: " + observedStates.getName() + ")";
 		} 
 		else {
-			return "PAUP* MP Trees (Matrix: " + observedStates.getName() + ")";
+			return "PAUP MP Trees (Matrix: " + observedStates.getName() + ")";
 
 		}
 	}
@@ -100,13 +100,13 @@ public class PAUPParsimonyTrees extends ZephyrTreeSearcher implements ParsimonyA
 
 
 	public String getExplanation() {
-		return "If PAUP* is installed, will save a copy of a character matrix and script PAUP* to conduct a parsimony search, and harvest the resulting trees.";
+		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a parsimony search, and harvest the resulting trees.";
 	}
 	public String getName() {
-		return "PAUP* (Parsimony)";
+		return "PAUP (Parsimony)";
 	}
 	public String getNameForMenuItem() {
-		return "PAUP* (Parsimony)...";
+		return "PAUP (Parsimony)...";
 	}
 
 	
@@ -121,12 +121,12 @@ public class PAUPParsimonyTrees extends ZephyrTreeSearcher implements ParsimonyA
 
 	/*.................................................................................................................*/
 	public String getProgramName() {
-		return "PAUP*";
+		return "PAUP";
 	}
 
 	/*.................................................................................................................*/
 	 public String getProgramURL() {
-		 return "http://people.sc.fsu.edu/~dswofford/paup_test/";
+		 return PAUPRunner.PAUPURL;
 	 }
 
 

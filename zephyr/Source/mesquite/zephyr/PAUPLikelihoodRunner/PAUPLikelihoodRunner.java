@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPParsimonyRunner;
+package mesquite.zephyr.PAUPLikelihoodRunner;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -25,29 +25,29 @@ import mesquite.zephyr.lib.*;
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
  */
 
-public class PAUPParsimonyRunner extends PAUPSearchRunner {
+public class PAUPLikelihoodRunner extends PAUPSearchRunner {
 
 
 	public String getCriterionSetCommand() {
-		return "set criterion=parsimony;";
+		return "set criterion=likelihood;";
 	}
 
 	public String getCriterionScoreCommand() {
-		return "pscore";
+		return "lscore";
 	}
 
 
 	public String getOptimalTreeAdjectiveLowerCase() {
-		return "most-parsimonious";
+		return "maximum likelihood";
 	}
 
 	public String getOptimalTreeAdjectiveTitleCase() {
-		return "Most-Parsimonious";
+		return "Maximum Likelihood";
 	}
 
 
 	public String getName() {
-		return "PAUP Parsimony";
+		return "PAUP Likelihood";
 	}
 
 

@@ -7,33 +7,46 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPDistanceTrees;
+package mesquite.zephyr.PAUPNJTrees;
 
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.util.Random;
 
-import mesquite.categ.lib.*;
 import mesquite.lib.*;
-import mesquite.zephyr.PAUPDistanceRunner.PAUPDistanceRunner;
+import mesquite.zephyr.PAUPNJRunner.PAUPNJRunner;
+import mesquite.zephyr.PAUPParsimonyRunner.PAUPParsimonyRunner;
 import mesquite.zephyr.lib.*;
+import mesquite.categ.lib.*;
 
-public class PAUPDistanceTrees extends ZephyrTreeSearcher implements DistanceAnalysis {
+public class PAUPNJTrees extends ZephyrTreeSearcher implements DistanceAnalysis {
 
 	/*.................................................................................................................*
-
 	public String getExtraTreeWindowCommands (){
 
-		String commands = "setSize 400 600; getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
+		String commands = "setSize 400 600; ";
+		commands += " getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
 		commands += "setTreeDrawer  #mesquite.trees.SquareTree.SquareTree; tell It; orientRight; ";
 		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
+		if (!runner.bootstrapOrJackknife())
+			commands += " tell It; branchLengthsToggle on; endTell; ";
 		commands += " setEdgeWidth 3; endTell; ";
 		if (runner.bootstrapOrJackknife())
 			commands += "labelBranchLengths on; setNumBrLenDecimals 0; showBrLenLabelsOnTerminals off; showBrLensUnspecified off; setBrLenLabelColor 0 0 0;";
 		commands += " endTell; ladderize root; ";
 		return commands;
 	}
+
+
 	
+	/*.................................................................................................................*/
+	public String getTreeBlockName(){
+		if (runner.bootstrapOrJackknife()) {
+			return "PAUP NJ " + runner.getResamplingKindName() + " Tree (Matrix: " + observedStates.getName() + ")";
+		} 
+		else {
+			return "PAUP NJ Tree (Matrix: " + observedStates.getName() + ")";
+
+		}
+	}
 
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
@@ -41,61 +54,44 @@ public class PAUPDistanceTrees extends ZephyrTreeSearcher implements DistanceAna
 	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){
 		return true;
 	}
-	
-	public String getExtraTreeWindowCommands (){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, false)+ eachTreeCommands();
-	}
-
-	
-	public String eachTreeCommands (){
-		String commands="";
-		if (rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) {
-			commands += " rootAlongBranch " + rerootNode + "; ";
-		}
-		commands += " ladderize root; ";
-
-		return commands;
-	}
-
-	/*.................................................................................................................*/
-	public String getMethodNameForTreeBlock() {
-		return " Distance";
-	}
-
-
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
 	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
 	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
 	public int getVersionOfFirstRelease(){
-		return NEXTRELEASE;  
+		return -100;  
 	}
+
 
 
 	public String getExplanation() {
-		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a distance search, and harvest the resulting trees.";
+		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a neighbor-joining or bootstrap neighbor-joining, and harvest the resulting trees.";
 	}
 	public String getName() {
-		return "PAUP (Distance)";
+		return "PAUP (NJ)";
 	}
 	public String getNameForMenuItem() {
-		return "PAUP (Distance)...";
+		return "PAUP (NJ)...";
 	}
 
-	
+	/*.................................................................................................................*/
+	public String getMethodNameForTreeBlock() {
+		return " NJ";
+	}
+
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.PAUPDistanceRunner";
+		return "#mesquite.zephyr.PAUPNJRunner";
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return PAUPDistanceRunner.class;
+		return PAUPNJRunner.class;
 	}
 
 	/*.................................................................................................................*/
@@ -107,6 +103,5 @@ public class PAUPDistanceTrees extends ZephyrTreeSearcher implements DistanceAna
 	 public String getProgramURL() {
 		 return PAUPRunner.PAUPURL;
 	 }
-
 
 }
