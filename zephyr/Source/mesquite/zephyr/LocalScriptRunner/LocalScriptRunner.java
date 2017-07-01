@@ -241,7 +241,9 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
 		if (StringUtil.notEmpty(additionalShellScriptCommands))
 			shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
-		shellScript.append(programCommand + " " + args+ StringUtil.lineEnding());
+		  					// 30 June 2017: added redirect of stdout and stderr
+		shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName + " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+//		shellScript.append(programCommand + " " + args + StringUtil.lineEnding());
 		shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
 
 		scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
