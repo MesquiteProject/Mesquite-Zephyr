@@ -131,9 +131,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	
 	public boolean errorsAreFatal(){
-		return true;
+		return false;
 	}
 
+	public boolean allowStdErrRedirect() {
+		return false;
+	}
 
 	/*.................................................................................................................*/
 	public String getProgramURL() {

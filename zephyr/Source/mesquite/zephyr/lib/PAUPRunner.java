@@ -689,6 +689,13 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		return "Bootstrap";
 	}
 
+	public boolean errorsAreFatal(){
+		return true;
+	}
+
+	public boolean allowStdErrRedirect() {
+		return true;
+	}
 
 	public void runFailed(String message) {
 		// TODO Auto-generated method stub

@@ -1210,6 +1210,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public void intializeAfterExternalProcessRunnerHired() {
 		loadPreferences();
 	}
+	
+	public boolean allowStdErrRedirect() {
+		return true;
+	}
+
 
 	public void runFailed(String message) {
 		// TODO Auto-generated method stub

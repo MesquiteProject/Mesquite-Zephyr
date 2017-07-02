@@ -957,6 +957,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 		if (updateWindow)
 			parametersChanged(); //just a way to ping the coordinator to update the window
+		
 		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName());
 
 		if (!isDoomed()){
@@ -1458,6 +1459,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		return constraint.getName();
 	}
 
+	public boolean allowStdErrRedirect() {
+		return true;
+	}
 
 
 	public void runFailed(String message) {
@@ -1586,6 +1590,8 @@ class GarliCharModel {
 	public void setInvariantsitesIndex(int invariantsitesIndex) {
 		this.invariantsitesIndex = invariantsitesIndex;
 	}
+	
+
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
