@@ -33,6 +33,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	String ofprefix = "output";
 	String PAUPCommandFileMiddle ="";
 	protected String scoreFileName ="scoreFile.txt";
+	protected String bestTreeFileName ="best_tree.tre";
 	protected String currentTreeFileName ="current_tree.tre";
 	protected String currentScoreFileName ="current_score.txt";
 	long  randseed = -1;
@@ -229,8 +230,9 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	static final int OUT_SCOREFILE = 2;
 	static final int OUT_CURRENTTREEFILE = 3;
 	static final int OUT_CURRENTSCOREFILE = 4;
+	static final int OUT_BESTTREEFILE = 5;
 	public String[] getLogFileNames(){
-		return new String[]{treeFileName,  logFileName, scoreFileName, currentTreeFileName, currentScoreFileName};
+		return new String[]{treeFileName,  logFileName, scoreFileName, currentTreeFileName, currentScoreFileName, bestTreeFileName};
 	}
 
 	public void setFileNames () {
@@ -239,7 +241,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		logFileName = ofprefix+".log00.log";
 		scoreFileName = ofprefix+".score.txt";
 		currentTreeFileName = "current_tree.tre";
-		currentScoreFileName = "current_tree.tre";
+		currentScoreFileName = "current_score.txt";
+		bestTreeFileName = "best_tree.tre";
 	}
 
 	int firstOutgroup = 0;
@@ -260,7 +263,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		dataFileName = "dataFile.nex";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 		boolean fileSaved = false;
-		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, selectedTaxaOnly, true, true);
+		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,true, selectedTaxaOnly, true, true);
 		if (!fileSaved) return null;
 
 		setFileNames();
@@ -468,8 +471,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
 		String filePath = outputFilePaths[fileNum];
 
-		/*
-		 * if (fileNum==1) filePath =
+		/* if (fileNum==1) filePath =
 		 * getOutputFileToReadPath(outputFilePaths[fileNum]); else filePath =
 		 * outputFilePaths[fileNum];
 		 */
@@ -484,18 +486,29 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
 			}
 		}
-
+/*		if (fileNum == OUT_BESTTREEFILE && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[OUT_BESTTREEFILE]) && !bootstrapOrJackknife()) {
+			if (ownerModule instanceof NewTreeProcessor){ 
+				String treeFilePath = filePath;
+				if (taxa != null) {
+					TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
+					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
+				} else
+					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
+			}
+		}
+*/
 		if (fileNum == OUT_CURRENTSCOREFILE && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[OUT_CURRENTSCOREFILE]) && !bootstrapOrJackknife()) {
 			if (MesquiteFile.fileExists(filePath)) {
-				String s = MesquiteFile.getFileLastContents(filePath);
-				if (!StringUtil.blank(s))
+				String score = MesquiteFile.getFileLastDarkLine(filePath);
+				if (!StringUtil.blank(score)){
+					logln("current score: " + score);
 					if (progIndicator != null) {
-						parser.setString(s);
-						String score = parser.getFirstToken(); // score
+						parser.setString(score);
 						// number
 						progIndicator.setText("Score: " + score);
 						progIndicator.spin();
 					}
+				}
 				count++;
 			} else if (MesquiteTrunk.debugMode)
 				MesquiteMessage.warnProgrammer("*** File does not exist (" + filePath + ") ***");

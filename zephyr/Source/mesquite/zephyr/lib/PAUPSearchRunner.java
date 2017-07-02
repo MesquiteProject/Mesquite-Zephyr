@@ -208,7 +208,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		else {  //regular search
 			sb.append(paupCommands+"\n");
 			if (standardSearch){
-				sb.append("\ths addseq=random nreps=" + nreps);
+				sb.append("\ths addseq=random writecurtree nreps=" + nreps);
 				if (isConstrainedSearch())
 					sb.append(" constraint=constraintTree enforce"); 
 				if (channelSearch && chuckScore>0 && nchuck>0)

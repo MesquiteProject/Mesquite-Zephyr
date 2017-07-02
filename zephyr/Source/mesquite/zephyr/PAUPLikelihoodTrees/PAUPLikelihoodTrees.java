@@ -15,6 +15,7 @@ import java.util.Random;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
+import mesquite.lib.duties.TreeSource;
 import mesquite.zephyr.PAUPLikelihoodRunner.PAUPLikelihoodRunner;
 import mesquite.zephyr.lib.*;
 
@@ -77,7 +78,37 @@ public class PAUPLikelihoodTrees extends ZephyrTreeSearcher implements Likelihoo
 		return NEXTRELEASE;  
 	}
 
+	public void newTreeAvailable(String path, TaxaSelectionSet outgroupTaxSet){
+		CommandRecord cr = MesquiteThread.getCurrentCommandRecord();  		
+		MesquiteThread.setCurrentCommandRecord(new CommandRecord(true));
+		latestTree = null;
 
+		String s = MesquiteFile.getFileLastDarkLine(path);
+		TaxonNamer namer = runner.getTaxonNamer();
+		
+		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);    
+
+		if (latestTree instanceof AdjustableTree) {
+			String name = "PAUP ML Tree";
+			if (runner.showMultipleRuns())
+				name+= ", Run " + (runner.getCurrentRun()+1);
+			((AdjustableTree)latestTree).setName(name);
+		}
+
+
+		if (latestTree!=null && latestTree.isValid()) {
+			rerootNode = latestTree.nodeOfTaxonNumber(0);
+		}
+
+
+		MesquiteThread.setCurrentCommandRecord(cr);
+		if (latestTree!=null && latestTree.isValid()) {
+			newResultsAvailable(outgroupTaxSet);
+		}
+
+	}
+
+	
 	public String getExplanation() {
 		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a likelihood search, and harvest the resulting trees.";
 	}
