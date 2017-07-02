@@ -18,49 +18,11 @@ import mesquite.lib.*;
 import mesquite.zephyr.PAUPDistanceRunner.PAUPDistanceRunner;
 import mesquite.zephyr.lib.*;
 
-public class PAUPDistanceTrees extends ZephyrTreeSearcher implements DistanceAnalysis {
+public class PAUPDistanceTrees extends PAUPTrees implements DistanceAnalysis {
 
-	/*.................................................................................................................*
-
-	public String getExtraTreeWindowCommands (){
-
-		String commands = "setSize 400 600; getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
-		commands += "setTreeDrawer  #mesquite.trees.SquareTree.SquareTree; tell It; orientRight; ";
-		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
-		commands += " setEdgeWidth 3; endTell; ";
-		if (runner.bootstrapOrJackknife())
-			commands += "labelBranchLengths on; setNumBrLenDecimals 0; showBrLenLabelsOnTerminals off; showBrLensUnspecified off; setBrLenLabelColor 0 0 0;";
-		commands += " endTell; ladderize root; ";
-		return commands;
-	}
-	
-
-	/*.................................................................................................................*/
-	public boolean isSubstantive(){
-		return true;
-	}
-	/*.................................................................................................................*/
+		/*.................................................................................................................*/
 	public boolean isPrerelease(){
 		return true;
-	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	
-	public String getExtraTreeWindowCommands (){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, false)+ eachTreeCommands();
-	}
-
-	
-	public String eachTreeCommands (){
-		String commands="";
-		if (rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) {
-			commands += " rootAlongBranch " + rerootNode + "; ";
-		}
-		commands += " ladderize root; ";
-
-		return commands;
 	}
 
 	/*.................................................................................................................*/
@@ -97,16 +59,6 @@ public class PAUPDistanceTrees extends ZephyrTreeSearcher implements DistanceAna
 	public Class getRunnerClass() {
 		return PAUPDistanceRunner.class;
 	}
-
-	/*.................................................................................................................*/
-	public String getProgramName() {
-		return "PAUP";
-	}
-
-	/*.................................................................................................................*/
-	 public String getProgramURL() {
-		 return PAUPRunner.PAUPURL;
-	 }
 
 
 }

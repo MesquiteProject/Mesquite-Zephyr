@@ -19,49 +19,11 @@ import mesquite.lib.duties.TreeSource;
 import mesquite.zephyr.PAUPLikelihoodRunner.PAUPLikelihoodRunner;
 import mesquite.zephyr.lib.*;
 
-public class PAUPLikelihoodTrees extends ZephyrTreeSearcher implements LikelihoodAnalysis {
+public class PAUPLikelihoodTrees extends PAUPTrees implements LikelihoodAnalysis {
 
-	/*.................................................................................................................*
-
-	public String getExtraTreeWindowCommands (){
-
-		String commands = "setSize 400 600; getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
-		commands += "setTreeDrawer  #mesquite.trees.SquareTree.SquareTree; tell It; orientRight; ";
-		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
-		commands += " setEdgeWidth 3; endTell; ";
-		if (runner.bootstrapOrJackknife())
-			commands += "labelBranchLengths on; setNumBrLenDecimals 0; showBrLenLabelsOnTerminals off; showBrLensUnspecified off; setBrLenLabelColor 0 0 0;";
-		commands += " endTell; ladderize root; ";
-		return commands;
-	}
-	
-
-	/*.................................................................................................................*/
-	public boolean isSubstantive(){
-		return true;
-	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
 		return true;
-	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	
-	public String getExtraTreeWindowCommands (){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, false)+ eachTreeCommands();
-	}
-
-	
-	public String eachTreeCommands (){
-		String commands="";
-		if (rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) {
-			commands += " rootAlongBranch " + rerootNode + "; ";
-		}
-		commands += " ladderize root; ";
-
-		return commands;
 	}
 
 	/*.................................................................................................................*/
@@ -76,36 +38,6 @@ public class PAUPLikelihoodTrees extends ZephyrTreeSearcher implements Likelihoo
 	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
 	public int getVersionOfFirstRelease(){
 		return NEXTRELEASE;  
-	}
-
-	public void newTreeAvailable(String path, TaxaSelectionSet outgroupTaxSet){
-		CommandRecord cr = MesquiteThread.getCurrentCommandRecord();  		
-		MesquiteThread.setCurrentCommandRecord(new CommandRecord(true));
-		latestTree = null;
-
-		String s = MesquiteFile.getFileLastDarkLine(path);
-		TaxonNamer namer = runner.getTaxonNamer();
-		
-		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);    
-
-		if (latestTree instanceof AdjustableTree) {
-			String name = "PAUP ML Tree";
-			if (runner.showMultipleRuns())
-				name+= ", Run " + (runner.getCurrentRun()+1);
-			((AdjustableTree)latestTree).setName(name);
-		}
-
-
-		if (latestTree!=null && latestTree.isValid()) {
-			rerootNode = latestTree.nodeOfTaxonNumber(0);
-		}
-
-
-		MesquiteThread.setCurrentCommandRecord(cr);
-		if (latestTree!=null && latestTree.isValid()) {
-			newResultsAvailable(outgroupTaxSet);
-		}
-
 	}
 
 	
@@ -128,16 +60,6 @@ public class PAUPLikelihoodTrees extends ZephyrTreeSearcher implements Likelihoo
 	public Class getRunnerClass() {
 		return PAUPLikelihoodRunner.class;
 	}
-
-	/*.................................................................................................................*/
-	public String getProgramName() {
-		return "PAUP";
-	}
-
-	/*.................................................................................................................*/
-	 public String getProgramURL() {
-		 return PAUPRunner.PAUPURL;
-	 }
 
 
 }

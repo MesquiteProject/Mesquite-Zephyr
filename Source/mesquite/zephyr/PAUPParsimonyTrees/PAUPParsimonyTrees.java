@@ -19,49 +19,11 @@ import mesquite.zephyr.PAUPParsimonyRunner.PAUPParsimonyRunner;
 import mesquite.zephyr.RAxMLRunnerLocal.RAxMLRunnerLocal;
 import mesquite.zephyr.lib.*;
 
-public class PAUPParsimonyTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
+public class PAUPParsimonyTrees extends PAUPTrees implements ParsimonyAnalysis {
 
-	/*.................................................................................................................*
-
-	public String getExtraTreeWindowCommands (){
-
-		String commands = "setSize 400 600; getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
-		commands += "setTreeDrawer  #mesquite.trees.SquareTree.SquareTree; tell It; orientRight; ";
-		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
-		commands += " setEdgeWidth 3; endTell; ";
-		if (runner.bootstrapOrJackknife())
-			commands += "labelBranchLengths on; setNumBrLenDecimals 0; showBrLenLabelsOnTerminals off; showBrLensUnspecified off; setBrLenLabelColor 0 0 0;";
-		commands += " endTell; ladderize root; ";
-		return commands;
-	}
-	
-
-	/*.................................................................................................................*/
-	public boolean isSubstantive(){
-		return true;
-	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
 		return false;
-	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	
-	public String getExtraTreeWindowCommands (){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, false)+ eachTreeCommands();
-	}
-
-	
-	public String eachTreeCommands (){
-		String commands="";
-		if (rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) {
-			commands += " rootAlongBranch " + rerootNode + "; ";
-		}
-		commands += " ladderize root; ";
-
-		return commands;
 	}
 
 	/*.................................................................................................................*/
@@ -69,26 +31,6 @@ public class PAUPParsimonyTrees extends ZephyrTreeSearcher implements ParsimonyA
 		return " MP";
 	}
 
-	/*.................................................................................................................*
-	public String resampled(){
-		if (runner.bootstrapOrJackknife()) {
-			return "PAUP " + " Trees (Matrix: " + observedStates.getName() + ")";
-		} 
-		else {
-			return "PAUP MP Trees (Matrix: " + observedStates.getName() + ")";
-
-		}
-	}
-	/*.................................................................................................................*
-	public String getTreeBlockName(){
-		if (runner.bootstrapOrJackknife()) {
-			return "PAUP " + " Trees (Matrix: " + observedStates.getName() + ")";
-		} 
-		else {
-			return "PAUP MP Trees (Matrix: " + observedStates.getName() + ")";
-
-		}
-	}
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
@@ -118,16 +60,6 @@ public class PAUPParsimonyTrees extends ZephyrTreeSearcher implements ParsimonyA
 	public Class getRunnerClass() {
 		return PAUPParsimonyRunner.class;
 	}
-
-	/*.................................................................................................................*/
-	public String getProgramName() {
-		return "PAUP";
-	}
-
-	/*.................................................................................................................*/
-	 public String getProgramURL() {
-		 return PAUPRunner.PAUPURL;
-	 }
 
 
 }
