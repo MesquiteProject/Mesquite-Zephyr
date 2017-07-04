@@ -522,6 +522,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		// starting the process
 		success = externalProcRunner.startExecution();
 
+
 		// the process runs
 		if (success)
 			success = externalProcRunner.monitorExecution(progIndicator);
