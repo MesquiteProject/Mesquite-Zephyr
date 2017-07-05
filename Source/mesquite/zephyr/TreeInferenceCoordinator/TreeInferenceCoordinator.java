@@ -23,7 +23,7 @@ import mesquite.lib.duties.*;
 /* ======================================================================== */
 /* this hires handlers, which run the tree inferences.  It is a central manager, not detail-oriented.*/
 public class TreeInferenceCoordinator extends FileInit {
-	Vector handlers;
+	Vector handlers;  //(these are TreeInferenceHandler)
 	MesquiteHTMLWindow window = null;
 	MesquiteCommand linkTouchedCommand;
 	/*.................................................................................................................*/
@@ -81,6 +81,7 @@ public class TreeInferenceCoordinator extends FileInit {
 	/*.................................................................................................................*/
 	String getStatusHTML(int numLinesPerHandler){
 		String body="";
+		int handlerForOutput = 0;
 		if (handlers.size() == 0)
 			body+= "No inferences running";
 		else {
@@ -88,33 +89,48 @@ public class TreeInferenceCoordinator extends FileInit {
 			for (int i = 0; i<handlers.size(); i++) {
 				TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(i);
 				body += e.getHTMLDescriptionOfStatus(numLinesPerHandler) + " <a href = \"kill-" + e.getID() + "\">Stop</a><p><hr size=\"3\" noshade=\"noshade\" />";
+				if (i==handlerForOutput)
+					window.setExtraPanelText(e.getLogText());
 			}
 		}
 		if (StringUtil.notEmpty(body))
 			return  "<html><body>"+ body+"</body></html>";
 		return "";
 	}
+
+	/*.................................................................................................................*
+	String getStdOutText(){
+		String body="blah blah blah";
+		 return body;
+	}
 	/*.................................................................................................................*/
 	void initiateWindow(){
 		if (window == null) {
-			window = new MesquiteHTMLWindow(this, linkTouchedCommand, "Tree Inference in Progress", false);
+			window = new MesquiteHTMLWindow(this, linkTouchedCommand, "Tree Inference in Progress", true, false, true);
 			window.setBackEnabled(false);
 		}
+		window.setShowExtraPanel(true);
 		window.setText(getStatusHTML(getNumLinesPerHandler()));
 		window.setPopAsTile(true);
 		window.popOut(true);
 		lastWindowStatePopped = true;
 		window.setVisible(true);
 		window.show();
+		window.setExtraPanelText("");
 		resetAllMenuBars();
 
+	}
+	/*.................................................................................................................*/
+	public void setLogPanelText(String s) {
+		if (window!=null)
+			window.setExtraPanelText(s);
 	}
 	
 	int getNumLinesPerHandler(){
 		if (window == null)
 			return 0;
 		
-		int numLines = (window.getHeight()-30 - handlers.size()*50)/16;
+		int numLines = (window.getAvailableHeight()-30 - handlers.size()*50)/16;
 		if (handlers.size()== 0)
 			return numLines;
 		return numLines/handlers.size();
@@ -192,6 +208,7 @@ public class TreeInferenceCoordinator extends FileInit {
 					}
 					if (response<2) {
 						handler.stopInference();
+						
 					}
 					return null;
 				}

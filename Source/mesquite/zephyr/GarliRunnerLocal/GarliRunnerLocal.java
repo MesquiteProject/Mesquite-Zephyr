@@ -61,6 +61,9 @@ public class GarliRunnerLocal extends GarliRunner {
 			 arguments.setValue(additionalArguments); // GARLI command is very simple as all of the arguments are in the config file
 		 return arguments;
 	 }
+		public String getLogText() {
+			return externalProcRunner.getStdOut();
+		}
 
 	/*.................................................................................................................*/
 	public void appendToConfigFileGeneral(StringBuffer config) {

@@ -62,6 +62,12 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 	 }
 
+		public String getLogText() {
+			if (runner==null)
+				return "";
+			return runner.getLogText();
+		}
+
 	 /*.................................................................................................................*/
 		public String getHTMLDescriptionOfStatus(){
 			StringBuffer sb = new StringBuffer();

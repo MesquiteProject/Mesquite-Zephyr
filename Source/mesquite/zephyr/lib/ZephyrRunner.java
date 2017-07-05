@@ -83,6 +83,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public String getResamplingKindName() {
 		return "Bootstrap";
 	}
+	
+	public String getLogText() {
+		return "Runner Text: "+ getName();
+	}
+
+	
 
 	public boolean getConstrainedSearchAllowed() {
 		return constrainSearchAllowed;
@@ -414,6 +420,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	/*.................................................................................................................*/
 	public boolean initializeGetTrees(Class requiredClassOfData, Taxa taxa, MCharactersDistribution matrix) {
+
 		if (matrix==null )
 			return false;
 

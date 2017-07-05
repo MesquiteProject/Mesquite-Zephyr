@@ -389,6 +389,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		}
 	}
 
+	
 
 	public boolean monitorExecution(ProgressIndicator progIndicator){
 		if (scriptBased) {

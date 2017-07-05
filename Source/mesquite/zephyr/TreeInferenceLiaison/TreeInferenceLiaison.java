@@ -50,6 +50,14 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		return s;
 	}
 	/*.................................................................................................................*/
+	public String getLogText(){
+		if (inferenceTask == null)
+			return "";
+		String s = inferenceTask.getLogText();
+		return s;
+	}
+
+	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
 		temp.addLine("setTreeSource ", inferenceTask);

@@ -72,6 +72,10 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		return true;
 	}
 
+	public String getLogText() {
+		return externalProcRunner.getStdOut();
+	}
+
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
 		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";

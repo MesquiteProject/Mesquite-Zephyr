@@ -69,6 +69,9 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 		return "RAxML";
 	}
 
+	public String getLogText() {
+		return externalProcRunner.getStdOut();
+	}
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
