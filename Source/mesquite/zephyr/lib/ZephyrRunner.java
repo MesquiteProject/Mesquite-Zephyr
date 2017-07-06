@@ -64,6 +64,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract boolean bootstrapOrJackknife();
 	public abstract boolean showMultipleRuns();
 
+	public  void setOutputTextListener(OutputTextListener textListener){
+		if (externalProcRunner != null)
+			externalProcRunner.setOutputTextListener(textListener);
+	}
 
 	public TreeInferer getTreeInferer() {
 		return treeInferer;

@@ -13,6 +13,7 @@ import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.Random;
 
 import mesquite.lib.*;
@@ -57,6 +58,14 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public String getExplanation() {
 		return "Runs local scripts.";
 	}
+	
+	public  void setOutputTextListener(OutputTextListener textListener){
+		if (scriptRunner!=null)
+			scriptRunner.setOutputTextListener(textListener);
+		if (externalRunner!=null)
+			externalRunner.setOutputTextListener(textListener);
+	}
+
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
 		return true;
@@ -142,7 +151,6 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		else if (externalRunner!=null)
 			externalRunner.resetLastModified(i);
 	}
-
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
@@ -389,7 +397,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		}
 	}
 
-	
+
 
 	public boolean monitorExecution(ProgressIndicator progIndicator){
 		if (scriptBased) {

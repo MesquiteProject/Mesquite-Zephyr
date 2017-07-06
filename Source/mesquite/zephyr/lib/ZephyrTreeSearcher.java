@@ -41,6 +41,11 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		runner.setUpdateWindow(true);
 		return true;
 	}
+	public  void setOutputTextListener(OutputTextListener textListener){
+		if (runner != null)
+			runner.setOutputTextListener(textListener);
+	}
+
 	/*.................................................................................................................*/
 	abstract public String getRunnerModuleName();
 	/*.................................................................................................................*/

@@ -49,6 +49,11 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		}
 		return s;
 	}
+	public  void setOutputTextListener(OutputTextListener textListener){
+		if (inferenceTask != null)
+			inferenceTask.setOutputTextListener(textListener);
+	}
+
 	/*.................................................................................................................*/
 	public String getLogText(){
 		if (inferenceTask == null)

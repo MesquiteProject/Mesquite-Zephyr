@@ -43,6 +43,9 @@ public abstract class TreeInferenceHandler extends MesquiteModule  {
 	public abstract boolean storeLatestTree();
 	/*.................................................................................................................*/
 	public abstract boolean canStoreLatestTree();
+	/*.................................................................................................................*/
+	public abstract void setOutputTextListener(OutputTextListener textListener);
+
 
 }
 

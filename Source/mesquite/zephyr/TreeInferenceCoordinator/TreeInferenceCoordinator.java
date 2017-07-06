@@ -89,8 +89,10 @@ public class TreeInferenceCoordinator extends FileInit {
 			for (int i = 0; i<handlers.size(); i++) {
 				TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(i);
 				body += e.getHTMLDescriptionOfStatus(numLinesPerHandler) + " <a href = \"kill-" + e.getID() + "\">Stop</a><p><hr size=\"3\" noshade=\"noshade\" />";
-				if (i==handlerForOutput)
+				if (i==handlerForOutput) {
 					window.setExtraPanelText(e.getLogText());
+					e.setOutputTextListener(window);
+				}
 			}
 		}
 		if (StringUtil.notEmpty(body))
