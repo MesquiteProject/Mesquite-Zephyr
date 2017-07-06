@@ -395,7 +395,7 @@ class TreeBlockThread extends FillerThread {
 	public  boolean optionsChosen(){
 		return false;
 	}
-
+boolean userAborted = false;
 	/*.............................................*/
 	public void run() {
 		//MesquiteTrunk.mesquiteTrunk.incrementMenuResetSuppression();
@@ -416,7 +416,11 @@ class TreeBlockThread extends FillerThread {
 			if (!ownerModule.isDoomed()){
 				if (!aborted){
 					if (trees.size()==before) {
-						ownerModule.alert("Sorry, no trees were returned by " + inferenceTask.getName());
+						if (userAborted)
+							ownerModule.logln(inferenceTask.getName() + " aborted by the user.");
+						else
+							ownerModule.alert("Sorry, no trees were returned by " + inferenceTask.getName());
+						userAborted=false;
 						ownerModule.fireTreeFiller();
 
 					}
@@ -455,6 +459,7 @@ class TreeBlockThread extends FillerThread {
 	public void stopFilling(){
 		if (inferenceTask != null)
 			inferenceTask.abortFilling();
+		userAborted = true;
 		aborted = true;
 		if (ownerModule.taxa != null)
 			ownerModule.taxa.decrementEditInhibition();
