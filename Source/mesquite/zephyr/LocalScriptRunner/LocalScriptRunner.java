@@ -174,7 +174,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
 		if (checker.compare(this.getClass(), "Sets the externalRunner", "[file path]", commandName, "reviveExternalRunner")) {
 			logln("Reviving ExternalProcessRunner");
-			externalRunner = new ExternalProcessManager();
+			externalRunner = new ExternalProcessManager(this);
 			externalRunner.setOutputProcessor(this);
 			externalRunner.setWatcher(this);
 			if (visibleTerminalOptionAllowed())
@@ -384,7 +384,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			scriptRunner = new ShellScriptRunner(scriptPath, runningFilePath, null, false, getExecutableName(), outputFilePaths, this, this, visibleTerminal);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
 			return scriptRunner.executeInShell();
 		} else {
-			externalRunner = new ExternalProcessManager(rootDir, executablePath, arguments, getExecutableName(), outputFilePaths, this, this, false);
+			externalRunner = new ExternalProcessManager(this, rootDir, executablePath, arguments, getExecutableName(), outputFilePaths, this, this, false);
 			return externalRunner.executeInShell();
 		}
 	}
