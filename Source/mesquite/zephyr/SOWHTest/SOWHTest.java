@@ -650,6 +650,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		timer.start();
 		totalTime = 0;
 		
+		
 		for (int rep = 0; rep<totalReps && !userAborted; rep++) {
 			panel.setReplicate(rep+1);
 			MCharactersDistribution simulatedStates = getSimulatedMatrix(taxa,(rep+1));
@@ -731,6 +732,12 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			logln("\nSOWH Test running time: "+ StringUtil.secondsToHHMMSS((int)totalTimeInSeconds) + ".  Estimated time remaining: " + timeRemaining);
 
 		}
+		
+		appendToReportFile("\n\n");
+		appendToReportFile("\nMinimum delta: "+ DoubleArray.minimum(simulatedDeltas));
+		appendToReportFile("\nMaximum delta: "+ DoubleArray.maximum(simulatedDeltas));
+		appendToReportFile("\n\nSOWH Test running time: "+ StringUtil.secondsToHHMMSS((int)timer.timeSinceVeryStartInSeconds()));
+		
 		
 		if (isPrerelease() || MesquiteTrunk.debugMode) {
 			logln("Number of replicates with uncombinable delta values: " + uncombinableSimulatedDelta);
