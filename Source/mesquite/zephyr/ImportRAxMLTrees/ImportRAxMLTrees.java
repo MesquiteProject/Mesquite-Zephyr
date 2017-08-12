@@ -99,7 +99,7 @@ public class ImportRAxMLTrees extends InterpretPhylipTrees {
 	/*.................................................................................................................*/
 	/** returns an explanation of what the module does.*/
 	public String getExplanation() {
-		return "Imports RAxML trees and associated data." ;
+		return "Imports RAxML trees and associated data. You will first need to choose one of the RAxML tree file runs (e.g., RAxML_result.file.out.RUN.0), then the main log file (e.g., RAxML_info.file.out)" ;
 	}
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
