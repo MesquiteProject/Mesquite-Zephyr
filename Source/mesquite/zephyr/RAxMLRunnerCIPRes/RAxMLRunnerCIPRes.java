@@ -99,7 +99,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
-		appendToSearchDetails("CIPRes Analysis, "+StringUtil.getDateTime()+"\n");
+		appendToSearchDetails("CIPRes analysis completed "+StringUtil.getDateTime()+"\n");
 		appendToSearchDetails("Search details: \n");
 			if (bootstrapOrJackknife()){
 				appendToSearchDetails("   Bootstrap analysis\n");
@@ -168,10 +168,13 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 						builder.addPart("input.constraint_", fb2);  
 				}
 			}
-			final File modelFile = new File(externalProcRunner.getInputFilePath(MULTIMODELFILENUMBER));
-			if (modelFile!=null && modelFile.exists()) {
-				FileBody fb2 = new FileBody(modelFile);
-				builder.addPart("input.partition_", fb2);  
+			String modelFilePath = externalProcRunner.getInputFilePath(MULTIMODELFILENUMBER);
+			if (StringUtil.notEmpty(modelFilePath)) {
+				final File modelFile = new File(modelFilePath);
+				if (modelFile!=null && modelFile.exists()) {
+					FileBody fb2 = new FileBody(modelFile);
+					builder.addPart("input.partition_", fb2);  
+				}
 			}
 			
 
@@ -244,8 +247,8 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			
 		}
 		else {
-			if (LOCnobfgs)
-				addArgument(builder, sb, "vparam.vparam.no_bfgs","1");
+//			if (LOCnobfgs)
+//				addArgument(builder, sb, "vparam.no_bfgs","1");
 			addArgument(builder, sb, "vparam.specify_runs_","1");
 			addArgument(builder, sb, "vparam.altrun_number_",""+LOCnumRuns);
 		//	if (RAxML814orLater)

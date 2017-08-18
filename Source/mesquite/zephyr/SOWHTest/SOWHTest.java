@@ -85,6 +85,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			return false;
 		runner.initialize(this);
 		runner.setBootstrapAllowed(false);
+		runner.setDiscreetAlert(true);
 		constrainedSearcher = (ConstrainedSearcher)runner;
 
 

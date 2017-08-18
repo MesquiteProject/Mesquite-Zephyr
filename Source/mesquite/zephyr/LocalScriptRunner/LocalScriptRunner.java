@@ -66,6 +66,10 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			externalRunner.setOutputTextListener(textListener);
 	}
 
+	public  String getProgramLocation(){
+		return "local computer";
+	}
+
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
 		return true;

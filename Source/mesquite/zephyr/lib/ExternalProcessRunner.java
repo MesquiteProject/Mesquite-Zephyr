@@ -46,6 +46,8 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public  void setOutputTextListener(OutputTextListener textListener){
 	}
 
+	public abstract String getProgramLocation();
+
 
 	public  boolean canCalculateTimeRemaining(int repsCompleted){
 		return true;

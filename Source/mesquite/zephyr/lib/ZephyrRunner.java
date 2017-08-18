@@ -240,10 +240,15 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			this.zephyrRunnerEmployer = (ZephyrRunnerEmployer)ownerModule;
 	}
 	/*.................................................................................................................*/
+	public String getProgramLocation() {
+		return externalProcRunner.getProgramLocation();
+	}
+	/*.................................................................................................................*/
 	public void setSearchDetails() {  // for annotation to tree block.  designed to be composed after the tree search started.  
 		if (searchDetails!=null) {
 			searchDetails.setLength(0);
 			searchDetails.append("Trees acquired from " + getProgramName() + " using Mesquite's Zephyr package. \n");
+			searchDetails.append(getProgramName() + " run on " + getProgramLocation() +" \n");
 			searchDetails.append("Analysis started " + getDateAndTime()+ "\n");
 			if (StringUtil.notEmpty(externalProcRunner.getDirectoryPath()))
 				searchDetails.append("Results stored in folder: " + externalProcRunner.getDirectoryPath()+ "\n");
@@ -498,7 +503,17 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			logln(s + "\n");
 		}
 	}
-
+	
+	boolean useDiscreetAlert = false;
+	
+	/*.................................................................................................................*/
+	public void setDiscreetAlert(boolean useDiscreetAlert) {
+		this.useDiscreetAlert = useDiscreetAlert;
+	}
+	/*.................................................................................................................*/
+	public boolean useDiscreetAlert() {
+		return useDiscreetAlert;
+	}
 	/*.................................................................................................................*/
 	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle) {
 		runInProgress=true;
@@ -541,7 +556,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			if (!beanWritten)
 				postBean("failed, externalProcRunner.startExecution", false);
 			beanWritten=true;
-			alert("The "+getProgramName()+" run encountered problems. ");  // better error message!
+			if (useDiscreetAlert())
+				MesquiteMessage.discreetNotifyUser("The "+getProgramName()+" run encountered problems. ");  // better error message!
+			else
+				alert("The "+getProgramName()+" run encountered problems. ");  // better error message!
 		}
 
 		// the process completed
