@@ -41,6 +41,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean constrainSearchAllowed = true;
 	protected String extraQueryOptionsTitle = "";
 	private boolean userAborted = false;
+	String programVersion = "";
 
 	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
@@ -341,6 +342,14 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public String getPreflightLogFileName(){
 		return "";	
+	}
+	/*.................................................................................................................*/
+	public String getProgramVersion(){
+		return programVersion;
+	}
+	/*.................................................................................................................*/
+	public void setProgramVersion(String programVersion){
+		this.programVersion = programVersion;
 	}
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){

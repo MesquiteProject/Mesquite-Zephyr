@@ -247,8 +247,8 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			
 		}
 		else {
-//			if (LOCnobfgs)
-//				addArgument(builder, sb, "vparam.no_bfgs","1");
+			if (LOCnobfgs)   
+				addArgument(builder, sb, "vparam.no_bfgs_","1");
 			addArgument(builder, sb, "vparam.specify_runs_","1");
 			addArgument(builder, sb, "vparam.altrun_number_",""+LOCnumRuns);
 		//	if (RAxML814orLater)

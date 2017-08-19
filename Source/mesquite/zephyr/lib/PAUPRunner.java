@@ -47,6 +47,10 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	protected static int JACKKNIFESEARCH=2;
 	protected int searchStyle = REGULARSEARCH;
 
+	protected static int HEURISTICSEARCH=0;
+	protected static int BRANCHANDBOUND=1;
+	protected int searchMethod = HEURISTICSEARCH;
+
 	protected static final int NOCONSTRAINT = 0;
 	protected static final int MONOPHYLY = 1;
 	protected static final int BACKBONE = 2;

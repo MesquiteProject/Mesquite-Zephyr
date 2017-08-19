@@ -220,7 +220,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 	public boolean postJob(HttpClient httpclient, MultipartEntityBuilder builder, MesquiteString jobURL){
 		if (builder==null)
 			return false;
-		String URL = getRESTURL() + "/job/" + username;
+		String URL = getRESTURL() + "/job/" + StringUtil.encodeForURL(username);
 		HttpPost httppost = new HttpPost(URL);
 		httppost.addHeader("cipres-appkey", CIPRESkey); 
 

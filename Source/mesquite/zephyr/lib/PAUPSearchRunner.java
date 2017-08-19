@@ -40,9 +40,18 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 	IntegerField chuckScoreField;
 	Checkbox channelSearchBox;
 	boolean channelSearch=false;
-	boolean standardSearch=true;
+	
+	final static int STANDARDHEURISTIC =0;
+	final static int CUSTOMHEURISTIC =1;
+	final static int BANDB =2;
+	int searchCategory = STANDARDHEURISTIC;
+	
+	int bootSearchCategory=STANDARDHEURISTIC;
+
+	
 	Checkbox standardSearchBox;
 	Checkbox customSearchBox;
+	Checkbox branchAndBoundSearchBox;
 	boolean secondarySearchNoChannel=false;
 	Checkbox secondarySearchNoChannelBox;
 	
@@ -54,9 +63,9 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 	IntegerField chuckScoreBootField;
 	Checkbox channelSearchBootBox;
 	boolean channelSearchBoot=false;
-	boolean standardSearchBoot=true;
 	Checkbox standardSearchBootBox;
 	Checkbox customSearchBootBox;
+	Checkbox branchAndBoundSearchBootBox;
 
 
 	JLabel bootstrapPanelLabel;
@@ -87,6 +96,8 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			bootStrapReps = MesquiteInteger.fromString(content);
 		if ("searchStyle".equalsIgnoreCase(tag))
 			searchStyle = MesquiteInteger.fromString(content);
+		if ("searchMethod".equalsIgnoreCase(tag))
+			searchMethod = MesquiteInteger.fromString(content);
 		if ("getConsensus".equalsIgnoreCase(tag))
 			getConsensus = MesquiteBoolean.fromTrueFalseString(content);
 		if ("customSearchOptionsBoot".equalsIgnoreCase(tag))
@@ -95,8 +106,8 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			customSearchOptions = StringUtil.cleanXMLEscapeCharacters(content);
 		if ("paupCommands".equalsIgnoreCase(tag))
 			paupCommands = StringUtil.cleanXMLEscapeCharacters(content);
-		if ("standardSearch".equalsIgnoreCase(tag))
-			standardSearch = MesquiteBoolean.fromTrueFalseString(content);
+		if ("searchCategory".equalsIgnoreCase(tag))
+			searchCategory = MesquiteInteger.fromString(content);
 		if ("secondarySearchNoChannel".equalsIgnoreCase(tag))
 			secondarySearchNoChannel = MesquiteBoolean.fromTrueFalseString(content);
 		if ("channelSearch".equalsIgnoreCase(tag))
@@ -113,8 +124,8 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			nchuckBoot = MesquiteInteger.fromString(content);
 		if ("chuckScoreBoot".equalsIgnoreCase(tag))
 			chuckScoreBoot = MesquiteInteger.fromString(content);
-		if ("standardSearchBoot".equalsIgnoreCase(tag))
-			standardSearchBoot = MesquiteBoolean.fromTrueFalseString(content);
+		if ("bootSearchCategory".equalsIgnoreCase(tag))
+			bootSearchCategory = MesquiteInteger.fromString(content);
 		if ("channelSearchBoot".equalsIgnoreCase(tag))
 			channelSearchBoot = MesquiteBoolean.fromTrueFalseString(content);
 
@@ -129,6 +140,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootStrapReps);  
 		StringUtil.appendXMLTag(buffer, 2, "searchStyle", searchStyle);  
+		StringUtil.appendXMLTag(buffer, 2, "searchMethod", searchMethod);  
 		StringUtil.appendXMLTag(buffer, 2, "getConsensus", getConsensus);  
 		StringUtil.appendXMLTag(buffer, 2, "customSearchOptions", customSearchOptions);  
 		StringUtil.appendXMLTag(buffer, 2, "customSearchOptionsBoot", customSearchOptionsBoot);  
@@ -138,14 +150,14 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		StringUtil.appendXMLTag(buffer, 2, "nchuck", nchuck);  
 		StringUtil.appendXMLTag(buffer, 2, "chuckScore", chuckScore);  
 		StringUtil.appendXMLTag(buffer, 2, "channelSearch", channelSearch);  
-		StringUtil.appendXMLTag(buffer, 2, "standardSearch", standardSearch);  
+		StringUtil.appendXMLTag(buffer, 2, "searchCategory", searchCategory);  
 		StringUtil.appendXMLTag(buffer, 2, "secondarySearchNoChannel", secondarySearchNoChannel);  
 		
 		StringUtil.appendXMLTag(buffer, 2, "nrepsBoot", nrepsBoot);  
 		StringUtil.appendXMLTag(buffer, 2, "nchuckBoot", nchuckBoot);  
 		StringUtil.appendXMLTag(buffer, 2, "chuckScoreBoot", chuckScoreBoot);  
 		StringUtil.appendXMLTag(buffer, 2, "channelSearchBoot", channelSearchBoot);  
-		StringUtil.appendXMLTag(buffer, 2, "standardSearchBoot", standardSearchBoot);  
+		StringUtil.appendXMLTag(buffer, 2, "bootSearchCategory", bootSearchCategory);  
 		
 		
 		
@@ -183,18 +195,23 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		
 		
 		if (bootstrapOrJackknife()) {  //bootstrap or jackknife
-			sb.append("\tdefaults ");
 			
-			if (standardSearchBoot){
-				sb.append("\ths addseq=random nreps=" + nrepsBoot);
+			String defaults = "";
+			if (bootSearchCategory==STANDARDHEURISTIC){
+				defaults+="\ths addseq=random nreps=" + nrepsBoot;
 				if ( isConstrainedSearch())
-						sb.append(" constraint=constraintTree enforce"); 
+					defaults+=" constraint=constraintTree enforce"; 
 				if (channelSearchBoot && chuckScoreBoot>0 && nchuckBoot>0)
-					sb.append(" chuckscore=" + chuckScoreBoot + " nchuck="+nchuckBoot);
-				sb.append(";\n");
+					defaults+=" chuckscore=" + chuckScoreBoot + " nchuck="+nchuckBoot;
 
-			} else {
-				sb.append(customSearchOptions + ";\n");
+			} else if (bootSearchCategory==CUSTOMHEURISTIC) {
+				defaults+=customSearchOptions;
+			} else if (bootSearchCategory==BANDB) {
+			}
+			if (StringUtil.notEmpty(defaults)) {
+				sb.append("\tdefaults ");
+				sb.append(defaults);
+				sb.append(";\n");
 			}
 
 			sb.append(paupCommands+"\n");
@@ -202,12 +219,16 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 				sb.append("\tboot");
 			else if (searchStyle==JACKKNIFESEARCH) 
 				sb.append("\tjack");
-			sb.append(" nreps = " + bootStrapReps + " search=heuristic;\n");
+			sb.append(" nreps = " + bootStrapReps);
+			if (bootSearchCategory==BANDB) 
+				sb.append(" search=bandb;\n");
+			else 
+				sb.append(" search=heuristic;\n");
 			sb.append("\tsavetrees from=1 to=1 SaveBootP=brlens file=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
 		}
 		else {  //regular search
 			sb.append(paupCommands+"\n");
-			if (standardSearch){
+			if (searchCategory==STANDARDHEURISTIC){
 				sb.append("\ths addseq=random writecurtree nreps=" + nreps);
 				if (isConstrainedSearch())
 					sb.append(" constraint=constraintTree enforce"); 
@@ -217,8 +238,10 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 				if (secondarySearchNoChannel)
 					sb.append("\ths start=current chuckscore=0 nchuck=0;");
 
-			} else {
+			} else if (searchCategory==CUSTOMHEURISTIC){
 				sb.append("\t" + customSearchOptions + "\n");
+			} else if (searchCategory==BANDB) {
+				sb.append("\tbandb;\n");
 			}
 			sb.append("\t"+ getCriterionScoreCommand() + " 1 / scorefile=" + StringUtil.tokenize(scoreFileName) + ";\n");
 			if (getConsensus)
@@ -262,30 +285,59 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 	}
 
 	/*.................................................................................................................*/
-	void adjustDialogText(boolean standard) {
-		if (channelSearchBox!=null){
-			channelSearchBox.setEnabled(standard);
-		}
-		if (standardSearchBox!=null){
-			standardSearchBox.setState(standard);
-		}
-		if (customSearchBox!=null){
-			customSearchBox.setState(!standard);
+	void adjustDialogText(int searchCategory, boolean bootstrap) {
+		if (!bootstrap) {
+			if (channelSearchBox!=null){
+				channelSearchBox.setEnabled(searchCategory==STANDARDHEURISTIC);
+			}
+/*
+			if (standardSearchBox!=null){
+				standardSearchBox.setState(searchCategory==STANDARDHEURISTIC);
+			}
+			if (customSearchBox!=null){
+				customSearchBox.setState(searchCategory==CUSTOMHEURISTIC);
+			}
+			if (branchAndBoundSearchBox!=null){
+				branchAndBoundSearchBox.setState(searchCategory==BANDB);
+			}
+			*/
+		} else {
+
+			if (channelSearchBootBox!=null){
+				channelSearchBootBox.setEnabled(bootSearchCategory==STANDARDHEURISTIC);
+			}
+/*			if (standardSearchBootBox!=null){
+				standardSearchBootBox.setState(bootSearchCategory==STANDARDHEURISTIC);
+			}
+			if (customSearchBootBox!=null){
+				customSearchBootBox.setState(bootSearchCategory==CUSTOMHEURISTIC);
+			}
+			if (branchAndBoundSearchBootBox!=null){
+				branchAndBoundSearchBootBox.setState(bootSearchCategory==BANDB);
+			}
+			*/
 		}
 	}
 
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent arg0) {
 		if (dialog!=null) {
-			boolean standard=standardSearch;
-			if (arg0.getItemSelectable()==standardSearchBox && standardSearchBox!=null){
-				standard = standardSearchBox.getState();
+			if (arg0.getItemSelectable()==standardSearchBox || arg0.getItemSelectable()==customSearchBox || arg0.getItemSelectable()==branchAndBoundSearchBox){
+				if (arg0.getItemSelectable()==standardSearchBox && standardSearchBox!=null && standardSearchBox.getState())
+					adjustDialogText(STANDARDHEURISTIC, false);
+				 if (arg0.getItemSelectable()==customSearchBox && customSearchBox!=null && customSearchBox.getState())
+					adjustDialogText(CUSTOMHEURISTIC, false);
+				 if (arg0.getItemSelectable()==branchAndBoundSearchBox && branchAndBoundSearchBox!=null && branchAndBoundSearchBox.getState())
+					adjustDialogText(BANDB, false);
 			}
-			else if (arg0.getItemSelectable()==customSearchBox && customSearchBox!=null){
-				standard = !customSearchBox.getState();
+			else if (arg0.getItemSelectable()==standardSearchBootBox || arg0.getItemSelectable()==customSearchBootBox || arg0.getItemSelectable()==branchAndBoundSearchBootBox){
+				if (arg0.getItemSelectable()==standardSearchBootBox && standardSearchBootBox!=null && standardSearchBootBox.getState())
+					adjustDialogText(STANDARDHEURISTIC, true);
+				 if (arg0.getItemSelectable()==customSearchBootBox && customSearchBootBox!=null && customSearchBootBox.getState())
+					adjustDialogText(CUSTOMHEURISTIC, true);
+				 if (arg0.getItemSelectable()==branchAndBoundSearchBootBox && branchAndBoundSearchBootBox!=null && branchAndBoundSearchBootBox.getState())
+					adjustDialogText(BANDB, true);
 			}
-			
-			adjustDialogText(standard);	
 		}
 	}
 
@@ -315,7 +367,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		
 		CheckboxGroup searchGroup = new CheckboxGroup();
 		dialog.addHorizontalLine(1);
-		standardSearchBox = dialog.addCheckBox("pre-built search", standardSearch);
+		standardSearchBox = dialog.addCheckBox("pre-built heuristic search", searchCategory==STANDARDHEURISTIC);
 		standardSearchBox.addItemListener(this);
 		standardSearchBox.setCheckboxGroup(searchGroup);
 		
@@ -328,12 +380,18 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		secondarySearchNoChannelBox = dialog.addCheckBox("subsequent unchanneled search", secondarySearchNoChannel);
 		
 		dialog.addHorizontalLine(1);
-		customSearchBox = dialog.addCheckBox("custom search", !standardSearch);
+		customSearchBox = dialog.addCheckBox("custom heuristic search", searchCategory==CUSTOMHEURISTIC);
 		customSearchBox.addItemListener(this);
 		customSearchBox.setCheckboxGroup(searchGroup);
 
 		dialog.addLabel("Custom Search Commands");
 		customSearchOptionsField = dialog.addTextAreaSmallFont(customSearchOptions, 4,60);
+		
+		dialog.addHorizontalLine(1);
+		branchAndBoundSearchBox = dialog.addCheckBox("branch and bound search", searchCategory==BANDB);
+		branchAndBoundSearchBox.addItemListener(this);
+		branchAndBoundSearchBox.setCheckboxGroup(searchGroup);
+
 		dialog.addHorizontalLine(1);
 		
 		getConsensusBox = dialog.addCheckBox("only read in strict consensus", getConsensus);
@@ -347,7 +405,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			bootstrapPanelLabel = dialog.addLabel("Below are the search commands for each replicate: ", Label.LEFT, true, false);
 			CheckboxGroup searchGroupBoot = new CheckboxGroup();
 			dialog.addHorizontalLine(1);
-			standardSearchBootBox = dialog.addCheckBox("pre-built search", standardSearchBoot);
+			standardSearchBootBox = dialog.addCheckBox("pre-built heuristic search", bootSearchCategory==STANDARDHEURISTIC);
 			standardSearchBootBox.setCheckboxGroup(searchGroupBoot);
 
 			nrepsBootField = dialog.addIntegerField("Number of search replicates", nrepsBoot, 8, 1, MesquiteInteger.infinite);
@@ -358,18 +416,26 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			chuckScoreBootField = dialog.addIntegerField("trees of length greater than or equal to", chuckScoreBoot, 8, 1, MesquiteInteger.infinite);
 
 			dialog.addHorizontalLine(1);
-			customSearchBootBox = dialog.addCheckBox("custom search", !standardSearchBoot);
+			customSearchBootBox = dialog.addCheckBox("custom heuristic search", bootSearchCategory==CUSTOMHEURISTIC);
 			customSearchBootBox.addItemListener(this);
 			customSearchBootBox.setCheckboxGroup(searchGroupBoot);
 
+			
 			dialog.addLabel("Custom Search Commands");
 			customSearchOptionsBootField = dialog.addTextAreaSmallFont(customSearchOptionsBoot, 4,60);
+
+			dialog.addHorizontalLine(1);
+			branchAndBoundSearchBootBox = dialog.addCheckBox("branch and bound search", bootSearchCategory==BANDB);
+			branchAndBoundSearchBootBox.addItemListener(this);
+			branchAndBoundSearchBootBox.setCheckboxGroup(searchGroupBoot);
+
 			dialog.addHorizontalLine(1);
 			dialog.addLabel("(To conduct resampling, Bootstrap or Jackknife must be selected in the General panel) ", Label.LEFT, true, true);
 		}
 
 		
-		adjustDialogText(standardSearch);	
+		adjustDialogText(searchCategory, false);	
+		adjustDialogText(bootSearchCategory, true);	
 
 
 	}
@@ -389,7 +455,12 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		nchuck=nchuckField.getValue();
 		chuckScore=chuckScoreField.getValue();
 		channelSearch=channelSearchBox.getState();
-		standardSearch=standardSearchBox.getState();
+		if (standardSearchBox.getState())
+			searchCategory=STANDARDHEURISTIC;
+		else if (customSearchBox.getState())
+			searchCategory=CUSTOMHEURISTIC;
+		else if (branchAndBoundSearchBox.getState())
+			searchCategory=BANDB;
 		secondarySearchNoChannel = secondarySearchNoChannelBox.getState();
 		
 		if (bootstrapAllowed) {
@@ -397,7 +468,12 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			nchuckBoot=nchuckBootField.getValue();
 			chuckScoreBoot=chuckScoreBootField.getValue();
 			channelSearchBoot=channelSearchBootBox.getState();
-			standardSearchBoot=standardSearchBootBox.getState();
+			if (standardSearchBootBox.getState())
+				bootSearchCategory=STANDARDHEURISTIC;
+			else if (customSearchBootBox.getState())
+				bootSearchCategory=CUSTOMHEURISTIC;
+			else if (branchAndBoundSearchBootBox.getState())
+				bootSearchCategory=BANDB;
 		}
 		
 		maxTrees = maxTreesField.getValue();
