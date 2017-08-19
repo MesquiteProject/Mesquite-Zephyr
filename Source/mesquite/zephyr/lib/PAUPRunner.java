@@ -27,7 +27,7 @@ import mesquite.zephyr.lib.*;
 
 public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, ExternalProcessRequester, PAUPCommander {
 	public static final String SCORENAME = "PAUPScore";
-	public static final String PAUPURL = "http://people.sc.fsu.edu/~dswofford/paup_test/";
+	public static final String PAUPURL = "http://paup.phylosolutions.com";
 	Random rng;
 	String datafname = null;
 	String ofprefix = "output";
