@@ -45,9 +45,10 @@ public class TestProcess extends UtilitiesAssistant  {
 	/*.................................................................................................................*/
 	public synchronized void testProcess(){ 
 		String programPath = "/usr/local/bin/muscle3.8.31_i86darwin64";
+		MesquiteInteger errorCode = new MesquiteInteger(ShellScriptUtil.NOERROR);
 		//String programPath = "/test/mafft";
 		
-		Process proc = ShellScriptUtil.startProcess("/test/", "/test/stOutLa2", "/test/stErrLa2", ExternalProcessManager.getStringArray(programPath, "-in", "inFile.fas")); 
+		Process proc = ShellScriptUtil.startProcess(errorCode, "/test/", "/test/stOutLa2", "/test/stErrLa2", ExternalProcessManager.getStringArray(programPath, "-in", "inFile.fas")); 
 
 		//Process proc = ShellScriptUtil.startProcess("/test/", "/test/stOutLa", "/test/stErrLa", ExternalProcessManager.getStringArray(programPath, "--thread", "-1", "--localpair", "--maxiterate", "1000", "inFile.fas")); 
 		
