@@ -267,7 +267,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		dataFileName = "dataFile.nex";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 		boolean fileSaved = false;
-		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,true, selectedTaxaOnly, true, true);
+		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, true, selectedTaxaOnly, true, true, true);
 		if (!fileSaved) return null;
 
 		setFileNames();

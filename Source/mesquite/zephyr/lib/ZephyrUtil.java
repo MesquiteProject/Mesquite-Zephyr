@@ -21,19 +21,28 @@ import mesquite.categ.lib.CategoricalData;
 import mesquite.categ.lib.DNAData;
 import mesquite.categ.lib.MolecularData;
 import mesquite.categ.lib.ProteinData;
+import mesquite.charMatrices.ManageCharInclusion.ManageCharInclusion;
+import mesquite.charMatrices.ManageCharWeights.ManageCharWeights;
 import mesquite.io.InterpretTNT.InterpretTNT;
 import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.characters.CharInclusionSet;
+import mesquite.lib.characters.CharSpecsSet;
+import mesquite.lib.characters.CharWeightSet;
 import mesquite.lib.characters.CharacterData;
+import mesquite.lib.characters.CharacterModel;
 import mesquite.lib.characters.CharacterPartition;
 import mesquite.lib.characters.CharacterStates;
 import mesquite.lib.characters.CharactersGroup;
 import mesquite.lib.characters.CodonPositionsSet;
+import mesquite.lib.characters.ModelSet;
+import mesquite.lib.duties.CharSpecsSetManager;
 import mesquite.lib.duties.FileCoordinator;
 import mesquite.lib.duties.FileInterpreterI;
 import mesquite.lib.duties.TreeSource;
 import mesquite.lib.duties.TreesManager;
+import mesquite.parsimony.ManageTypesets.ManageTypesets;
+import mesquite.parsimony.lib.ParsimonyModelSet;
 
 
 
@@ -329,7 +338,86 @@ public class ZephyrUtil {
 		}	
 		return codPosPartitionSection;
 	}
+	
+	/*.................................................................................................................*/
 
+	public static String nexusStringForInclusionSet(CharSpecsSet specsSet, CharacterData data){
+		if (specsSet ==null || !(specsSet instanceof CharInclusionSet))
+			return null;
+		CharInclusionSet inclusionSet = (CharInclusionSet)specsSet;
+		String s= "";
+		if (inclusionSet !=null) {
+			String sT = ManageCharInclusion.nexusCoreStringForSpecsSet(specsSet, data);
+			if (!StringUtil.blank(sT)) {
+				s+= "\tEXSET " ;
+				s += "* ";
+				s+= StringUtil.tokenize(inclusionSet.getName()) + " ";
+				s+= "  = "+  sT + ";" + StringUtil.lineEnding();
+			}
+		}
+		return s;
+	}
+	/*.................................................................................................................*/
+
+	public static String nexusStringForTypeSet(CharSpecsSet specsSet, CharacterData data){
+		if (specsSet ==null || !(specsSet instanceof ParsimonyModelSet))
+			return null;
+		ModelSet modelSet = (ModelSet)specsSet;
+		String s= "";
+		if (modelSet !=null) {
+			String sT = ManageTypesets.nexusCoreStringForSpecsSet(specsSet, data);
+			if (!StringUtil.blank(sT)) {
+				s+= "\tTYPESET " ;
+				s += "* ";
+				s+= StringUtil.tokenize(modelSet.getName()) + " ";
+				s+= "  = "+  sT + ";" + StringUtil.lineEnding();
+			}
+		}
+		return s;
+	}
+	/*.................................................................................................................*/
+
+	public static String nexusStringForWeightSet(CharSpecsSet specsSet, CharacterData data){
+		if (specsSet ==null || !(specsSet instanceof CharWeightSet))
+			return null;
+		CharWeightSet modelSet = (CharWeightSet)specsSet;
+		String s= "";
+		if (modelSet !=null) {
+			String sT = ManageCharWeights.nexusCoreStringForSpecsSet(specsSet, data);
+			if (!StringUtil.blank(sT)) {
+				s+= "\tWTSET " ;
+				s += "* ";
+				s+= StringUtil.tokenize(modelSet.getName()) + " ";
+				s+= "  = "+  sT + ";" + StringUtil.lineEnding();
+			}
+		}
+		return s;
+	}
+
+	/*.................................................................................................................*/
+
+	public static  String getNEXUSAssumptionBlock(CategoricalData data){
+		StringBuffer sb = new StringBuffer();
+
+		ParsimonyModelSet typeSet = (ParsimonyModelSet)data.getCurrentSpecsSet(ParsimonyModelSet.class);
+		String typeSetString = nexusStringForTypeSet(typeSet,data);
+		CharWeightSet wtSet = (CharWeightSet)data.getCurrentSpecsSet(CharWeightSet.class);
+		String wtSetString = nexusStringForWeightSet(wtSet,data);
+		CharInclusionSet inclusionSet = (CharInclusionSet)data.getCurrentSpecsSet(CharInclusionSet.class);
+		String inclusionSetString = nexusStringForInclusionSet(inclusionSet,data);
+
+		if (StringUtil.notEmpty(typeSetString) || StringUtil.notEmpty(wtSetString)|| StringUtil.notEmpty(inclusionSetString)) {
+			sb.append("\nBEGIN assumptions;\n");
+			if (StringUtil.notEmpty(typeSetString))
+				sb.append(typeSetString);
+			if (StringUtil.notEmpty(wtSetString))
+				sb.append(wtSetString);
+			if (StringUtil.notEmpty(inclusionSetString))
+				sb.append(inclusionSetString);
+			sb.append("END;\n");
+		}
+		return sb.toString();
+	}
 	/*.................................................................................................................*/
 
 	public static  String getNEXUSSetsBlock(CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters){
@@ -342,31 +430,38 @@ public class ZephyrUtil {
 			partitions = getStandardPartitionNEXUSCommands(data, writeExcludedCharacters);
 
 		if (StringUtil.notEmpty(partitions)) {
-			sb.append("begin sets;\n");
+			sb.append("\nBEGIN sets;\n");
 			sb.append(partitions);
-			sb.append("end;\n");
+			sb.append("END;\n");
 		}
 		return sb.toString();
 	}
 
 	/*.................................................................................................................*/
-	public static boolean writeNEXUSFile(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean useStandardizedTaxonNames, boolean writeOnlySelectedTaxa, boolean writeSetsBlock, boolean useCodPosIfAvailable) {
+	public static boolean writeNEXUSFile(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean writeSimplifiedNEXUS, boolean useStandardizedTaxonNames, boolean writeOnlySelectedTaxa, boolean writeSetsBlock, boolean useCodPosIfAvailable, boolean writeExcludedCharacters) {
 		if (path != null) {
 			MesquiteFile f = MesquiteFile.newFile(dir, fileName);
 			f.openWriting(true);
 			f.interleaveAllowed=false;
-			f.useSimplifiedNexus=true;
+			f.useSimplifiedNexus=writeSimplifiedNEXUS;
 			f.useDataBlocks=true;
 			f.useStandardizedTaxonNames=useStandardizedTaxonNames;
-			f.writeExcludedCharacters=false;
+			f.writeExcludedCharacters=writeExcludedCharacters;
 			f.writeTaxaWithAllMissing = false;
 			if (taxa.anySelected())
 				f.writeOnlySelectedTaxa = writeOnlySelectedTaxa;
 			f.writeLine("#NEXUS" + StringUtil.lineEnding());
 			data.getMatrixManager().writeCharactersBlock(data, null, f, null);
-			String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, false);
-			if (StringUtil.notEmpty(setsBlock))
-				f.writeLine(setsBlock + StringUtil.lineEnding());
+			if (writeSetsBlock) {
+				String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, false);
+				if (StringUtil.notEmpty(setsBlock))
+					f.writeLine(setsBlock + StringUtil.lineEnding());
+			}
+			if (!writeSimplifiedNEXUS) {
+				String assumptionsBlock = getNEXUSAssumptionBlock(data);
+				if (StringUtil.notEmpty(assumptionsBlock))
+					f.writeLine(assumptionsBlock + StringUtil.lineEnding());
+			}
 
 			//data.getMatrixManager().writeCharactersBlock(data, cB, file, progIndicator)
 			f.closeWriting();

@@ -884,11 +884,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 		String dataFilePath = tempDir + dataFileName;
 		if (partitionScheme == noPartition)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, false, false);
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, false, false, false);
 		else if (partitionScheme == partitionByCharacterGroups)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, true, false);
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, true, false, false);
 		else if (partitionScheme == partitionByCodonPosition)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, selectedTaxaOnly, true, true);
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, true, true, false);
 
 		setFileNames();
 
