@@ -13,13 +13,15 @@ import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.Random;
 
 import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
-public class LocalScriptRunner extends ExternalProcessRunner implements ActionListener, OutputFileProcessor, ShellScriptWatcher {
+public class LocalScriptRunner extends ExternalProcessRunner implements ActionListener, ItemListener, OutputFileProcessor, ShellScriptWatcher {
 	ExternalProcessManager externalRunner;
 	ShellScriptRunner scriptRunner;
 
@@ -244,12 +246,22 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
 		browseButton.setActionCommand("browse");
-		if (visibleTerminalOptionAllowed())
-			visibleTerminalCheckBox = dialog.addCheckBox("Terminal window visible (this will decrease error-reporting ability)", visibleTerminal);
-		deleteAnalysisDirectoryCheckBox = dialog.addCheckBox("Delete analysis directory after completion", deleteAnalysisDirectory);
 		scriptBasedCheckBox = dialog.addCheckBox("Script-based analysis (allows reconnection, but can't stop easily)", scriptBased);
+		scriptBasedCheckBox.addItemListener(this);
+		if (visibleTerminalOptionAllowed()) {
+			visibleTerminalCheckBox = dialog.addCheckBox("Terminal window visible (this will decrease error-reporting ability)", visibleTerminal);
+			visibleTerminalCheckBox.setEnabled(scriptBased);	
+		}
+		deleteAnalysisDirectoryCheckBox = dialog.addCheckBox("Delete analysis directory after completion", deleteAnalysisDirectory);
 
 	}
+	/*.................................................................................................................*/
+	public void itemStateChanged(ItemEvent arg0) {
+		if (arg0.getItemSelectable()==scriptBasedCheckBox  && scriptBasedCheckBox!=null && visibleTerminalCheckBox!=null)
+			visibleTerminalCheckBox.setEnabled(scriptBasedCheckBox.getState());	
+	}
+
+
 	public boolean optionsChosen(){
 		executablePath = executablePathField.getText();
 		if (visibleTerminalCheckBox!=null)

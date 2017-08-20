@@ -290,32 +290,11 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			if (channelSearchBox!=null){
 				channelSearchBox.setEnabled(searchCategory==STANDARDHEURISTIC);
 			}
-/*
-			if (standardSearchBox!=null){
-				standardSearchBox.setState(searchCategory==STANDARDHEURISTIC);
-			}
-			if (customSearchBox!=null){
-				customSearchBox.setState(searchCategory==CUSTOMHEURISTIC);
-			}
-			if (branchAndBoundSearchBox!=null){
-				branchAndBoundSearchBox.setState(searchCategory==BANDB);
-			}
-			*/
 		} else {
 
 			if (channelSearchBootBox!=null){
 				channelSearchBootBox.setEnabled(bootSearchCategory==STANDARDHEURISTIC);
 			}
-/*			if (standardSearchBootBox!=null){
-				standardSearchBootBox.setState(bootSearchCategory==STANDARDHEURISTIC);
-			}
-			if (customSearchBootBox!=null){
-				customSearchBootBox.setState(bootSearchCategory==CUSTOMHEURISTIC);
-			}
-			if (branchAndBoundSearchBootBox!=null){
-				branchAndBoundSearchBootBox.setState(bootSearchCategory==BANDB);
-			}
-			*/
 		}
 	}
 
