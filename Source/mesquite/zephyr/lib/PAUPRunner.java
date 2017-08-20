@@ -508,6 +508,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		if (fileNum == OUT_CURRENTSCOREFILE && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[OUT_CURRENTSCOREFILE]) && !bootstrapOrJackknife()) {
 			if (MesquiteFile.fileExists(filePath)) {
 				String score = MesquiteFile.getFileLastDarkLine(filePath);
+				score = StringUtil.stripLeadingWhitespace(score);
 				if (!StringUtil.blank(score)){
 					logln("current score: " + score);
 					if (progIndicator != null) {
