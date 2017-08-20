@@ -14,6 +14,10 @@
 package mesquite.zephyr.TreeInferenceCoordinator;
 /*~~  */
 
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.*;
 
 import mesquite.lib.*;
@@ -22,7 +26,7 @@ import mesquite.lib.duties.*;
 
 /* ======================================================================== */
 /* this hires handlers, which run the tree inferences.  It is a central manager, not detail-oriented.*/
-public class TreeInferenceCoordinator extends FileInit {
+public class TreeInferenceCoordinator extends FileInit implements MouseListener {
 	Vector handlers;  //(these are TreeInferenceHandler)
 	MesquiteHTMLWindow window = null;
 	MesquiteCommand linkTouchedCommand;
@@ -79,27 +83,61 @@ public class TreeInferenceCoordinator extends FileInit {
 		return null;
 	}
 	/*.................................................................................................................*/
+	int whichInferenceInLog = 0;
 	String getStatusHTML(int numLinesPerHandler){
 		String body="";
-		int handlerForOutput = 0;
+		if (whichInferenceInLog >= handlers.size())
+			whichInferenceInLog = 0;
 		if (handlers.size() == 0)
 			body+= "No inferences running";
 		else {
 			body += "<h2>Inferences in progress</h2><hr size=\"3\" noshade=\"noshade\" />";
+			StringBuffer extraPanelText = new StringBuffer();
+			String logTest = "";
 			for (int i = 0; i<handlers.size(); i++) {
 				TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(i);
 				body +=  " (<a href = \"kill-" + e.getID() + "\">Stop</a>) " + e.getHTMLDescriptionOfStatus(numLinesPerHandler) + "<p><hr size=\"3\" noshade=\"noshade\" />";
-				if (i==handlerForOutput) {
-					window.setExtraPanelText(e.getLogText());
+				if (i==whichInferenceInLog) {
+					extraPanelText.append("Log from " + e.getInferenceName() + "\n===================\n"); 
+					String lt = e.getLogText();
+					if (StringUtil.blank(lt))
+						lt = "";
+					else
+						lt += ("\n===================\nLog from " + e.getInferenceName()); 
+
+					extraPanelText.append(lt);
 					e.setOutputTextListener(window);
 				}
 			}
+			window.setExtraPanelText(extraPanelText.toString());
+
 		}
 		if (StringUtil.notEmpty(body))
 			return  "<html><body>"+ body+"</body></html>";
 		return "";
 	}
-
+	//handler of clicks in extra panel for log
+	public void mouseClicked(MouseEvent arg0) {
+		whichInferenceInLog++;
+		if (whichInferenceInLog >= handlers.size())
+			whichInferenceInLog = 0;
+		TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(whichInferenceInLog);
+		String lt = e.getLogText();
+		if (StringUtil.blank(lt))
+			lt = "";
+		else
+			lt += ("\n===================\nLog from " + e.getInferenceName()); 
+		window.setExtraPanelText("Log from " + e.getInferenceName() + "\n===================\n"+lt);
+		e.setOutputTextListener(window);
+	}
+	public void mouseEntered(MouseEvent e) {
+	}
+	public void mouseExited(MouseEvent e) {
+	}
+	public void mousePressed(MouseEvent e) {
+	}
+	public void mouseReleased(MouseEvent e) {
+	}
 	/*.................................................................................................................*
 	String getStdOutText(){
 		String body="blah blah blah";
@@ -110,6 +148,7 @@ public class TreeInferenceCoordinator extends FileInit {
 		if (window == null) {
 			window = new MesquiteHTMLWindow(this, linkTouchedCommand, "Tree Inference in Progress", true, false, true);
 			window.setBackEnabled(false);
+			window.setExtraPanelListener(this);
 		}
 		window.setShowExtraPanel(true);
 		window.setText(getStatusHTML(getNumLinesPerHandler()));
@@ -122,16 +161,16 @@ public class TreeInferenceCoordinator extends FileInit {
 		resetAllMenuBars();
 
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void setLogPanelText(String s) {
 		if (window!=null)
 			window.setExtraPanelText(s);
 	}
-	
+	 */
 	int getNumLinesPerHandler(){
 		if (window == null)
 			return 0;
-		
+
 		int numLines = (window.getAvailableHeight()-30 - handlers.size()*50)/16;
 		if (handlers.size()== 0)
 			return numLines;
@@ -152,7 +191,7 @@ public class TreeInferenceCoordinator extends FileInit {
 					window.setPopAsTile(true);
 					window.popOut(true);
 				}
-				
+
 				window.setText(getStatusHTML(getNumLinesPerHandler()));
 			}
 			else {
@@ -212,7 +251,7 @@ public class TreeInferenceCoordinator extends FileInit {
 					}
 					if (response<2) {
 						handler.stopInference();
-						
+
 					}
 					return null;
 				}
@@ -248,6 +287,7 @@ public class TreeInferenceCoordinator extends FileInit {
 	public String getExplanation() {
 		return "Coordinates tree inferers." ;  
 	}
+
 
 }
 
