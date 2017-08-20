@@ -214,7 +214,8 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 				sb.append(";\n");
 			}
 
-			sb.append(paupCommands+"\n");
+			sb.append("\t"+paupCommands+"\n");
+			sb.append(getPAUPCommandExtras());
 			if (searchStyle==BOOTSTRAPSEARCH) 
 				sb.append("\tboot");
 			else if (searchStyle==JACKKNIFESEARCH) 
@@ -227,7 +228,8 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			sb.append("\tsavetrees from=1 to=1 SaveBootP=brlens file=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
 		}
 		else {  //regular search
-			sb.append(paupCommands+"\n");
+			sb.append("\t"+paupCommands+"\n");
+			sb.append(getPAUPCommandExtras());
 			if (searchCategory==STANDARDHEURISTIC){
 				sb.append("\ths addseq=random writecurtree nreps=" + nreps);
 				if (isConstrainedSearch())
@@ -320,6 +322,16 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		}
 	}
 
+	/*.................................................................................................................*/
+	public String getPAUPCommandExtras() {
+		return "";
+	}
+	/*.................................................................................................................*/
+	public void queryOptionsSetupExtra(ExtensibleDialog dialog, MesquiteTabbedPanel tabbedPanel) {
+	}
+	/*.................................................................................................................*/
+	public void queryOptionsProcessExtra(ExtensibleDialog dialog) {
+	}
 
 	/*.................................................................................................................*/
 	public void queryOptionsSetup(ExtensibleDialog dialog, MesquiteTabbedPanel tabbedPanel) {
@@ -339,7 +351,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		maxTreesField = dialog.addIntegerField("Maximum number of trees (maxtrees)", maxTrees, 8, 1, MesquiteInteger.infinite);
 		maxTreesIncreaseBox= dialog.addCheckBox("increase maxtrees if needed", maxTreesIncrease);
 
-
+		queryOptionsSetupExtra(dialog, tabbedPanel);
 		
 		tabbedPanel.addPanel("Regular Searches", true);
 		
@@ -429,6 +441,8 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		getConsensus = getConsensusBox.getState();
 		customSearchOptions = customSearchOptionsField.getText();
 		paupCommands = paupCommandsField.getText();
+		
+		queryOptionsProcessExtra(dialog);
 		
 		nreps=nrepsField.getValue();
 		nchuck=nchuckField.getValue();

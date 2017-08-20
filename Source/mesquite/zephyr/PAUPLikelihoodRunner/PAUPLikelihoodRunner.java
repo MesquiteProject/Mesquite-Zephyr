@@ -26,7 +26,7 @@ import mesquite.zephyr.lib.*;
  */
 
 public class PAUPLikelihoodRunner extends PAUPSearchRunner {
-
+	int numThreads = 2;
 
 	public String getCriterionSetCommand() {
 		return "set criterion=likelihood;";
@@ -36,7 +36,30 @@ public class PAUPLikelihoodRunner extends PAUPSearchRunner {
 		return "lscore";
 	}
 
+	IntegerField numThreadsField;
+	/*.................................................................................................................*/
+	public void queryOptionsSetupExtra(ExtensibleDialog dialog, MesquiteTabbedPanel tabbedPanel) {
+		numThreadsField = dialog.addIntegerField("number of threads", numThreads, 8, 1, MesquiteInteger.infinite);
 
+	}
+	/*.................................................................................................................*/
+	public String getPAUPCommandExtras() {
+		if (MesquiteInteger.isCombinable(numThreads) && numThreads>1)
+			return "\tlset nthreads=" + numThreads+";\n";
+		return "";
+	}
+	/*.................................................................................................................*/
+	public void queryOptionsProcessExtra(ExtensibleDialog dialog) {
+		if (numThreadsField!=null)
+			numThreads = numThreadsField.getValue();
+//lset nthreads=n
+	}
+	/*.................................................................................................................*/
+	public int getNumberOfThreads() {
+		return numThreads;
+//lset nthreads=n
+	}
+	
 	public String getOptimalTreeAdjectiveLowerCase() {
 		return "maximum likelihood";
 	}
