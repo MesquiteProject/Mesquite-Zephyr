@@ -101,7 +101,7 @@ public  class PAUPSVDRunner extends PAUPRunner implements ConstrainedSearcherTre
 			sb.append("\tsvdquartets ");
 			if (enforceConstraint)
 				sb.append(" constraints=constraintTree enforce ");
-			sb.append(" boostrap=standard nreps = " + bootStrapReps + " ");
+			sb.append(" bootstrap=standard nreps = " + bootStrapReps + " ");
 			if (StringUtil.notEmpty(paupExtraSVDCommands))
 				sb.append(paupExtraSVDCommands);
 			sb.append(";\n");
