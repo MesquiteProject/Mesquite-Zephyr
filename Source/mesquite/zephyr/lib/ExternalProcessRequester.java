@@ -22,6 +22,8 @@ public interface ExternalProcessRequester {
 	
 	public String getProgramName();
 	
+	public boolean getDirectProcessConnectionAllowed();
+	
 	public String getRootNameForDirectory();
 	
 	public void setUserAborted(boolean userAborted);

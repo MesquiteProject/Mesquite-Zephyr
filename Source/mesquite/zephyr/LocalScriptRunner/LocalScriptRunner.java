@@ -246,8 +246,10 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
 		browseButton.setActionCommand("browse");
-		scriptBasedCheckBox = dialog.addCheckBox("Script-based analysis (allows reconnection, but can't be stopped easily)", scriptBased);
-		scriptBasedCheckBox.addItemListener(this);
+		if (processRequester.getDirectProcessConnectionAllowed()) {
+			scriptBasedCheckBox = dialog.addCheckBox("Script-based analysis (allows reconnection, but can't be stopped easily)", scriptBased);
+			scriptBasedCheckBox.addItemListener(this);
+		}
 		if (visibleTerminalOptionAllowed()) {
 			visibleTerminalCheckBox = dialog.addCheckBox("Terminal window visible (this will decrease error-reporting ability)", visibleTerminal);
 			visibleTerminalCheckBox.setEnabled(scriptBased);	
@@ -270,7 +272,9 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			visibleTerminal=true;
 		if (deleteAnalysisDirectoryCheckBox!=null)
 			deleteAnalysisDirectory = deleteAnalysisDirectoryCheckBox.getState();
-		if (scriptBasedCheckBox!=null)
+		if (!processRequester.getDirectProcessConnectionAllowed())
+			scriptBased=true;
+		else if (scriptBasedCheckBox!=null)
 			scriptBased = scriptBasedCheckBox.getState();
 		return true;
 	}

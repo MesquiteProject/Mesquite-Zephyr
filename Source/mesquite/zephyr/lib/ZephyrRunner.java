@@ -93,7 +93,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return "Runner Text: "+ getName();
 	}
 
-	
+	public boolean getDirectProcessConnectionAllowed(){
+		return true;
+	}
+
 
 	public boolean getConstrainedSearchAllowed() {
 		return constrainSearchAllowed;

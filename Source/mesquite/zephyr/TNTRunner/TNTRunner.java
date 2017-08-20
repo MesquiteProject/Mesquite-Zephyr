@@ -637,6 +637,11 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		}
 		return translate;
 	}
+	
+	public boolean getDirectProcessConnectionAllowed(){
+		return false;
+	}
+
 	/*.................................................................................................................*/
 	public void setTaxonTranslation(Taxa taxa) {
 		int countTaxa = 0;
