@@ -58,7 +58,7 @@ public class PAUPSVDTrees extends ZephyrTreeSearcher implements InvariantsAnalys
 	}
 	
 	/*.................................................................................................................*/
-	public String getTreeBlockName(){
+	public String getTreeBlockName(boolean completedRun){
 		if (runner.bootstrapOrJackknife()) {
 			return "PAUP SVD Quartets " + runner.getResamplingKindName() + " Tree (Matrix: " + observedStates.getName() + ")";
 		} 

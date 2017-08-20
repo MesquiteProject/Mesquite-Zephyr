@@ -38,7 +38,7 @@ public class PAUPNJTrees extends ZephyrTreeSearcher implements DistanceAnalysis 
 
 	
 	/*.................................................................................................................*/
-	public String getTreeBlockName(){
+	public String getTreeBlockName(boolean completedRun){
 		if (runner.bootstrapOrJackknife()) {
 			return "PAUP NJ " + runner.getResamplingKindName() + " Tree (Matrix: " + observedStates.getName() + ")";
 		} 
