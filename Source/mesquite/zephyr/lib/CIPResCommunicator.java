@@ -109,8 +109,12 @@ public class CIPResCommunicator extends RESTCommunicator {
 			if ("Authentication Error".equalsIgnoreCase(displayMessage)) {
 				if (resetPassword)
 					password = "";
+				ownerModule.logln("\n\n******************");
+				ownerModule.logln(noteToUser);
+				ownerModule.logln(message);
+				ownerModule.logln("******************\n");
 			} else {
-				ownerModule.logln("\n******************");
+				ownerModule.logln("\n\n******************");
 				ownerModule.logln(noteToUser);
 				ownerModule.logln(displayMessage);
 				ownerModule.logln(message);
