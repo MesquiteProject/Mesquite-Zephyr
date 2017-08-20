@@ -55,6 +55,13 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 	}
 
 	/*.................................................................................................................*/
+	public String getInferenceName(){
+		if (inferenceTask == null)
+			return "";
+		String s = inferenceTask.getInferenceName();
+		return s;
+	}
+	/*.................................................................................................................*/
 	public String getLogText(){
 		if (inferenceTask == null)
 			return "";
