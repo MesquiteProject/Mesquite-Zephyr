@@ -451,6 +451,8 @@ public class ZephyrUtil {
 			if (taxa.anySelected())
 				f.writeOnlySelectedTaxa = writeOnlySelectedTaxa;
 			f.writeLine("#NEXUS" + StringUtil.lineEnding());
+			boolean nexusIDs = NexusBlock.suppressNEXUSIDS;
+			NexusBlock.suppressNEXUSIDS = true;
 			data.getMatrixManager().writeCharactersBlock(data, null, f, null);
 			if (writeSetsBlock) {
 				String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, false);
@@ -462,6 +464,7 @@ public class ZephyrUtil {
 				if (StringUtil.notEmpty(assumptionsBlock))
 					f.writeLine(assumptionsBlock + StringUtil.lineEnding());
 			}
+			NexusBlock.suppressNEXUSIDS = nexusIDs;
 
 			//data.getMatrixManager().writeCharactersBlock(data, cB, file, progIndicator)
 			f.closeWriting();
