@@ -219,6 +219,14 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract void reconnectToRequester(MesquiteCommand command);
 	public abstract String getProgramName();
 	public abstract boolean queryOptions();
+	
+	String queryOptionsLabel = "";
+	public String getLabelForQueryOptions(){
+		return queryOptionsLabel;
+	}
+	public void setLabelForQueryOptions(String queryOptionsLabel){
+		this.queryOptionsLabel= queryOptionsLabel;
+	}
 
 	public abstract String[] getLogFileNames();
 	protected SimpleTaxonNamer namer = new SimpleTaxonNamer();

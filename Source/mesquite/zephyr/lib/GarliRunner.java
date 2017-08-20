@@ -672,7 +672,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), "GARLI Options & Locations", buttonPressed);
+		String title = "GARLI Options & Locations";
+		String extra = getExtraQueryOptionsTitle();
+		if (StringUtil.notEmpty(extra))
+			title += " ("+extra+")";
+		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), title, buttonPressed);
 
 		// dialog.addLabel("GARLI - Options and Locations");
 
@@ -687,6 +691,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
+		String extraLabel = getLabelForQueryOptions();
+		if (StringUtil.notEmpty(extraLabel))
+			dialog.addLabel(extraLabel);
 
 		tabbedPanel.addPanel("GARLI Program Details", true);
 		addRunnerOptions(dialog);

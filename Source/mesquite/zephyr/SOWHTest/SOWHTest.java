@@ -396,11 +396,9 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			CommandRecord.tick(runner.getProgramName() + " SOWH test in progress, replicate " + (rep+1) + " of " + totalReps );
 			logln("_______________");
 			logln("Replicate " + (rep+1) + " of " + totalReps);
-			runner.setExtraQueryOptionsTitle("Simulated Matrix");
 		} else {
 			CommandRecord.tick(runner.getProgramName() + " SOWH test in progress, calculating observed value" );
 			logln("Calculating observed value of delta");
-			runner.setExtraQueryOptionsTitle("Observed Matrix");
 		}
 
 		runner.setVerbose(rep<0);
@@ -613,6 +611,8 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		panel.repaint();
 		if (calculateObservedDelta) {
 			panel.setCalculatingObserved(true);
+			runner.setLabelForQueryOptions("Finding the best constrained and unconstrained trees for the observed data matrix.");
+			runner.setExtraQueryOptionsTitle("for Observed Matrix");
 			observedDelta = calculateDelta(observedStates, -1, -1);
 			if (!MesquiteDouble.isCombinable(observedDelta)){
 				MesquiteMessage.discreetNotifyUser("The observed value of the test statistic could not be calculated.  The SOWH analysis could not be completed." );
@@ -629,6 +629,8 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			} 
 		}
 		panel.setCalculatingObserved(false);
+		runner.setExtraQueryOptionsTitle("for Simulated Matrices");
+		runner.setLabelForQueryOptions("Finding the best constrained and unconstrained trees for simulated matrices.");
 
 		StringBuffer initialText = new StringBuffer();
 		initialText.append(getInitialText(data));

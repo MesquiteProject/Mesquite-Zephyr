@@ -366,8 +366,12 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		}
 
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
+		String title = "TNT Options & Locations";
+		String extra = getExtraQueryOptionsTitle();
+		if (StringUtil.notEmpty(extra))
+			title += " ("+extra+")";
 
-		queryOptionsDialog = new ExtensibleDialog(containerOfModule(), "TNT Options & Locations",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
+		queryOptionsDialog = new ExtensibleDialog(containerOfModule(), title,buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 		//		queryOptionsDialog.addLabel("TNT - Options and Locations");
 		String helpString = "This module will prepare a matrix for TNT, and ask TNT do to an analysis.  A command-line version of TNT must be installed. "
 				+ "You can ask it to do a bootstrap analysis or not. "
@@ -377,6 +381,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		queryOptionsDialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
 
 		MesquiteTabbedPanel tabbedPanel = queryOptionsDialog.addMesquiteTabbedPanel();
+		String extraLabel = getLabelForQueryOptions();
+		if (StringUtil.notEmpty(extraLabel))
+			queryOptionsDialog.addLabel(extraLabel);
 
 		tabbedPanel.addPanel("TNT Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(queryOptionsDialog);

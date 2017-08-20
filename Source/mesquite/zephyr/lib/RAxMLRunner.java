@@ -259,7 +259,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
-
+		String extraLabel = getLabelForQueryOptions();
+		if (StringUtil.notEmpty(extraLabel))
+			dialog.addLabel(extraLabel);
 
 		tabbedPanel.addPanel("RAxML Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);

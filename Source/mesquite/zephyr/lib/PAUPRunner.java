@@ -661,6 +661,9 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		dialog.setHelpURL("https://mesquitezephyr.wikispaces.com/PAUP");
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
+		String extraLabel = getLabelForQueryOptions();
+		if (StringUtil.notEmpty(extraLabel))
+			dialog.addLabel(extraLabel);
 
 		tabbedPanel.addPanel("PAUP Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
