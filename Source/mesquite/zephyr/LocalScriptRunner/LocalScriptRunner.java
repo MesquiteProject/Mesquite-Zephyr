@@ -246,7 +246,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
 		browseButton.setActionCommand("browse");
-		scriptBasedCheckBox = dialog.addCheckBox("Script-based analysis (allows reconnection, but can't stop easily)", scriptBased);
+		scriptBasedCheckBox = dialog.addCheckBox("Script-based analysis (allows reconnection, but can't be stopped easily)", scriptBased);
 		scriptBasedCheckBox.addItemListener(this);
 		if (visibleTerminalOptionAllowed()) {
 			visibleTerminalCheckBox = dialog.addCheckBox("Terminal window visible (this will decrease error-reporting ability)", visibleTerminal);

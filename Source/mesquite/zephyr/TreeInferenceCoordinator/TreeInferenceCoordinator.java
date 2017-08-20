@@ -88,7 +88,7 @@ public class TreeInferenceCoordinator extends FileInit {
 			body += "<h2>Inferences in progress</h2><hr size=\"3\" noshade=\"noshade\" />";
 			for (int i = 0; i<handlers.size(); i++) {
 				TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(i);
-				body += e.getHTMLDescriptionOfStatus(numLinesPerHandler) + " <a href = \"kill-" + e.getID() + "\">Stop</a><p><hr size=\"3\" noshade=\"noshade\" />";
+				body +=  " (<a href = \"kill-" + e.getID() + "\">Stop</a>) " + e.getHTMLDescriptionOfStatus(numLinesPerHandler) + "<p><hr size=\"3\" noshade=\"noshade\" />";
 				if (i==handlerForOutput) {
 					window.setExtraPanelText(e.getLogText());
 					e.setOutputTextListener(window);
@@ -157,7 +157,8 @@ public class TreeInferenceCoordinator extends FileInit {
 			}
 			else {
 				lastWindowStatePopped = window.isPoppedOut();
-				window.setVisible(false);
+				//window.setText(getStatusHTML(getNumLinesPerHandler()));
+				window.setVisible(false); 
 			}
 
 		}
@@ -203,6 +204,7 @@ public class TreeInferenceCoordinator extends FileInit {
 				TreeInferenceHandler handler = findHandlerByID(id);
 				if (handler != null) {
 					int response = 1;
+					logln("User request to stop tree inference");
 					if (handler.canStoreLatestTree()){
 						response = AlertDialog.query(containerOfModule(), "Save tree?", "Save the current tree in the inference?", "Save", "Don't Save", "Cancel", 2);
 						if (response==0)
