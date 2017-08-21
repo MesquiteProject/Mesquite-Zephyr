@@ -245,7 +245,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			} else if (searchCategory==BANDB) {
 				sb.append("\tbandb;" + StringUtil.lineEnding());
 			}
-			sb.append("\t"+ getCriterionScoreCommand() + " 1 / scorefile=" + StringUtil.tokenize(scoreFileName) + ";" + StringUtil.lineEnding());
+			sb.append("\t"+ getCriterionScoreCommand() + " 1 / scorefile=" + StringUtil.tokenize(scoreFileName) + " replace;" + StringUtil.lineEnding());
 			if (getConsensus)
 				sb.append("\n\tcontree all/strict=yes treefile=" + StringUtil.tokenize(outputTreeFileName) + ";" + StringUtil.lineEnding());
 			else {
