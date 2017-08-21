@@ -250,6 +250,7 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 							handler.storeLatestTree();
 					}
 					if (response<2) {
+						handler.setUserAborted();
 						handler.stopInference();
 
 					}

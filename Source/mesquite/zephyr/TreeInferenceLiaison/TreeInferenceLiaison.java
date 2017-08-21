@@ -38,6 +38,13 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		return true;
 	}
 	/*.................................................................................................................*/
+	public  void setUserAborted(){
+		userAborted=true;
+		if (inferenceTask != null)
+		 inferenceTask.setUserAborted();
+	}
+
+	/*.................................................................................................................*/
 	public String getHTMLDescriptionOfStatus(int numLines){
 		if (inferenceTask == null)
 			return "No inference";
