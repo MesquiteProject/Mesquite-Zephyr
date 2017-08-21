@@ -136,8 +136,8 @@ public class ZephyrUtil {
 		translationFile = MesquiteFile.getFileContentsAsString(translationTablePath);
 		if (StringUtil.notEmpty(translationFile)){
 			if (namer==null)
-				namer = new SimpleTaxonNamer();
-			((SimpleTaxonNamer)namer).loadTranslationTable(taxa, translationFile);
+				namer = new SimpleNamesTaxonNamer();
+			((SimpleNamesTaxonNamer)namer).loadTranslationTable(taxa, translationFile);
 		}
 		else 
 			namer = null;

@@ -24,8 +24,8 @@ public class ImportRAxMLTrees extends InterpretPhylipTrees {
 		 String translationTablePath = directoryPath+IOUtil.translationTableFileName;
 		 translationFile = MesquiteFile.getFileContentsAsString(translationTablePath);
 		 if (StringUtil.notEmpty(translationFile)){
-			 taxonNamer = new SimpleTaxonNamer();
-			 ((SimpleTaxonNamer)taxonNamer).loadTranslationTable(taxa, translationFile);
+			 taxonNamer = new SimpleNamesTaxonNamer();
+			 ((SimpleNamesTaxonNamer)taxonNamer).loadTranslationTable(taxa, translationFile);
 		 }
 		 else 
 			 taxonNamer = null;

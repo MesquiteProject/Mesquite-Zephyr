@@ -232,7 +232,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 
 	public abstract String[] getLogFileNames();
-	protected SimpleTaxonNamer namer = new SimpleTaxonNamer();
+	protected SimpleNamesTaxonNamer namer = new SimpleNamesTaxonNamer();
 
 	/*.................................................................................................................*/
 	public String getHTMLDescriptionOfStatus(){
