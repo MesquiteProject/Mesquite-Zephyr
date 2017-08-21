@@ -188,7 +188,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	}
 	/*.................................................................................................................*/
 	public String PAUPCommandFileEnd(){
-		return "\tquit;" + StringUtil.lineEnding()+"end;" + StringUtil.lineEnding();
+		return "\tlog stop;"+ StringUtil.lineEnding()+"\tquit;" + StringUtil.lineEnding()+"end;" + StringUtil.lineEnding();
 	}
 	public PAUPCommander getPaupCommander() {
 		return paupCommander;
