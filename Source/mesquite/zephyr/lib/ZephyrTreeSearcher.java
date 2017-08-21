@@ -213,14 +213,16 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	public String getName() {
 		if (StringUtil.notEmpty(getProgramLocation()))
 				return getProgramName() + " Trees ["+ getProgramLocation() +"]";
-		else
+		else {
 			return getProgramName() + " Trees";
+		}
 	}
 	public String getNameForMenuItem() {
 		if (StringUtil.notEmpty(getProgramLocation()))
 			return getProgramName() + " Trees ["+ getProgramLocation() +"]...";
-	else
-		return getProgramName() + " Trees...";
+	else {
+		return getProgramName() + " Trees..."; 
+	}
 	}
 
 	/*.................................................................................................................*/

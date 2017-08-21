@@ -133,7 +133,7 @@ public abstract class ZephyrNumberForTree extends NumberForTree implements Recon
 		return getProgramName() + " Trees";
 	}
 	public String getNameForMenuItem() {
-		return getProgramName() + " Trees...";
+		return getProgramName() + " Trees..."; 
 	}
 
 	/*.................................................................................................................*/
