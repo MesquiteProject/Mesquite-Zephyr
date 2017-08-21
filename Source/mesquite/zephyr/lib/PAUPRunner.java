@@ -175,10 +175,10 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	}
 	/*.................................................................................................................*/
 	public String PAUPCommandFileStart(){
-		String commandStart = "#NEXUS\n\n";
-		commandStart+="begin paup;\n"
-		        +"\tset torder=right tcompress outroot=monophyl taxlabels=full nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;\n"
-				+ "\tlog file=logfile.txt replace=yes;\n";
+		String commandStart = "#NEXUS" + StringUtil.lineEnding()+ StringUtil.lineEnding();
+		commandStart+="begin paup;" + StringUtil.lineEnding()
+		        +"\tset torder=right tcompress outroot=monophyl taxlabels=full nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;" + StringUtil.lineEnding()
+				+ "\tlog file=logfile.txt replace=yes;" + StringUtil.lineEnding();
 		return commandStart;
 	}
 
@@ -188,7 +188,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	}
 	/*.................................................................................................................*/
 	public String PAUPCommandFileEnd(){
-		return "\tquit;\nend;\n";
+		return "\tquit;" + StringUtil.lineEnding()+"end;" + StringUtil.lineEnding();
 	}
 	public PAUPCommander getPaupCommander() {
 		return paupCommander;
