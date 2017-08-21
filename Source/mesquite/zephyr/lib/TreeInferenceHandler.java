@@ -26,6 +26,7 @@ initializes default CharacterModels for each file.  Example modules: "Data Windo
 "Manage model sets".*/
 
 public abstract class TreeInferenceHandler extends MesquiteModule  {
+	protected boolean userAborted = false;
 
    	 public Class getDutyClass() {
    	 	return TreeInferenceHandler.class;
@@ -45,6 +46,8 @@ public abstract class TreeInferenceHandler extends MesquiteModule  {
 	public abstract boolean storeLatestTree();
 	/*.................................................................................................................*/
 	public abstract boolean canStoreLatestTree();
+	/*.................................................................................................................*/
+	public abstract void setUserAborted();
 	/*.................................................................................................................*/
 	public abstract void setOutputTextListener(OutputTextListener textListener);
 
