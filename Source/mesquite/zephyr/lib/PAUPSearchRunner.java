@@ -179,18 +179,18 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 	/*.................................................................................................................*/
 	public String getPAUPCommandFileMiddle(String dataFileName, String outputTreeFileName, CategoricalData data, String constraintTree){
 		StringBuffer sb = new StringBuffer();
-		sb.append("\texec " + StringUtil.tokenize(dataFileName) + ";\n");
-		sb.append("\t"+ getCriterionSetCommand() + "\n");
+		sb.append("\texec " + StringUtil.tokenize(dataFileName) + ";" + StringUtil.lineEnding());
+		sb.append("\t"+ getCriterionSetCommand() +  StringUtil.lineEnding());
 		sb.append("\tset maxtrees=" + maxTrees + " increase=");
 		if (maxTreesIncrease)
-			sb.append("auto;\n");
+			sb.append("auto;" + StringUtil.lineEnding());
 		else
-			sb.append("no;\n");
+			sb.append("no;" + StringUtil.lineEnding());
 		if (isConstrainedSearch() && StringUtil.notEmpty(constraintTree)) {
 			if (useConstraintTree == BACKBONE)
-				sb.append("\tconstraints constraintTree (BACKBONE) =  " + constraintTree +";\n"); 
+				sb.append("\tconstraints constraintTree (BACKBONE) =  " + constraintTree +";" + StringUtil.lineEnding()); 
 			else if (useConstraintTree == MONOPHYLY)
-				sb.append("\tconstraints constraintTree (MONOPHYLY) =  " + constraintTree +";\n"); 
+				sb.append("\tconstraints constraintTree (MONOPHYLY) =  " + constraintTree +";" + StringUtil.lineEnding()); 
 		}
 		
 		
@@ -211,10 +211,10 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			if (StringUtil.notEmpty(defaults)) {
 				sb.append("\tdefaults ");
 				sb.append(defaults);
-				sb.append(";\n");
+				sb.append(";" + StringUtil.lineEnding());
 			}
 
-			sb.append("\t"+paupCommands+"\n");
+			sb.append("\t"+paupCommands + StringUtil.lineEnding());
 			sb.append(getPAUPCommandExtras());
 			if (searchStyle==BOOTSTRAPSEARCH) 
 				sb.append("\tboot");
@@ -222,13 +222,13 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 				sb.append("\tjack");
 			sb.append(" nreps = " + bootStrapReps);
 			if (bootSearchCategory==BANDB) 
-				sb.append(" search=bandb;\n");
+				sb.append(" search=bandb;" + StringUtil.lineEnding());
 			else 
-				sb.append(" search=heuristic;\n");
-			sb.append("\tsavetrees from=1 to=1 SaveBootP=brlens file=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
+				sb.append(" search=heuristic;" + StringUtil.lineEnding());
+			sb.append("\tsavetrees from=1 to=1 SaveBootP=brlens file=" + StringUtil.tokenize(outputTreeFileName) + ";" + StringUtil.lineEnding());
 		}
 		else {  //regular search
-			sb.append("\t"+paupCommands+"\n");
+			sb.append("\t"+paupCommands+ StringUtil.lineEnding());
 			sb.append(getPAUPCommandExtras());
 			if (searchCategory==STANDARDHEURISTIC){
 				sb.append("\ths addseq=random writecurtree nreps=" + nreps);
@@ -236,25 +236,25 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 					sb.append(" constraint=constraintTree enforce"); 
 				if (channelSearch && chuckScore>0 && nchuck>0)
 					sb.append(" chuckscore=" + chuckScore + " nchuck="+nchuck);
-				sb.append(" rstatus;\n");
+				sb.append(" rstatus;" + StringUtil.lineEnding());
 				if (secondarySearchNoChannel)
 					sb.append("\ths start=current chuckscore=0 nchuck=0;");
 
 			} else if (searchCategory==CUSTOMHEURISTIC){
-				sb.append("\t" + customSearchOptions + "\n");
+				sb.append("\t" + customSearchOptions  + StringUtil.lineEnding());
 			} else if (searchCategory==BANDB) {
-				sb.append("\tbandb;\n");
+				sb.append("\tbandb;" + StringUtil.lineEnding());
 			}
-			sb.append("\t"+ getCriterionScoreCommand() + " 1 / scorefile=" + StringUtil.tokenize(scoreFileName) + ";\n");
+			sb.append("\t"+ getCriterionScoreCommand() + " 1 / scorefile=" + StringUtil.tokenize(scoreFileName) + ";" + StringUtil.lineEnding());
 			if (getConsensus)
-				sb.append("\n\tcontree all/strict=yes treefile=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
+				sb.append("\n\tcontree all/strict=yes treefile=" + StringUtil.tokenize(outputTreeFileName) + ";" + StringUtil.lineEnding());
 			else {
 				if (allowRerooting())
 					sb.append("\n\troot rootmethod=outgroup outroot=paraphyl;");
 				sb.append("\n\tsavetrees file=" + StringUtil.tokenize(outputTreeFileName));
 				if (allowRerooting())
 					sb.append(" root ");
-				sb.append(" brLens;\n");
+				sb.append(" brLens;" + StringUtil.lineEnding());
 			}
 		}
 		return sb.toString();
