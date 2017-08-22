@@ -192,6 +192,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
+	public boolean isReconnectable(){
+		if (externalProcRunner != null)
+			return externalProcRunner.isReconnectable();
+		return false;
+	}
+	
 	public String getRootNameForDirectory() {
 		String name = getProgramName();
 		if (isConstrainedSearch())

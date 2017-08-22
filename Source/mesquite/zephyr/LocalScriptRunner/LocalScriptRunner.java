@@ -71,6 +71,9 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public  String getProgramLocation(){
 		return "local computer";
 	}
+	public boolean isReconnectable(){
+		return !scriptBased;
+	}
 
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){

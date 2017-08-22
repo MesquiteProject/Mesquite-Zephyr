@@ -58,6 +58,9 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	public String getExplanation() {
 		return "Runs jobs on CIPRes.";
 	}
+	public boolean isReconnectable(){
+		return true;
+	}
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
 		return true;

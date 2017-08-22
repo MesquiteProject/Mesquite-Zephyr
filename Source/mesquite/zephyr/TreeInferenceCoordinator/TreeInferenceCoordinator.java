@@ -238,6 +238,8 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 		else if (checker.compare(this.getClass(), "link touched", null, commandName, "linkTouched")) {
 			String token = parser.getFirstToken(arguments);
 			if (token != null && token.startsWith("kill")){
+				
+				//DAVIDCHECK: Topic: stopping when not reconnectable.  Here is request to stop inference.
 				String idS = token.substring(5, token.length());
 				int id = MesquiteInteger.fromString(idS);
 				TreeInferenceHandler handler = findHandlerByID(id);

@@ -75,12 +75,16 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		String s = inferenceTask.getLogText();
 		return s;
 	}
-
+	public boolean isReconnectable(){
+		return inferenceTask.isReconnectable();
+	}
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
-		temp.addLine("setTreeSource ", inferenceTask);
-		temp.addLine("reconnectToTreeSource " + StringUtil.tokenize(taxaAssignedID));
+		if (isReconnectable()){
+			temp.addLine("setTreeSource ", inferenceTask);
+			temp.addLine("reconnectToTreeSource " + StringUtil.tokenize(taxaAssignedID));
+		}
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -422,6 +426,7 @@ boolean userAborted = false;
 			Taxa taxa = ownerModule.taxa;
 			if (taxa != null)
 				taxa.incrementEditInhibition();
+			//DAVIDCHECK: see ManyTreesFromFileLib for persistence following cancel & save
 			inferenceTask.fillTreeBlock(trees, howManyTrees);
 			if (taxa != null)
 				taxa.decrementEditInhibition();

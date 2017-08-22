@@ -55,8 +55,11 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 	/*.................................................................................................................*/
 	/** Notifies all employees that a file is about to be closed.*/
 	public void fileCloseRequested () {
-		if (!MesquiteThread.isScripting() && getProject().getHomeFile().isDirty()) {
-			alert("There is a run of "+ getProgramName() + " underway.  If you save the file now, you will be able to reconnect to it by reopening this file, as long as you haven't moved the file or those files involved in the "+ getProgramName() + " search");
+		if (!MesquiteThread.isScripting()) {
+			if (!runner.isReconnectable())
+				alert("There is a run of "+ getProgramName() + " underway.  If you close the file now, you will be NOT able to reconnect to it through Mesquite later. (If you want reconnectability in future runs, use the \"Script Based\" option.)");
+			else if (getProject().getHomeFile().isDirty())
+				alert("There is a run of "+ getProgramName() + " underway.  If you save the file now, you will be able to reconnect to it by reopening this file, as long as you haven't moved the file or those files involved in the "+ getProgramName() + " search");
 		}
 		super.fileCloseRequested();
 	}

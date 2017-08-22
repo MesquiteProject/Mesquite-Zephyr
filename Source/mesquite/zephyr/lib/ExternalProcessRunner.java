@@ -43,7 +43,8 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public void setRootNameForDirectory(String rootNameForDirectory) {
 		this.rootNameForDirectory = rootNameForDirectory;
 	}
-
+	public abstract boolean isReconnectable();
+	
 	public abstract String getExecutableCommand();
 
 	public  void setOutputTextListener(OutputTextListener textListener){

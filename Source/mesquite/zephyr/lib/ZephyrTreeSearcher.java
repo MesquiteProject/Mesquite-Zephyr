@@ -115,8 +115,13 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	/*.................................................................................................................*/
 	/** Notifies all employees that a file is about to be closed.*/
 	public void fileCloseRequested () {
-		if (!MesquiteThread.isScripting() && getProject().getHomeFile().isDirty())
-			alert("There is a run of "+ getProgramName() + " underway.  If you save the file now, you will be able to reconnect to it by reopening this file, as long as you haven't moved the file or those files involved in the "+ getProgramName() + " search");
+		if (!MesquiteThread.isScripting()){
+	Debugg.println("FCR*****************"); //WAYNECHECK: this is not called on file close necessarily
+			if (!isReconnectable())
+				alert("There is a run of "+ getProgramName() + " underway.  If you close the file now, you will be NOT able to reconnect to it through Mesquite later. (If you want reconnectability in future runs, use the \"Script Based\" option.)");
+			else if (getProject().getHomeFile().isDirty())
+				alert("There is a run of "+ getProgramName() + " underway.  If you save the file now, you will be able to reconnect to it by reopening this file, as long as you haven't moved the file or those files involved in the "+ getProgramName() + " search");
+		}
 		super.fileCloseRequested();
 	}
 	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
@@ -135,7 +140,8 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		Snapshot temp = new Snapshot();
 		temp.addLine("getRunner ", runner);
 		temp.addLine("getMatrixSource ", matrixSourceTask);
-		temp.addLine("setTreeRecoveryTask ", treeRecoveryTask); //
+		if (isReconnectable())
+			temp.addLine("setTreeRecoveryTask ", treeRecoveryTask); 
 
 		return temp;
 	}
