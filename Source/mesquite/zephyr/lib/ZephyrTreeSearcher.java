@@ -49,7 +49,13 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	/*.................................................................................................................*/
 	public  void setUserAborted(){
 		userAborted = true;
-		runner.setUserAborted(true);
+		if (runner!=null)
+			runner.setUserAborted(true);
+	}
+	public String getMessageIfUserAbortRequested () {
+		if (runner!=null)
+			return runner.getMessageIfUserAbortRequested();
+		return null;
 	}
 
 	/*.................................................................................................................*/

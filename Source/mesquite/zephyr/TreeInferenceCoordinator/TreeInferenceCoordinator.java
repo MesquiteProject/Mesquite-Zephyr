@@ -247,7 +247,8 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 					int response = 1;
 					logln("User request to stop tree inference");
 					if (handler.canStoreLatestTree()){
-						response = AlertDialog.query(containerOfModule(), "Save tree?", "Save the current tree in the inference?", "Save", "Don't Save", "Cancel", 2);
+						String message = handler.getMessageIfUserAbortRequested();
+						response = AlertDialog.queryLongMessage(containerOfModule(), "Save tree?", "Save the current tree in the inference?", message, "Save", "Don't Save", "Cancel", 2, "");
 						if (response==0)
 							handler.storeLatestTree();
 					}

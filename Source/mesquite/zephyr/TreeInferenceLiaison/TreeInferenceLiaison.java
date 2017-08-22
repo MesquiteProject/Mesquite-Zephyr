@@ -43,6 +43,11 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		if (inferenceTask != null)
 		 inferenceTask.setUserAborted();
 	}
+	public String getMessageIfUserAbortRequested (){
+		if (inferenceTask != null)
+			 return inferenceTask.getMessageIfUserAbortRequested();
+		return null;
+	}
 
 	/*.................................................................................................................*/
 	public String getHTMLDescriptionOfStatus(int numLines){
@@ -426,7 +431,7 @@ boolean userAborted = false;
 			Taxa taxa = ownerModule.taxa;
 			if (taxa != null)
 				taxa.incrementEditInhibition();
-			//DAVIDCHECK: see ManyTreesFromFileLib for persistence following cancel & save
+			//DAVIDCHECK: see ManyTreesFromFileLib for persistence following cancel & save. Thread keeps going.
 			inferenceTask.fillTreeBlock(trees, howManyTrees);
 			if (taxa != null)
 				taxa.decrementEditInhibition();

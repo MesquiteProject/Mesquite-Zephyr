@@ -27,6 +27,11 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public String[] getDefaultModule() {
 		return new String[] {""};
 	}
+	
+	public String getMessageIfUserAbortRequested () {
+		return null;
+	}
+
 
 	public String getExecutableName() {
 		return executableName;
