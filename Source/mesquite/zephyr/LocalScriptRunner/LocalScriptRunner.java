@@ -79,7 +79,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		return "local computer";
 	}
 	public boolean isReconnectable(){
-		return !scriptBased;
+		return scriptBased;
 	}
 
 	/*.................................................................................................................*/
