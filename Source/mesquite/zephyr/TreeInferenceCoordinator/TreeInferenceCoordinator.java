@@ -64,8 +64,9 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 		if (file == null || file == getProject().getHomeFile()){
 
 			for (int i = 0; i<handlers.size(); i++) {
-				MesquiteModule e=(MesquiteModule)handlers.elementAt(i);
-				temp.addLine("restoreInference ", e); 
+				TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(i);
+				if (e.isReconnectable())
+					temp.addLine("restoreInference ", e); 
 			}
 		}
 		if (handlers.size() >0)
