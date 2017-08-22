@@ -50,6 +50,8 @@ public abstract class TreeInferenceHandler extends MesquiteModule  {
 	public abstract void setUserAborted();
 	/*.................................................................................................................*/
 	public abstract void setOutputTextListener(OutputTextListener textListener);
+	/*.................................................................................................................*/
+	public abstract boolean isReconnectable();
 
 	public abstract boolean isReconnectable();
 
