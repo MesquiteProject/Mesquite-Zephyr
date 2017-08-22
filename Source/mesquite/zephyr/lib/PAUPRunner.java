@@ -178,7 +178,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		String commandStart = "#NEXUS" + StringUtil.lineEnding()+ StringUtil.lineEnding();
 		commandStart+="begin paup;" + StringUtil.lineEnding()
 		        +"\tset torder=right tcompress outroot=monophyl taxlabels=full noerrorstop nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;" + StringUtil.lineEnding()
-				+ "\tlog file=blahlogfile.txt replace=yes;" + StringUtil.lineEnding();
+				+ "\tlog file=logfile.txt replace=yes;" + StringUtil.lineEnding();
 		return commandStart;
 	}
 
