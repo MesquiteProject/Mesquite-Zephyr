@@ -45,8 +45,8 @@ public abstract class PAUPTrees extends ZephyrTreeSearcher  {
 		return true;
 	}
 	
-	public String getExtraTreeWindowCommands (){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, false)+ eachTreeCommands();
+	public String getExtraTreeWindowCommands (boolean finalTree){
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, finalTree)+ eachTreeCommands();
 	}
 
 	

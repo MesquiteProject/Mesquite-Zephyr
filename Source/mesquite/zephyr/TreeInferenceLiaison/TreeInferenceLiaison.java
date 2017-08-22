@@ -266,7 +266,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			//send script to tree window coord to makeTreeWindow with set of taxa and then set to stored trees and this tree vector
 			TreesManager manager = (TreesManager)findElementManager(TreeVector.class);
 			int whichTreeBlock = manager.getTreeBlockNumber(taxa, trees);
-			String extraWindowCommands = fillTask.getExtraTreeWindowCommands();
+			String extraWindowCommands = fillTask.getExtraTreeWindowCommands(true);
 			if (StringUtil.blank(extraWindowCommands))
 				extraWindowCommands="";
 			String commands = "makeTreeWindow " + getProject().getTaxaReferenceInternal(taxa) + "  #BasicTreeWindowMaker; tell It; setTreeSource  #StoredTrees;";
