@@ -48,6 +48,11 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			 return inferenceTask.getMessageIfUserAbortRequested();
 		return null;
 	}
+	public String getMessageIfCloseFileRequested (){
+		if (inferenceTask != null)
+			 return inferenceTask.getMessageIfCloseFileRequested();
+		return null;
+	}
 
 	/*.................................................................................................................*/
 	public String getHTMLDescriptionOfStatus(int numLines){

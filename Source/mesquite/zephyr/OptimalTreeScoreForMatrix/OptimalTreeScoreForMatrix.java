@@ -58,9 +58,12 @@ public class OptimalTreeScoreForMatrix extends NumberForMatrix implements Reconn
 		if (!MesquiteThread.isScripting()) { //WAYNECHECK:
 			if (runner!=null){
 				if (!runner.isReconnectable())
-					alert("There is a run of "+ runner.getProgramName() + " underway.  If you close the file now, you will be NOT able to reconnect to it through Mesquite later. (If you want reconnectability in future runs, use the \"Script Based\" option.)");
+					discreetAlert("There is a run of "+ runner.getProgramName() + " underway.  If you close the file now, you will be NOT able to reconnect to it through Mesquite later. (If you want reconnectability in future runs, use the \"Script Based\" option.)");
 				else if (getProject().getHomeFile().isDirty())
-					alert("There is a run of "+ runner.getProgramName() + " underway.  If you save the file now, you will be able to reconnect to it by reopening this file, as long as you haven't moved the file or those files involved in the "+ runner.getProgramName() + " search");
+					discreetAlert("There is a run of "+ runner.getProgramName() + " underway.  If you save the file now, you will be able to reconnect to it by reopening this file, as long as you haven't moved the file or those files involved in the "+ runner.getProgramName() 
+					+ " search. \n" + runner.getMessageIfCloseFileRequested());
+				else
+					discreetAlert("There is a run of "+ runner.getProgramName() + " underway.  " + runner.getMessageIfCloseFileRequested());
 			}
 			}
 		super.fileCloseRequested();

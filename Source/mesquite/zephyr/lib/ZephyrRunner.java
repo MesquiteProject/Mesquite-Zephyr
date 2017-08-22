@@ -90,10 +90,15 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return null;
 	}
 
+	public String getMessageIfCloseFileRequested () {
+		if (externalProcRunner!=null)
+			return externalProcRunner.getMessageIfCloseFileRequested();
+		return null;
+	}
 	public String getResamplingKindName() {
 		return "Bootstrap";
 	}
-	
+
 	public String getLogText() {
 		return "Runner Text: "+ getName();
 	}
@@ -109,7 +114,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public void setConstainedSearchAllowed(boolean constrainSearchAllowed) {
 		this.constrainSearchAllowed = constrainSearchAllowed;;
 	}
-	
+
 	Checkbox deleteAnalysisDirectoryCheckBox =  null;
 
 	public  boolean smallerIsBetter (){
@@ -117,7 +122,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	public  void addItemsToSOWHDialogPanel(ExtensibleDialog dialog){
 	}
-	
+
 	public boolean SOWHoptionsChosen(){
 		return true;
 	}
@@ -148,7 +153,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public void setUserAborted(boolean userAborted) {
 		this.userAborted = userAborted;
 	}
-	
+
 	public boolean errorsAreFatal(){
 		return false;
 	}
@@ -202,7 +207,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			return externalProcRunner.isReconnectable();
 		return false;
 	}
-	
+
 	public String getRootNameForDirectory() {
 		String name = getProgramName();
 		if (isConstrainedSearch())
@@ -233,7 +238,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract void reconnectToRequester(MesquiteCommand command);
 	public abstract String getProgramName();
 	public abstract boolean queryOptions();
-	
+
 	String queryOptionsLabel = "";
 	public String getLabelForQueryOptions(){
 		return queryOptionsLabel;
@@ -534,9 +539,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			logln(s + "\n");
 		}
 	}
-	
+
 	boolean useDiscreetAlert = false;
-	
+
 	/*.................................................................................................................*/
 	public void setDiscreetAlert(boolean useDiscreetAlert) {
 		this.useDiscreetAlert = useDiscreetAlert;
@@ -635,7 +640,6 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (inferer != null)
 			((TreeInferer)inferer).bringIntermediatesWindowToFront();*/
 		boolean success = externalProcRunner.monitorExecution(progIndicator);
-
 
 		if (progIndicator!=null)
 			progIndicator.goAway();

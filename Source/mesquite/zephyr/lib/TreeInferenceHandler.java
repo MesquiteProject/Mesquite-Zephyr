@@ -55,6 +55,7 @@ public abstract class TreeInferenceHandler extends MesquiteModule  {
 
 	public abstract String getMessageIfUserAbortRequested ();
 
+	public abstract String getMessageIfCloseFileRequested ();
 
 }
 

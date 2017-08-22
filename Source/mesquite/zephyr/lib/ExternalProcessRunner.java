@@ -32,6 +32,9 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		return null;
 	}
 
+	public String getMessageIfCloseFileRequested () {
+		return null;
+	}
 
 	public String getExecutableName() {
 		return executableName;
