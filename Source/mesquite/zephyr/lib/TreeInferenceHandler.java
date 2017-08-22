@@ -53,8 +53,6 @@ public abstract class TreeInferenceHandler extends MesquiteModule  {
 	/*.................................................................................................................*/
 	public abstract boolean isReconnectable();
 
-	public abstract boolean isReconnectable();
-
 	public abstract String getMessageIfUserAbortRequested ();
 
 
