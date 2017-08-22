@@ -267,7 +267,16 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 		return null;
 	}
 
-
+	/*.................................................................................................................*/
+	public void endJob() {
+		if (handlers!=null)
+			for (int i = 0; i<handlers.size(); i++) {
+				TreeInferenceHandler handler=(TreeInferenceHandler)handlers.elementAt(i);
+				if (handler!=null)
+					handler.stopInference();
+			}
+		super.endJob();
+	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease() { 
 		return true;
