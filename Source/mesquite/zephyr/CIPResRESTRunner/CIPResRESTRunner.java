@@ -61,6 +61,13 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	public boolean isReconnectable(){
 		return true;
 	}
+	public String getMessageIfUserAbortRequested () {
+		return "";//Debugg.println DAVIDCHECK: I presume that Mesquite stops the CIPRes run also?  If not, then best to say so.
+	}
+	public String getMessageIfCloseFileRequested () {  
+		return "If Mesquite closes this file, it will not stop the run on CIPRes.  To stop the run on CIPRes....";  //Debugg.println DAVIDCHECK: complete this message
+	}
+
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
 		return true;

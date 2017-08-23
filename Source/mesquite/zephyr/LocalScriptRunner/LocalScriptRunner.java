@@ -57,13 +57,13 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public String getMessageIfUserAbortRequested () {
 		if (scriptBased)
 			return "Mesquite will stop its monitoring of the analysis, but it will not be able to directly stop the other program.  To stop the other program, you will need to "
-					+ "using either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
+					+ "use either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
 		return "";
 	}
-	public String getMessageIfCloseFileRequested () {
+	public String getMessageIfCloseFileRequested () { 
 		if (scriptBased)
 			return "If Mesquite closes this file, it will not directly stop the other program.  To stop the other program, you will need to "
-					+ "using either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
+					+ "use either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
 		return "";
 	}
 

@@ -87,13 +87,13 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public String getMessageIfUserAbortRequested () {
 		if (externalProcRunner!=null)
 			return externalProcRunner.getMessageIfUserAbortRequested();
-		return null;
+		return "";
 	}
 
 	public String getMessageIfCloseFileRequested () {
 		if (externalProcRunner!=null)
 			return externalProcRunner.getMessageIfCloseFileRequested();
-		return null;
+		return "";
 	}
 	public String getResamplingKindName() {
 		return "Bootstrap";
