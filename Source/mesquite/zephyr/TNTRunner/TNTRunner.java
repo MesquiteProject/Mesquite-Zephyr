@@ -436,6 +436,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		queryOptionsDialog.nullifyAddPanel();
 
 		queryOptionsDialog.completeAndShowDialog("Search", "Cancel", null, null);
+		boolean acceptableOptions = false;
+
 
 		if (buttonPressed.getValue()==0)  {
 			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
@@ -458,13 +460,14 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				mxram = maxRamField.getValue();
 
 				storeRunnerPreferences();
+				acceptableOptions=true;
 			}
 		}
 		queryOptionsDialog.dispose();
 		if (closeWizard) 
 			MesquiteDialog.closeWizard();
 
-		return (buttonPressed.getValue()==0);
+		return (acceptableOptions);
 	}
 
 	/*.................................................................................................................*

@@ -281,7 +281,13 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 
 
 	public boolean optionsChosen(){
-		executablePath = executablePathField.getText();
+		String tempPath = executablePathField.getText();
+		if (StringUtil.blank(tempPath)){
+			MesquiteMessage.discreetNotifyUser("The path to the program must be entered.");
+			return false;
+		}
+		executablePath = tempPath;
+
 		if (visibleTerminalCheckBox!=null)
 			visibleTerminal = visibleTerminalCheckBox.getState();
 		else if (processRequester.localMacRunsRequireTerminalWindow())

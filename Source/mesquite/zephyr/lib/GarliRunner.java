@@ -785,6 +785,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		dialog.nullifyAddPanel();
 
 		dialog.completeAndShowDialog(true);
+		boolean acceptableOptions = false;
 
 		if (buttonPressed.getValue() == 0) {
 			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
@@ -811,13 +812,14 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				processCharacterModels();
 
 				storeRunnerPreferences();
+				acceptableOptions=true;
 			}
 		}
 		dialog.dispose();
 		if (closeWizard)
 			MesquiteDialog.closeWizard();
 
-		return (buttonPressed.getValue() == 0);
+		return (acceptableOptions);
 	}
 
 	/*.................................................................................................................*/
