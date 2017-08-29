@@ -283,7 +283,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public boolean optionsChosen(){
 		String tempPath = executablePathField.getText();
 		if (StringUtil.blank(tempPath)){
-			MesquiteMessage.discreetNotifyUser("The path to the program must be entered.");
+			MesquiteMessage.discreetNotifyUser("The path to " +getExecutableName()+ " must be entered.");
 			return false;
 		}
 		executablePath = tempPath;
