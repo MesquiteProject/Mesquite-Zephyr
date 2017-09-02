@@ -728,7 +728,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 			} else {
 				if (!beanWritten)
-					postBean("unsuccessful [1]", false);
+					postBean("unsuccessful [1]");
 				beanWritten=true;
 			}
 		}
@@ -788,11 +788,11 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		if (!success) {
 			logln("Execution of TNT unsuccessful [2]");
 			if (!beanWritten)
-				postBean("unsuccessful [2]", false);
+				postBean("unsuccessful [2]");
 			beanWritten=true;
 		} else {
 			if (!beanWritten)
-				postBean("successful", false);
+				postBean("successful");
 			beanWritten=true;
 		}
 

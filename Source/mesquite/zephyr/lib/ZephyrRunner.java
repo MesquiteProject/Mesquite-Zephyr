@@ -559,7 +559,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (!success){
 			// give message about failure
 			if (!beanWritten)
-				postBean("failed, externalProcRunner.setInputFiles", false);
+				postBean("failed, externalProcRunner.setInputFiles");
 			beanWritten = true;
 			return false;
 		}
@@ -590,7 +590,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			success = externalProcRunner.monitorExecution(progIndicator);
 		else {
 			if (!beanWritten)
-				postBean("failed, externalProcRunner.startExecution", false);
+				postBean("failed, externalProcRunner.startExecution");
 			beanWritten=true;
 			if (useDiscreetAlert())
 				MesquiteMessage.discreetNotifyUser("The "+getProgramName()+" run encountered problems. ");  // better error message!
