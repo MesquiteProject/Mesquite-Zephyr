@@ -564,6 +564,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			beanWritten = true;
 			return false;
 		}
+		
 		logFileNames = getLogFileNames();
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
