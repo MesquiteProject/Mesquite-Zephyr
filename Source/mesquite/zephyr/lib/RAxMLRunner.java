@@ -326,6 +326,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		//		retainFilescheckBox = dialog.addCheckBox("Retain Files", retainFiles);
 
 		dialog.completeAndShowDialog(true);
+		boolean acceptableOptions = false;
+		
+		
 		if (buttonPressed.getValue()==0)  {
 			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
 			if (externalProcRunner.optionsChosen() && infererOK) {
@@ -349,10 +352,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				otherOptions = otherOptionsField.getText();
 				processRunnerOptions();
 				storeRunnerPreferences();
+				acceptableOptions = true;
 			}
 		}
 		dialog.dispose();
-		return (buttonPressed.getValue()==0);
+		return (acceptableOptions);
 	}
 	public void checkEnabled(boolean doBoot) {
 		onlyBestBox.setEnabled(!doBoot);
@@ -648,6 +652,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		}
 		setRootNameForDirectoryInProcRunner();
 		//now establish the commands for invoking RAxML
+		
+		
 		Object arguments = getProgramArguments(dataFileName, false);
 		Object preflightArguments = getProgramArguments(dataFileName, true);
 

@@ -686,6 +686,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		//TextArea PAUPOptionsField = queryFilesDialog.addTextArea(PAUPOptions, 20);
 		tabbedPanel.cleanup();
 		dialog.nullifyAddPanel();
+		boolean acceptableOptions = false;
 
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
@@ -701,10 +702,11 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 				queryOptionsProcess(dialog);
 				//				writeOnlySelectedTaxa = selectedOnlyBox.getState();
 				storeRunnerPreferences();
+				acceptableOptions = true;
 			}
 		}
 		dialog.dispose();
-		return (buttonPressed.getValue()==0);
+		return (acceptableOptions);
 	}
 
 	public String getResamplingKindName() {

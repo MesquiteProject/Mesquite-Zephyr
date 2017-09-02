@@ -483,9 +483,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (!initializeJustBeforeQueryOptions())
 			return false;
 
-		if (doQueryOptions() && !MesquiteThread.isScripting() && !queryOptions()){
-			return false;
-		}
+		if (doQueryOptions() && !MesquiteThread.isScripting()) 
+			if (!queryOptions()){
+				return false;
+			}
 		optionsHaveBeenSet = true;
 
 		initializeMonitoring();
