@@ -243,7 +243,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			//	addArgument(builder, sb, "vparam.bootstrap_",""+LOCbootstrapreps);
 			//	addArgument(builder, sb, "vparam.mulparambootstrap_seed_",""+LOCbootstrapSeed);
 			} else
-				Debugg.println("TOO FEW BOOTSTRAP REPS");
+				logln("TOO FEW BOOTSTRAP REPS.  CIPRes requires multiple bootstrap replicates.");
 			
 		}
 		else {

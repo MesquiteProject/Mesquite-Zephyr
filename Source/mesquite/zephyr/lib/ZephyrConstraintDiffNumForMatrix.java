@@ -81,7 +81,6 @@ public abstract class ZephyrConstraintDiffNumForMatrix extends ZephyrNumberForMa
 		
 		trees.dispose();
 		trees = null;
-	//	Debugg.println("\nMemory available after calculateNumber: " + MesquiteTrunk.getMaxAvailableMemory());
 
 		if (result!=null)
 			result.setValue(finalScore);

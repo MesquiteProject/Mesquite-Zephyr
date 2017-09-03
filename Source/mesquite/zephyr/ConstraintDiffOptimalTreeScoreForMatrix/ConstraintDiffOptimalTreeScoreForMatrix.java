@@ -90,7 +90,6 @@ public class ConstraintDiffOptimalTreeScoreForMatrix extends OptimalTreeScoreFor
 		
 		trees.dispose();
 		trees = null;
-	//	Debugg.println("\nMemory available after calculateNumber: " + MesquiteTrunk.getMaxAvailableMemory());
 
 		if (result!=null)
 			result.setValue(finalScore);
