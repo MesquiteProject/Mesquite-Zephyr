@@ -1,6 +1,7 @@
 package mesquite.zephyr.lib;
 
 import java.io.*;
+import java.net.UnknownHostException;
 import java.util.*;
 
 import org.apache.http.HttpEntity;
@@ -163,13 +164,13 @@ public class CIPResCommunicator extends RESTCommunicator {
 				EntityUtils.consume(response.getEntity());
 				return cipresResponseDoc;
 			} catch (IOException e) {
-				Debugg.printStackTrace(e);
+				ownerModule.logln("\n************\nError in attempting to communicate with CIPRes: " + e.getMessage() + "\n[CIPResCommunicator.cipresQuery 1]\n************\n");
 			}  
 			catch (Exception e) {
-				Debugg.printStackTrace(e);
+				ownerModule.logln("\n************\nError in attempting to communicate with CIPRes: " + e.getMessage() + "\n[CIPResCommunicator.cipresQuery 2]\n************\n");
 			}
 		} catch (Exception e) {
-			Debugg.printStackTrace(e);
+			ownerModule.logln("\n************\nError in attempting to communicate with CIPRes: " + e.getMessage() + "\n[CIPResCommunicator.cipresQuery 3]\n************\n");
 		}
 		return null;
 	}
@@ -262,7 +263,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 			EntityUtils.consume(response.getEntity());
 			return success;
 		} catch (IOException e) {
-			Debugg.printStackTrace(e);
+			ownerModule.logln("\n************\nError in attempting to communicate with CIPRes: " + e.getMessage() + "\n[CIPResCommunicator.postJob]\n************\n");
 		}
 		return false;
 	}
@@ -487,7 +488,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 			bos.close();
 			EntityUtils.consume(response.getEntity());
 		} catch (IOException e) {
-			Debugg.printStackTrace(e);
+			ownerModule.logln("\n************\nError in attempting to communicate with CIPRes: " + e.getMessage() + "\n[CIPResCommunicator.cipresDownload]\n************\n");
 		}
 	}
 
@@ -605,12 +606,13 @@ public class CIPResCommunicator extends RESTCommunicator {
 			Document cipresResponseDoc = cipresQuery(httpclient, resultsUri, "results");
 			if (cipresResponseDoc!=null) {
 				CipresJobFile[] cipresJobFiles = processFilesDocument(cipresResponseDoc);
-				for (int job=0; job<cipresJobFiles.length; job++) {
-					Debugg.println("fileName: " + cipresJobFiles[job].getFileName());
-					Debugg.println("     downloadURL: " + cipresJobFiles[job].getDownloadURL());
-					Debugg.println("     downloadTitle: " + cipresJobFiles[job].getDownloadTitle());
-					Debugg.println("     length: " + cipresJobFiles[job].getLength());
-				}
+				if (MesquiteTrunk.debugMode)
+					for (int job=0; job<cipresJobFiles.length; job++) {
+						ownerModule.logln("fileName: " + cipresJobFiles[job].getFileName());
+						ownerModule.logln("     downloadURL: " + cipresJobFiles[job].getDownloadURL());
+						ownerModule.logln("     downloadTitle: " + cipresJobFiles[job].getDownloadTitle());
+						ownerModule.logln("     length: " + cipresJobFiles[job].getLength());
+					}
 				previousCipresJobFiles = cipresJobFiles.clone();
 
 			}
@@ -817,7 +819,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 		try {
 			HttpResponse response = httpclient.execute(httpdelete);
 		} catch (IOException e) {
-			Debugg.printStackTrace(e);
+			ownerModule.logln("\n************\nError in attempting to communicate with CIPRes: " + e.getMessage() + "\n[CIPResCommunicator.deleteJob]\n************\n");
 		}
 	}
 
