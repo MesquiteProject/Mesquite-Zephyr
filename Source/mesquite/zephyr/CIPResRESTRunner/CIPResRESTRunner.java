@@ -153,6 +153,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
 		dialog.addBoldLabel("CIPRes Options");
 		ForgetPasswordCheckbox = dialog.addCheckBox("re-enter CIPRes password", false);
+		//DAVIDCHECK: here add a line of text that says you need a REST account and a URL to get it
 	}
 	public boolean optionsChosen(){
 		if (ForgetPasswordCheckbox.getState())
