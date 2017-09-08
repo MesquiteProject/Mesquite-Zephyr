@@ -199,7 +199,9 @@ public class CIPResCommunicator extends RESTCommunicator {
 
 			ownerModule.logln("\nJob successfully submitted to CIPRes.");
 			ownerModule.logln("  Job URL: " + subelement.getText());
-			ownerModule.logln("  Job ID: " + reportedJobID+"\n");
+			ownerModule.logln("  Job ID: " + reportedJobID);
+			
+			ownerModule.logln("   Mesquite will query CIPRes about the status every " + minPollIntervalSeconds + " seconds\n");
 			if (jobURL!=null)
 				jobURL.setValue(subelement.getText());
 		}

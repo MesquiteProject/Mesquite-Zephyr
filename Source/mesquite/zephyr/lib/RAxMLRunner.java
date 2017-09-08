@@ -496,7 +496,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	/*.................................................................................................................*/
 	public void initializeMonitoring(){
-		//Debugg.println("||||||||||   initializeMonitoring called");
 		if (finalValues==null) {
 			if (bootstrapOrJackknife())
 				finalValues = new double[getBootstrapreps()];
