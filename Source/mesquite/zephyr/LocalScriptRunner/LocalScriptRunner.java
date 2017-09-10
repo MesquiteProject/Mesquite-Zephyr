@@ -41,6 +41,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	ExternalProcessRequester processRequester;
 	boolean visibleTerminal = false;
 	boolean deleteAnalysisDirectory = false;
+	boolean leaveAnalysisDirectoryIntact = false;
 
 	/*.================================================================..*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
@@ -453,6 +454,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		} else {
 			if (externalRunner!=null) {
 				boolean success = externalRunner.monitorAndCleanUpShell(progIndicator);
+				if (externalRunner.exitCodeIsBad())  // if bad exit code, then don't autodelete the directory
+					leaveAnalysisDirectoryIntact=true;
 				if (progIndicator!=null && progIndicator.isAborted())
 					processRequester.setUserAborted(true);
 				return success;
@@ -515,7 +518,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 	/*.................................................................................................................*/
 	public void finalCleanup() {
-		if (deleteAnalysisDirectory)
+		if (deleteAnalysisDirectory && !leaveAnalysisDirectoryIntact)
 			MesquiteFile.deleteDirectory(rootDir);
 		rootDir=null;
 	}
