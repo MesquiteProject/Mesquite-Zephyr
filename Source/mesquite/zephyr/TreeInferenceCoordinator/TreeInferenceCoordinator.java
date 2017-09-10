@@ -256,7 +256,6 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 					if (response<2) {
 						handler.setUserAborted();
 						handler.stopInference();
-
 					}
 					return null;
 				}

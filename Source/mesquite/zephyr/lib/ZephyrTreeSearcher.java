@@ -165,6 +165,9 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			return runner;
 		}
 		else if (checker.compare(this.getClass(), "Sets the runner", "[module]", commandName, "getMatrixSource")) {
+			if (matrixSourceTask!=null && observedStates ==null) {
+				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
+			}
 			return matrixSourceTask;
 		}
 		else if (checker.compare(this.getClass(), "Sets the tree recovery task", "[module]", commandName, "setTreeRecoveryTask")) {
@@ -316,17 +319,26 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (runner != null){
 			if (runner.bootstrapOrJackknife()) {
 				if (runner.singleTreeFromResampling()) //this means we have read in all of the bootstrap trees
-					s += " " + runner.getResamplingKindName() +  " Consensus Tree (Matrix: " + observedStates.getName();
+					s += " " + runner.getResamplingKindName() +  " Consensus Tree";
 				else
-					s += " " + runner.getResamplingKindName() +  " Trees (Matrix: " + observedStates.getName();
+					s += " " + runner.getResamplingKindName() +  " Trees";
 			} 
 			else {
-				s +=  " Trees (Matrix: " + observedStates.getName();
+				s +=  " Trees";
 			}
-			String add =  runner.getAddendumToTreeBlockName();
-			if (!StringUtil.blank(add))
-				s += "; " + add;
-			s += ")";
+			if (observedStates!=null) {
+				s +=  " (Matrix: " + observedStates.getName();
+				String add =  runner.getAddendumToTreeBlockName();
+				if (!StringUtil.blank(add))
+					s += "; " + add;
+				s += ")";
+			} else {
+				String add =  runner.getAddendumToTreeBlockName();
+				if (!StringUtil.blank(add))
+					s += "; " + add;
+			}
+
+
 			if (!completedRun)
 				s+= " INCOMPLETE SEARCH";
 		}
