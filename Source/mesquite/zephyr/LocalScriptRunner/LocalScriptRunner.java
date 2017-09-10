@@ -216,6 +216,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			scriptRunner = new ShellScriptRunner();
 			scriptRunner.setOutputProcessor(this);
 			scriptRunner.setWatcher(this);
+			scriptRunner.pleaseReconnectToExternalProcess();
 			if (visibleTerminalOptionAllowed())
 				scriptRunner.setVisibleTerminal(visibleTerminal);
 			return scriptRunner;
