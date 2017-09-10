@@ -260,7 +260,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 					success=true;
 			} else {
 				cipresResponseDoc = loadXMLFile(sb.toString());
-				reportError(cipresResponseDoc, "Error with CIPRes run", false);
+				reportError(cipresResponseDoc, "Error with CIPRes run", true);
 			}
 			EntityUtils.consume(response.getEntity());
 			return success;
@@ -670,6 +670,8 @@ public class CIPResCommunicator extends RESTCommunicator {
 			return false;
 		}
 		lastModified=null;
+		if (outputFilePaths==null)
+			;
 		if (outputFilePaths!=null) {
 			lastModified = new long[outputFilePaths.length];
 			LongArray.deassignArray(lastModified);
@@ -705,7 +707,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 				processOutputFiles(jobURL);
 			}
 		}
-		ownerModule.logln("CIPRes job completed.");
+		ownerModule.logln("CIPRes job completed. (" + StringUtil.getDateTime() + " or earlier)");
 		if (outputFileProcessor!=null) {
 			if (rootDir!=null) {
 				ownerModule.logln("About to download results from CIPRes.");

@@ -93,6 +93,15 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
+		if (rootDir != null)
+			temp.addLine("setRootDir " +  ParseUtil.tokenize(rootDir));
+		if (outputFilePaths != null){
+			String files = " ";
+			for (int i = 0; i< outputFilePaths.length; i++){
+				files += " " + ParseUtil.tokenize(outputFilePaths[i]);
+			}
+			temp.addLine("setOutputFilePaths " + files);
+		}
 		if (communicator != null){
 			temp.addLine("reviveCommunicator ");
 			temp.addLine("tell It");
@@ -102,15 +111,19 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		}
 		if (jobURL != null)
 			temp.addLine("setJobURL " +  ParseUtil.tokenize(jobURL.getValue()));
-		if (rootDir != null)
-			temp.addLine("setRootDir " +  ParseUtil.tokenize(rootDir));
 		return temp;
 	}
+	boolean reportJobURL = false;
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
 		if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveCommunicator")) {
 			logln("Reviving CIPRes Communicator");
 			communicator = new CIPResCommunicator(this, xmlPrefsString,outputFilePaths);
+			//setOutputFileNamesToWatch(fileNames[]);
+			if (jobURL!=null)
+				logln("Job URL: " + jobURL.getValue());
+			else
+				reportJobURL=true;
 			communicator.setOutputProcessor(this);
 			communicator.setWatcher(this);
 			communicator.setRootDir(rootDir);
@@ -120,10 +133,22 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 
 			return communicator;
 		}
+		else if (checker.compare(this.getClass(), "Sets the output file paths", "[file paths]", commandName, "setOutputFilePaths")) {
+			int num = parser.getNumberOfTokens(arguments);
+			outputFilePaths = new String[num];
+			if (num >0)
+				outputFilePaths[0] = parser.getFirstToken();
+			for (int i=1; i<num; i++)
+				outputFilePaths[i] = parser.getNextToken();
+		}
 		else if (checker.compare(this.getClass(), "Sets the job URL", null, commandName, "setJobURL")) {
 			if (jobURL==null)
 				jobURL = new MesquiteString();
 			jobURL.setValue(parser.getFirstToken(arguments));
+			if (reportJobURL) {
+				logln("Job URL: " + jobURL.getValue());
+				reportJobURL=false;
+			}
 		}
 		else if (checker.compare(this.getClass(), "Sets root directory", null, commandName, "setRootDir")) {
 			rootDir = parser.getFirstToken(arguments);
