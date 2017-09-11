@@ -121,7 +121,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 			communicator = new CIPResCommunicator(this, xmlPrefsString,outputFilePaths);
 			//setOutputFileNamesToWatch(fileNames[]);
 			if (jobURL!=null)
-				logln("Job URL: " + jobURL.getValue());
+				logln("\nJob URL: " + jobURL.getValue()+"\n");
 			else
 				reportJobURL=true;
 			communicator.setOutputProcessor(this);
@@ -177,8 +177,15 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	// given the opportunity to fill in options for user
 	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
 		dialog.addBoldLabel("CIPRes Options");
-		ForgetPasswordCheckbox = dialog.addCheckBox("forget CIPRes password", false);
+		ForgetPasswordCheckbox = dialog.addCheckBox("Require new login to CIPRes", false);
 	}
+	
+	public void addNoteToBottomOfDialog(ExtensibleDialog dialog){
+		dialog.addHorizontalLine(1);
+		dialog.addLabelSmallText("CIPRes features in Zephyr are preliminary, and may have some flaws.");
+		dialog.addLabelSmallText("Please send feedback to info@mesquiteproject.org");
+	}
+
 	public boolean optionsChosen(){
 		if (ForgetPasswordCheckbox.getState())
 			forgetCIPResPassword();
@@ -306,8 +313,8 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	}
 	public boolean stopExecution(){
 		communicator.deleteJob(jobURL.getValue());
-		communicator = null;
-		return false;
+		communicator.setAborted(true);
+		return true;
 	}
 	public String getPreflightFile(String preflightLogFileName){
 		String filePath = rootDir + preflightLogFileName;

@@ -259,11 +259,15 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 						response = AlertDialog.queryLongMessage(containerOfModule(), "Save tree?", "Save the current tree in the inference?", message, "Save", "Don't Save", "Cancel", 2, "");
 						if (response==0)
 							handler.storeLatestTree();
+						if (response<2) {
+							handler.setUserAborted();
+							handler.stopInference();
+						}
+					} else if (AlertDialog.query(this, "Abort analysis", "Do you want to abort analysis? Preliminary trees will not be saved.", "OK", "Cancel")) {
+							handler.setUserAborted();
+							handler.stopInference();
 					}
-					if (response<2) {
-						handler.setUserAborted();
-						handler.stopInference();
-					}
+
 					return null;
 				}
 			}

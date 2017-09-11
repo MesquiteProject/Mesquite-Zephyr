@@ -199,7 +199,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 			}
 
 			ownerModule.logln("\nJob successfully submitted to CIPRes.");
-			ownerModule.logln("  Job URL: " + subelement.getText());
+			ownerModule.logln("\n  Job URL: " + subelement.getText()+"\n");
 			ownerModule.logln("  Job ID: " + reportedJobID);
 			
 			if (jobURL!=null)
@@ -688,12 +688,11 @@ public class CIPResCommunicator extends RESTCommunicator {
 		int interval = 0;
 		int pollInterval = minPollIntervalSeconds;
 		
-		while (!jobCompleted(jobURL) && stillGoing){
+		while (!jobCompleted(jobURL) && stillGoing && !aborted){
 			double loopTime = cipresTimer.timeSinceLastInSeconds();  // checking to see how long it has been since the last one
 			if (loopTime>minPollIntervalSeconds) {
 				pollInterval = minPollIntervalSeconds - ((int)loopTime-minPollIntervalSeconds);
 				if (pollInterval<0) pollInterval=0;
-				Debugg.println("loopTime: " + loopTime + ", minPollIntervalSeconds: " + minPollIntervalSeconds);
 			}
 			else 
 				pollInterval = minPollIntervalSeconds;
@@ -722,7 +721,6 @@ public class CIPResCommunicator extends RESTCommunicator {
 			} else
 				ownerModule.log(".");
 			if (newStatus!=null && newStatus.equalsIgnoreCase("SUBMITTED")){  // job is running
-				Debugg.println("\n\n|||||||||||||||||||||||||\nprocess output files \n|||||||||||||||||||||||||\n\n");
 				processOutputFiles(jobURL);
 			}
 		}
@@ -736,7 +734,8 @@ public class CIPResCommunicator extends RESTCommunicator {
 					return false;
 			}
 		}
-
+		if (aborted)
+			return false;
 		return true;
 	}
 
@@ -860,6 +859,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 			String[] jobURLs = getJobURLs(httpclient);
 			if (jobURLs!=null) {
 				for (int job=0; job<jobURLs.length; job++){
+					ownerModule.logln("deleting job "+ job + " of " + jobURLs.length);
 					deleteJob(httpclient, jobURLs[job]);
 				}
 				if (jobURLs.length==0)

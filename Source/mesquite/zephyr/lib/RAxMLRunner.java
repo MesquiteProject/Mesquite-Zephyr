@@ -268,6 +268,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		addRunnerOptions(dialog);
 		if (treeInferer!=null) 
 			treeInferer.addItemsToDialogPanel(dialog);
+		externalProcRunner.addNoteToBottomOfDialog(dialog);
 
 		if (bootstrapAllowed) {
 			tabbedPanel.addPanel("Replicates", true);

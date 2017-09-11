@@ -87,6 +87,8 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 
 	// given the opportunity to fill in options for user
 	public abstract void addItemsToDialogPanel(ExtensibleDialog dialog);
+	public  void addNoteToBottomOfDialog(ExtensibleDialog dialog){
+	}
 	public abstract boolean optionsChosen();
 
 	// the actual data & scripts.  

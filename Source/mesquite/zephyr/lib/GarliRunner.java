@@ -704,7 +704,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		dialog.addLabelSmallText("This version of Zephyr tested on the following GARLI version(s): " + getTestedProgramVersions());
 		if (treeInferer!=null) 
 			treeInferer.addItemsToDialogPanel(dialog);
-
+		
+		externalProcRunner.addNoteToBottomOfDialog(dialog);
+		
+		
 		IntegerField bootStrapRepsField=null;
 
 		if (bootstrapAllowed) {
