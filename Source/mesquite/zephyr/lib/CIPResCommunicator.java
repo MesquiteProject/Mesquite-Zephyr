@@ -24,7 +24,8 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 
 public class CIPResCommunicator extends RESTCommunicator {
-	static final int defaultMinPollIntervalSeconds = 30;
+	static final int defaultMinPollIntervalSeconds = 10;
+	public static final String CIPResRESTURL = "https://cipresrest.sdsc.edu/cipresrest/v1";
 	protected int minPollIntervalSeconds =defaultMinPollIntervalSeconds;
 
 	String rootDir;
@@ -34,7 +35,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 	static boolean preferencesProcessed=false;
 
 	int jobNumber = 3;
-	String CIPRESkey = "Mesquite-7C63884588B8438CAE456E115C9643F3"; //DAVIDCHECK: is this public?
+	public String CIPRESkey = "Mesquite-7C63884588B8438CAE456E115C9643F3"; //DAVIDCHECK: is this public?
 
 	public CIPResCommunicator (MesquiteModule mb, String xmlPrefsString,String[] outputFilePaths) {
 		super(mb, xmlPrefsString, outputFilePaths);
@@ -72,7 +73,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 	}
 	/*.................................................................................................................*/
 	public String getRESTURL() {
-		return "https://cipresrest.sdsc.edu/cipresrest/v1";
+		return CIPResRESTURL;
 	}
 	/*.................................................................................................................*/
 	public String getAPIURL() {
@@ -201,7 +202,6 @@ public class CIPResCommunicator extends RESTCommunicator {
 			ownerModule.logln("  Job URL: " + subelement.getText());
 			ownerModule.logln("  Job ID: " + reportedJobID);
 			
-			ownerModule.logln("   Mesquite will query CIPRes about the status every " + minPollIntervalSeconds + " seconds\n");
 			if (jobURL!=null)
 				jobURL.setValue(subelement.getText());
 		}
@@ -274,6 +274,8 @@ public class CIPResCommunicator extends RESTCommunicator {
 
 	static final String JOBCOMPLETED = "COMPLETED";
 	static final String JOBSUBMITTED = "SUBMITTED";
+	
+	boolean queryFrequencyReported = false;
 
 	/*.................................................................................................................*/
 	public String jobStatusFromResponse(Document cipresResponseDoc) {
@@ -302,6 +304,10 @@ public class CIPResCommunicator extends RESTCommunicator {
 			minPollIntervalSeconds = MesquiteInteger.fromString(element.getText());
 			if (!MesquiteInteger.isCombinable(minPollIntervalSeconds) || minPollIntervalSeconds<=0)
 				minPollIntervalSeconds = defaultMinPollIntervalSeconds;
+		}
+		if (!queryFrequencyReported) {
+			ownerModule.logln("   Mesquite will query CIPRes about the status every " + minPollIntervalSeconds + " seconds\n");
+			queryFrequencyReported = true;
 		}
 
 
@@ -677,15 +683,27 @@ public class CIPResCommunicator extends RESTCommunicator {
 			LongArray.deassignArray(lastModified);
 		}
 		String status = "";
+		MesquiteTimer cipresTimer = new MesquiteTimer();
+		cipresTimer.start();
+		int interval = 0;
+		int pollInterval = minPollIntervalSeconds;
+		
 		while (!jobCompleted(jobURL) && stillGoing){
-			if(StringUtil.blank(status))
-
-				ownerModule.logln("CIPRes Job Status: " + getJobStatus(jobURL) + "  (" + StringUtil.getDateTime() + ")");
+			double loopTime = cipresTimer.timeSinceLastInSeconds();  // checking to see how long it has been since the last one
+			if (loopTime>minPollIntervalSeconds) {
+				pollInterval = minPollIntervalSeconds - ((int)loopTime-minPollIntervalSeconds);
+				if (pollInterval<0) pollInterval=0;
+				Debugg.println("loopTime: " + loopTime + ", minPollIntervalSeconds: " + minPollIntervalSeconds);
+			}
+			else 
+				pollInterval = minPollIntervalSeconds;
+			if(!StringUtil.blank(status))
+				ownerModule.logln("CIPRes Job Status: " + status + "  (" + StringUtil.getDateTime() + ")");
 
 			//	if (jobSubmitted(jobURL))
 			//		processOutputFiles();
 			try {
-				for (int i=0; i<minPollIntervalSeconds; i++) {
+				for (int i=0; i<pollInterval; i++) {
 					if (progIndicator!=null)
 						progIndicator.spin();
 					Thread.sleep(1000);
@@ -697,7 +715,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 			}
 
 			stillGoing = watcher == null || watcher.continueShellProcess(null);
-			String newStatus = getJobStatus(jobURL);
+			String newStatus = getJobStatus(jobURL); 
 			if (newStatus!=null && !newStatus.equalsIgnoreCase(status)) {
 				ownerModule.logln("CIPRes Job Status: " + newStatus + "  (" + StringUtil.getDateTime() + ")");
 				status=newStatus;
@@ -711,7 +729,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 		ownerModule.logln("CIPRes job completed. (" + StringUtil.getDateTime() + " or earlier)");
 		if (outputFileProcessor!=null) {
 			if (rootDir!=null) {
-				ownerModule.logln("About to download results from CIPRes.");
+				ownerModule.logln("About to download results from CIPRes (this may take some time).");
 				if (downloadResults(jobURL, rootDir, false))
 						outputFileProcessor.processCompletedOutputFiles(outputFilePaths);
 				else

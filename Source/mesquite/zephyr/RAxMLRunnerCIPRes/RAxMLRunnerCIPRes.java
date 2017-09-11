@@ -130,16 +130,24 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 //		RAxML814orLater = RAxML814orLaterCheckbox.getState();
 //		externalProcRunner.optionsChosen();
 	}
+	int currentRunProcessed=0;
 	/*.................................................................................................................*/
 	public String[] modifyOutputPaths(String[] outputFilePaths){
 		if (!bootstrapOrJackknife() && numRuns>1 ) {
-			if (currentRun!=previousCurrentRun) {
-				String[] fileNames = getLogFileNames();
-				externalProcRunner.setOutputFileNameToWatch(WORKING_TREEFILE, fileNames[WORKING_TREEFILE]);
-				outputFilePaths[WORKING_TREEFILE] = externalProcRunner.getOutputFilePath(fileNames[WORKING_TREEFILE]);
-				externalProcRunner.resetLastModified(WORKING_TREEFILE);
-				previousCurrentRun=currentRun;
+			Debugg.println("RAxMLRunnerCIPRES.modifyOutputPaths");
+			String[] fileNames = getLogFileNames();
+			externalProcRunner.setOutputFileNameToWatch(WORKING_TREEFILE, fileNames[WORKING_TREEFILE]);
+			outputFilePaths[WORKING_TREEFILE] = externalProcRunner.getOutputFilePath(fileNames[WORKING_TREEFILE]);
+			for (int i=currentRunProcessed; i<numRuns; i++) {
+				String candidate = outputFilePaths[WORKING_TREEFILE]+i;
+				if (MesquiteFile.fileExists(candidate)) {
+					outputFilePaths[WORKING_TREEFILE]= candidate;
+					Debugg.println("WORKING_TREEFILE: " + candidate);
+					currentRunProcessed++;
+				}
 			}
+			externalProcRunner.resetLastModified(WORKING_TREEFILE);
+			previousCurrentRun=currentRun;
 		}
 		return outputFilePaths;
 	}

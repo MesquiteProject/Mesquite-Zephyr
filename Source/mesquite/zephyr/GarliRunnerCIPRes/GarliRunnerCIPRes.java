@@ -36,6 +36,9 @@ public class GarliRunnerCIPRes extends GarliRunner {
 	String dataFileName = null;
 	int memoryRequest = 4000;
 
+	public String getLogFileName(){
+		return "stdout.txt";
+	}
 
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
@@ -59,6 +62,13 @@ public class GarliRunnerCIPRes extends GarliRunner {
 		StringUtil.appendXMLTag(buffer, 2, "memoryRequest", memoryRequest);  
 		buffer.append(super.preparePreferencesForXML());
 		return buffer.toString();
+	}
+	/*.................................................................................................................*/
+	public String getLogText() {
+		String log= externalProcRunner.getStdOut();
+		if (StringUtil.blank(log))
+			log="Waiting for log file from CIPRes...";
+		return log;
 	}
 
 	/*.................................................................................................................*/

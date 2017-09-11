@@ -305,6 +305,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		return null;
 	}
 	public boolean stopExecution(){
+		communicator.deleteJob(jobURL.getValue());
 		communicator = null;
 		return false;
 	}
