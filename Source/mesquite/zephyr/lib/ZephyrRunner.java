@@ -103,6 +103,17 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return "Runner Text: "+ getName();
 	}
 
+	public String getFileCloseNotification(boolean fileIsDirty){
+		if (!isReconnectable())
+			return ("There is a run of "+ getProgramName() + " underway.  If you close the file now, the search will be stopped and you will be NOT able to reconnect to it through Mesquite later. (If you want reconnectability in future runs, use the \"Script Based\" option.)");
+		else if (fileIsDirty)
+			return ("There is a run of "+ getProgramName() + " underway.  If you save the file now, you will be able to reconnect to it by reopening this file, as long as you haven't moved the file or those files involved in the "+ getProgramName() 
+			+ " search. \n" + getMessageIfCloseFileRequested());
+		else
+			return ("There is a run of "+ getProgramName() + " underway.  If you reopen the file, it will reconnect to the search, as long as you haven't moved the file or those files involved in the "+ getProgramName() 
+			+ " search. \n" + getMessageIfCloseFileRequested());
+	}
+	
 	public boolean getDirectProcessConnectionAllowed(){
 		return true;
 	}
