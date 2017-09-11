@@ -34,6 +34,7 @@ public class GarliRunnerCIPRes extends GarliRunner {
 	String ofprefix = "output";
 
 	String dataFileName = null;
+	int memoryRequest = 4000;
 
 
 	/*.................................................................................................................*/
@@ -43,6 +44,21 @@ public class GarliRunnerCIPRes extends GarliRunner {
 	/*.................................................................................................................*/
 	public Class getExternalProcessRunnerClass(){
 		return CIPResRESTRunner.class;
+	}
+
+	/*.................................................................................................................*/
+	public void processSingleXMLPreference (String tag, String content) {
+		if ("memoryRequest".equalsIgnoreCase(tag))
+			memoryRequest = MesquiteInteger.fromString(content);
+		super.processSingleXMLPreference(tag, content);
+	}
+	
+	/*.................................................................................................................*/
+	public String preparePreferencesForXML () {
+		StringBuffer buffer = new StringBuffer(200);
+		StringUtil.appendXMLTag(buffer, 2, "memoryRequest", memoryRequest);  
+		buffer.append(super.preparePreferencesForXML());
+		return buffer.toString();
 	}
 
 	/*.................................................................................................................*/
@@ -65,7 +81,16 @@ public class GarliRunnerCIPRes extends GarliRunner {
 		arguments.addTextBody("vparam.user_conffile_", "1");
 		arguments.addTextBody("vparam.userconffilethere_", "1");
 		arguments.addTextBody("vparam.userconffileconfirm_", "1");
-		
+		if (memoryRequest<5000)
+			arguments.addTextBody("vparam.set_divvalue_", "1");
+		else if (memoryRequest<=10000)
+			arguments.addTextBody("vparam.set_divvalue_", "2");
+		else if (memoryRequest<=20000)
+			arguments.addTextBody("vparam.set_divvalue_", "4");
+		else 
+			arguments.addTextBody("vparam.set_divvalue_", "8");
+
+
 		arguments.addTextBody("vparam.searchreps_value_", ""+numRuns);
 
 		return arguments;
@@ -107,7 +132,6 @@ public class GarliRunnerCIPRes extends GarliRunner {
 		return "2.0";
 	}
 
-	int memoryRequest = 2000;
 	IntegerField memoryRequestField;
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
