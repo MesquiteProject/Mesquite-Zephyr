@@ -16,6 +16,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	String executableName;
 	String rootNameForDirectory;
 	TreeInferer treeInferrer;
+	boolean aborted = false;
 
 	public Class getDutyClass() {
 		return ExternalProcessRunner.class;
@@ -34,6 +35,12 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 
 	public String getMessageIfCloseFileRequested () {
 		return "";
+	}
+	public boolean userAborted(){
+		return aborted;
+	}
+	public void setAborted(boolean aborted){
+		this.aborted = aborted;
 	}
 
 	public String getExecutableName() {
