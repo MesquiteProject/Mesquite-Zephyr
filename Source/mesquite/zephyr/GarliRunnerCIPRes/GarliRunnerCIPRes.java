@@ -84,7 +84,7 @@ public class GarliRunnerCIPRes extends GarliRunner {
 
 			config.append("\nstreefname = random");
 
-			config.append("\navailablememory = 2000 \n");
+			config.append("\navailablememory = "+memoryRequest+" \n");
 			config.append(" \noutputmostlyuselessfiles = 0");
 
 			config.append("\n\nrandseed = -1"); // important to be user-editable
@@ -107,13 +107,19 @@ public class GarliRunnerCIPRes extends GarliRunner {
 		return "2.0";
 	}
 
+	int memoryRequest = 2000;
+	IntegerField memoryRequestField;
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		externalProcRunner.addItemsToDialogPanel(dialog);
+		memoryRequestField = dialog.addIntegerField("Memory requested for analysis (MB)", memoryRequest, 8, 500, 20000);
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
 		externalProcRunner.optionsChosen();
+		int memory = memoryRequestField.getValue();
+		if (MesquiteInteger.isCombinable(memory))
+			memoryRequest=memory;
 	}
 
 
