@@ -16,6 +16,8 @@ public interface ExternalProcessRequester {
 
 	public void runFilesAvailable(boolean[] filesAvailable);
 	
+	public String getLogFileName();
+	
 	public void runFailed(String message);
 	
 	public void runFinished(String message);

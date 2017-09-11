@@ -50,6 +50,12 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			return CIPResRESTRunner.class;
 	 }
 
+		public String getLogText() {
+			String log= externalProcRunner.getStdOut();
+			if (StringUtil.blank(log))
+				log="Waiting for log file from CIPRes...";
+			return log;
+		}
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
@@ -124,6 +130,20 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 //		RAxML814orLater = RAxML814orLaterCheckbox.getState();
 //		externalProcRunner.optionsChosen();
 	}
+	/*.................................................................................................................*/
+	public String[] modifyOutputPaths(String[] outputFilePaths){
+		if (!bootstrapOrJackknife() && numRuns>1 ) {
+			if (currentRun!=previousCurrentRun) {
+				String[] fileNames = getLogFileNames();
+				externalProcRunner.setOutputFileNameToWatch(WORKING_TREEFILE, fileNames[WORKING_TREEFILE]);
+				outputFilePaths[WORKING_TREEFILE] = externalProcRunner.getOutputFilePath(fileNames[WORKING_TREEFILE]);
+				externalProcRunner.resetLastModified(WORKING_TREEFILE);
+				previousCurrentRun=currentRun;
+			}
+		}
+		return outputFilePaths;
+	}
+
 	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {

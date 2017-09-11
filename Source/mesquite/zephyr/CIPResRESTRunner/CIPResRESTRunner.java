@@ -316,13 +316,18 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 
 	/*.................................................................................................................*/
 	public String getStdErr() {
-
+		//communicator.getRootDir();
 		return "";  //TODO: Implement!!!
 	}
+	
 	/*.................................................................................................................*/
 	public String getStdOut() {
-
-		return ""; //TODO: Implement!!!
+		if (communicator!=null) {
+			String path = communicator.getRootDir()+processRequester.getLogFileName();
+			String contents = MesquiteFile.getFileContentsAsStringNoWarn(path);
+			return contents; 
+		}
+		return "";
 	}
 
 	/*.................................................................................................................*/

@@ -171,7 +171,6 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 
 	return buffer.toString();
 	}
-	
 	/*.................................................................................................................*/
 	public boolean allowRerooting() {
 		return true;

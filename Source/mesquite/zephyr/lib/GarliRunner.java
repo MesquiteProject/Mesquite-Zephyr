@@ -652,6 +652,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			sb.append("Constraint type used in SOWH test: Negative constraint\n");
 		return sb.toString();
 	}
+	public String getLogFileName(){
+		return mainLogFileName;
+	}
+
 	Button setByModelNameButton;
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
@@ -849,6 +853,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	public int getCurrentRun() {
 		return runNumber;
 	}
+	String mainLogFileName = ofprefix + ".log00.log";
 
 	/*.................................................................................................................*/
 	public String[] getLogFileNames() {
@@ -859,7 +864,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			treeFileName = ofprefix + ".best.tre";
 		String currentTreeFilePath = ofprefix + ".best.current.tre";
 		String allBestTreeFilePath = ofprefix + ".best.all.tre";
-		String mainLogFileName = ofprefix + ".log00.log";
+		mainLogFileName = ofprefix + ".log00.log";
 
 		return new String[] { mainLogFileName, currentTreeFilePath,ofprefix + ".screen.log", treeFileName, allBestTreeFilePath };
 	}

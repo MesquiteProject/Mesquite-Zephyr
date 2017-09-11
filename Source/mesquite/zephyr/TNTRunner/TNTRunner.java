@@ -82,6 +82,10 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 
 		return true;
 	}
+	public String getLogFileName(){
+		return logFileName;
+	}
+
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
 		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";

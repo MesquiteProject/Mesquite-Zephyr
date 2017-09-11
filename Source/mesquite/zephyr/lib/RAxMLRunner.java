@@ -401,6 +401,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		this.randseed = seed;
 	}
 
+	public String getLogFileName(){
+		return "RAxML_info.result";
+	}
+
 	Checkbox useOptimizedScoreAsBestCheckBox =  null;
 	RadioButtons SOWHConstraintButtons = null;
 	public  void addItemsToSOWHDialogPanel(ExtensibleDialog dialog){

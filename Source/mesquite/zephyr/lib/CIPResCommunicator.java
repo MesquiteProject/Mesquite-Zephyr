@@ -24,7 +24,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 
 public class CIPResCommunicator extends RESTCommunicator {
-	static final int defaultMinPollIntervalSeconds = 60;
+	static final int defaultMinPollIntervalSeconds = 30;
 	protected int minPollIntervalSeconds =defaultMinPollIntervalSeconds;
 
 	String rootDir;
@@ -34,7 +34,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 	static boolean preferencesProcessed=false;
 
 	int jobNumber = 3;
-	String CIPRESkey = "Mesquite-7C63884588B8438CAE456E115C9643F3";
+	String CIPRESkey = "Mesquite-7C63884588B8438CAE456E115C9643F3"; //DAVIDCHECK: is this public?
 
 	public CIPResCommunicator (MesquiteModule mb, String xmlPrefsString,String[] outputFilePaths) {
 		super(mb, xmlPrefsString, outputFilePaths);
@@ -704,6 +704,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 			} else
 				ownerModule.log(".");
 			if (newStatus!=null && newStatus.equalsIgnoreCase("SUBMITTED")){  // job is running
+				Debugg.println("\n\n|||||||||||||||||||||||||\nprocess output files \n|||||||||||||||||||||||||\n\n");
 				processOutputFiles(jobURL);
 			}
 		}

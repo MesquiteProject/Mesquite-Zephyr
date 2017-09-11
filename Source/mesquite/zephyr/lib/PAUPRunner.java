@@ -79,6 +79,10 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	public String getLogText() {
 		return externalProcRunner.getStdOut();
 	}
+	public String getLogFileName(){
+		return logFileName;
+	}
+
 
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
@@ -174,11 +178,12 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		return treeFileName;
 	}
 	/*.................................................................................................................*/
+	/*.................................................................................................................*/
 	public String PAUPCommandFileStart(){
 		String commandStart = "#NEXUS" + StringUtil.lineEnding()+ StringUtil.lineEnding();
 		commandStart+="begin paup;" + StringUtil.lineEnding()
 		        +"\tset torder=right tcompress outroot=monophyl taxlabels=full noerrorstop nowarnreset nowarnroot NotifyBeep=no nowarntree nowarntsave;" + StringUtil.lineEnding()
-				+ "\tlog file=logfile.txt replace=yes;" + StringUtil.lineEnding();
+				+ "\tlog file="+logFileName+" replace=yes;" + StringUtil.lineEnding();
 		return commandStart;
 	}
 
@@ -246,7 +251,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	public void setFileNames () {
 		commandFileName =  "PAUPCommands.txt";
 		treeFileName = ofprefix+".tre";
-		logFileName = ofprefix+".log00.log";
+	//	logFileName = ofprefix+".log00.log";
 		scoreFileName = ofprefix+".score.txt";
 		currentTreeFileName = "current_tree.tre";
 		currentScoreFileName = "current_score.txt";
