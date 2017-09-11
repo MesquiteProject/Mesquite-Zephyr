@@ -61,15 +61,20 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
+		boolean anyToReconnect = false;
 		if (file == null || file == getProject().getHomeFile()){
 
 			for (int i = 0; i<handlers.size(); i++) {
 				TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(i);
-				if (e.isReconnectable())
+				if (e.isReconnectable()){
 					temp.addLine("restoreInference ", e); 
+					anyToReconnect = true;
+				}
+				else
+					temp.suppressCommandsToEmployee(e); 
 			}
 		}
-		if (handlers.size() >0)
+		if (anyToReconnect && handlers.size() >0)
 			temp.addLine("resetWindow");
 		return temp;
 	}
@@ -227,6 +232,8 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 				resetWindow();
 				return handler;
 			}
+		}
+		else if (checker.compare(this.getClass(), "Does nothing; simply consumes liaison's auto snapshot ", null, commandName, "ignoreInference")) {
 		}
 		else if (checker.compare(this.getClass(), "resets the window", null, commandName, "resetWindow")) {
 			resetWindow();

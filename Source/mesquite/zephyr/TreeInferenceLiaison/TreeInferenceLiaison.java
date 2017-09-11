@@ -269,7 +269,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			String extraWindowCommands = fillTask.getExtraTreeWindowCommands(true);
 			if (StringUtil.blank(extraWindowCommands))
 				extraWindowCommands="";
-			String commands = "makeTreeWindow " + getProject().getTaxaReferenceInternal(taxa) + "  #BasicTreeWindowMaker; tell It; setTreeSource  #StoredTrees;";
+			String commands = "makeTreeWindow " + getProject().getTaxaReferenceInternal(taxa) + "  #BasicTreeWindowMaker; tell It; setTreeSource  #StoredTrees;";  
 			commands += " tell It; setTaxa " + getProject().getTaxaReferenceInternal(taxa) + " ;  setTreeBlockByID " + trees.getID()  + "; endTell;  getWindow; tell It; setSize 400 300; " + extraWindowCommands + " endTell; showWindowForce; endTell; ";
 			if (MesquiteTrunk.debugMode)
 				logln(commands);
@@ -280,7 +280,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			MesquiteThread.setCurrentCommandRecord(cRec);
 			p.execute(treeWindowCoord, commands, pos, null, false, null, null);
 			MesquiteThread.setCurrentCommandRecord(prev);
-		}
+	}
 	}
 	/*.................................................................................................................*/
 	void fireTreeFiller(){
