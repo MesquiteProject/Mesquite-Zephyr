@@ -233,7 +233,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	double finalValue = MesquiteDouble.unassigned;
 
 	String commandFileName = "";
-	String logFileName = "";
+	String logFileName = "paupLogFile.txt";
 
 
 
