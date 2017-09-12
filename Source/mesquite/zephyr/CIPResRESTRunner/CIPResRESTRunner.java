@@ -62,10 +62,10 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		return true;
 	}
 	public String getMessageIfUserAbortRequested () {
-		return "";//Debugg.println DAVIDCHECK: I presume that Mesquite stops the CIPRes run also?  If not, then best to say so.
+		return "Do you wish to stop the CIPRes analysis?  No intermediate trees will be saved if you do.";
 	}
 	public String getMessageIfCloseFileRequested () {  
-		return "If Mesquite closes this file, it will not stop the run on CIPRes.  To stop the run on CIPRes....";  //Debugg.println DAVIDCHECK: complete this message
+		return "If Mesquite closes this file, it will not stop the run on CIPRes.  To stop the run on CIPRes, press the \"Stop\" link in the analysis window before closing.";  
 	}
 
 	/*.................................................................................................................*/
