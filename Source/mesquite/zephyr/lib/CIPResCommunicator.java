@@ -687,6 +687,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 		cipresTimer.start();
 		int interval = 0;
 		int pollInterval = minPollIntervalSeconds;
+		boolean submittedReportedToUser = false;
 		
 		while (!jobCompleted(jobURL) && stillGoing && !aborted){
 			double loopTime = cipresTimer.timeSinceLastInSeconds();  // checking to see how long it has been since the last one
@@ -696,8 +697,12 @@ public class CIPResCommunicator extends RESTCommunicator {
 			}
 			else 
 				pollInterval = minPollIntervalSeconds;
-			if(!StringUtil.blank(status))
-				ownerModule.logln("CIPRes Job Status: " + status + "  (" + StringUtil.getDateTime() + ")");
+			if(!StringUtil.blank(status)) {
+				if (!status.equalsIgnoreCase("SUBMITTED") || !submittedReportedToUser) 
+					ownerModule.logln("CIPRes Job Status: " + status + "  (" + StringUtil.getDateTime() + ")");
+				if (status.equalsIgnoreCase("SUBMITTED"))
+					submittedReportedToUser = true;
+			}
 
 			//	if (jobSubmitted(jobURL))
 			//		processOutputFiles();
