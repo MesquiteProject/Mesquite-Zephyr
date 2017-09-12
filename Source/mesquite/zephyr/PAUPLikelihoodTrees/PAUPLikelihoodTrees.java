@@ -23,7 +23,7 @@ public class PAUPLikelihoodTrees extends PAUPTrees implements LikelihoodAnalysis
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 	/*.................................................................................................................*/

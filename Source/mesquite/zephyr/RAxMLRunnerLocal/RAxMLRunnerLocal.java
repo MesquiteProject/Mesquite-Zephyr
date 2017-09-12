@@ -368,7 +368,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 

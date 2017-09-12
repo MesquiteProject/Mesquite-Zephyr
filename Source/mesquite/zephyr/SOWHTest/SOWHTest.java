@@ -176,7 +176,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 	/*.................................................................................................................*/
 	/** returns whether this module is requesting to appear as a primary choice */

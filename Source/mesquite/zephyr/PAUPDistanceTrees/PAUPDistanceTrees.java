@@ -22,7 +22,7 @@ public class PAUPDistanceTrees extends PAUPTrees implements DistanceAnalysis {
 
 		/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 	/*.................................................................................................................*/

@@ -74,7 +74,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){

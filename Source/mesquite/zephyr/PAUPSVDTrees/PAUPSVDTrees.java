@@ -46,7 +46,7 @@ public class PAUPSVDTrees extends ZephyrTreeSearcher implements InvariantsAnalys
 
 	 /*.................................................................................................................*/
 	 public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){
