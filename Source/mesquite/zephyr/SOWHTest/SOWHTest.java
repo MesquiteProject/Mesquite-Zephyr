@@ -24,6 +24,7 @@ import mesquite.lib.duties.*;
 import mesquite.zephyr.lib.*;
 import mesquite.categ.lib.CategoricalData;
 import mesquite.io.lib.IOUtil;
+import mesquite.zephyr.RAxMLExporter.*;
 import org.apache.commons.math3.stat.interval.*;
 
 // see SimMatricesOnTrees for CharacterSimulator bookkeeping
@@ -76,13 +77,16 @@ public class SOWHTest extends TreeWindowAssistantA      {
 
 		charSimulatorTask= (CharacterSimulator)hireEmployee(CharacterSimulator.class, "Character Simulator");
 		if (charSimulatorTask == null) {
-			return sorry("Simulated Matrices on Trees can't start because not appropiate character simulator module was obtained");
+			return sorry("SOWH Test can't start because not appropiate character simulator module was obtained");
 		}
 
 		runner = (ZephyrRunner)hireEmployee(ConstrainedSearcherTreeScoreProvider.class, "External tree searcher");
 		
 		if (runner ==null || !(runner instanceof ZephyrRunner))
 			return false;
+		if (runner instanceof RAxMLExporter) {
+			return sorry("SOWH Test can't start because RAxMLExporter cannot be used as the searcher; please use another option.");
+		}
 		runner.initialize(this);
 		runner.setBootstrapAllowed(false);
 		runner.setDiscreetAlert(true);
