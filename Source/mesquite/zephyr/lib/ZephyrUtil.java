@@ -438,7 +438,7 @@ public class ZephyrUtil {
 	}
 
 	/*.................................................................................................................*/
-	public static boolean writeNEXUSFile(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean writeSimplifiedNEXUS, boolean useStandardizedTaxonNames, boolean writeOnlySelectedTaxa, boolean writeSetsBlock, boolean useCodPosIfAvailable, boolean writeExcludedCharacters) {
+	public static boolean writeNEXUSFile(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean writeSimplifiedNEXUS, boolean useStandardizedTaxonNames, boolean writeOnlySelectedTaxa, boolean writeSetsBlock, boolean writeAssumptionsBlock, boolean useCodPosIfAvailable, boolean writeExcludedCharacters) {
 		if (path != null) {
 			MesquiteFile f = MesquiteFile.newFile(dir, fileName);
 			f.openWriting(true);
@@ -459,7 +459,7 @@ public class ZephyrUtil {
 				if (StringUtil.notEmpty(setsBlock))
 					f.writeLine(setsBlock + StringUtil.lineEnding());
 			}
-			if (!writeSimplifiedNEXUS) {
+			if (writeAssumptionsBlock) {
 				String assumptionsBlock = getNEXUSAssumptionBlock(data);
 				if (StringUtil.notEmpty(assumptionsBlock))
 					f.writeLine(assumptionsBlock + StringUtil.lineEnding());
