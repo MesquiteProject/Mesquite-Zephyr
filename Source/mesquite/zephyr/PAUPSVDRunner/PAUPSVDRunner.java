@@ -25,7 +25,7 @@ import mesquite.zephyr.lib.*;
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
  */
 
-public  class PAUPSVDRunner extends PAUPRunner implements ConstrainedSearcherTreeScoreProvider {
+public  class PAUPSVDRunner extends PAUPRunner implements ConstrainedSearcher {
 
 	int bootStrapReps = 500;
 
