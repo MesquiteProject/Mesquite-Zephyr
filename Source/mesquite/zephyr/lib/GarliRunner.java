@@ -605,7 +605,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 	public void setConstrainedSearch(boolean constrainedSearch) {
 		if (useConstraintTree==NOCONSTRAINT && constrainedSearch)
-			useConstraintTree=POSITIVECONSTRAINT;  //TODO: Debugg.println
+			useConstraintTree=POSITIVECONSTRAINT;  //TODO: 
 		else if (useConstraintTree!=NOCONSTRAINT && !constrainedSearch)
 			useConstraintTree = NOCONSTRAINT;
 		this.constrainedSearch = constrainedSearch;

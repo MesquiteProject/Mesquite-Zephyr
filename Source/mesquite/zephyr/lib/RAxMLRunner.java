@@ -1066,13 +1066,15 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			}
 		}
 
-		//David: if isDoomed() then module is closing down; abort somehow
+		//DavidCheck: if isDoomed() then module is closing down; abort somehow
 
 		if (fileNum==OUT_SUMMARYFILE && outputFilePaths.length>OUT_SUMMARYFILE && !StringUtil.blank(outputFilePaths[OUT_SUMMARYFILE])) {   // info file
 			if (MesquiteFile.fileExists(filePath)) {
 				//String s = MesquiteFile.getFileLastContents(filePath,fPOS);
 				String s = MesquiteFile.getFileContentsAsString(filePath);
 				long lastLength = s.length();
+				if (summaryFilePosition<0 || summaryFilePosition >= s.length())
+					return;
 				s = s.substring((int)summaryFilePosition);
 				summaryFilePosition = lastLength;
 				if (!StringUtil.blank(s)) {

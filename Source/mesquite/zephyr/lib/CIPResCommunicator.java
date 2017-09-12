@@ -24,7 +24,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 
 public class CIPResCommunicator extends RESTCommunicator {
-	static final int defaultMinPollIntervalSeconds = 10;
+	static final int defaultMinPollIntervalSeconds = 30;
 	public static final String CIPResRESTURL = "https://cipresrest.sdsc.edu/cipresrest/v1";
 	protected int minPollIntervalSeconds =defaultMinPollIntervalSeconds;
 
