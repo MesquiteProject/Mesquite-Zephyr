@@ -658,6 +658,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 	Button setByModelNameButton;
 	/*.................................................................................................................*/
+	public abstract String queryOptionsDialogTitle();
+	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options")) // Debugg.println needs to check that options set well enough to proceed anyway
 
@@ -676,7 +678,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		String title = "GARLI Options & Locations";
+		String title = queryOptionsDialogTitle();
 		String extra = getExtraQueryOptionsTitle();
 		if (StringUtil.notEmpty(extra))
 			title += " ("+extra+")";
@@ -711,7 +713,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		IntegerField bootStrapRepsField=null;
 
 		if (bootstrapAllowed) {
-			tabbedPanel.addPanel("Search Replicates & Bootstrap", true);
+			tabbedPanel.addPanel("Replicates & Constraints", true);
 			doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
 			dialog.addHorizontalLine(1);
 			dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);

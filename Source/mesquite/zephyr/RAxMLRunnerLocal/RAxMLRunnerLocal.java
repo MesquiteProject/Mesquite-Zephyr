@@ -168,6 +168,10 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 				appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString());
 			}
 	}
+	/*.................................................................................................................*/
+	public  String queryOptionsDialogTitle() {
+		return "RAxML Options & Locations";
+	}
 
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {

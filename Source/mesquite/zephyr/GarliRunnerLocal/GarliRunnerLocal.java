@@ -116,10 +116,14 @@ public class GarliRunnerLocal extends GarliRunner {
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions() {
-		return "2.0";
+		return "2.0–2.01";
 	}
 	IntegerField availableMemoryField;
 	IntegerField numProcessorsField;
+	/*.................................................................................................................*/
+	public String queryOptionsDialogTitle() {
+		return "GARLI Options & Locations";
+	}
 
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {

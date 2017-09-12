@@ -142,6 +142,11 @@ public class GarliRunnerCIPRes extends GarliRunner {
 		return "2.0";
 	}
 
+	/*.................................................................................................................*/
+	public String queryOptionsDialogTitle() {
+		return "GARLI Options on CIPRes";
+	}
+
 	IntegerField memoryRequestField;
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {

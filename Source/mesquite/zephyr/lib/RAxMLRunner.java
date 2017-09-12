@@ -223,6 +223,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		return constraint.getName();
 	}
 
+	/*.................................................................................................................*/
+	public abstract String queryOptionsDialogTitle();
+
 
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
@@ -241,7 +244,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		}
 
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		String title = "RAxML Options & Locations";
+		String title = queryOptionsDialogTitle();
 		String extra = getExtraQueryOptionsTitle();
 		if (StringUtil.notEmpty(extra))
 			title += " ("+extra+")";

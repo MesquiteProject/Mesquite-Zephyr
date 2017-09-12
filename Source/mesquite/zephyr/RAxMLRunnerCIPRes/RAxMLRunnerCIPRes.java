@@ -118,6 +118,10 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			}
 	}
 
+	/*.................................................................................................................*/
+	public  String queryOptionsDialogTitle() {
+		return "RAxML Options on CIPRes";
+	}
 
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
