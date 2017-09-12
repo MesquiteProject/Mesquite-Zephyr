@@ -698,7 +698,6 @@ public class SOWHTest extends TreeWindowAssistantA      {
 				saveResults(getStartOfReportFileText() +"\n"+ initialText.toString());
 				appendToReportFile("\n"+getListHeading(true));
 			}
-			//Debugg.println("\n\npValue: " + pValue+ ".  lower: " + lower.getValue()+ ", upper: "+ upper.getValue());
 
 			repReport.insert(0,getReplicateLine(rep, simulatedDelta, pValue));
 			StringBuffer panelText = new StringBuffer();
