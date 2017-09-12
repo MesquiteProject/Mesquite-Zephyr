@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<mesquite>
+	<MessagesFromHome>
+		<version>1</version>
+		<notice><!--Zephyr notice of update -->
+			<forBuildNumberEqualOrLess>678</forBuildNumberEqualOrLess> <!-- this refers to Mesquite build, e.g. for compatibility -->
+			<noticeNumber>2</noticeNumber>
+			<messageType>alert</messageType>
+			<identity>Zephyr</identity>
+			<updateVersion>002</updateVersion>
+			<packageName>Zephyr version 1.1</packageName>
+			<message>
+			<![CDATA[<img src="http://mesquiteproject.org/packages/zephyr/splash.jpg"><p>
+			In order to install Zephyr, you need to first update to Mesquite version 3.02.  
+			You can get Mesquite 3.02 at <a href = "https://mesquiteproject.wikispaces.com/Installation">https://mesquiteproject.wikispaces.com/Installation</a>
+			]]>
+			</message>
+		</notice>
+		<currentReleaseVersion>
+			<versionString>1.1</versionString>
+			<version>1100</version>
+			<downloadURL>http://mesquitezephyr.wikispaces.com/Download</downloadURL>
+		</currentReleaseVersion>
+		<notice>
+			<forPackageVersionEqualOrLess>1000</forPackageVersionEqualOrLess>
+			<messageType>update</messageType>
+			<identity>Zephyr</identity>
+			<packageName>Zephyr 1.1</packageName>
+			<explanation><![CDATA[This is a critical update for Zephyr, a Mesquite package for interacting with external phylogeny inference packages. ]]>
+			</explanation>
+			<noticeNumber>002</noticeNumber>
+			<updateVersion>002</updateVersion>
+			<install>
+				<location>mesquite</location>
+				<file>zephyr</file>
+				<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/1.1/Zephyr.1.1.zip</url>
+				<treatment>unzip</treatment>
+				<updateVersion>002</updateVersion>
+			</install>
+		</notice>
+		
+	</MessagesFromHome>
+</mesquite>

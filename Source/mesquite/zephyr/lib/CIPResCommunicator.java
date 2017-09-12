@@ -722,9 +722,9 @@ public class CIPResCommunicator extends RESTCommunicator {
 			String newStatus = getJobStatus(jobURL); 
 			if (newStatus!=null && !newStatus.equalsIgnoreCase(status)) {
 				ownerModule.logln("CIPRes Job Status: " + newStatus + "  (" + StringUtil.getDateTime() + ")");
-				status=newStatus;
 			} else
 				ownerModule.log(".");
+			status=newStatus;
 			if (newStatus!=null && newStatus.equalsIgnoreCase("SUBMITTED")){  // job is running
 				processOutputFiles(jobURL);
 			}
