@@ -562,9 +562,9 @@ public class SOWHTest extends TreeWindowAssistantA      {
 	public String getListHeading(boolean extraValuesForFile) {
 		String s= "\nrep\tdelta\tp-value";
 		if (extraValuesForFile){
+			s+="\tfraction-negative";
 			s+="\tlower-bound-p-value";
 			s+="\tupper-bound-p-value";
-			s+="\tfraction-negative";
 		}
 		s+="\n-------------------------------"; 
 		return s;
@@ -714,7 +714,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			panelText.append("\nFraction of delta values <0: "+ fractionNegative.toString(4)+"\n");
 			panel.setText(panelText.toString()+ getListHeading(false) + repReport.toString());
 			if (lower.isCombinable() && upper.isCombinable())
-				appendToReportFile(getReplicateLine(rep, simulatedDelta, pValue)+"\t"+lower.toString(4)+"\t"+upper.toString(4)+"\t"+fractionNegative.toString(4));
+				appendToReportFile(getReplicateLine(rep, simulatedDelta, pValue)+"\t"+fractionNegative.toString(4)+"\t"+lower.toString(4)+"\t"+upper.toString(4));
 			else
 				appendToReportFile(getReplicateLine(rep, simulatedDelta, pValue)+"\t"+fractionNegative.toString(4));
 			panel.setPValue(pValue);
