@@ -188,10 +188,6 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	}
 
 	/*.................................................................................................................*/
-	public String getPAUPCommandFileMiddle(String dataFileName, String outputTreeFileName, CategoricalData data, String constraintTree){
-		return "";
-	}
-	/*.................................................................................................................*/
 	public String PAUPCommandFileEnd(){
 		return "\tlog stop;"+ StringUtil.lineEnding()+"\tquit;" + StringUtil.lineEnding()+"end;" + StringUtil.lineEnding();
 	}

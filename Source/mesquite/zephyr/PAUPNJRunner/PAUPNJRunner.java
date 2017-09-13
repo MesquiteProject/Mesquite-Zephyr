@@ -35,6 +35,7 @@ public class PAUPNJRunner extends PAUPRunner {
 			searchStyle = MesquiteInteger.fromString(content);
 		if ("paupCommands".equalsIgnoreCase(tag))
 			paupCommands = StringUtil.cleanXMLEscapeCharacters(content);
+		super.processSingleXMLPreference(tag, content);
 	}
 	/*.................................................................................................................*/
 	public String prepareMorePreferencesForXML () {
@@ -42,6 +43,7 @@ public class PAUPNJRunner extends PAUPRunner {
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootStrapReps);  
 		StringUtil.appendXMLTag(buffer, 2, "searchStyle", searchStyle);  
 		StringUtil.appendXMLTag(buffer, 2, "paupCommands", paupCommands);  
+		buffer.append(super.prepareMorePreferencesForXML());
 		return buffer.toString();
 	}
 
@@ -74,21 +76,32 @@ public class PAUPNJRunner extends PAUPRunner {
 	}
 
 	/*.................................................................................................................*/
-	public String getPAUPCommandFileMiddle(String dataFileName, String outputTreeFileName, CategoricalData data){
+	public String getPAUPCommandFileMiddle(String dataFileName, String outputTreeFileName, CategoricalData data, String constraintTree){
 		StringBuffer sb = new StringBuffer();
 		sb.append("\texec " + StringUtil.tokenize(dataFileName) + ";\n");
 		sb.append("\tdset negbrlen=prohibit;\n");
 		sb.append(paupCommands+ "\n");
+		if (isConstrainedSearch() && StringUtil.notEmpty(constraintTree)) {
+			if (useConstraintTree == BACKBONE)
+				sb.append("\tconstraints constraintTree (BACKBONE) =  " + constraintTree +";" + StringUtil.lineEnding()); 
+			else if (useConstraintTree == MONOPHYLY)
+				sb.append("\tconstraints constraintTree (MONOPHYLY) =  " + constraintTree +";" + StringUtil.lineEnding()); 
+		}
 		if (bootstrapOrJackknife() && bootStrapReps>0) {
 			if (searchStyle==BOOTSTRAPSEARCH)
 				sb.append("\tboot");
 			else
 				sb.append("\tjack");
+			if ( isConstrainedSearch())
+				sb.append(" constraint=constraintTree enforce"); 
 			sb.append(" nreps = " + bootStrapReps + " search=nj;\n");
 			sb.append("\tsavetrees from=1 to=1 SaveBootP=brlens file=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
 		}
 		else {
-			sb.append("\tnj;\n");
+			sb.append("\tnj");
+			if ( isConstrainedSearch())
+				sb.append(" constraint=constraintTree enforce"); 
+			sb.append(";\n");
 			sb.append("\tsavetrees brlens=yes file=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
 		}
 		return sb.toString();
