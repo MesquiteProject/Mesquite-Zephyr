@@ -310,10 +310,19 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		return processRequester.getDirectProcessConnectionAllowed() && MesquiteTrunk.isJavaGreaterThanOrEqualTo(1.7);
 	}
 
+	String linuxTerminalCommand = "gnome-terminal --disable-facdtory -e ";
+	public String getLinuxTerminalCommand() {
+		return linuxTerminalCommand;
+	}
+	public void setLinuxTerminalCommand(String linuxTerminalCommand) {
+		this.linuxTerminalCommand = linuxTerminalCommand;
+	}
 	/*.................................................................................................................*/
 	public String getExecutableCommand(){
 		if (MesquiteTrunk.isWindows())
 			return "call " + StringUtil.protectFilePathForWindows(executablePath);
+		else if (MesquiteTrunk.isLinux())
+			return StringUtil.protectFilePathForUnix(getLinuxTerminalCommand() + executablePath);
 		else
 			return StringUtil.protectFilePathForUnix(executablePath);
 	}
