@@ -31,6 +31,10 @@ public class PAUPParsimonyTrees extends PAUPTrees implements ParsimonyAnalysis {
 		return " MP";
 	}
 
+	/*.................................................................................................................*/
+	public boolean showBranchLengthsProportional(boolean bootstrap, boolean finalTree){
+		return false;
+	}
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer

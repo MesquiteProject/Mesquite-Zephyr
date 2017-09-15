@@ -35,6 +35,10 @@ public class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
 	public String getProgramName() {
 		return "TNT";
 	}
+	public String getExtraTreeWindowCommands (boolean finalTree){
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, false)+ eachTreeCommands();
+	}
+
 
 	/*.................................................................................................................*/
 	 public String getProgramURL() {
