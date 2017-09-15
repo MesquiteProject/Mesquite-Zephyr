@@ -264,10 +264,11 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
 		browseButton.setActionCommand("browse");
-		if (processRequester.getDirectProcessConnectionAllowed() && getDirectProcessConnectionAllowed()) {
+		if (getDirectProcessConnectionAllowed()) {
 			scriptBasedCheckBox = dialog.addCheckBox("Script-based analysis (allows reconnection, but can't be stopped easily)", scriptBased);
 			scriptBasedCheckBox.addItemListener(this);
-		}
+		} else
+			scriptBased=true;
 		if (visibleTerminalOptionAllowed()) {
 			visibleTerminalCheckBox = dialog.addCheckBox("Terminal window visible (this will decrease error-reporting ability)", visibleTerminal);
 			visibleTerminalCheckBox.setEnabled(scriptBased);	
@@ -296,7 +297,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			visibleTerminal=true;
 		if (deleteAnalysisDirectoryCheckBox!=null)
 			deleteAnalysisDirectory = deleteAnalysisDirectoryCheckBox.getState();
-		if (!processRequester.getDirectProcessConnectionAllowed() || !getDirectProcessConnectionAllowed())
+		if (!getDirectProcessConnectionAllowed())
 			scriptBased=true;
 		else if (scriptBasedCheckBox!=null)
 			scriptBased = scriptBasedCheckBox.getState();
@@ -306,7 +307,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		return MesquiteTrunk.isMacOSX() && !processRequester.localMacRunsRequireTerminalWindow();
 	}
 	public boolean getDirectProcessConnectionAllowed(){
-		return MesquiteTrunk.isJavaGreaterThanOrEqualTo(1.7);
+		return processRequester.getDirectProcessConnectionAllowed() && MesquiteTrunk.isJavaGreaterThanOrEqualTo(1.7);
 	}
 
 	/*.................................................................................................................*/
