@@ -314,8 +314,12 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		return processRequester.requiresLinuxTerminalCommands();
 	}
 	
+	/** Following section on how to invoke a linux terminal and have it not be asynchronous comes from
+	 * https://askubuntu.com/questions/627019/blocking-start-of-terminal, courtesy of users Byte Commander and terdon.
+	 * */
+	
 	String linuxTerminalCommand = "gnome-terminal -x bash -c \"echo \\$$>$pidfile; ";
-	//String linuxTerminalCommand = "xterm -e ";
+
 	public String getLinuxTerminalCommand() {
 		return linuxTerminalCommand;
 	}
