@@ -310,19 +310,43 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		return processRequester.getDirectProcessConnectionAllowed() && MesquiteTrunk.isJavaGreaterThanOrEqualTo(1.7);
 	}
 
-	String linuxTerminalCommand = "gnome-terminal --disable-facdtory -e ";
+	public boolean requiresLinuxTerminalCommands(){
+		return processRequester.requiresLinuxTerminalCommands();
+	}
+	
+	String linuxTerminalCommand = "gnome-terminal -x bash -c \"echo \\$$>$pidfile; ";
+	//String linuxTerminalCommand = "xterm -e ";
 	public String getLinuxTerminalCommand() {
 		return linuxTerminalCommand;
 	}
 	public void setLinuxTerminalCommand(String linuxTerminalCommand) {
 		this.linuxTerminalCommand = linuxTerminalCommand;
 	}
+	
+	public String getLinuxBashScriptPreCommand () {
+		  return "delay=0.1\n" + 
+		  		"pidfile=$(mktemp)\n";
+		}
+	public String getLinuxBashScriptPostCommand () {
+		  return "until [ -s $pidfile ] \n" + 
+		  		"    do sleep $delay\n" + 
+		  		"done\n" + 
+		  		"terminalpid=$(cat \"$pidfile\")\n" + 
+		  		"rm $pidfile\n" + 
+		  		"while ps -p $terminalpid > /dev/null 2>&1\n" + 
+		  		"    do sleep $delay\n" + 
+		  		"done\n";
+		}
 	/*.................................................................................................................*/
 	public String getExecutableCommand(){
 		if (MesquiteTrunk.isWindows())
 			return "call " + StringUtil.protectFilePathForWindows(executablePath);
-		else if (MesquiteTrunk.isLinux())
-			return StringUtil.protectFilePathForUnix(getLinuxTerminalCommand() + executablePath);
+		else if (MesquiteTrunk.isLinux()) {
+			if (requiresLinuxTerminalCommands())
+				return getLinuxTerminalCommand() + " " + StringUtil.protectFilePathForUnix(executablePath);
+			else 
+				return " \"" + executablePath+"\"";
+		}
 		else
 			return StringUtil.protectFilePathForUnix(executablePath);
 	}
@@ -361,15 +385,22 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 				shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
 			// 30 June 2017: added redirect of stderr
 			//		shellScript.append(programCommand + " " + args+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+			String suffix = "";
+			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands()) {
+				shellScript.append(getLinuxBashScriptPreCommand());
+				suffix="\"";
+			}
 			if (!processRequester.allowStdErrRedirect())
-				shellScript.append(programCommand + " " + args + StringUtil.lineEnding());
+				shellScript.append(programCommand + " " + args + suffix+StringUtil.lineEnding());
 			else {
 				if (visibleTerminal) {
-					shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+					shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  suffix+StringUtil.lineEnding());
 				}
 				else
-					shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+					shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName + suffix+ StringUtil.lineEnding());
 			}
+			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
+				shellScript.append(getLinuxBashScriptPostCommand());
 			shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
 
 			scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";

@@ -26,6 +26,8 @@ public interface ExternalProcessRequester {
 	
 	public boolean getDirectProcessConnectionAllowed();
 	
+	public boolean requiresLinuxTerminalCommands();
+	
 	public String getRootNameForDirectory();
 	
 	public void setUserAborted(boolean userAborted);

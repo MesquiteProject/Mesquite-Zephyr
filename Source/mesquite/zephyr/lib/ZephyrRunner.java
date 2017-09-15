@@ -560,6 +560,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public void setDiscreetAlert(boolean useDiscreetAlert) {
 		this.useDiscreetAlert = useDiscreetAlert;
 	}
+	
+	public boolean requiresLinuxTerminalCommands() {
+		return false;
+	}
+
 	/*.................................................................................................................*/
 	public boolean useDiscreetAlert() {
 		return useDiscreetAlert;

@@ -648,6 +648,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	public boolean getDirectProcessConnectionAllowed(){
 		return false;
 	}
+	public boolean requiresLinuxTerminalCommands() {
+		return true;
+	}
 
 	/*.................................................................................................................*/
 	public void setTaxonTranslation(Taxa taxa) {
