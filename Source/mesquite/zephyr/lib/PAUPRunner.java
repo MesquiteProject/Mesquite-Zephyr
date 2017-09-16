@@ -360,6 +360,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		externalProcRunner.finalCleanup();
 		return null;
 	}	
+	protected int numTreesFound = MesquiteInteger.unassigned;
 	/*.................................................................................................................*/
 
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
@@ -446,6 +447,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		if (success) { 
 			if (!beanWritten)
 				postBean("successful");
+			numTreesFound = treeList.getNumberOfTrees();
 			beanWritten=true;
 			return t;
 		} else {

@@ -326,7 +326,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			appendToSearchDetails("   "+getResamplingKindName() +"\n");
 			appendToSearchDetails("   "+bootstrapreps + " replicates");
 		} else {
-			appendToSearchDetails("   Search for most-parsimonious trees\n");
+			appendToSearchDetails("   Search for most-parsimonious treesX\n");
+			if (MesquiteInteger.isCombinable(numTreesFound))
+				appendToSearchDetails("\n   Number of trees found: "+numTreesFound+"\n");
 		}
 	}
 
@@ -749,7 +751,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		return null;
 	}	
 
-
+	int numTreesFound = MesquiteInteger.unassigned;
 	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
 		logln("Preparing to receive TNT trees.");
@@ -801,6 +803,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				postBean("unsuccessful [2]");
 			beanWritten=true;
 		} else {
+			numTreesFound = treeList.getNumberOfTrees();
 			if (!beanWritten)
 				postBean("successful");
 			beanWritten=true;

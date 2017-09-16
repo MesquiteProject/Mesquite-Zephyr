@@ -274,14 +274,17 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		}
 		return s;
 	}
+	int numTreesFound=0;
 	/*.................................................................................................................*/
-	public void appendAdditionalSearchDetails() {
+		public void appendAdditionalSearchDetails() {
 			appendToSearchDetails("Search details: \n");
 			if (bootstrapOrJackknife()){
 				appendToSearchDetails("   "+getResamplingKindName() +"\n");
 				appendToSearchDetails("   "+bootStrapReps + " replicates");
 			} else {
 				appendToSearchDetails("   Search for " + getOptimalTreeAdjectiveLowerCase() + " trees\n");
+				if (MesquiteInteger.isCombinable(numTreesFound))
+					appendToSearchDetails("\n   Number of trees found: "+numTreesFound+"\n");
 			}
 	}
 
