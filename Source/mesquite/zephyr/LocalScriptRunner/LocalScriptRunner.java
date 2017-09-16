@@ -26,6 +26,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	ShellScriptRunner scriptRunner;
 
 	public boolean scriptBased = false;
+	public boolean addExitCommand = true;
 	Random rng;
 	String rootDir = null;
 	String executablePath;
@@ -148,6 +149,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			visibleTerminal = MesquiteBoolean.fromTrueFalseString(content);
 		if ("scriptBased".equalsIgnoreCase(tag))
 			scriptBased = MesquiteBoolean.fromTrueFalseString(content);
+		if ("addExitCommand".equalsIgnoreCase(tag))
+			addExitCommand = MesquiteBoolean.fromTrueFalseString(content);
 		if ("deleteAnalysisDirectory".equalsIgnoreCase(tag))
 			deleteAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(content);
 		super.processSingleXMLPreference(tag, content);
@@ -160,6 +163,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
 		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
 		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
+		StringUtil.appendXMLTag(buffer, 2, "addExitCommand", addExitCommand);  
 		buffer.append(extraPreferences);
 		return buffer.toString();
 	}
@@ -258,6 +262,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	Checkbox visibleTerminalCheckBox =  null;
 	Checkbox deleteAnalysisDirectoryCheckBox =  null;
 	Checkbox scriptBasedCheckBox =  null;
+	Checkbox addExitCommandCheckBox = null;
 
 	// given the opportunity to fill in options for user
 	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
@@ -273,6 +278,10 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			visibleTerminalCheckBox = dialog.addCheckBox("Terminal window visible (this will decrease error-reporting ability)", visibleTerminal);
 			visibleTerminalCheckBox.setEnabled(scriptBased);	
 		}
+		if (MesquiteTrunk.isWindows()) {
+			addExitCommandCheckBox = dialog.addCheckBox("addExitCommand", addExitCommand);
+			addExitCommandCheckBox.setEnabled(scriptBased);	
+		} 
 		deleteAnalysisDirectoryCheckBox = dialog.addCheckBox("Delete analysis directory after completion", deleteAnalysisDirectory);
 
 	}
@@ -297,6 +306,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			visibleTerminal=true;
 		if (deleteAnalysisDirectoryCheckBox!=null)
 			deleteAnalysisDirectory = deleteAnalysisDirectoryCheckBox.getState();
+		if (addExitCommandCheckBox!=null)
+			addExitCommand = addExitCommandCheckBox.getState();
 		if (!getDirectProcessConnectionAllowed())
 			scriptBased=true;
 		else if (scriptBasedCheckBox!=null)
@@ -406,7 +417,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
 				shellScript.append(getLinuxBashScriptPostCommand());
 			shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
-			if (scriptBased&&MesquiteTrunk.isWindows())
+			if (scriptBased&&MesquiteTrunk.isWindows() && addExitCommand)
 				shellScript.append("\nexit\n");
 
 			scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
