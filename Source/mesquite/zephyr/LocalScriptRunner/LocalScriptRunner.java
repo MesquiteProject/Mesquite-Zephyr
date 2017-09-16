@@ -279,7 +279,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			visibleTerminalCheckBox.setEnabled(scriptBased);	
 		}
 		if (MesquiteTrunk.isWindows()) {
-			addExitCommandCheckBox = dialog.addCheckBox("addExitCommand", addExitCommand);
+			addExitCommandCheckBox = dialog.addCheckBox("ask terminal window to exit after completion", addExitCommand);
 			addExitCommandCheckBox.setEnabled(scriptBased);	
 		} 
 		deleteAnalysisDirectoryCheckBox = dialog.addCheckBox("Delete analysis directory after completion", deleteAnalysisDirectory);
@@ -287,8 +287,12 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent arg0) {
-		if (arg0.getItemSelectable()==scriptBasedCheckBox  && scriptBasedCheckBox!=null && visibleTerminalCheckBox!=null)
-			visibleTerminalCheckBox.setEnabled(scriptBasedCheckBox.getState());	
+		if (arg0.getItemSelectable()==scriptBasedCheckBox  && scriptBasedCheckBox!=null){
+			if (visibleTerminalCheckBox!=null)
+				visibleTerminalCheckBox.setEnabled(scriptBasedCheckBox.getState());	
+			if (addExitCommandCheckBox!=null)
+				addExitCommandCheckBox.setEnabled(scriptBasedCheckBox.getState());	
+		}
 	}
 
 
