@@ -406,6 +406,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
 				shellScript.append(getLinuxBashScriptPostCommand());
 			shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
+			if (scriptBased&&MesquiteTrunk.isWindows())
+				shellScript.append("\nexit\n");
 
 			scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
 			MesquiteFile.putFileContents(scriptPath, shellScript.toString(), false);
