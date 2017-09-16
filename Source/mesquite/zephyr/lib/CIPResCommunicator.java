@@ -31,6 +31,10 @@ public class CIPResCommunicator extends RESTCommunicator {
 	String rootDir;
 	long[] lastModified;
 	CipresJobFile[] previousCipresJobFiles;
+	double runLimit=0.5;
+
+
+
 
 	static boolean preferencesProcessed=false;
 
@@ -58,6 +62,12 @@ public class CIPResCommunicator extends RESTCommunicator {
 	}
 	public void setRootDir(String rootDir) {
 		this.rootDir = rootDir;
+	}
+	public double getRunLimit() {
+		return runLimit;
+	}
+	public void setRunLimit(double runLimit) {
+		this.runLimit = runLimit;
 	}
 	/*.................................................................................................................*/
 	public void setOutputProcessor(OutputFileProcessor outputFileProcessor){
@@ -217,7 +227,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 			if (StringUtil.notEmpty(jobID))
 				builder.addTextBody("metadata.clientJobId", jobID);
 			builder.addTextBody("metadata.statusEmail", "true");
-			builder.addTextBody("vparam.runtime_", "0.50", ContentType.TEXT_PLAIN);
+			builder.addTextBody("vparam.runtime_", MesquiteDouble.toString(runLimit), ContentType.TEXT_PLAIN);
 		}
 	}
 
