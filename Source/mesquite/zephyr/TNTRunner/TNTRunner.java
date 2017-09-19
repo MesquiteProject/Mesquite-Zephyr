@@ -326,7 +326,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			appendToSearchDetails("   "+getResamplingKindName() +"\n");
 			appendToSearchDetails("   "+bootstrapreps + " replicates");
 		} else {
-			appendToSearchDetails("   Search for most-parsimonious treesX\n");
+			appendToSearchDetails("   Search for most-parsimonious trees\n");
 			if (MesquiteInteger.isCombinable(numTreesFound))
 				appendToSearchDetails("\n   Number of trees found: "+numTreesFound+"\n");
 		}
