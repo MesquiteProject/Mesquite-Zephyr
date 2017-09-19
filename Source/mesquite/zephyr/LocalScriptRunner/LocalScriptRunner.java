@@ -278,7 +278,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			visibleTerminalCheckBox = dialog.addCheckBox("Terminal window visible (this will decrease error-reporting ability)", visibleTerminal);
 			visibleTerminalCheckBox.setEnabled(scriptBased);	
 		}
-		if (MesquiteTrunk.isWindows()) {
+		if (ShellScriptUtil.exitCommandIsAvailable()) {
 			addExitCommandCheckBox = dialog.addCheckBox("ask terminal window to exit after completion", addExitCommand);
 			addExitCommandCheckBox.setEnabled(scriptBased);	
 		} 
@@ -421,8 +421,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
 				shellScript.append(getLinuxBashScriptPostCommand());
 			shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
-			if (scriptBased&&MesquiteTrunk.isWindows() && addExitCommand)
-				shellScript.append("\nexit\n");
+			if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailable())
+				shellScript.append("\n" + ShellScriptUtil.getExitCommand() + "\n");
 
 			scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
 			MesquiteFile.putFileContents(scriptPath, shellScript.toString(), false);
