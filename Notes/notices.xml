@@ -3,41 +3,41 @@
 	<MessagesFromHome>
 		<version>1</version>
 		<notice><!--Zephyr notice of update -->
-			<forBuildNumberEqualOrLess>851</forBuildNumberEqualOrLess> <!-- this refers to Mesquite build, e.g. for compatibility -->
-			<noticeNumber>3</noticeNumber>
+			<forBuildNumberEqualOrLess>855</forBuildNumberEqualOrLess> <!-- this refers to Mesquite build, e.g. for compatibility -->
+			<noticeNumber>4</noticeNumber>
 			<messageType>alert</messageType>
 			<identity>Zephyr</identity>
-			<updateVersion>002</updateVersion>
-			<packageName>Zephyr version 2.0</packageName>
+			<updateVersion>004</updateVersion>
+			<packageName>Zephyr version 2.01</packageName>
 			<message>
 			<![CDATA[<img src="http://mesquiteproject.org/packages/zephyr/splash.jpg"><p>
-			In order to install Zephyr, you need to first update to Mesquite version 3.3.  
-			You can get Mesquite 3.3 at <a href = "https://mesquiteproject.wikispaces.com/Installation">https://mesquiteproject.wikispaces.com/Installation</a>
+			In order to install Zephyr, you need to first update to Mesquite version 3.31.  
+			You can get Mesquite 3.31 at <a href = "https://mesquiteproject.wikispaces.com/Installation">https://mesquiteproject.wikispaces.com/Installation</a>
 			]]>
 			</message>
 		</notice>
 		<currentReleaseVersion>
-			<versionString>2.0</versionString>
-			<version>2000</version>
+			<versionString>2.01</versionString>
+			<version>2010</version>
 			<downloadURL>http://mesquitezephyr.wikispaces.com/Download</downloadURL>
 		</currentReleaseVersion>
 		<notice>
-			<forPackageVersionEqualOrLess>1100</forPackageVersionEqualOrLess>
+			<forPackageVersionEqualOrLess>2000</forPackageVersionEqualOrLess>
 			<messageType>update</messageType>
 			<identity>Zephyr</identity>
-			<packageName>Zephyr 2.0</packageName>
-			<explanation><![CDATA[This is an extensive update for Zephyr, a Mesquite package for interacting with external phylogeny inference packages. 
+			<packageName>Zephyr 2.01</packageName>
+			<explanation><![CDATA[This is a minor updata to Zephyr 2.   Zephyr 2 was an extensive update for Zephyr, a Mesquite package for interacting with external phylogeny inference packages. 
 			This version adds an improved interface and many new features, including better PAUP support, CIPRes connectivity, and
 			implementation of the SOWH test.]]>
 			</explanation>
-			<noticeNumber>003</noticeNumber>
-			<updateVersion>003</updateVersion>
+			<noticeNumber>004</noticeNumber>
+			<updateVersion>004</updateVersion>
 			<install>
 				<location>mesquite</location>
 				<file>zephyr</file>
-				<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/2/Zephyr.2.0.zip</url>
+				<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/2.01/Zephyr.2.01.zip</url>
 				<treatment>unzip</treatment>
-				<updateVersion>003</updateVersion>
+				<updateVersion>004</updateVersion>
 			</install>
 		</notice>
 		
