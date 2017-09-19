@@ -269,7 +269,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
 			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(LOCoutgroupTaxSetString,TaxaSelectionSet.class);
 			if (outgroupSet!=null) 
-				localArguments += " -o " + outgroupSet.getStringList(",", true);
+				localArguments += " -o " + outgroupSet.getStringList(",", namer);
 		}
 		arguments.setValue(localArguments);
 	}
