@@ -51,15 +51,15 @@ public class ZephyrUtil {
 
 
 	/*.................................................................................................................*/
-	public static void adjustTree(Tree t, TaxaSelectionSet taxonSet) {
+	public static void adjustTree(Tree t, TaxaSelectionSet outgroupSet) {
 		if (t instanceof AdjustableTree) {
-			if (taxonSet==null) {
-				int rerootNode = t.nodeOfTaxonNumber(0);  //TODO: but not if outgroups are defined!!!
+			if (outgroupSet==null) {
+				int rerootNode = t.nodeOfTaxonNumber(0);  
 				if (rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) 
 					((AdjustableTree)t).reroot(rerootNode, t.getRoot(), false);
 				((AdjustableTree)t).standardize(null,  false);
 			} else 
-				((AdjustableTree)t).standardize(taxonSet,  false);
+				((AdjustableTree)t).standardize(outgroupSet,  false);
 		}
 	}
 

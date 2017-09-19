@@ -102,6 +102,13 @@ public class PAUPNJRunner extends PAUPRunner {
 			if ( isConstrainedSearch())
 				sb.append(" constraint=constraintTree enforce"); 
 			sb.append(";\n");
+			TaxaSelectionSet outgroupSet =null;
+			if (!StringUtil.blank(outgroupTaxSetString)) {
+				outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
+				sb.append("\n\toutgroup " + outgroupSet.getStringList(" ", null)+";");
+			}
+			sb.append("\n\troot rootmethod=outgroup outroot=paraphyl;");
+
 			sb.append("\tsavetrees brlens=yes file=" + StringUtil.tokenize(outputTreeFileName) + ";\n");
 		}
 		return sb.toString();
