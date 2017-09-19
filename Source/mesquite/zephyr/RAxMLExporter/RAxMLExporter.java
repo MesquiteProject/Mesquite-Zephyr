@@ -192,7 +192,7 @@ public class RAxMLExporter extends RAxMLRunnerLocal {
 		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
 			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(LOCoutgroupTaxSetString,TaxaSelectionSet.class);
 			if (outgroupSet!=null) 
-				arguments += " -o " + outgroupSet.getStringList(",", namer);
+				arguments += " -o " + outgroupSet.getStringList(",", namer, false);
 		}
 
 		return arguments;

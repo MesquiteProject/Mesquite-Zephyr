@@ -18,7 +18,7 @@ public abstract class RAxMLTrees extends ZephyrTreeSearcher implements Likelihoo
 
 	public String eachTreeCommands (){
 		String commands="";
-		if (rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) {
+		if (runner.outgroupTaxSetString==null && rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) {
 			commands += " rootAlongBranch " + rerootNode + "; ";
 		}
 		commands += " ladderize root; ";

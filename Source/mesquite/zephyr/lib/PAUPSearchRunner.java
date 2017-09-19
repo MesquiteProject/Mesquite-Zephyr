@@ -252,7 +252,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 					TaxaSelectionSet outgroupSet =null;
 					if (!StringUtil.blank(outgroupTaxSetString)) {
 						outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
-						sb.append("\n\toutgroup " + outgroupSet.getStringList(" ", null)+";");
+						sb.append("\n\toutgroup " + outgroupSet.getStringList(" ", null, false)+";");
 					}
 					sb.append("\n\troot rootmethod=outgroup outroot=paraphyl;");
 				}
