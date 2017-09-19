@@ -149,7 +149,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 
 
-	public boolean localMacRunsRequireTerminalWindow(){
+	public boolean localScriptRunsRequireTerminalWindow(){
 		return false;
 	}
 	public String getExtraQueryOptionsTitle() {

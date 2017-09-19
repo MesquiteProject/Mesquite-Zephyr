@@ -192,7 +192,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		otherOptions = "";   
 		convertGapsToMissing = true;
 	}
-	public boolean localMacRunsRequireTerminalWindow(){
+	public boolean localScriptRunsRequireTerminalWindow(){
 		return true;
 	}
 

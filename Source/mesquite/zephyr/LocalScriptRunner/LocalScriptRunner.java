@@ -304,10 +304,10 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		}
 		executablePath = tempPath;
 
-		if (visibleTerminalCheckBox!=null)
-			visibleTerminal = visibleTerminalCheckBox.getState();
-		else if (processRequester.localMacRunsRequireTerminalWindow())
+		if (processRequester.localScriptRunsRequireTerminalWindow())
 			visibleTerminal=true;
+		else if (visibleTerminalCheckBox!=null)
+			visibleTerminal = visibleTerminalCheckBox.getState();
 		if (deleteAnalysisDirectoryCheckBox!=null)
 			deleteAnalysisDirectory = deleteAnalysisDirectoryCheckBox.getState();
 		if (addExitCommandCheckBox!=null)
@@ -319,7 +319,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		return true;
 	}
 	public boolean visibleTerminalOptionAllowed(){
-		return MesquiteTrunk.isMacOSX() && !processRequester.localMacRunsRequireTerminalWindow();
+		return ShellScriptRunner.localScriptRunsCanDisplayTerminalWindow() && !processRequester.localScriptRunsRequireTerminalWindow();
 	}
 	public boolean getDirectProcessConnectionAllowed(){
 		return processRequester.getDirectProcessConnectionAllowed() && MesquiteTrunk.isJavaGreaterThanOrEqualTo(1.7);

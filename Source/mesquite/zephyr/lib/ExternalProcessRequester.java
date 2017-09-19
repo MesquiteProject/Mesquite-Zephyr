@@ -38,7 +38,7 @@ public interface ExternalProcessRequester {
 	
 	public String[] modifyOutputPaths(String[] outputFilePaths);
 	
-	public boolean localMacRunsRequireTerminalWindow();
+	public boolean localScriptRunsRequireTerminalWindow();
 
 	public boolean errorsAreFatal();
 	
