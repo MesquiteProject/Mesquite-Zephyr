@@ -226,7 +226,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 				scriptRunner.setVisibleTerminal(visibleTerminal);
 			return scriptRunner;
 		}
-		else  if (checker.compare(this.getClass(), "Sets whether or not the Terminal window should be visible on a Mac.", "[true; false]", commandName, "visibleTerminal")) {
+		else  if (checker.compare(this.getClass(), "Sets whether or not the Terminal window should be visible.", "[true; false]", commandName, "visibleTerminal")) {
 			if (visibleTerminalOptionAllowed()){
 				visibleTerminal = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
 				if (scriptBased) {
