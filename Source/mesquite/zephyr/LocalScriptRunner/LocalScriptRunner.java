@@ -26,6 +26,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	ShellScriptRunner scriptRunner;
 
 	public boolean scriptBased = false;
+	public boolean addExitCommand = true;
 	Random rng;
 	String rootDir = null;
 	String executablePath;
@@ -148,6 +149,8 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			visibleTerminal = MesquiteBoolean.fromTrueFalseString(content);
 		if ("scriptBased".equalsIgnoreCase(tag))
 			scriptBased = MesquiteBoolean.fromTrueFalseString(content);
+		if ("addExitCommand".equalsIgnoreCase(tag))
+			addExitCommand = MesquiteBoolean.fromTrueFalseString(content);
 		if ("deleteAnalysisDirectory".equalsIgnoreCase(tag))
 			deleteAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(content);
 		super.processSingleXMLPreference(tag, content);
@@ -160,6 +163,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
 		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
 		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
+		StringUtil.appendXMLTag(buffer, 2, "addExitCommand", addExitCommand);  
 		buffer.append(extraPreferences);
 		return buffer.toString();
 	}
@@ -222,7 +226,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 				scriptRunner.setVisibleTerminal(visibleTerminal);
 			return scriptRunner;
 		}
-		else  if (checker.compare(this.getClass(), "Sets whether or not the Terminal window should be visible on a Mac.", "[true; false]", commandName, "visibleTerminal")) {
+		else  if (checker.compare(this.getClass(), "Sets whether or not the Terminal window should be visible.", "[true; false]", commandName, "visibleTerminal")) {
 			if (visibleTerminalOptionAllowed()){
 				visibleTerminal = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
 				if (scriptBased) {
@@ -258,27 +262,37 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	Checkbox visibleTerminalCheckBox =  null;
 	Checkbox deleteAnalysisDirectoryCheckBox =  null;
 	Checkbox scriptBasedCheckBox =  null;
+	Checkbox addExitCommandCheckBox = null;
 
 	// given the opportunity to fill in options for user
 	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
 		executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
 		browseButton.setActionCommand("browse");
-		if (processRequester.getDirectProcessConnectionAllowed()) {
+		if (getDirectProcessConnectionAllowed()) {
 			scriptBasedCheckBox = dialog.addCheckBox("Script-based analysis (allows reconnection, but can't be stopped easily)", scriptBased);
 			scriptBasedCheckBox.addItemListener(this);
-		}
+		} else
+			scriptBased=true;
 		if (visibleTerminalOptionAllowed()) {
 			visibleTerminalCheckBox = dialog.addCheckBox("Terminal window visible (this will decrease error-reporting ability)", visibleTerminal);
 			visibleTerminalCheckBox.setEnabled(scriptBased);	
 		}
+		if (ShellScriptUtil.exitCommandIsAvailableAndUseful()) {
+			addExitCommandCheckBox = dialog.addCheckBox("ask terminal window to exit after completion", addExitCommand);
+			addExitCommandCheckBox.setEnabled(scriptBased);	
+		} 
 		deleteAnalysisDirectoryCheckBox = dialog.addCheckBox("Delete analysis directory after completion", deleteAnalysisDirectory);
 
 	}
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent arg0) {
-		if (arg0.getItemSelectable()==scriptBasedCheckBox  && scriptBasedCheckBox!=null && visibleTerminalCheckBox!=null)
-			visibleTerminalCheckBox.setEnabled(scriptBasedCheckBox.getState());	
+		if (arg0.getItemSelectable()==scriptBasedCheckBox  && scriptBasedCheckBox!=null){
+			if (visibleTerminalCheckBox!=null)
+				visibleTerminalCheckBox.setEnabled(scriptBasedCheckBox.getState());	
+			if (addExitCommandCheckBox!=null)
+				addExitCommandCheckBox.setEnabled(scriptBasedCheckBox.getState());	
+		}
 	}
 
 
@@ -290,26 +304,68 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		}
 		executablePath = tempPath;
 
-		if (visibleTerminalCheckBox!=null)
-			visibleTerminal = visibleTerminalCheckBox.getState();
-		else if (processRequester.localMacRunsRequireTerminalWindow())
+		if (processRequester.localScriptRunsRequireTerminalWindow())
 			visibleTerminal=true;
+		else if (visibleTerminalCheckBox!=null)
+			visibleTerminal = visibleTerminalCheckBox.getState();
 		if (deleteAnalysisDirectoryCheckBox!=null)
 			deleteAnalysisDirectory = deleteAnalysisDirectoryCheckBox.getState();
-		if (!processRequester.getDirectProcessConnectionAllowed())
+		if (addExitCommandCheckBox!=null)
+			addExitCommand = addExitCommandCheckBox.getState();
+		if (!getDirectProcessConnectionAllowed())
 			scriptBased=true;
 		else if (scriptBasedCheckBox!=null)
 			scriptBased = scriptBasedCheckBox.getState();
 		return true;
 	}
 	public boolean visibleTerminalOptionAllowed(){
-		return MesquiteTrunk.isMacOSX() && !processRequester.localMacRunsRequireTerminalWindow();
+		return ShellScriptRunner.localScriptRunsCanDisplayTerminalWindow() && !processRequester.localScriptRunsRequireTerminalWindow();
+	}
+	public boolean getDirectProcessConnectionAllowed(){
+		return processRequester.getDirectProcessConnectionAllowed() && MesquiteTrunk.isJavaGreaterThanOrEqualTo(1.7);
 	}
 
+	public boolean requiresLinuxTerminalCommands(){
+		return processRequester.requiresLinuxTerminalCommands();
+	}
+	
+	/** Following section on how to invoke a linux terminal and have it not be asynchronous comes from
+	 * https://askubuntu.com/questions/627019/blocking-start-of-terminal, courtesy of users Byte Commander and terdon.
+	 * */
+	
+	String linuxTerminalCommand = "gnome-terminal -x bash -c \"echo \\$$>$pidfile; ";
+
+	public String getLinuxTerminalCommand() {
+		return linuxTerminalCommand;
+	}
+	public void setLinuxTerminalCommand(String linuxTerminalCommand) {
+		this.linuxTerminalCommand = linuxTerminalCommand;
+	}
+	
+	public String getLinuxBashScriptPreCommand () {
+		  return "delay=0.1\n" + 
+		  		"pidfile=$(mktemp)\n";
+		}
+	public String getLinuxBashScriptPostCommand () {
+		  return "until [ -s $pidfile ] \n" + 
+		  		"    do sleep $delay\n" + 
+		  		"done\n" + 
+		  		"terminalpid=$(cat \"$pidfile\")\n" + 
+		  		"rm $pidfile\n" + 
+		  		"while ps -p $terminalpid > /dev/null 2>&1\n" + 
+		  		"    do sleep $delay\n" + 
+		  		"done\n";
+		}
 	/*.................................................................................................................*/
 	public String getExecutableCommand(){
 		if (MesquiteTrunk.isWindows())
 			return "call " + StringUtil.protectFilePathForWindows(executablePath);
+		else if (MesquiteTrunk.isLinux()) {
+			if (requiresLinuxTerminalCommands())
+				return getLinuxTerminalCommand() + " " + StringUtil.protectFilePathForUnix(executablePath);
+			else 
+				return " \"" + executablePath+"\"";
+		}
 		else
 			return StringUtil.protectFilePathForUnix(executablePath);
 	}
@@ -348,16 +404,25 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 				shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
 			// 30 June 2017: added redirect of stderr
 			//		shellScript.append(programCommand + " " + args+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+			String suffix = "";
+			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands()) {
+				shellScript.append(getLinuxBashScriptPreCommand());
+				suffix="\"";
+			}
 			if (!processRequester.allowStdErrRedirect())
-				shellScript.append(programCommand + " " + args + StringUtil.lineEnding());
+				shellScript.append(programCommand + " " + args + suffix+StringUtil.lineEnding());
 			else {
-				if (visibleTerminal) {
-					shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+				if (visibleTerminal && MesquiteTrunk.isMacOSX()) {
+					shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  suffix+StringUtil.lineEnding());
 				}
 				else
-					shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+					shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName + suffix+ StringUtil.lineEnding());
 			}
+			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
+				shellScript.append(getLinuxBashScriptPostCommand());
 			shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
+			if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailableAndUseful())
+				shellScript.append("\n" + ShellScriptUtil.getExitCommand() + "\n");
 
 			scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
 			MesquiteFile.putFileContents(scriptPath, shellScript.toString(), false);

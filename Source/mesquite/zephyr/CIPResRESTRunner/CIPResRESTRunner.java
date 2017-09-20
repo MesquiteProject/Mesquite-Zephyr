@@ -30,7 +30,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 
 	boolean verbose = true;
 	boolean forgetPassword=false;
-
+	double runLimit=0.5;
 	
 	CIPResCommunicator communicator;
 
@@ -61,6 +61,8 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	public boolean isReconnectable(){
 		return true;
 	}
+	
+	
 	public String getMessageIfUserAbortRequested () {
 		return "Do you wish to stop the CIPRes analysis?  No intermediate trees will be saved if you do.";
 	}
@@ -88,6 +90,18 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		return false;
 	}
 
+	/*.................................................................................................................*/
+	public String preparePreferencesForXML () {
+		StringBuffer buffer = new StringBuffer(200);
+		StringUtil.appendXMLTag(buffer, 2, "runLimit", runLimit);  
+		return buffer.toString();
+	}
+	/*.................................................................................................................*/
+	public void processSingleXMLPreference (String tag, String content) {
+		if ("runLimit".equalsIgnoreCase(tag))
+			runLimit = MesquiteDouble.fromString(content);
+		super.processSingleXMLPreference(tag, content);
+	}
 
 
 	/*.................................................................................................................*/
@@ -109,6 +123,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 			temp.addLine("endTell");
 			//	temp.addLine("startMonitoring ");  this happens via reconnectToRequester so that it happens on the separate thread
 		}
+		temp.addLine("setRunLimit " +  runLimit);
 		if (jobURL != null)
 			temp.addLine("setJobURL " +  ParseUtil.tokenize(jobURL.getValue()));
 		return temp;
@@ -155,6 +170,11 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 			if (communicator!=null)
 				communicator.setRootDir(rootDir);
 		}
+		else if (checker.compare(this.getClass(), "Sets runLimit", null, commandName, "setRunLimit")) {
+			runLimit = MesquiteDouble.fromString(parser.getFirstToken(arguments));
+			if (communicator!=null)
+				communicator.setRunLimit(runLimit);
+		}
 		return null;
 	}	
 
@@ -173,11 +193,13 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	}
 
 	Checkbox ForgetPasswordCheckbox;
-
+	DoubleField runLimitField;
+	
 	// given the opportunity to fill in options for user
 	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
 		dialog.addBoldLabel("CIPRes Options");
 		ForgetPasswordCheckbox = dialog.addCheckBox("Require new login to CIPRes", false);
+		runLimitField = dialog.addDoubleField("maximum hours of CIPRes time for run", runLimit, 5, 0, 168);
 	}
 	
 	public void addNoteToBottomOfDialog(ExtensibleDialog dialog){
@@ -189,6 +211,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	public boolean optionsChosen(){
 		if (ForgetPasswordCheckbox.getState())
 			forgetCIPResPassword();
+		runLimit = runLimitField.getValue();
 		return true;
 	}
 
@@ -291,6 +314,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	// starting the run
 	public boolean startExecution(){  //do we assume these are disconnectable?
 		communicator = new CIPResCommunicator(this,xmlPrefsString, outputFilePaths);
+		communicator.setRunLimit(runLimit);
 		communicator.setOutputProcessor(this);
 		communicator.setWatcher(this);
 		communicator.setRootDir(rootDir);

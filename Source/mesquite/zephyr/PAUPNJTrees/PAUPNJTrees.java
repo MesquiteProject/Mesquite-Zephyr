@@ -47,6 +47,18 @@ public class PAUPNJTrees extends ZephyrTreeSearcher implements DistanceAnalysis 
 
 		}
 	}
+	public String getExtraTreeWindowCommands (boolean finalTree){
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, finalTree)+ eachTreeCommands();
+	}
+	public String eachTreeCommands (){
+		String commands="";
+		if (rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) {
+			commands += " rootAlongBranch " + rerootNode + "; ";
+		}
+		commands += " ladderize root; ";
+
+		return commands;
+	}
 
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){

@@ -248,8 +248,14 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			if (getConsensus)
 				sb.append("\n\tcontree all/strict=yes treefile=" + StringUtil.tokenize(outputTreeFileName) + ";" + StringUtil.lineEnding());
 			else {
-				if (allowRerooting())
+				if (allowRerooting()) {
+					TaxaSelectionSet outgroupSet =null;
+					if (!StringUtil.blank(outgroupTaxSetString)) {
+						outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
+						sb.append("\n\toutgroup " + outgroupSet.getStringList(" ", null, false)+";");
+					}
 					sb.append("\n\troot rootmethod=outgroup outroot=paraphyl;");
+				}
 				sb.append("\n\tsavetrees file=" + StringUtil.tokenize(outputTreeFileName));
 				if (allowRerooting())
 					sb.append(" root ");
@@ -274,14 +280,17 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		}
 		return s;
 	}
+	int numTreesFound=0;
 	/*.................................................................................................................*/
-	public void appendAdditionalSearchDetails() {
+		public void appendAdditionalSearchDetails() {
 			appendToSearchDetails("Search details: \n");
 			if (bootstrapOrJackknife()){
 				appendToSearchDetails("   "+getResamplingKindName() +"\n");
 				appendToSearchDetails("   "+bootStrapReps + " replicates");
 			} else {
 				appendToSearchDetails("   Search for " + getOptimalTreeAdjectiveLowerCase() + " trees\n");
+				if (MesquiteInteger.isCombinable(numTreesFound))
+					appendToSearchDetails("\n   Number of trees found: "+numTreesFound+"\n");
 			}
 	}
 

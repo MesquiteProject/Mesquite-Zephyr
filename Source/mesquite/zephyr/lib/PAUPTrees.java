@@ -45,14 +45,19 @@ public abstract class PAUPTrees extends ZephyrTreeSearcher  {
 		return true;
 	}
 	
+	/*.................................................................................................................*/
+	public boolean showBranchLengthsProportional(boolean bootstrap, boolean finalTree){
+		return !bootstrap && finalTree;
+	}
+
 	public String getExtraTreeWindowCommands (boolean finalTree){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, finalTree)+ eachTreeCommands();
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, showBranchLengthsProportional(runner.bootstrapOrJackknife(),finalTree))+ eachTreeCommands();
 	}
 
 	
 	public String eachTreeCommands (){
 		String commands="";
-		if (rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) {
+		if (runner.outgroupTaxSetString==null && rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) {
 			commands += " rootAlongBranch " + rerootNode + "; ";
 		}
 		commands += " ladderize root; ";

@@ -192,7 +192,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		otherOptions = "";   
 		convertGapsToMissing = true;
 	}
-	public boolean localMacRunsRequireTerminalWindow(){
+	public boolean localScriptRunsRequireTerminalWindow(){
 		return true;
 	}
 
@@ -327,6 +327,8 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 			appendToSearchDetails("   "+bootstrapreps + " replicates");
 		} else {
 			appendToSearchDetails("   Search for most-parsimonious trees\n");
+			if (MesquiteInteger.isCombinable(numTreesFound))
+				appendToSearchDetails("\n   Number of trees found: "+numTreesFound+"\n");
 		}
 	}
 
@@ -648,6 +650,9 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 	public boolean getDirectProcessConnectionAllowed(){
 		return false;
 	}
+	public boolean requiresLinuxTerminalCommands() {
+		return true;
+	}
 
 	/*.................................................................................................................*/
 	public void setTaxonTranslation(Taxa taxa) {
@@ -746,7 +751,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		return null;
 	}	
 
-
+	int numTreesFound = MesquiteInteger.unassigned;
 	/*.................................................................................................................*/
 	public Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore) {
 		logln("Preparing to receive TNT trees.");
@@ -798,6 +803,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 				postBean("unsuccessful [2]");
 			beanWritten=true;
 		} else {
+			numTreesFound = treeList.getNumberOfTrees();
 			if (!beanWritten)
 				postBean("successful");
 			beanWritten=true;

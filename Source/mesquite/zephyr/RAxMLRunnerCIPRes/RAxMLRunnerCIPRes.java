@@ -291,8 +291,8 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
 			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(LOCoutgroupTaxSetString,TaxaSelectionSet.class);
 			if (outgroupSet!=null) 
-				addArgument(builder, sb, "vparam.outgroup_",outgroupSet.getStringList(",", true));
-				arguments += " -o " + outgroupSet.getStringList(",", true);
+				addArgument(builder, sb, "vparam.outgroup_",outgroupSet.getStringList(",", namer, false));
+				arguments += " -o " + outgroupSet.getStringList(",", namer, false);
 		}
 		
 

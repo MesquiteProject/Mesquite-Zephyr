@@ -26,6 +26,8 @@ public interface ExternalProcessRequester {
 	
 	public boolean getDirectProcessConnectionAllowed();
 	
+	public boolean requiresLinuxTerminalCommands();
+	
 	public String getRootNameForDirectory();
 	
 	public void setUserAborted(boolean userAborted);
@@ -36,7 +38,7 @@ public interface ExternalProcessRequester {
 	
 	public String[] modifyOutputPaths(String[] outputFilePaths);
 	
-	public boolean localMacRunsRequireTerminalWindow();
+	public boolean localScriptRunsRequireTerminalWindow();
 
 	public boolean errorsAreFatal();
 	

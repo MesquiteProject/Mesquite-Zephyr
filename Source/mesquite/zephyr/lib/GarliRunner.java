@@ -33,7 +33,6 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	boolean onlyBest = true;
 	boolean doBootstrap = false;
 	protected int numRuns = 5;
-	String outgroupTaxSetString = "";
 	int outgroupTaxSetNumber = 0;
 	boolean preferencesSet = false;
 	protected SingleLineTextField garliPathField = null;
@@ -228,8 +227,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 		sb.append("\noutputcurrentbesttree = 1");
 
-		outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,
-				TaxaSelectionSet.class);
+		outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString, TaxaSelectionSet.class);
 		if (outgroupSet != null) {
 			sb.append("\noutgroups = " + outgroupSet.getListOfOnBits(" "));
 		}
