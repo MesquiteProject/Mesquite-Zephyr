@@ -412,7 +412,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			if (!processRequester.allowStdErrRedirect())
 				shellScript.append(programCommand + " " + args + suffix+StringUtil.lineEnding());
 			else {
-				if (visibleTerminal) {
+				if (visibleTerminal && MesquiteTrunk.isMacOSX()) {
 					shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  suffix+StringUtil.lineEnding());
 				}
 				else
