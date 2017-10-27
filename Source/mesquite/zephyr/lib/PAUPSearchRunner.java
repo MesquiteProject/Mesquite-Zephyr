@@ -205,7 +205,11 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 
 			} else if (bootSearchCategory==CUSTOMHEURISTIC) {
 				defaults+=customSearchOptions;
+				if ( isConstrainedSearch())
+					defaults+=" constraint=constraintTree enforce"; 
 			} else if (bootSearchCategory==BANDB) {
+				if ( isConstrainedSearch())
+					defaults+=" bandb constraint=constraintTree enforce"; 
 			}
 			if (StringUtil.notEmpty(defaults)) {
 				sb.append("\tdefaults ");
