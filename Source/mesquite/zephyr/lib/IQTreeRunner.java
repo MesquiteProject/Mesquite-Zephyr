@@ -30,13 +30,17 @@ outgroups
 
  */
 
-public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester, ConstrainedSearcherTreeScoreProvider  {
+public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester, ConstrainedSearcherTreeScoreProvider  {
 
 	boolean onlyBest = true;
 
-	boolean RAxML814orLater = false;
-
 	protected	int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
+
+	static final int noPartition = 0;
+	static final int partitionByCharacterGroups = 1;
+	static final int partitionByCodonPosition = 2;
+	int partitionScheme = partitionByCharacterGroups;
+	int currentPartitionSubset = 0;
 
 	//	boolean retainFiles = false;
 	//	String MPIsetupCommand = "";
@@ -48,18 +52,15 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected boolean preferencesSet = false;
 	protected boolean isProtein = false;
 
-	protected boolean nobfgs = false;
 	protected int bootstrapreps = 100;
 	protected int bootstrapSeed = Math.abs((int)System.currentTimeMillis());
 	protected static String dnaModel = "GTRGAMMAI";
 	protected static String proteinModel = "PROTGAMMAJTT";
 	protected static String otherOptions = "";
 	protected boolean doBootstrap = false;
-	protected static final int NOCONSTRAINT = 0;
-	protected static final int MONOPHYLY = 1;
-	protected static final int SKELETAL = 2;
-	protected int useConstraintTree = NOCONSTRAINT;
-	protected int SOWHConstraintTree = MONOPHYLY;
+	protected boolean useConstraintTree = false;
+	protected boolean doUFBootstrap = false;
+	protected static int minUFBootstrapReps=1000;
 
 
 	long summaryFilePosition =0;
@@ -74,9 +75,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected javax.swing.JLabel commandLabel;
 	protected SingleLineTextArea commandField;
 	protected IntegerField numRunsField, bootStrapRepsField;
-	protected Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox, nobfgsCheckBox;
-	RadioButtons constraintButtons;
-	RadioButtons threadingRadioButtons;
+	protected Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox, useConstraintTreeCheckbox, doUFBootstrapCheckbox;
 	//	int count=0;
 
 	protected double finalValue = MesquiteDouble.unassigned;
@@ -130,14 +129,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		continueMonitoring(command);
 	}
 	
-	public void setConstraintTreeType (int useConstraintTree) {
-		this.useConstraintTree = useConstraintTree;
-	}
-	
-	public int getConstraintTreeType() {
-		return useConstraintTree;
-	}
-
 
 
 	public boolean getPreferencesSet() {
@@ -156,10 +147,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		}
 		if ("onlyBest".equalsIgnoreCase(tag))
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
-		if ("nobfgs".equalsIgnoreCase(tag))
-			nobfgs = MesquiteBoolean.fromTrueFalseString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
 			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
+		if ("doUFBootstrap".equalsIgnoreCase(tag))
+			doUFBootstrap = MesquiteBoolean.fromTrueFalseString(content);
 
 
 		preferencesSet = true;
@@ -172,7 +163,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
-		StringUtil.appendXMLTag(buffer, 2, "nobfgs", nobfgs);  
+		StringUtil.appendXMLTag(buffer, 2, "doUFBootstrap", doUFBootstrap);  
 		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
 
 		preferencesSet = true;
@@ -209,7 +200,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "8.0.0 and 8.1.4";
+		return "1.6.0";
 	}
 	public abstract void addRunnerOptions(ExtensibleDialog dialog);
 	public abstract void processRunnerOptions();
@@ -249,12 +240,12 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (StringUtil.notEmpty(extra))
 			title += " ("+extra+")";
 		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), title,buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
-		//	dialog.addLabel("RAxML - Options and Locations");
-		String helpString = "This module will prepare a matrix for RAxML, and ask RAxML do to an analysis.  A command-line version of RAxML must be installed. "
+
+		String helpString = "This module will prepare a matrix for "+getExecutableName()+", and ask "+getExecutableName()+" do to an analysis.  A command-line version of "+getExecutableName()+" must be installed. "
 				+ "You can ask it to do multiple searches for optimal trees, OR to do a bootstrap analysis (but not both). "
-				+ "Mesquite will read in the trees found by RAxML, and, for non-bootstrap analyses, also read in the value of the RAxML score (-ln L) of the tree. " 
-				+ "You can see the RAxML score by choosing Taxa&Trees>List of Trees, and then in the List of Trees for that trees block, choose "
-				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose RAxML Score.";
+				+ "Mesquite will read in the trees found by "+getExecutableName()+", and, for non-bootstrap analyses, also read in the value of the "+getExecutableName()+" score (-ln L) of the tree. " 
+				+ "You can see the "+getExecutableName()+" score by choosing Taxa&Trees>List of Trees, and then in the List of Trees for that trees block, choose "
+				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose "+getExecutableName()+" Score.";
 
 		dialog.appendToHelpString(helpString);
 		if (zephyrRunnerEmployer!=null)
@@ -266,7 +257,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (StringUtil.notEmpty(extraLabel))
 			dialog.addLabel(extraLabel);
 
-		tabbedPanel.addPanel("RAxML Program Details", true);
+		tabbedPanel.addPanel(getExecutableName()+" Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
 		addRunnerOptions(dialog);
 		if (treeInferer!=null) 
@@ -276,6 +267,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (bootstrapAllowed) {
 			tabbedPanel.addPanel("Replicates", true);
 			doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
+			doUFBootstrapCheckbox = dialog.addCheckBox("ultrafast bootstrap", doUFBootstrap);
 			dialog.addHorizontalLine(1);
 			dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
 			doBootstrapCheckbox.addItemListener(this);
@@ -301,9 +293,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		if (getConstrainedSearchAllowed()) {
 			dialog.addHorizontalLine(1);
-			dialog.addLabel("Constraint tree:", Label.LEFT, false, true);
-			constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Partial Resolution", "Skeletal Constraint"}, useConstraintTree);
-			constraintButtons.addItemListener(this);
+			useConstraintTreeCheckbox = dialog.addCheckBox("use topological constraint", useConstraintTree);
 		}
 
 		/*		dialog.addHorizontalLine(1);
@@ -311,8 +301,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		 */
 
 		tabbedPanel.addPanel("Other options", true);
-		nobfgsCheckBox = dialog.addCheckBox("no bfgs option", nobfgs);
-		otherOptionsField = dialog.addTextField("Other RAxML options:", otherOptions, 40);
+		otherOptionsField = dialog.addTextField("Other "+getExecutableName()+" options:", otherOptions, 40);
 
 
 		commandLabel = dialog.addLabel("");
@@ -341,16 +330,21 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				numRuns = numRunsField.getValue();
 				if (bootstrapAllowed) {
 					doBootstrap = doBootstrapCheckbox.getState();
+					doUFBootstrap = doUFBootstrapCheckbox.getState();
 					randomIntSeed = seedField.getValue();
 					bootstrapreps = bootStrapRepsField.getValue();
+					if (doBootstrap && bootstrapreps<minUFBootstrapReps) {
+						bootstrapreps = minUFBootstrapReps;
+						MesquiteMessage.discreetNotifyUser("Minimum number of bootstrap replicates for ultrafast bootstrap is " + minUFBootstrapReps + ". Number of replicates reset to " + minUFBootstrapReps);
+					}
+						
 				} else
 					doBootstrap=false;
 				onlyBest = onlyBestBox.getState();
-				nobfgs = nobfgsCheckBox.getState();
 
 				if (getConstrainedSearchAllowed()) {
-					useConstraintTree = constraintButtons.getValue();
-					if (useConstraintTree!=NOCONSTRAINT)
+					useConstraintTree = useConstraintTreeCheckbox.getState();
+					if (useConstraintTree)
 						setConstrainedSearch(true);
 				}
 				otherOptions = otherOptionsField.getText();
@@ -369,7 +363,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */
 	public String purposeOfEmployee(MesquiteModule employee) {
 		if (employee instanceof OneTreeSource){
-			return "for a source of a constraint tree for RAxML"; // to be overridden
+			return "for a source of a constraint tree for " + getExecutableName(); // to be overridden
 		}
 		return "for " + getName(); // to be overridden
 	}
@@ -386,7 +380,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			checkEnabled (doBootstrapCheckbox.getState());
 
 		}
-		else if (e.getItemSelectable() == constraintButtons && constraintButtons.getValue()>0){
+		else if (e.getItemSelectable() == useConstraintTreeCheckbox && useConstraintTreeCheckbox.getState()){
 			
 			getConstraintTreeSource();
 
@@ -401,43 +395,30 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 
 	/*.................................................................................................................*/
-	public void setRAxMLSeed(long seed){
+	public void setProgramSeed(long seed){
 		this.randseed = seed;
 	}
 
 	public String getLogFileName(){
-		return "RAxML_info.result";
+		return getDataFileName() + ".log";
 	}
 
 	Checkbox useOptimizedScoreAsBestCheckBox =  null;
 	RadioButtons SOWHConstraintButtons = null;
 	public  void addItemsToSOWHDialogPanel(ExtensibleDialog dialog){
-		useOptimizedScoreAsBestCheckBox = dialog.addCheckBox("use final gamma-based optimized RAxML score", useOptimizedScoreAsBest);
-		if (SOWHConstraintTree==MONOPHYLY)
-			SOWHConstraintButtons = dialog.addRadioButtons (new String[]{"Partial Resolution constraint", "Skeletal constraint"}, 0);
-		else if (SOWHConstraintTree==SKELETAL)
-			SOWHConstraintButtons = dialog.addRadioButtons (new String[]{"Partial Resolution constraint", "Skeletal constraint"}, 1);
-
+		useOptimizedScoreAsBestCheckBox = dialog.addCheckBox("use final gamma-based optimized "+getExecutableName()+" score", useOptimizedScoreAsBest);
 	}
 	
 	public boolean SOWHoptionsChosen(){
 		if (useOptimizedScoreAsBestCheckBox!=null)
 			useOptimizedScoreAsBest = useOptimizedScoreAsBestCheckBox.getState();
-		if (SOWHConstraintButtons!=null) {
-			int constraint = SOWHConstraintButtons.getValue();
-			if (constraint==0)
-				SOWHConstraintTree = MONOPHYLY;
-			else if (constraint==1)
-				SOWHConstraintTree = SKELETAL;
-			useConstraintTree = SOWHConstraintTree;
-		}
 		return true;
 	}
 	public void resetSOWHOptionsConstrained(){
-		useConstraintTree = SOWHConstraintTree;
+		useConstraintTree = true;
 	}
 	public void resetSOWHOptionsUnconstrained(){
-		useConstraintTree = NOCONSTRAINT;
+		useConstraintTree = false;
 	}
 	public String getSOWHDetailsObserved(){
 		StringBuffer sb = new StringBuffer();
@@ -450,10 +431,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public String getSOWHDetailsSimulated(){
 		StringBuffer sb = new StringBuffer();
 		sb.append("Number of search replicates for each simulated matrix: " + numRuns + "\n");
-		if (SOWHConstraintTree==MONOPHYLY)
-			sb.append("Constraint type used in SOWH test: Regular constraint\n");
-		else if (SOWHConstraintTree==SKELETAL)
-			sb.append("Constraint type used in SOWH test: Skeletal constraint\n");
 		sb.append("DNA model: " + dnaModel);
 		if (useOptimizedScoreAsBest)
 			sb.append("\nUsing final gamma-based scores\n");
@@ -461,7 +438,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 
 	/*.................................................................................................................*/
-	private Tree readRAxMLTreeFile(TreeVector trees, String treeFilePath, String treeName, MesquiteBoolean success, boolean lastTree) {
+	private Tree readTreeFile(TreeVector trees, String treeFilePath, String treeName, MesquiteBoolean success, boolean lastTree) {
 		Tree t =null;
 		if (lastTree) {
 			String s = MesquiteFile.getFileLastContents(treeFilePath);
@@ -556,13 +533,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	//String arguments;
 	/*.................................................................................................................*/
 	public String getDataFileName() {
-		return "data.phy";
+		return "dataMatrix.nex";
 	}
 	public void setConstrainedSearch(boolean constrainedSearch) {
-		if (useConstraintTree==NOCONSTRAINT && constrainedSearch)
-			useConstraintTree=MONOPHYLY;
-		else if (useConstraintTree!=NOCONSTRAINT && !constrainedSearch)
-			useConstraintTree = NOCONSTRAINT;
+		useConstraintTree = constrainedSearch;
 		this.constrainedSearch = constrainedSearch;
 	}
 
@@ -574,16 +548,30 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
 			return null;
 
-		//RAxML setup
-		setRAxMLSeed(seed);
+		// setup
+		setProgramSeed(seed);
 		isProtein = data instanceof ProteinData;
 
 		// create local version of data file; this will then be copied over to the running location
 		
-		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "RAxML", "-Run.");  
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, getExecutableName(), "-Run.");  
 		if (tempDir==null)
 			return null;
 		String dataFileName = getDataFileName();   //replace this with actual file name?
+		
+		
+		if (StringUtil.blank(dataFileName))
+			dataFileName = "dataMatrix.nex"; // replace this with actual file name?
+
+		String dataFilePath = tempDir + dataFileName;
+		if (partitionScheme == noPartition)
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, false, false, false, false);
+		else if (partitionScheme == partitionByCharacterGroups)
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, true, false, false, false);
+		else if (partitionScheme == partitionByCodonPosition)
+			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, true, false, true, false);
+
+/*
 		String translationFileName = IOUtil.translationTableFileName;   
 		String dataFilePath = tempDir +  dataFileName;
 		FileInterpreterI exporter = null;
@@ -603,7 +591,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		else if (data instanceof ProteinData)
 			fileSaved = ZephyrUtil.saveExportFile(this, exporter,  dataFilePath,  data, selectedTaxaOnly);
 		if (!fileSaved) return null;
-
+*/
+		
 		setFileNames();
 
 		String multipleModelFileContents = IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
@@ -615,9 +604,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		String constraintTree = "";
 		
-		if ((useConstraintTree>NOCONSTRAINT || isConstrainedSearch())){
-			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debugg.println
-				useConstraintTree=MONOPHYLY;
+		if ( isConstrainedSearch()){
 			if (constraint==null) { // we don't have one
 				getConstraintTreeSource();
 				if (constraintTreeTask != null){
@@ -628,21 +615,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				discreetAlert("Constraint tree is not available.");
 				return null;
 			}
-			else if (useConstraintTree == SKELETAL){
-				if (!constraint.hasPolytomies(constraint.getRoot())){
-					constraintTree = constraint.writeTreeByT0Names(false) + ";";
-					appendToExtraSearchDetails("\nSkeletal constraint using tree \"" + constraint.getName() + "\"");
-					appendToAddendumToTreeBlockName("Constrained by tree \"" + constraint.getName() + "\"");
-				}
-				else {
-					discreetAlert("Constraint tree cannot be used as a skeletal constraint because it has polytomies");
-					constraint=null;
-					if (constraintTreeTask != null)
-						constraintTreeTask.reset();  //WAYNECHECK: added reset as otherwise you got into an infinite loop as it never allowed you to reset the context tree
-					return null;
-				}
-			}
-			else if (useConstraintTree == MONOPHYLY){
+			else if (useConstraintTree){
 				if (constraint.hasPolytomies(constraint.getRoot())){
 						constraintTree = constraint.writeTreeByT0Names(false) + ";";
 						appendToExtraSearchDetails("\nPartial resolution constraint using tree \"" + constraint.getName() + "\"");
@@ -658,7 +631,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			}
 		}
 		setRootNameForDirectoryInProcRunner();
-		//now establish the commands for invoking RAxML
+		//now establish the commands for invoking IQ-TREE
 		
 		
 		Object arguments = getProgramArguments(dataFileName, false);
@@ -675,7 +648,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			parametersChanged(); //just a way to ping the coordinator to update the window
 
 		//setting up the arrays of input file names and contents
-		int numInputFiles = 4;
+		int numInputFiles = 3;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -686,10 +659,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		fileNames[0] = dataFileName;
 		fileContents[1] = multipleModelFileContents;
 		fileNames[1] = multipleModelFileName;
-		fileContents[2] = translationTable;
-		fileNames[2] = translationFileName;
-		fileContents[3] = constraintTree;
-		fileNames[3] = constraintTreeFileName;
+		//fileContents[2] = translationTable;
+		//fileNames[2] = translationFileName;
+		fileContents[2] = constraintTree;
+		fileNames[2] = constraintTreeFileName;
 
 		numRunsCompleted = 0;
 		completedRuns = new boolean[numRuns];
@@ -729,7 +702,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	/*.................................................................................................................*/
 	public synchronized Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore){
 		if (isVerbose()) 
-			logln("Preparing to receive RAxML trees.");
+			logln("Preparing to receive "+getExecutableName()+" trees.");
 		boolean success = false;
 		taxa = treeList.getTaxa();
 		finalScore.setValue(finalValue);
@@ -757,11 +730,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		int count =0;
 		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 		if (bootstrapOrJackknife()) {
-			t =readRAxMLTreeFile(treeList, treeFilePath, "RAxML Bootstrap Tree", readSuccess, false);
+			t =readTreeFile(treeList, treeFilePath, getExecutableName()+" Bootstrap Tree", readSuccess, false);
 			ZephyrUtil.adjustTree(t, outgroupSet);
 		}
 		else if (numRuns==1) {
-			t =readRAxMLTreeFile(treeList, treeFilePath, "RAxMLTree", readSuccess, true);
+			t =readTreeFile(treeList, treeFilePath, getExecutableName()+" Tree", readSuccess, true);
 			ZephyrUtil.adjustTree(t, outgroupSet);
 			String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);
 			Parser parser = new Parser(summary);
@@ -816,7 +789,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			for (int run=0; run<numRuns; run++)
 				if (MesquiteFile.fileExists(treeFilePath+run)) {
 					String path =treeFilePath+run;
-					t = readRAxMLTreeFile(tv, path, "RAxMLTree Run " + (run+1), readSuccess, true);
+					t = readTreeFile(tv, path, "RAxMLTree Run " + (run+1), readSuccess, true);
 					if (treeList!= null)
 						treeList.addElement(t, false);
 				}
@@ -828,7 +801,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 				String line = parser.getRawNextDarkLine();
 				if (isVerbose()) 
-					logln("\nSummary of RAxML Search");
+					logln("\nSummary of " + getExecutableName() + " Search");
 
 
 				while (!StringUtil.blank(line) && count < finalValues.length) {
@@ -841,7 +814,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 								token = subParser.getNextToken();
 								finalValues[count] = -MesquiteDouble.fromString(token);
 								//	finalScore[count].setValue(finalValues[count]);
-								//logln("RAxML Run " + (count+1) + " ln L = -" + finalValues[count]);
+								//logln(getExecutableName() + " Run " + (count+1) + " ln L = -" + finalValues[count]);
 							}
 							token = subParser.getNextToken();
 						}
@@ -864,7 +837,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 								token = subParser.getNextToken(); // -
 								optimizedValues[count] = -MesquiteDouble.fromString(token);
 								//	finalScore[count].setValue(finalValues[count]);
-								//logln("RAxML Run " + (count+1) + " ln L = -" + optimizedValues[count]);
+								//logln(getExecutableName() + " Run " + (count+1) + " ln L = -" + optimizedValues[count]);
 							}
 							token = subParser.getNextToken();
 						}
@@ -878,12 +851,12 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				for (int i=0; i<finalValues.length && i<optimizedValues.length; i++){
 					if (MesquiteDouble.isCombinable(finalValues[i]) && MesquiteDouble.isCombinable(optimizedValues[i])) {
 						if (isVerbose())
-							logln("  RAxML Run " + (i+1) + " ln L = -" + finalValues[i] + ",  final gamma-based ln L = -" + optimizedValues[i]);
+							logln("  IQ-TREE Run " + (i+1) + " ln L = -" + finalValues[i] + ",  final gamma-based ln L = -" + optimizedValues[i]);
 						summaryWritten = true;
 					}
 				}
 				if (!summaryWritten)
-					logln("  No ln L values for RAxML Runs available");
+					logln("  No ln L values for IQ-TREE Runs available");
 
 
 				double bestScore =MesquiteDouble.unassigned;
@@ -950,7 +923,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		MesquiteThread.setCurrentCommandRecord(oldCR);
 		success = readSuccess.getValue();
 		if (!success)
-			logln("Execution of RAxML unsuccessful [2]");
+			logln("Execution of IQ-TREE unsuccessful [2]");
 
 		desuppressProjectPanelReset();
 		if (data!=null)
@@ -1075,71 +1048,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			if (MesquiteFile.fileExists(filePath)) {
 				//String s = MesquiteFile.getFileLastContents(filePath,fPOS);
 				String s = MesquiteFile.getFileContentsAsString(filePath);
-				long lastLength = s.length();
-				if (summaryFilePosition<0 || summaryFilePosition >= s.length())
-					return;
-				s = s.substring((int)summaryFilePosition);
-				summaryFilePosition = lastLength;
 				if (!StringUtil.blank(s)) {
-					Parser parser = new Parser();
-					parser.allowComments=false;
-					parser.setString(s);
-					String searchString = "";
-					if (bootstrapOrJackknife())
-						searchString = "Bootstrap";
-					else
-						searchString = "Inference";
-
-					if (s.startsWith(searchString+"[")) {
-						Parser subParser = new Parser();
-						subParser.setString(s);
-						subParser.allowComments=false;
-
-						String token = subParser.getFirstToken();
-						boolean watchForNumber = false;
-						boolean numberFound = false;
-						runNumber=0;
-						boolean foundRunInfo=false;
-						while (!StringUtil.blank(token) && ! subParser.atEnd()){
-							if (watchForNumber) {
-								runNumber = MesquiteInteger.fromString(token);
-								numberFound = true;
-								watchForNumber = false;
-							}
-							if (token.equalsIgnoreCase(searchString) && !numberFound) {
-								token = subParser.getNextToken();
-								if (token.equals("["))
-									watchForNumber = true;
-							}
-							if (token.indexOf("likelihood")>=0) {
-								token = subParser.getNextToken();
-
-								numRunsCompleted++;
-								if (bootstrapOrJackknife()){
-									logln("RAxML bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
-								}
-								else {
-									if (isVerbose())
-										logln("\nRAxML Run " + (runNumber+1) + ", final score ln L = " +token);
-									if (completedRuns != null && runNumber<completedRuns.length)
-										completedRuns[runNumber]=true;
-								}
-								//processOutputFile(outputFilePaths,1);
-								foundRunInfo = true;
-							}
-							if (foundRunInfo)
-								token="";
-							else
-								token = subParser.getNextToken();
-						}
-						if (completedRuns !=null){
-							for (int i=0; i<completedRuns.length; i++)
-								if (!completedRuns[i]) {
-									currentRun=i;
-									break;
-								}
-						}
-
+					if (bootstrapOrJackknife()) {
+						numRunsCompleted=StringUtil.getNumberOfLines(s);
+						logln(getExecutableName()+" bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
+						currentRun=numRunsCompleted;
 						if (externalProcRunner.canCalculateTimeRemaining(numRunsCompleted)) {
 							double timePerRep = timer.timeSinceVeryStartInSeconds()/numRunsCompleted;   //this is time per rep
 							int timeLeft = 0;
@@ -1155,15 +1068,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 								logln("    Average time per replicate:  " +  StringUtil.secondsToHHMMSS((int)timePerRep));
 								logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
 							}
-						}
+						
 
-						if (!bootstrapOrJackknife() && runNumber+1<numRuns) {
-							if (isVerbose()) {
-								logln("");
-								logln("Beginning Run " + (runNumber+2));
-							}
-						}
 					}
+					}
+
 				}
 
 			} 
@@ -1195,7 +1104,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 
 	public Class getDutyClass() {
-		return RAxMLRunner.class;
+		return IQTreeRunner.class;
 	}
 
 	/*.................................................................................................................*/
@@ -1207,7 +1116,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 
 	public String getName() {
-		return "RAxML Runner";
+		return "IQ-Tree Runner";
 	}
 
 	/*.................................................................................................................*/
@@ -1244,7 +1153,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 
 	public String getProgramName() {
-		return "RAxML";
+		return "IQ-Tree";
 	}
 
 

@@ -42,6 +42,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected String extraQueryOptionsTitle = "";
 	private boolean userAborted = false;
 	String programVersion = "";
+	protected static String composeProgramCommand = "composeProgramCommand";
 
 	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
