@@ -214,10 +214,13 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 
 		if (LOCdoBootstrap) {
 			if (LOCdoUFBootstrap) {
+				localArguments += " -bb 100 -wbt";
+/*
 				if (LOCbootstrapreps>0)
 					localArguments += " -bb " + LOCbootstrapreps+" -wbt "; 
 				else
 					localArguments += " -bb 1000 -wbt";
+					*/
 			} else {
 				if (LOCbootstrapreps>0)
 					localArguments += " -bo " + LOCbootstrapreps; 
@@ -264,10 +267,6 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 		arguments.setValue(localArguments);
 	}
 
-	/*.................................................................................................................*/
-	protected void reportStdError() {
-		reportStdOutput("RUN UNSUCCESFUL");   //DAVIDCHECK: apparently local RA xML does not output problems to stderr, so need to grab stdout
-	}
 
 	/*.................................................................................................................*/
 	public String[] getLogFileNames(){
