@@ -54,8 +54,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	protected int bootstrapreps = 100;
 	protected int bootstrapSeed = Math.abs((int)System.currentTimeMillis());
-	protected static String dnaModel = "GTRGAMMAI";
-	protected static String proteinModel = "PROTGAMMAJTT";
+	protected static int MFPOption=3;
+	protected static int modelOption = MFPOption;
+	protected static String substitutionModel = "MFP";
 	protected static String otherOptions = "";
 	protected boolean doBootstrap = false;
 	protected boolean useConstraintTree = false;
@@ -70,7 +71,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected long  randseed = -1;
 	static String constraintfile = "none";
 
-	protected  SingleLineTextField dnaModelField, proteinModelField, otherOptionsField;
+	protected  SingleLineTextField substitutionModelField, otherOptionsField;
+	protected 	Choice modelOptionChoice;
+
 	IntegerField seedField;
 	protected javax.swing.JLabel commandLabel;
 	protected SingleLineTextArea commandField;
@@ -288,8 +291,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			tabbedPanel.addPanel("Character Models & Constraints", true);
 		else
 			tabbedPanel.addPanel("Character Models", true);
-		dnaModelField = dialog.addTextField("DNA Model:", dnaModel, 20);
-		proteinModelField = dialog.addTextField("Protein Model:", proteinModel, 20);
+		modelOptionChoice = dialog.addPopUpMenu("Model option", modelStrings(), modelOption); 
+		modelOptionChoice.addItemListener(this);
+		substitutionModelField = dialog.addTextField("Substitution model:", substitutionModel, 20);
 
 		if (getConstrainedSearchAllowed()) {
 			dialog.addHorizontalLine(1);
@@ -301,9 +305,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		 */
 
 		tabbedPanel.addPanel("Other options", true);
-		otherOptionsField = dialog.addTextField("Other "+getExecutableName()+" options:", otherOptions, 40);
+		otherOptionsField = dialog.addTextField("Other "+getExecutableName()+" options:", otherOptions, 60);
 
-
+		dialog.addHorizontalLine(1);
+		
 		commandLabel = dialog.addLabel("");
 		commandField = dialog.addSingleLineTextArea("", 2);
 		dialog.addBlankLine();
@@ -325,8 +330,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		if (buttonPressed.getValue()==0)  {
 			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
 			if (externalProcRunner.optionsChosen() && infererOK) {
-				dnaModel = dnaModelField.getText();
-				proteinModel = proteinModelField.getText();
+				//modelOption = modelOptionChoice.getIndex();
+				substitutionModel = substitutionModelField.getText();
 				numRuns = numRunsField.getValue();
 				if (bootstrapAllowed) {
 					doBootstrap = doBootstrapCheckbox.getState();
@@ -375,10 +380,54 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		}
 		return constraintTreeTask;
 	}
+	
+	private String[] modelStrings() {
+		return new String[] {
+				"Standard model selection (like jModelTest, ProtTest)",
+				"Standard model selection followed by tree inference",
+				"Extended model selection with FreeRate heterogeneity",
+				"Extended model selection followed by tree inference",
+				"Find best partition scheme (like PartitionFinder)",
+				"Find best partition scheme followed by tree inference",
+				"Find best partition scheme inc FreeRate heterogeneity",
+				"Find best partition scheme inc FreeRate heterogeneity followed by tree inference",
+				"Please enter the model name yourself:"
+				};
+
+	}
+	private String getModel(int index) {
+		switch (index) {
+		case 0: 
+			return "TESTONLY";
+		case 1: 
+			return "TEST";
+		case 2: 
+			return "MF";
+		case 3: 
+			return "MFP";
+		case 4: 
+			return "TESTMERGEONLY";
+		case 5: 
+			return "TESTMERGE";
+		case 6: 
+			return "MF+MERGE";
+		case 7: 
+			return "MFP+MERGE";
+		case 8: 
+			return "";
+		default:
+			return"";
+		}
+		
+	}
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getItemSelectable() == doBootstrapCheckbox){
 			checkEnabled (doBootstrapCheckbox.getState());
 
+		}
+		else if (e.getItemSelectable() == modelOptionChoice){
+			int selected = modelOptionChoice.getSelectedIndex();
+			substitutionModelField.setText(getModel(selected));
 		}
 		else if (e.getItemSelectable() == useConstraintTreeCheckbox && useConstraintTreeCheckbox.getState()){
 			
@@ -423,7 +472,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public String getSOWHDetailsObserved(){
 		StringBuffer sb = new StringBuffer();
 		sb.append("Number of search replicates for observed matrix: " + numRuns);
-		sb.append("\nDNA model: " + dnaModel);
+		sb.append("\nModel of Evolution: " +substitutionModel);
 		if (useOptimizedScoreAsBest)
 			sb.append("\nUsing final gamma-based scores\n");
 		return sb.toString();
@@ -431,7 +480,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public String getSOWHDetailsSimulated(){
 		StringBuffer sb = new StringBuffer();
 		sb.append("Number of search replicates for each simulated matrix: " + numRuns + "\n");
-		sb.append("DNA model: " + dnaModel);
+		sb.append("\nModel of Evolution: " +substitutionModel);
 		if (useOptimizedScoreAsBest)
 			sb.append("\nUsing final gamma-based scores\n");
 		return sb.toString();

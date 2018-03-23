@@ -177,7 +177,7 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {
 
 			MesquiteString arguments = new MesquiteString();
-			getArguments(arguments, "fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(),doUFBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null,  false);
+			getArguments(arguments, "fileName", substitutionModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(),doUFBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null,  false);
 			String command = externalProcRunner.getExecutableCommand() + arguments.getValue();
 			commandLabel.setText("This command will be used to run IQ-TREE:");
 			commandField.setText(command);
@@ -197,7 +197,7 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 
 	/*.................................................................................................................*/
 	void getArguments(MesquiteString arguments, String fileName, 
-			String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, 
+			String LOCSubstitutionModel, String LOCotherOptions, 
 			boolean LOCdoBootstrap, boolean LOCdoUFBootstrap, int LOCbootstrapreps, int LOCbootstrapSeed, 
 			int LOCnumRuns, 
 			String LOCoutgroupTaxSetString, String LOCMultipleModelFile, 
@@ -214,13 +214,10 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 
 		if (LOCdoBootstrap) {
 			if (LOCdoUFBootstrap) {
-				localArguments += " -bb 100 -wbt";
-/*
 				if (LOCbootstrapreps>0)
 					localArguments += " -bb " + LOCbootstrapreps+" -wbt "; 
 				else
 					localArguments += " -bb 1000 -wbt";
-					*/
 			} else {
 				if (LOCbootstrapreps>0)
 					localArguments += " -bo " + LOCbootstrapreps; 
@@ -323,9 +320,9 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 		MesquiteString arguments = new MesquiteString();
 
 		if (!isPreflight) {
-			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, doBootstrap, doUFBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, false);
+			getArguments(arguments, dataFileName, substitutionModel, otherOptions, doBootstrap, doUFBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, false);
 		} else {
-			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, doBootstrap, doUFBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, true);
+			getArguments(arguments, dataFileName, substitutionModel, otherOptions, doBootstrap, doUFBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, true);
 		}
 		if (autoNumProcessors)
 			arguments.append(" -nt AUTO ");   
