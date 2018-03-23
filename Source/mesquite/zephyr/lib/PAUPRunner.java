@@ -622,7 +622,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	RadioButtons constraintButtons;
 	/*.................................................................................................................*
 	public  void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
+		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {
 
 			MesquiteString arguments = new MesquiteString();
 			getArguments(arguments, "fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, false);

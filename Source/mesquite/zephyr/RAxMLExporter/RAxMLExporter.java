@@ -97,7 +97,7 @@ public class RAxMLExporter extends RAxMLRunnerLocal {
 		commandField = dialog.addSingleLineTextArea("", 2);
 		dialog.addBlankLine();
 		Button showCommand = dialog.addAListenedButton("Compose Command",null, this);
-		showCommand.setActionCommand("composeRAxMLCommand");
+		showCommand.setActionCommand(composeProgramCommand);
 		Button clearCommand = dialog.addAListenedButton("Clear",null, this);
 		clearCommand.setActionCommand("clearCommand");
 
@@ -137,7 +137,7 @@ public class RAxMLExporter extends RAxMLRunnerLocal {
 			}
 		}
 		else
-		if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {//TODO: other than displaying (in the dialog window) how the command would look, what does this actually do?
+		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {//TODO: other than displaying (in the dialog window) how the command would look, what does this actually do?
 			String arguments = getArguments("fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null,null);
 			String command = getProgramCommand(threadingRadioButtons.getValue(), MPISetupField.getText(), numProcessorsFiled.getValue(), arguments, false);
 			commandLabel.setText("This command will be used to run RAxML:");

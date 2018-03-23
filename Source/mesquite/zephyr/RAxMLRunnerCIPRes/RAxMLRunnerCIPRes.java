@@ -156,7 +156,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
+		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {
 
 			MultipartEntityBuilder arguments = MultipartEntityBuilder.create();
 			StringBuffer sb = new StringBuffer();
