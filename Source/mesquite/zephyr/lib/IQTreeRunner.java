@@ -36,17 +36,17 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	protected	int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
 
-	static final int noPartition = 0;
-	static final int partitionByCharacterGroups = 1;
-	static final int partitionByCodonPosition = 2;
-	int partitionScheme = partitionByCharacterGroups;
-	int currentPartitionSubset = 0;
+	protected static final int noPartition = 0;
+	protected static final int partitionByCharacterGroups = 1;
+	protected static final int partitionByCodonPosition = 2;
+	protected int partitionScheme = partitionByCharacterGroups;
+	protected int currentPartitionSubset = 0;
 
 	//	boolean retainFiles = false;
 	//	String MPIsetupCommand = "";
 	boolean showIntermediateTrees = true;
 
-	protected int numRuns = 5;
+	protected int numRuns = 1;
 	protected int numRunsCompleted = 0;
 	protected int run = 0;
 	protected boolean preferencesSet = false;
@@ -62,6 +62,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected boolean useConstraintTree = false;
 	protected boolean doUFBootstrap = false;
 	protected static int minUFBootstrapReps=1000;
+
+	protected RadioButtons charPartitionButtons = null;
 
 
 	long summaryFilePosition =0;
@@ -144,6 +146,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("numRuns".equalsIgnoreCase(tag))
 			numRuns = MesquiteInteger.fromString(content);
+		if ("partitionScheme".equalsIgnoreCase(tag))
+			partitionScheme = MesquiteInteger.fromString(content);
+		
+		
 		if ("bootStrapReps".equalsIgnoreCase(tag)){
 			bootstrapreps = MesquiteInteger.fromString(content);
 			if (bootstrapreps<1) bootstrapreps=1;
@@ -164,6 +170,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
+		StringUtil.appendXMLTag(buffer, 2, "partitionScheme", partitionScheme);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
 		StringUtil.appendXMLTag(buffer, 2, "doUFBootstrap", doUFBootstrap);  
@@ -291,6 +298,27 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			tabbedPanel.addPanel("Character Models & Constraints", true);
 		else
 			tabbedPanel.addPanel("Character Models", true);
+		if (!data.hasCharacterGroups()) {
+			if (partitionScheme == partitionByCharacterGroups)
+				partitionScheme = noPartition;
+		}
+		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
+			if (partitionScheme == partitionByCodonPosition)
+				partitionScheme = noPartition;
+		}
+		if (data instanceof ProteinData)
+			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups" }, partitionScheme);
+		else
+			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
+
+		charPartitionButtons.addItemListener(this);
+		if (!data.hasCharacterGroups()) {
+			charPartitionButtons.setEnabled(1, false);
+		}
+		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
+			charPartitionButtons.setEnabled(2, false);
+		}
+
 		modelOptionChoice = dialog.addPopUpMenu("Model option", modelStrings(), modelOption); 
 		modelOptionChoice.addItemListener(this);
 		substitutionModelField = dialog.addTextField("Substitution model:", substitutionModel, 20);
@@ -352,6 +380,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 					if (useConstraintTree)
 						setConstrainedSearch(true);
 				}
+				partitionScheme = charPartitionButtons.getValue();
 				otherOptions = otherOptionsField.getText();
 				processRunnerOptions();
 				storeRunnerPreferences();
@@ -449,7 +478,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 
 	public String getLogFileName(){
-		return getDataFileName() + ".log";
+		return getOutputFilePrefix() + ".log";
 	}
 
 	Checkbox useOptimizedScoreAsBestCheckBox =  null;
@@ -576,13 +605,21 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 
 	/*.................................................................................................................*/
-	public abstract Object getProgramArguments(String dataFileName, boolean isPreflight);
+	public abstract Object getProgramArguments(String dataFileName, String setsFileName, boolean isPreflight);
 
 
 	//String arguments;
 	/*.................................................................................................................*/
 	public String getDataFileName() {
 		return "dataMatrix.nex";
+	}
+	/*.................................................................................................................*/
+	public String getSetsFileName() {
+		return "setsBlock.nex";
+	}
+	/*.................................................................................................................*/
+	public String getOutputFilePrefix() {
+		return "iqtreeAnalysis";
 	}
 	public void setConstrainedSearch(boolean constrainedSearch) {
 		useConstraintTree = constrainedSearch;
@@ -607,19 +644,23 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		if (tempDir==null)
 			return null;
 		String dataFileName = getDataFileName();   //replace this with actual file name?
+		String setsFileName = getSetsFileName();   //replace this with actual file name?
 		
 		
 		if (StringUtil.blank(dataFileName))
 			dataFileName = "dataMatrix.nex"; // replace this with actual file name?
 
 		String dataFilePath = tempDir + dataFileName;
-		if (partitionScheme == noPartition)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, false, false, false, false);
-		else if (partitionScheme == partitionByCharacterGroups)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, true, false, false, false);
-		else if (partitionScheme == partitionByCodonPosition)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, true, false, true, false);
+		ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, false, false, false, false);
 
+		String setsFilePath = tempDir + setsFileName;
+
+		 if (partitionScheme == partitionByCharacterGroups)
+			 ZephyrUtil.writeNEXUSSetsBlock(taxa, tempDir, setsFileName, setsFilePath, data,  false,  false, false);
+		else if (partitionScheme == partitionByCodonPosition)
+			ZephyrUtil.writeNEXUSSetsBlock(taxa, tempDir, setsFileName, setsFilePath, data,  true,  false, false);
+
+		
 /*
 		String translationFileName = IOUtil.translationTableFileName;   
 		String dataFilePath = tempDir +  dataFileName;
@@ -683,8 +724,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		//now establish the commands for invoking IQ-TREE
 		
 		
-		Object arguments = getProgramArguments(dataFileName, false);
-		Object preflightArguments = getProgramArguments(dataFileName, true);
+		Object arguments = getProgramArguments(dataFileName, setsFileName, false);
+		Object preflightArguments = getProgramArguments(dataFileName, setsFileName, true);
 
 		//	String preflightCommand = externalProcRunner.getExecutableCommand()+" --flag-check " + ((MesquiteString)preflightArguments).getValue();
 		String programCommand = externalProcRunner.getExecutableCommand();
@@ -706,8 +747,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		}
 		fileContents[0] = MesquiteFile.getFileContentsAsString(dataFilePath);
 		fileNames[0] = dataFileName;
-		fileContents[1] = multipleModelFileContents;
-		fileNames[1] = multipleModelFileName;
+		 if (partitionScheme != noPartition) {
+			 fileContents[1] = MesquiteFile.getFileContentsAsString(setsFilePath);
+			 fileNames[1] = setsFileName;
+		 }
 		//fileContents[2] = translationTable;
 		//fileNames[2] = translationFileName;
 		fileContents[2] = constraintTree;
