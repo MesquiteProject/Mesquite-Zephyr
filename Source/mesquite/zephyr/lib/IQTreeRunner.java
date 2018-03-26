@@ -41,6 +41,13 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected static final int partitionByCodonPosition = 2;
 	protected int partitionScheme = partitionByCharacterGroups;
 	protected int currentPartitionSubset = 0;
+	protected 	Choice modelOptionChoice;
+
+	protected static final int qPartitionLinkage = 0;
+	protected static final int sppPartitionLinkage = 1;
+	protected static final int spPartitionLinkage = 2;
+	protected int partitionLinkage = sppPartitionLinkage;
+	protected 	Choice partitionLinkageChoice;
 
 	//	boolean retainFiles = false;
 	//	String MPIsetupCommand = "";
@@ -74,7 +81,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	static String constraintfile = "none";
 
 	protected  SingleLineTextField substitutionModelField, otherOptionsField;
-	protected 	Choice modelOptionChoice;
 
 	IntegerField seedField;
 	protected javax.swing.JLabel commandLabel;
@@ -148,7 +154,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			numRuns = MesquiteInteger.fromString(content);
 		if ("partitionScheme".equalsIgnoreCase(tag))
 			partitionScheme = MesquiteInteger.fromString(content);
-		
+		if ("partitionLinkage".equalsIgnoreCase(tag))
+			partitionLinkage = MesquiteInteger.fromString(content);		
 		
 		if ("bootStrapReps".equalsIgnoreCase(tag)){
 			bootstrapreps = MesquiteInteger.fromString(content);
@@ -171,6 +178,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
 		StringUtil.appendXMLTag(buffer, 2, "partitionScheme", partitionScheme);  
+		StringUtil.appendXMLTag(buffer, 2, "partitionLinkage", partitionLinkage);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
 		StringUtil.appendXMLTag(buffer, 2, "doUFBootstrap", doUFBootstrap);  
@@ -318,6 +326,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
 			charPartitionButtons.setEnabled(2, false);
 		}
+		partitionLinkageChoice = dialog.addPopUpMenu("Partition linkages", partitionLinkageStrings(), partitionLinkage); 
+		
+		dialog.addHorizontalLine(1);
 
 		modelOptionChoice = dialog.addPopUpMenu("Model option", modelStrings(), modelOption); 
 		modelOptionChoice.addItemListener(this);
@@ -360,6 +371,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			if (externalProcRunner.optionsChosen() && infererOK) {
 				//modelOption = modelOptionChoice.getIndex();
 				substitutionModel = substitutionModelField.getText();
+				partitionLinkage = partitionLinkageChoice.getSelectedIndex();
 				numRuns = numRunsField.getValue();
 				if (bootstrapAllowed) {
 					doBootstrap = doBootstrapCheckbox.getState();
@@ -410,6 +422,14 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		return constraintTreeTask;
 	}
 	
+	private String[] partitionLinkageStrings() {
+		return new String[] {
+				"Edge-linked partition model (no partition-specific rates) [-q]",
+				"Edge-linked partition model (with partition-specific rates) [-spp]",
+				"Edge-unlinked partition model [-sp]",
+				};
+
+	}
 	private String[] modelStrings() {
 		return new String[] {
 				"Standard model selection (like jModelTest, ProtTest)",

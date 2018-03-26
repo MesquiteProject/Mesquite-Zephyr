@@ -177,7 +177,7 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {
 
 			MesquiteString arguments = new MesquiteString();
-			getArguments(arguments, "[fileName]", "[setsBlockFileName]", substitutionModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(),doUFBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), charPartitionButtons.getValue(), outgroupTaxSetString, null,  false);
+			getArguments(arguments, "[fileName]", "[setsBlockFileName]", substitutionModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(),doUFBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), charPartitionButtons.getValue(), partitionLinkageChoice.getSelectedIndex(), outgroupTaxSetString, null,  false);
 			String command = externalProcRunner.getExecutableCommand() + arguments.getValue();
 			commandLabel.setText("This command will be used to run IQ-TREE:");
 			commandField.setText(command);
@@ -202,6 +202,7 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 			boolean LOCdoBootstrap, boolean LOCdoUFBootstrap, int LOCbootstrapreps, int LOCbootstrapSeed, 
 			int LOCnumRuns, 
 			int LOCPartitionScheme,
+			int LOCPartitionLinkage,
 			String LOCoutgroupTaxSetString, String LOCMultipleModelFile, 
 			boolean preflight){
 		if (arguments == null)
@@ -242,7 +243,13 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 		 localArguments += " -seed " + LOCbootstrapSeed;
 		 
 		 if (LOCPartitionScheme!=noPartition) {
-			 localArguments += " -spp " + setsFileName;
+			 if (LOCPartitionLinkage==qPartitionLinkage)
+				 localArguments += " -q " + setsFileName;
+			 else if (LOCPartitionLinkage==sppPartitionLinkage)
+				 localArguments += " -spp " + setsFileName;
+			 else if (LOCPartitionLinkage==spPartitionLinkage)
+				 localArguments += " -sp " + setsFileName;
+		 
 		 }
 
 		 localArguments += " -pre " + getOutputFilePrefix();
@@ -335,9 +342,9 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 		MesquiteString arguments = new MesquiteString();
 
 		if (!isPreflight) {
-			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, doBootstrap, doUFBootstrap, bootstrapreps, bootstrapSeed, numRuns, partitionScheme, outgroupTaxSetString, multipleModelFileName, false);
+			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, doBootstrap, doUFBootstrap, bootstrapreps, bootstrapSeed, numRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, multipleModelFileName, false);
 		} else {
-			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, doBootstrap, doUFBootstrap, bootstrapreps, bootstrapSeed, numRuns, partitionScheme, outgroupTaxSetString, multipleModelFileName, true);
+			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, doBootstrap, doUFBootstrap, bootstrapreps, bootstrapSeed, numRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, multipleModelFileName, true);
 		}
 		if (autoNumProcessors)
 			arguments.append(" -nt AUTO ");   
