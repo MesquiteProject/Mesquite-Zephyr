@@ -117,7 +117,7 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 		return "1.6.0";
 	}
 
-	 /*.................................................................................................................*/
+	/*.................................................................................................................*/
 	public String getHTMLDescriptionOfStatus(){
 		String s = "";
 		if (getRunInProgress()) {
@@ -138,20 +138,20 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 	}
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
-			appendToSearchDetails("Search details: \n");
-			if (bootstrapOrJackknife()){
-				appendToSearchDetails("   Bootstrap analysis\n");
-				appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
-			} else {
-				appendToSearchDetails("   Search for maximum-likelihood tree\n");
-				appendToSearchDetails("   "+numRuns + " search replicate");
-				if (numRuns>1)
-					appendToSearchDetails("s");
-			}
-			MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(),getSetsFileName(), false);
-			if (arguments!=null && !arguments.isBlank()){
-				appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString());
-			}
+		appendToSearchDetails("Search details: \n");
+		if (bootstrapOrJackknife()){
+			appendToSearchDetails("   Bootstrap analysis\n");
+			appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
+		} else {
+			appendToSearchDetails("   Search for maximum-likelihood tree\n");
+			appendToSearchDetails("   "+numRuns + " search replicate");
+			if (numRuns>1)
+				appendToSearchDetails("s");
+		}
+		MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(),getSetsFileName(), false);
+		if (arguments!=null && !arguments.isBlank()){
+			appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString());
+		}
 	}
 	/*.................................................................................................................*/
 	public  String queryOptionsDialogTitle() {
@@ -164,7 +164,7 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 		autoNumProcessorsCheckBox = dialog.addCheckBox("Let IQ-TREE choose number of processors", autoNumProcessors);
 		numProcessorsField = dialog.addIntegerField("Specify number of processors", numProcessors, 8, 1, MesquiteInteger.infinite);
 		dialog.addHorizontalLine(1);
-		
+
 		dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());
 	}
 	/*.................................................................................................................*/
@@ -177,7 +177,7 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {
 
 			MesquiteString arguments = new MesquiteString();
-			getArguments(arguments, "[fileName]", "[setsBlockFileName]", substitutionModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(),doUFBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), charPartitionButtons.getValue(), partitionLinkageChoice.getSelectedIndex(), outgroupTaxSetString, null,  false);
+			getArguments(arguments, "[fileName]", "[setsBlockFileName]", substitutionModelField.getText(), otherOptionsField.getText(), searchStyleButtons.getValue(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), charPartitionButtons.getValue(), partitionLinkageChoice.getSelectedIndex(), outgroupTaxSetString, null,  false);
 			String command = externalProcRunner.getExecutableCommand() + arguments.getValue();
 			commandLabel.setText("This command will be used to run IQ-TREE:");
 			commandField.setText(command);
@@ -199,7 +199,7 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 	void getArguments(MesquiteString arguments, String fileName, 
 			String setsFileName,
 			String LOCSubstitutionModel, String LOCotherOptions, 
-			boolean LOCdoBootstrap, boolean LOCdoUFBootstrap, int LOCbootstrapreps, int LOCbootstrapSeed, 
+			int LOCsearchStyle, int LOCbootstrapreps, int LOCbootstrapSeed, 
 			int LOCnumRuns, 
 			int LOCPartitionScheme,
 			int LOCPartitionLinkage,
@@ -210,15 +210,18 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 
 		String localArguments = "";
 
-		
+
 
 		if (preflight)
 			localArguments += " -n preflight.out "; 
 		else
 			localArguments += " -s " + fileName ; 
 
-		if (LOCdoBootstrap) {
-			if (LOCdoUFBootstrap) {
+		if (LOCsearchStyle==STANDARDSEARCH) {
+			if (LOCnumRuns>1)
+				localArguments += " --runs " + LOCnumRuns; 
+		} else {
+			if (LOCsearchStyle==ULTRAFASTBOOTSTRAP) {
 				if (LOCbootstrapreps>0)
 					localArguments += " -bb " + LOCbootstrapreps+" -wbt "; 
 				else
@@ -230,42 +233,39 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 					localArguments += " -bo 100 ";
 			}
 		}
-		else {
-			if (LOCnumRuns>1)
-				localArguments += " --runs " + LOCnumRuns; 
+
+
+		if (StringUtil.notEmpty(LOCSubstitutionModel))
+			localArguments += " -m " + LOCSubstitutionModel;
+
+		if (useConstraintTree)
+			localArguments += " -g constraintTree.tre "; 
+
+		localArguments += " -seed " + LOCbootstrapSeed;
+
+		if (LOCPartitionScheme!=noPartition) {
+			if (LOCPartitionLinkage==qPartitionLinkage)
+				localArguments += " -q " + setsFileName;
+			else if (LOCPartitionLinkage==sppPartitionLinkage)
+				localArguments += " -spp " + setsFileName;
+			else if (LOCPartitionLinkage==spPartitionLinkage)
+				localArguments += " -sp " + setsFileName;
+
 		}
 
-		 if (StringUtil.notEmpty(LOCSubstitutionModel))
-			 localArguments += " -m " + LOCSubstitutionModel;
-
-		 if (useConstraintTree)
-			localArguments += " -g constraintTree.tre "; 
-		 
-		 localArguments += " -seed " + LOCbootstrapSeed;
-		 
-		 if (LOCPartitionScheme!=noPartition) {
-			 if (LOCPartitionLinkage==qPartitionLinkage)
-				 localArguments += " -q " + setsFileName;
-			 else if (LOCPartitionLinkage==sppPartitionLinkage)
-				 localArguments += " -spp " + setsFileName;
-			 else if (LOCPartitionLinkage==spPartitionLinkage)
-				 localArguments += " -sp " + setsFileName;
-		 
-		 }
-
-		 localArguments += " -pre " + getOutputFilePrefix();
+		localArguments += " -pre " + getOutputFilePrefix();
 
 		if (!StringUtil.blank(LOCotherOptions)) 
 			localArguments += " " + LOCotherOptions;
-		
-/*
+
+		/*
 		if (StringUtil.notEmpty(LOCMultipleModelFile))
 			localArguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
 
 		localArguments += " -p " + randomIntSeed;
 
 
-		*/
+		 */
 		arguments.setValue(localArguments);
 	}
 
@@ -300,17 +300,17 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 		MesquiteString arguments = new MesquiteString();
 
 		if (!isPreflight) {
-			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, doBootstrap, doUFBootstrap, bootstrapreps, bootstrapSeed, numRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, multipleModelFileName, false);
+			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, multipleModelFileName, false);
 		} else {
-			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, doBootstrap, doUFBootstrap, bootstrapreps, bootstrapSeed, numRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, multipleModelFileName, true);
+			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, multipleModelFileName, true);
 		}
 		if (autoNumProcessors)
 			arguments.append(" -nt AUTO ");   
 		else
 			arguments.append(" -nt "+ MesquiteInteger.maximum(numProcessors, 1) + " ");   // have to ensure that there are at least two threads requested
-	
+
 		if (!isPreflight && isVerbose())
-				logln(getExecutableName() + " arguments: \n" + arguments.getValue() + "\n");
+			logln(getExecutableName() + " arguments: \n" + arguments.getValue() + "\n");
 
 		return arguments; // + " | tee log.txt"; // + "> log.txt";
 

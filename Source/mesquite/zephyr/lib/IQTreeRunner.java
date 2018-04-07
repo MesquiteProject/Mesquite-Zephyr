@@ -65,11 +65,16 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected static int modelOption = MFPOption;
 	protected static String substitutionModel = "MFP";
 	protected static String otherOptions = "";
-	protected boolean doBootstrap = false;
 	protected boolean useConstraintTree = false;
-	protected boolean doUFBootstrap = false;
 	protected static int minUFBootstrapReps=1000;
 
+	protected static final int STANDARDBOOTSTRAP = 0;
+	protected static final int ULTRAFASTBOOTSTRAP = 1;
+	protected static final int STANDARDSEARCH = 2;
+	protected int searchStyle = STANDARDSEARCH;
+	protected RadioButtons searchStyleButtons = null;
+
+	
 	protected RadioButtons charPartitionButtons = null;
 
 
@@ -86,7 +91,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected javax.swing.JLabel commandLabel;
 	protected SingleLineTextArea commandField;
 	protected IntegerField numRunsField, bootStrapRepsField;
-	protected Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox, useConstraintTreeCheckbox, doUFBootstrapCheckbox;
+	protected Checkbox onlyBestBox, retainFilescheckBox, useConstraintTreeCheckbox;
 	//	int count=0;
 
 	protected double finalValue = MesquiteDouble.unassigned;
@@ -157,10 +162,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		}
 		if ("onlyBest".equalsIgnoreCase(tag))
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
-		if ("doBootstrap".equalsIgnoreCase(tag))
-			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
-		if ("doUFBootstrap".equalsIgnoreCase(tag))
-			doUFBootstrap = MesquiteBoolean.fromTrueFalseString(content);
+		if ("searchStyle".equalsIgnoreCase(tag))
+			searchStyle = MesquiteInteger.fromString(content);
 
 
 		preferencesSet = true;
@@ -174,8 +177,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		StringUtil.appendXMLTag(buffer, 2, "partitionScheme", partitionScheme);  
 		StringUtil.appendXMLTag(buffer, 2, "partitionLinkage", partitionLinkage);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
-		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
-		StringUtil.appendXMLTag(buffer, 2, "doUFBootstrap", doUFBootstrap);  
+		StringUtil.appendXMLTag(buffer, 2, "searchStyle", searchStyle);  
 		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
 
 		preferencesSet = true;
@@ -278,11 +280,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		if (bootstrapAllowed) {
 			tabbedPanel.addPanel("Replicates", true);
-			doBootstrapCheckbox = dialog.addCheckBox("do bootstrap analysis", doBootstrap);
-			doUFBootstrapCheckbox = dialog.addCheckBox("ultrafast bootstrap", doUFBootstrap);
+			searchStyleButtons = dialog.addRadioButtons(new String[] {"standard bootstrap analysis", "ultrafast bootstrap analysis","search for ML tree"}, searchStyle);
 			dialog.addHorizontalLine(1);
 			dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
-			doBootstrapCheckbox.addItemListener(this);
+			searchStyleButtons.addItemListener(this);
 			bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 1, MesquiteInteger.infinite);
 			seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
 			dialog.addHorizontalLine(1);
@@ -294,7 +295,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			numRuns = minimumNumSearchReplicates();
 		numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, minimumNumSearchReplicates(), MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
-		checkEnabled(doBootstrap);
+		checkEnabled(searchStyle);
 
 		if (getConstrainedSearchAllowed())
 			tabbedPanel.addPanel("Character Models & Constraints", true);
@@ -368,17 +369,16 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				partitionLinkage = partitionLinkageChoice.getSelectedIndex();
 				numRuns = numRunsField.getValue();
 				if (bootstrapAllowed) {
-					doBootstrap = doBootstrapCheckbox.getState();
-					doUFBootstrap = doUFBootstrapCheckbox.getState();
+					searchStyle = searchStyleButtons.getValue();
 					randomIntSeed = seedField.getValue();
 					bootstrapreps = bootStrapRepsField.getValue();
-					if (doBootstrap && bootstrapreps<minUFBootstrapReps) {
+					if (searchStyle==ULTRAFASTBOOTSTRAP && bootstrapreps<minUFBootstrapReps) {
 						bootstrapreps = minUFBootstrapReps;
 						MesquiteMessage.discreetNotifyUser("Minimum number of bootstrap replicates for ultrafast bootstrap is " + minUFBootstrapReps + ". Number of replicates reset to " + minUFBootstrapReps);
 					}
 
 				} else
-					doBootstrap=false;
+					searchStyle=STANDARDSEARCH;
 				onlyBest = onlyBestBox.getState();
 
 				if (getConstrainedSearchAllowed()) {
@@ -396,8 +396,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		dialog.dispose();
 		return (acceptableOptions);
 	}
-	public void checkEnabled(boolean doBoot) {
-		onlyBestBox.setEnabled(!doBoot);
+	public void checkEnabled(int searchStyle) {
+		onlyBestBox.setEnabled(searchStyle==STANDARDSEARCH);
 	}
 	/* ................................................................................................................. */
 	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */
@@ -464,11 +464,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	}
 	public void itemStateChanged(ItemEvent e) {
-		if (e.getItemSelectable() == doBootstrapCheckbox){
-			checkEnabled (doBootstrapCheckbox.getState());
-
-		}
-		else if (e.getItemSelectable() == modelOptionChoice){
+		 if (e.getItemSelectable() == modelOptionChoice){
 			int selected = modelOptionChoice.getSelectedIndex();
 			substitutionModelField.setText(getModel(selected));
 		}
@@ -476,6 +472,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 			getConstraintTreeSource();
 
+		} else if (searchStyleButtons.isAButton(e.getItemSelectable())) {
+			checkEnabled (searchStyleButtons.getValue());
 		}
 	}
 
@@ -785,7 +783,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 
 	public boolean bootstrapOrJackknife() {
-		return doBootstrap;
+		return searchStyle==STANDARDBOOTSTRAP || searchStyle==ULTRAFASTBOOTSTRAP;
 	}
 	public  boolean doMajRuleConsensusOfResults(){
 		return bootstrapOrJackknife();
@@ -1153,7 +1151,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		String summaryFileName;
 		String logFileName;
 		if (bootstrapOrJackknife()) {
-			if (doUFBootstrap)
+			if (searchStyle==ULTRAFASTBOOTSTRAP)
 				treeFileName = getOutputFilePrefix()+".ufboot";
 			else
 				treeFileName = getOutputFilePrefix()+".boottrees";
