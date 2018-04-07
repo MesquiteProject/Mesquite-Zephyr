@@ -95,12 +95,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected double[] optimizedValues = null;
 	protected int runNumber = 0;
 	
-	protected boolean useOptimizedScoreAsBest = false;
-
-	protected static final int OUT_LOGFILE=0;
-	protected static final int OUT_TREEFILE=1;
-	protected static final int OUT_SUMMARYFILE=2;
-	protected static final int WORKING_TREEFILE=3;
 
 
 	/*.................................................................................................................*/
@@ -484,13 +478,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		}
 	}
-	public boolean getUseOptimizedScoreAsBest() {
-		return useOptimizedScoreAsBest;
-	}
-
-	public void setUseOptimizedScoreAsBest(boolean useOptimizedScoreAsBest) {
-		this.useOptimizedScoreAsBest = useOptimizedScoreAsBest;
-	}
 
 	/*.................................................................................................................*/
 	public void setProgramSeed(long seed){
@@ -503,15 +490,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	Checkbox useOptimizedScoreAsBestCheckBox =  null;
 	RadioButtons SOWHConstraintButtons = null;
-	public  void addItemsToSOWHDialogPanel(ExtensibleDialog dialog){
-		useOptimizedScoreAsBestCheckBox = dialog.addCheckBox("use final gamma-based optimized "+getExecutableName()+" score", useOptimizedScoreAsBest);
-	}
-	
-	public boolean SOWHoptionsChosen(){
-		if (useOptimizedScoreAsBestCheckBox!=null)
-			useOptimizedScoreAsBest = useOptimizedScoreAsBestCheckBox.getState();
-		return true;
-	}
 	public void resetSOWHOptionsConstrained(){
 		useConstraintTree = true;
 	}
@@ -522,16 +500,12 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		StringBuffer sb = new StringBuffer();
 		sb.append("Number of search replicates for observed matrix: " + numRuns);
 		sb.append("\nModel of Evolution: " +substitutionModel);
-		if (useOptimizedScoreAsBest)
-			sb.append("\nUsing final gamma-based scores\n");
 		return sb.toString();
 	}
 	public String getSOWHDetailsSimulated(){
 		StringBuffer sb = new StringBuffer();
 		sb.append("Number of search replicates for each simulated matrix: " + numRuns + "\n");
 		sb.append("\nModel of Evolution: " +substitutionModel);
-		if (useOptimizedScoreAsBest)
-			sb.append("\nUsing final gamma-based scores\n");
 		return sb.toString();
 	}
 
@@ -610,10 +584,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	}
 
-	/*.................................................................................................................*/
-	public String getPreflightLogFileNames(){
-		return "RAxML_log.file.out";	
-	}
 
 
 
@@ -812,6 +782,79 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 
 	/*.................................................................................................................*/
+
+
+	public boolean bootstrapOrJackknife() {
+		return doBootstrap;
+	}
+	public  boolean doMajRuleConsensusOfResults(){
+		return bootstrapOrJackknife();
+	}
+
+	public boolean singleTreeFromResampling() {
+		return false;
+	}
+
+
+	public int getBootstrapreps() {
+		return bootstrapreps;
+	}
+
+	public void setBootstrapreps(int bootstrapreps) {
+		this.bootstrapreps = bootstrapreps;
+	}
+
+
+	public Class getDutyClass() {
+		return IQTreeRunner.class;
+	}
+
+	/*.................................................................................................................*/
+	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
+	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
+	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
+	public int getVersionOfFirstRelease(){
+		return -100;  
+	}
+
+	public String getName() {
+		return "IQ-Tree Runner";
+	}
+
+	/*.................................................................................................................*/
+	public int getNumRuns(){
+		return numRuns;
+	}
+	/*.................................................................................................................*/
+	public boolean getOnlyBest(){
+		return onlyBest;
+	}
+	/*.................................................................................................................*/
+	public boolean isPrerelease(){
+		return false;
+	}
+
+
+	public void intializeAfterExternalProcessRunnerHired() {
+		loadPreferences();
+	}
+	
+	public boolean allowStdErrRedirect() {
+		return true;
+	}
+
+
+	public void runFailed(String message) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void runFinished(String message) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*.................................................................................................................*/
 	public synchronized Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore){
 		if (isVerbose()) 
 			logln("Preparing to receive "+getExecutableName()+" trees.");
@@ -845,132 +888,36 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			t =readTreeFile(treeList, treeFilePath, getExecutableName()+" Bootstrap Tree", readSuccess, false);
 			ZephyrUtil.adjustTree(t, outgroupSet);
 		}
-		else if (numRuns==1) {
-			t =readTreeFile(treeList, treeFilePath, getExecutableName()+" Tree", readSuccess, true);
-			ZephyrUtil.adjustTree(t, outgroupSet);
-			String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);
-			Parser parser = new Parser(summary);
-			parser.setAllowComments(false);
-			parser.allowComments = false;
-			String line = parser.getRawNextDarkLine();
-			while (!StringUtil.blank(line) && count < 1) {
-				if (line.startsWith("Inference[")) {
-					Parser subParser = new Parser();
-					subParser.setString(line);
-					String token = subParser.getFirstToken();   // should be "Inference"
-					while (!StringUtil.blank(token) && ! subParser.atEnd()){
-						if (token.indexOf("likelihood")>=0) {
-							token = subParser.getNextToken();
-							finalValue = -MesquiteDouble.fromString(token);
-							if (!useOptimizedScoreAsBest)
-								finalScore.setValue(finalValue);
-						}
-						token = subParser.getNextToken();
-					}
-					count++;
-				}
-				parser.setAllowComments(false);
-				line = parser.getRawNextDarkLine();
-			}
-			while (!StringUtil.blank(line)) {
-				if (line.startsWith("Final GAMMA-based Score of best tree")) {
-					Parser subParser = new Parser();
-					subParser.setString(line);
-					String token = subParser.getFirstToken();   // should be "Final"
-					//count = 0;
-					while (!StringUtil.blank(token)) {
-						token = subParser.getNextToken();
-						if (token.equalsIgnoreCase("tree")) {
-							token = subParser.getNextToken();  // should be value
-							break;
-						}
-					}
-					optimizedValue = -MesquiteDouble.fromString(token);
-					if (useOptimizedScoreAsBest)
-						finalScore.setValue(optimizedValue);
-					break;
-				} 
-				parser.setAllowComments(false);
-				line = parser.getRawNextDarkLine();
-			}
-	
-			
-		}
-		else if (numRuns>1) {
-			TreeVector tv = new TreeVector(taxa);
-			for (int run=0; run<numRuns; run++)
-				if (MesquiteFile.fileExists(treeFilePath+run)) {
-					String path =treeFilePath+run;
-					t = readTreeFile(tv, path, "RAxMLTree Run " + (run+1), readSuccess, true);
-					if (treeList!= null)
-						treeList.addElement(t, false);
-				}
-			if (treeList !=null) {
-				String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);
-				Parser parser = new Parser(summary);
+		else  {
+			if (numRuns>1 && !onlyBest) {
+				treeFilePath = outputFilePaths[WORKING_TREEFILE];
+				t =readTreeFile(treeList, treeFilePath, getExecutableName()+" Tree", readSuccess, false);
+				
+				String treeFileString = MesquiteFile.getFileContentsAsString(outputFilePaths[WORKING_TREEFILE]);
+				Parser parser = new Parser(treeFileString);
 				parser.setAllowComments(false);
 				parser.allowComments = false;
-
 				String line = parser.getRawNextDarkLine();
-				if (isVerbose()) 
-					logln("\nSummary of " + getExecutableName() + " Search");
-
-
-				while (!StringUtil.blank(line) && count < finalValues.length) {
-					if (line.startsWith("Inference[")) {
-						Parser subParser = new Parser();
-						subParser.setString(line);
-						String token = subParser.getFirstToken();   // should be "Inference"
-						while (!StringUtil.blank(token) && ! subParser.atEnd()){
-							if (token.indexOf("likelihood")>=0) {
-								token = subParser.getNextToken();
-								finalValues[count] = -MesquiteDouble.fromString(token);
-								//	finalScore[count].setValue(finalValues[count]);
-								//logln(getExecutableName() + " Run " + (count+1) + " ln L = -" + finalValues[count]);
-							}
-							token = subParser.getNextToken();
-						}
+				while (!StringUtil.blank(line)) {
+					
+					//[ lh=-6568.409367 ]
+						Parser subParser = new Parser(line);
+						String token = subParser.getFirstToken();   // should be "["
+						token = subParser.getNextToken();   // should be "lh"
+						token = subParser.getNextToken();   // should be "="
+						token = subParser.getNextToken();   // should be "-"
+						token = subParser.getNextToken();   // should be value
+						token = StringUtil.stripBoundingWhitespace(token);
+						if (count<finalValues.length)
+							finalValues[count] = MesquiteDouble.fromString(token);
 						count++;
-					}
+			
 					parser.setAllowComments(false);
 					line = parser.getRawNextDarkLine();
 				}
 
-				count =0;
-
-				while (!StringUtil.blank(line) && count < optimizedValues.length) {
-					if (line.startsWith("Inference[")) {
-						Parser subParser = new Parser();
-						subParser.setString(line);
-						String token = subParser.getFirstToken();   // should be "Inference"
-						while (!StringUtil.blank(token) && ! subParser.atEnd()){
-							if (token.indexOf("Likelihood")>=0) {
-								token = subParser.getNextToken(); // :
-								token = subParser.getNextToken(); // -
-								optimizedValues[count] = -MesquiteDouble.fromString(token);
-								//	finalScore[count].setValue(finalValues[count]);
-								//logln(getExecutableName() + " Run " + (count+1) + " ln L = -" + optimizedValues[count]);
-							}
-							token = subParser.getNextToken();
-						}
-						count++;
-					}
-					parser.setAllowComments(false);
-					line = parser.getRawNextDarkLine();
-				}
-
-				boolean summaryWritten = false;
-				for (int i=0; i<finalValues.length && i<optimizedValues.length; i++){
-					if (MesquiteDouble.isCombinable(finalValues[i]) && MesquiteDouble.isCombinable(optimizedValues[i])) {
-						if (isVerbose())
-							logln("  IQ-TREE Run " + (i+1) + " ln L = -" + finalValues[i] + ",  final gamma-based ln L = -" + optimizedValues[i]);
-						summaryWritten = true;
-					}
-				}
-				if (!summaryWritten)
-					logln("  No ln L values for IQ-TREE Runs available");
-
-
+				
+				
 				double bestScore =MesquiteDouble.unassigned;
 				int bestRun = MesquiteInteger.unassigned;
 				for (int i=0; i<treeList.getNumberOfTrees() && i<finalValues.length; i++) {
@@ -978,12 +925,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 					ZephyrUtil.adjustTree(newTree, outgroupSet);
 					if (MesquiteDouble.isCombinable(finalValues[i])){
 						MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
-						s.setName(IOUtil.RAXMLSCORENAME);
-						((Attachable)newTree).attachIfUniqueName(s);
-					}
-					if (MesquiteDouble.isCombinable(optimizedValues[i])){
-						MesquiteDouble s = new MesquiteDouble(-optimizedValues[i]);
-						s.setName(IOUtil.RAXMLFINALSCORENAME);
+						s.setName(IOUtil.IQTREESCORENAME);
 						((Attachable)newTree).attachIfUniqueName(s);
 					}
 
@@ -995,16 +937,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 						else if (bestScore>finalValues[i]) {
 							bestScore = finalValues[i];
 							bestRun = i;
-						}
-					if (MesquiteDouble.isCombinable(optimizedValues[i]))
-						if (MesquiteDouble.isUnassigned(optimizedValue)) {
-							optimizedValue = optimizedValues[i];
-						}
-						else if (optimizedValue>optimizedValues[i]) {
-							optimizedValue = optimizedValues[i];
-						}
+						}				
 				}
-
 				if (MesquiteInteger.isCombinable(bestRun)) {
 					t = treeList.getTree(bestRun);
 					ZephyrUtil.adjustTree(t, outgroupSet);
@@ -1013,25 +947,36 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 					if (t instanceof AdjustableTree )
 						((AdjustableTree)t).setName(newName);
 				}
-				if (MesquiteDouble.isCombinable(bestScore)){
-					logln("Best score: " + bestScore);
-					if (!useOptimizedScoreAsBest)
-						finalScore.setValue(bestScore);
-					else
-						finalScore.setValue(optimizedValue);
-				} else
-						finalScore.setValue(optimizedValue);
 
-				//Only retain the best tree in tree block.
-				if(treeList.getTree(bestRun) != null && onlyBest){
-					Tree bestTree = treeList.getTree(bestRun);
-					treeList.removeAllElements(false);
-					treeList.addElement(bestTree, false);
+
+			} else {
+				t =readTreeFile(treeList, treeFilePath, getExecutableName()+" Tree", readSuccess, true);
+			}
+			ZephyrUtil.adjustTree(t, outgroupSet);
+			String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_LOGFILE]);
+			Parser parser = new Parser(summary);
+			parser.setAllowComments(false);
+			parser.allowComments = false;
+			String line = parser.getRawNextDarkLine();
+			while (!StringUtil.blank(line) && count < 1) {
+				if (line.indexOf("BEST SCORE FOUND")>=0) {
+					Parser subParser = new Parser(line);
+					String token = subParser.getFirstToken();   // should be "BEST"
+					token = subParser.getNextToken();   // should be "SCORE"
+					token = subParser.getNextToken();   // should be "FOUND"
+					token = subParser.getNextToken();   // should be ":"
+					token = subParser.getRemaining();
+					token = StringUtil.stripBoundingWhitespace(token);
+					finalValue = -MesquiteDouble.fromString(token);
+					finalScore.setValue(finalValue);
+					count++;
 				}
-			} 
-			tv.dispose();
-			tv =null;
+				parser.setAllowComments(false);
+				line = parser.getRawNextDarkLine();
+			}
+			logln("Best score: " + finalValue);
 		}
+
 		MesquiteThread.setCurrentCommandRecord(oldCR);
 		success = readSuccess.getValue();
 		if (!success)
@@ -1191,81 +1136,45 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		}
 
 	}
-	/*.................................................................................................................*/
-
-
-	public boolean bootstrapOrJackknife() {
-		return doBootstrap;
-	}
-	public  boolean doMajRuleConsensusOfResults(){
-		return bootstrapOrJackknife();
-	}
-
-	public boolean singleTreeFromResampling() {
-		return false;
-	}
-
-
-	public int getBootstrapreps() {
-		return bootstrapreps;
-	}
-
-	public void setBootstrapreps(int bootstrapreps) {
-		this.bootstrapreps = bootstrapreps;
-	}
-
-
-	public Class getDutyClass() {
-		return IQTreeRunner.class;
-	}
-
-	/*.................................................................................................................*/
-	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
-	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
-	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
-	public int getVersionOfFirstRelease(){
-		return -100;  
-	}
-
-	public String getName() {
-		return "IQ-Tree Runner";
-	}
-
-	/*.................................................................................................................*/
-	public int getNumRuns(){
-		return numRuns;
-	}
-	/*.................................................................................................................*/
-	public boolean getOnlyBest(){
-		return onlyBest;
-	}
-	/*.................................................................................................................*/
-	public boolean isPrerelease(){
-		return false;
-	}
-
-
-	public void intializeAfterExternalProcessRunnerHired() {
-		loadPreferences();
-	}
 	
-	public boolean allowStdErrRedirect() {
-		return true;
+	protected static final int OUT_LOGFILE=0;
+	protected static final int OUT_TREEFILE=1;
+	protected static final int OUT_SUMMARYFILE=2;
+	protected static final int WORKING_TREEFILE=3;
+	protected static final int BESTTREEFILE = 4;
+
+
+	/*.................................................................................................................*/
+	public String[] getLogFileNames(){
+		String treeFileName;
+		String workingTreeFileName;
+		String summaryFileName;
+		String logFileName;
+		if (bootstrapOrJackknife()) {
+			if (doUFBootstrap)
+				treeFileName = getOutputFilePrefix()+".ufboot";
+			else
+				treeFileName = getOutputFilePrefix()+".boottrees";
+			workingTreeFileName= treeFileName;
+		}
+		else  {
+			treeFileName = getOutputFilePrefix()+".treefile";
+			if (numRuns>1)
+				workingTreeFileName = getOutputFilePrefix()+".runtrees";
+			else
+				workingTreeFileName = treeFileName;
+		}
+		logFileName = getOutputFilePrefix()+".log";
+		summaryFileName = treeFileName;
+		
+		return new String[]{logFileName, treeFileName, summaryFileName, workingTreeFileName};
 	}
-
-
-	public void runFailed(String message) {
-		// TODO Auto-generated method stub
-
+	/*.................................................................................................................*/
+	public String getPreflightLogFileNames(){
+		return getDataFileName()+".log";
 	}
-
-	public void runFinished(String message) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public String getProgramName() {
-		return "IQ-Tree";
+		return "IQ-TREE";
 	}
 
 

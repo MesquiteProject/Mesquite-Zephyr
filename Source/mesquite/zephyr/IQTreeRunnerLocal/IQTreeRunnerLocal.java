@@ -231,7 +231,8 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 			}
 		}
 		else {
-			// number of reps, etc.
+			if (LOCnumRuns>1)
+				localArguments += " --runs " + LOCnumRuns; 
 		}
 
 		 if (StringUtil.notEmpty(LOCSubstitutionModel))
@@ -258,55 +259,17 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 			localArguments += " " + LOCotherOptions;
 		
 /*
-		localArguments += " -m "; 
-		if (isProtein) {
-			if (StringUtil.blank(LOCproteinModel))
-				localArguments += "PROTGAMMAJTT";
-			else
-				localArguments += LOCproteinModel;
-		}
-		else if (StringUtil.blank(LOCdnaModel))
-			localArguments += "GTRGAMMA";
-		else
-			localArguments += LOCdnaModel;
-
 		if (StringUtil.notEmpty(LOCMultipleModelFile))
 			localArguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
 
 		localArguments += " -p " + randomIntSeed;
 
 
-		TaxaSelectionSet outgroupSet =null;
-		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
-			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(LOCoutgroupTaxSetString,TaxaSelectionSet.class);
-			if (outgroupSet!=null) 
-				localArguments += " -o " + outgroupSet.getStringList(",", namer, false);
-		}
 		*/
 		arguments.setValue(localArguments);
 	}
 
 
-	/*.................................................................................................................*/
-	public String[] getLogFileNames(){
-		String treeFileName;
-		String workingTreeFileName;
-		String summaryFileName;
-		String logFileName;
-		if (bootstrapOrJackknife()) {
-			if (doUFBootstrap)
-				treeFileName = getOutputFilePrefix()+".ufboot";
-			else
-				treeFileName = getOutputFilePrefix()+".boottrees";
-		}
-		else 
-			treeFileName = getOutputFilePrefix()+".treefile";
-		logFileName = getOutputFilePrefix()+".log";
-		summaryFileName = treeFileName;
-		workingTreeFileName= treeFileName;
-		
-		return new String[]{logFileName, treeFileName, summaryFileName, workingTreeFileName};
-	}
 	/*.................................................................................................................*/
 	public String[] modifyOutputPaths(String[] outputFilePaths){
 		if (!bootstrapOrJackknife() && numRuns>1 ) {
@@ -320,11 +283,6 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 			}
 		}
 		return outputFilePaths;
-	}
-
-	/*.................................................................................................................*/
-	public String getPreflightLogFileNames(){
-		return getDataFileName()+".log";
 	}
 
 
@@ -385,7 +343,7 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return false;
+		return true;
 	}
 
 
@@ -399,9 +357,6 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 
 	}
 
-	public String getProgramName() {
-		return "IQ-TREE";
-	}
 
 
 

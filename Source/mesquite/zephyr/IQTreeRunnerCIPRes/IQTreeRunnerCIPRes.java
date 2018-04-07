@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.RAxMLRunnerCIPRes;
+package mesquite.zephyr.IQTreeRunnerCIPRes;
 
 
 import java.awt.*;
@@ -23,22 +23,10 @@ import mesquite.lib.system.SystemUtil;
 import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
 import mesquite.zephyr.lib.*;
 
-/* TODO:
--b bootstrapRandomNumberSeed  // allow user to set seed
 
-outgroups
-
- */
-
-public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
-
-	//boolean RAxML814orLater = false;
-
+public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
 
 	boolean showIntermediateTrees = true;
-
-
-	//Checkbox RAxML814orLaterCheckbox;
 
 
 	/*.................................................................................................................*/
@@ -101,7 +89,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "8.0.0 and 8.1.4";
+		return "1.6.0";
 	}
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
@@ -120,7 +108,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 	/*.................................................................................................................*/
 	public  String queryOptionsDialogTitle() {
-		return "RAxML Options on CIPRes";
+		return "IQ-TREE Options on CIPRes";
 	}
 
 	/*.................................................................................................................*/
@@ -160,9 +148,9 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 			MultipartEntityBuilder arguments = MultipartEntityBuilder.create();
 			StringBuffer sb = new StringBuffer();
-			getArguments(arguments, sb, "fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, nobfgsCheckBox.getState(), false);
+			getArguments(arguments, sb, "[fileName]", "[setsBlockFileName]", substitutionModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(),doUFBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), charPartitionButtons.getValue(), partitionLinkageChoice.getSelectedIndex(), outgroupTaxSetString, null,  false);
 			String command = externalProcRunner.getExecutableCommand() + arguments.toString();
-			commandLabel.setText("This command will be used by CIPRes to run RAxML:");
+			commandLabel.setText("This command will be used by CIPRes to run IQ-TREE:");
 			commandField.setText(command);
 		}
 		else	if (e.getActionCommand().equalsIgnoreCase("clearCommand")) {
@@ -170,48 +158,11 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			commandLabel.setText("");
 		}
 	}
-	/*.................................................................................................................*/
-	public void setRAxMLSeed(long seed){
-		this.randseed = seed;
-	}
 	
 	public int minimumNumSearchReplicates() {
-		return 2;
+		return 1;
 	}
-	/*.................................................................................................................*
 
-	static final int DATAFILENUMBER = 0;
-	static final int MULTIMODELFILENUMBER = 1;
-	static final int CONSTRAINTFILENUMBER = 3;
-
-	public void prepareRunnerObject(Object obj){
-		if (obj instanceof MultipartEntityBuilder) {
-			MultipartEntityBuilder builder = (MultipartEntityBuilder)obj;
-			final File file = new File(externalProcRunner.getInputFilePath(DATAFILENUMBER));
-			FileBody fb = new FileBody(file);
-			builder.addPart("input.infile_", fb);  
-			if (useConstraintTree==SKELETAL || useConstraintTree==MONOPHYLY) {
-				final File constraintFile = new File(externalProcRunner.getInputFilePath(CONSTRAINTFILENUMBER));
-				if (constraintFile!=null && constraintFile.exists()) {
-					FileBody fb2 = new FileBody(constraintFile);
-					if (useConstraintTree == SKELETAL) 
-						builder.addPart("input.binary_backbone_", fb2);  
-					else if (useConstraintTree == MONOPHYLY)
-						builder.addPart("input.constraint_", fb2);  
-				}
-			}
-			String modelFilePath = externalProcRunner.getInputFilePath(MULTIMODELFILENUMBER);
-			if (StringUtil.notEmpty(modelFilePath)) {
-				final File modelFile = new File(modelFilePath);
-				if (modelFile!=null && modelFile.exists()) {
-					FileBody fb2 = new FileBody(modelFile);
-					builder.addPart("input.partition_", fb2);  
-				}
-			}
-			
-
-		}
-	}
 
 	/*.................................................................................................................*/
 	void addArgument(MultipartEntityBuilder builder, StringBuffer sb, String param, String value) {
@@ -221,7 +172,16 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			sb.append("\n  " + param + " = " + value);
 	}
 	/*.................................................................................................................*/
-	void getArguments(MultipartEntityBuilder builder, StringBuffer sb, String fileName, String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean LOCnobfgs, boolean preflight){
+	void getArguments(MultipartEntityBuilder builder, StringBuffer sb, String fileName, 
+			String setsFileName,
+			String LOCSubstitutionModel, String LOCotherOptions, 
+			boolean LOCdoBootstrap, boolean LOCdoUFBootstrap, int LOCbootstrapreps, int LOCbootstrapSeed, 
+			int LOCnumRuns, 
+			int LOCPartitionScheme,
+			int LOCPartitionLinkage,
+			String LOCoutgroupTaxSetString, String LOCMultipleModelFile, 
+			boolean preflight){
+
 		if (builder==null)
 			return;
 	/*	
@@ -230,64 +190,55 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 		else
 			arguments += " -s " + fileName + " -n file.out "; 
 		*/
-		
-		if (isProtein) {
-			if (StringUtil.blank(LOCproteinModel))
-				addArgument(builder, sb, "vparam.protein_opts_", "PROTGAMMAJTT");
-			else
-				addArgument(builder, sb, "vparam.protein_opts_", LOCproteinModel);
-		}
-		else if (StringUtil.blank(LOCdnaModel))
-			addArgument(builder, sb, "vparam.dna_gtrcat_", "GTRGAMMA");
-		else
-			addArgument(builder, sb, "vparam.dna_gtrcat_","GTRGAMMA");
-	//	builder.addTextBody("vparam.dna_gtrcat_",LOCdnaModel);
 
-		
-		if (StringUtil.notEmpty(LOCMultipleModelFile)){
-			//addArgument(builder, sb, "input.partition_",multipleModelFileName);
-		}
-			
-			//arguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
-/*
-		if (!StringUtil.blank(LOCotherOptions)) 
-			arguments += " " + LOCotherOptions;
+		addArgument(builder, sb, "input.file_", fileName); 
 
-*/
-		
-		addArgument(builder, sb, "vparam.provide_parsimony_seed_","1");
-		addArgument(builder, sb, "vparam.parsimony_seed_val_",""+randomIntSeed);
-
-/*		if (useConstraintTree == SKELETAL) 
-			addArgument(builder, sb, "input.binary_backbone_",constraintTreeFileName);
-		//localArguments += " -r constraintTree.tre "; 
-		else if (useConstraintTree == MONOPHYLY)
-			addArgument(builder, sb, "input.constraint_",constraintTreeFileName);
-		//localArguments += " -g constraintTree.tre "; 
-*/
-
-
-		if (bootstrapOrJackknife()) {
-			if (LOCbootstrapreps>0) {
-				addArgument(builder, sb, "vparam.choose_bootstrap_","b");
-				addArgument(builder, sb, "vparam.bootstrap_value_",""+LOCbootstrapreps);
-				addArgument(builder, sb, "vparam.seed_value_",""+LOCbootstrapSeed);
-			//	addArgument(builder, sb, "vparam.bootstrap_",""+LOCbootstrapreps);
-			//	addArgument(builder, sb, "vparam.mulparambootstrap_seed_",""+LOCbootstrapSeed);
-			} else
-				logln("TOO FEW BOOTSTRAP REPS.  CIPRes requires multiple bootstrap replicates.");
-			
+		if (LOCdoBootstrap) {
+			if (LOCdoUFBootstrap) {
+				addArgument(builder, sb, "vparam.bootstrap_type_",  "b");
+				addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
+				if (LOCbootstrapreps>0)
+					addArgument(builder, sb, "vparam.vparam.num_bootreps_",  ""+LOCbootstrapreps);
+				else
+					addArgument(builder, sb, "vparam.vparam.num_bootreps_",  "1000");
+			} else {
+				addArgument(builder, sb, "vparam.bootstrap_type_",  "bc");
+				if (LOCbootstrapreps>0)
+					addArgument(builder, sb, "vparam.vparam.num_bootreps_",  ""+LOCbootstrapreps);
+				else
+					addArgument(builder, sb, "vparam.vparam.num_bootreps_",  "100");
+			}
 		}
 		else {
-			if (LOCnobfgs)   
-				addArgument(builder, sb, "vparam.no_bfgs_","1");
-			addArgument(builder, sb, "vparam.specify_runs_","1");
-			addArgument(builder, sb, "vparam.altrun_number_",""+LOCnumRuns);
-		//	if (RAxML814orLater)
-			//addArgument(builder, sb, "vparam.mesquite_output_","1");
+			// number of reps, etc.
 		}
-		
-		
+
+		 if (StringUtil.notEmpty(LOCSubstitutionModel))
+				addArgument(builder, sb, "vparam.specify_model_",  LOCSubstitutionModel);  // TODO: WILL NOT WORK if specific model specified
+
+		 if (useConstraintTree)
+				addArgument(builder, sb, "input.constraint_file_",  "constraintTree.tre");
+		 
+			addArgument(builder, sb, "vparam.specify_seed_",  ""+LOCbootstrapSeed);
+			addArgument(builder, sb, "vparam.partition_type_",  "-q");
+		 
+		 if (LOCPartitionScheme!=noPartition) {
+			 if (LOCPartitionLinkage==qPartitionLinkage)
+					addArgument(builder, sb, "vparam.partition_type_",  "-q");
+			 else if (LOCPartitionLinkage==sppPartitionLinkage)
+					addArgument(builder, sb, "vparam.partition_type_",  "-spp");
+			 else if (LOCPartitionLinkage==spPartitionLinkage)
+					addArgument(builder, sb, "vparam.partition_type_",  "-sp");
+				addArgument(builder, sb, "input.partition_file_",  setsFileName);
+		 }
+
+		addArgument(builder, sb, "vparam.specify_prefix_",  getOutputFilePrefix());
+
+/*
+		if (!StringUtil.blank(LOCotherOptions)) 
+			localArguments += " " + LOCotherOptions;
+
+
 
 		TaxaSelectionSet outgroupSet =null;
 		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
@@ -296,13 +247,13 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 				addArgument(builder, sb, "vparam.outgroup_",outgroupSet.getStringList(",", namer, false));
 				arguments += " -o " + outgroupSet.getStringList(",", namer, false);
 		}
-		
+		*/
 
 	}	
 	
 
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String[] getLogFileNames(){
 		String treeFileName;
 		String workingTreeFileName;
@@ -321,10 +272,6 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 		return new String[]{logFileName, treeFileName, "RAxML_info.result", workingTreeFileName};
 	}
 
-	/*.................................................................................................................*/
-	public String getPreflightLogFileNames(){
-		return "RAxML_log.file.out";	
-	}
 
 	
 	
@@ -336,26 +283,28 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	}
 
 	String arguments;
+
 	/*.................................................................................................................*/
-	public Object getProgramArguments(String dataFileName, boolean isPreflight) {
+	public Object getProgramArguments(String dataFileName, String setsFileName, boolean isPreflight) {
 		MultipartEntityBuilder arguments = MultipartEntityBuilder.create();
 		StringBuffer sb = new StringBuffer();
 
 		if (!isPreflight) {
-			getArguments(arguments, sb, dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
-			if (isVerbose())
-				logln("RAxML arguments: \n" + sb.toString() + "\n");
+			getArguments(arguments, sb, dataFileName, setsFileName, substitutionModel, otherOptions, doBootstrap, doUFBootstrap, bootstrapreps, bootstrapSeed, numRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, multipleModelFileName, false);
 		} else {
-			getArguments(arguments, sb, dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
+			getArguments(arguments, sb, dataFileName, setsFileName, substitutionModel, otherOptions, doBootstrap, doUFBootstrap, bootstrapreps, bootstrapSeed, numRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, multipleModelFileName, true);
 		}
-		return arguments;
+	
+		if (!isPreflight && isVerbose())
+				logln(getExecutableName() + " arguments: \n" + sb.toString() + "\n");
+
+		return arguments; 
 
 	}
 
 
-
 	public String getExecutableName() {
-		return "RAXMLHPC8_REST_XSEDE";
+		return "IQTREE_XSEDE";
 	}
 
 
@@ -368,7 +317,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 
 	public Class getDutyClass() {
-		return RAxMLRunnerCIPRes.class;
+		return IQTreeRunnerCIPRes.class;
 	}
 
 	/*.................................................................................................................*/
@@ -380,12 +329,12 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	}
 
 	public String getName() {
-		return "RAxML Likelihood (CIPRes)";
+		return "IQ-TREE Likelihood (CIPRes)";
 	}
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return false;
+		return true;
 	}
 
 
@@ -399,8 +348,9 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 	}
 
-	public String getProgramName() {
-		return "RAxML";
+	/*.................................................................................................................*/
+	 public boolean loadModule(){
+		 return false;
 	}
 
 
