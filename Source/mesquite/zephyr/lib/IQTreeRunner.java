@@ -162,8 +162,12 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		}
 		if ("onlyBest".equalsIgnoreCase(tag))
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
+		if ("modelOption".equalsIgnoreCase(tag))
+			modelOption = MesquiteInteger.fromString(content);
 		if ("searchStyle".equalsIgnoreCase(tag))
 			searchStyle = MesquiteInteger.fromString(content);
+		if ("substitutionModel".equalsIgnoreCase(tag))
+			substitutionModel = StringUtil.cleanXMLEscapeCharacters(content);
 
 
 		preferencesSet = true;
@@ -178,7 +182,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		StringUtil.appendXMLTag(buffer, 2, "partitionLinkage", partitionLinkage);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
 		StringUtil.appendXMLTag(buffer, 2, "searchStyle", searchStyle);  
-		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
+		StringUtil.appendXMLTag(buffer, 2, "modelOption", modelOption);  
+		StringUtil.appendXMLTag(buffer, 2, "substitutionModel", substitutionModel);  
 
 		preferencesSet = true;
 		return buffer.toString();
@@ -364,7 +369,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		if (buttonPressed.getValue()==0)  {
 			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
 			if (externalProcRunner.optionsChosen() && infererOK) {
-				//modelOption = modelOptionChoice.getIndex();
+				modelOption = modelOptionChoice.getSelectedIndex();
 				substitutionModel = substitutionModelField.getText();
 				partitionLinkage = partitionLinkageChoice.getSelectedIndex();
 				numRuns = numRunsField.getValue();
