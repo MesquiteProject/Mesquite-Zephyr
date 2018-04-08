@@ -856,6 +856,12 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		// TODO Auto-generated method stub
 
 	}
+	/*.................................................................................................................*/
+	boolean expectSchemeFile() {
+		if (substitutionModel==null)
+			return false;
+		return (substitutionModel.equalsIgnoreCase("TESTMERGEONLY")||substitutionModel.equalsIgnoreCase("TESTMERGE")||substitutionModel.equalsIgnoreCase("MF+MERGE")||substitutionModel.equalsIgnoreCase("MFP+MERGE"));
+	}
 
 	/*.................................................................................................................*/
 	public synchronized Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore){
@@ -881,7 +887,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		String treeFilePath = outputFilePaths[OUT_TREEFILE];
 
 		runFilesAvailable();
-
+		
 		// read in the tree files
 		success = false;
 		Tree t= null;
@@ -983,6 +989,16 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			logln("Best score: " + finalValue);
 		}
 
+		if (expectSchemeFile()) {
+			//WAYNECHECK:  the file at the path outputFilePaths[OUT_SCHEMEFILE] is the NEXUS file containing the SETS block.  
+			// At this point the file should exist and it is ready to be read. 
+			// We want this to be linked into "data"  
+			
+			
+	//		String contents = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SCHEMEFILE]);
+		}
+
+
 		MesquiteThread.setCurrentCommandRecord(oldCR);
 		success = readSuccess.getValue();
 		if (!success)
@@ -1011,36 +1027,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		beanWritten = true;
 		return null;
 	}	
-
-	/*.................................................................................................................*
-	String getProgramCommand(int threadingVersion, String LOCMPIsetupCommand, int LOCnumProcessors, String LOCraxmlPath, String arguments, boolean protect){
-		String command = "";
-		if (threadingVersion == threadingMPI) {
-			if (!StringUtil.blank(LOCMPIsetupCommand)) {
-				command += LOCMPIsetupCommand+ "\n";
-			}
-			command += "mpirun -np " + LOCnumProcessors + " ";
-		}
-
-		String fullArguments = arguments;
-		if (threadingVersion==threadingPThreads) {
-			fullArguments += " -T " + LOCnumProcessors + " ";
-		}
-
-
-		if (!protect)
-			command += LOCraxmlPath + fullArguments;
-		else if (MesquiteTrunk.isWindows())
-			command += StringUtil.protectForWindows(LOCraxmlPath)+ fullArguments;
-		else
-			command += StringUtil.protectForUnix(LOCraxmlPath )+ fullArguments;
-		return command;
-	}
-
-	protected static final int OUT_LOGFILE=0;
-	protected static final int OUT_TREEFILE=1;
-	protected static final int OUT_SUMMARYFILE=2;
-	protected static final int WORKING_TREEFILE=3;
 
 	/*.................................................................................................................*/
 
@@ -1139,6 +1125,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 			} 
 		}
+		
 
 	}
 
@@ -1146,7 +1133,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected static final int OUT_TREEFILE=1;
 	protected static final int OUT_SUMMARYFILE=2;
 	protected static final int WORKING_TREEFILE=3;
-	protected static final int BESTTREEFILE = 4;
+	//protected static final int BESTTREEFILE = 4;
+	protected static final int OUT_SCHEMEFILE = 4;
 
 
 	/*.................................................................................................................*/
@@ -1155,6 +1143,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		String workingTreeFileName;
 		String summaryFileName;
 		String logFileName;
+		String schemeFileName;
 		if (bootstrapOrJackknife()) {
 			if (searchStyle==ULTRAFASTBOOTSTRAP)
 				treeFileName = getOutputFilePrefix()+".ufboot";
@@ -1172,8 +1161,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			summaryFileName = workingTreeFileName;
 		}
 		logFileName = getOutputFilePrefix()+".log";
+		schemeFileName = getOutputFilePrefix()+".best_scheme.nex";
 
-		return new String[]{logFileName, treeFileName, summaryFileName, workingTreeFileName};
+		return new String[]{logFileName, treeFileName, summaryFileName, workingTreeFileName, schemeFileName};
 	}
 	/*.................................................................................................................*/
 	public String getPreflightLogFileNames(){
