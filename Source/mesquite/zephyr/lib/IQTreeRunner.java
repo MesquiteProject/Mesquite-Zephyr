@@ -19,6 +19,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
+import mesquite.lib.Bits;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
 import mesquite.io.lib.*;
@@ -74,7 +75,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected int searchStyle = STANDARDSEARCH;
 	protected RadioButtons searchStyleButtons = null;
 
-	
+
 	protected RadioButtons charPartitionButtons = null;
 
 
@@ -469,7 +470,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	}
 	public void itemStateChanged(ItemEvent e) {
-		 if (e.getItemSelectable() == modelOptionChoice){
+		if (e.getItemSelectable() == modelOptionChoice){
 			int selected = modelOptionChoice.getSelectedIndex();
 			substitutionModelField.setText(getModel(selected));
 		}
@@ -856,6 +857,172 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		// TODO Auto-generated method stub
 
 	}
+	private CharactersGroup makeGroup(String name, mesquite.lib.characters.CharacterData data, MesquiteFile file){
+		CharactersGroupVector groups = (CharactersGroupVector)data.getProject().getFileElement(CharactersGroupVector.class, 0);
+		CharactersGroup group = groups.findGroup(name);
+		if (group==null) {
+			group = new CharactersGroup();
+			group.setName(name);
+			group.addToFile(file, getProject(), null);
+			if (groups.indexOf(group)<0) 
+				groups.addElement(group, false);
+		}
+		return group;
+	}
+
+	public  void processSpecSet (String command, String firstToken, Object obj, MesquiteInteger startCharT, boolean hasSpecificationTokens, Bits[] bitsArray, String[] charSetNames) {
+
+		String token = firstToken;
+		Object specification = null;
+		if (!(obj instanceof Bits))
+			specification = makeGroup(token, data, getProject().getHomeFile());
+		String whitespaceString = Parser.defaultWhitespace;
+		String punctuationString = "(){}:,;-<>=\\*/\''\"[]";  // took + out of it
+
+
+		int lastChar = -1;
+		boolean join = false;
+		boolean nextIsCharList = !hasSpecificationTokens;
+		//Bits bits = new Bits(numChars);
+		while (token !=null && !token.equals(";") && token.length()>0) {
+			if (token.equals("-")) {
+				if (lastChar!=-1)
+					join = true;
+			}
+			else {
+				if (token != null && token.equals("."))
+					token = Integer.toString(data.getNumChars());
+				if (token.startsWith("-")) {
+					if (lastChar!=-1)
+						join = true;
+					token = token.substring(1, token.length());
+				}
+				if (token.equals(":")) {
+					nextIsCharList = true;
+				}
+				else if (token.equals(","))
+					nextIsCharList=false;
+				else if (nextIsCharList) {
+					int whichChar = CharacterStates.toInternal(MesquiteInteger.fromString(token, false));
+					if (MesquiteInteger.isCombinable(whichChar) && whichChar>=0) {
+						if (whichChar>= data.getNumChars())
+							whichChar = data.getNumChars()-1;
+
+						if (join) {
+							int skip = 1;
+							//check here if next char is "\"; if so then need to skip
+							int temp = startCharT.getValue();
+							token = ParseUtil.getToken(command, startCharT, whitespaceString, punctuationString); 
+							if (token.equals("\\")){
+								token = ParseUtil.getToken(command, startCharT, whitespaceString, punctuationString); 
+								int tSkip = MesquiteInteger.fromString(token, false);
+								if (MesquiteInteger.isCombinable(tSkip))
+									skip = tSkip;
+							}
+							else
+								startCharT.setValue(temp);
+							for (int j = lastChar; j<=whichChar; j += skip) {
+								if (obj instanceof Bits)
+									((Bits)obj).setBit(j, true);
+								else
+									((CharacterPartition)obj).setProperty(specification,j);
+							}
+							join = false;
+							lastChar = -1;
+						}
+						else {
+							lastChar = whichChar;
+							if (obj instanceof Bits)
+								((Bits)obj).setBit(whichChar, true);
+							else
+								((CharacterPartition)obj).setProperty(specification,whichChar);
+						}
+					} else {
+						if (bitsArray!=null && charSetNames!=null) {
+							Bits bitsSet = null;
+							for (int i=0; i<charSetNames.length && i<bitsArray.length; i++)
+								if (token.equalsIgnoreCase(charSetNames[i])) { // found charset bits
+									bitsSet = bitsArray[i];
+									break;
+								}
+							if (bitsSet!=null) {
+								for (whichChar = 0; whichChar<data.getNumChars(); whichChar++) {
+									if (bitsSet.isBitOn(whichChar))
+										if (obj instanceof Bits)
+											((Bits)obj).setBit(whichChar, true);
+										else
+											((CharacterPartition)obj).setProperty(specification,whichChar);
+								}
+							}
+						}
+					}
+				}
+				else {
+					specification =  makeGroup(token, data, getProject().getHomeFile());
+					nextIsCharList = true;
+				}
+			}
+			token = ParseUtil.getToken(command, startCharT, whitespaceString, punctuationString); 
+		}
+
+	}
+
+	public  void addCharPartionFromIQTree (String command, String firstToken, MesquiteInteger startCharT, boolean hasSpecificationTokens, Bits[] bitsArray, String[] charSetNames) {
+
+		CharacterPartition characterPartition= new CharacterPartition("IQ-TREE", data.getNumChars(), null, data);
+		characterPartition.setNexusBlockStored("SETS");
+		processSpecSet (command,  firstToken, characterPartition,  startCharT,  hasSpecificationTokens, bitsArray, charSetNames);
+		characterPartition.addToFile(getProject().getHomeFile(), getProject(), null);   // WAYNECHECK:  the charpartition here seems valid, yet it never seems to get added.  
+
+	}
+
+
+	void processSchemeFile(String contents) {
+		int numLines = StringUtil.getNumberOfLines(contents);
+		Bits[] bitsArray = new Bits[numLines];
+		String[] charSetNames = new String[numLines];
+		Parser parser = new Parser(contents);
+		String line = parser.getRawNextDarkLine();
+		Parser subparser = new Parser (line);
+		String token = subparser.getFirstToken();
+		boolean setsBlockFound = false;
+		int countCharSets = -1;
+		parser.setLineEndString(";");
+
+
+		if ("#nexus".equalsIgnoreCase(token))
+			while (StringUtil.notEmpty(line)) {
+				line = line.toLowerCase();
+				if (line.indexOf("begin sets")>=0)
+					setsBlockFound = true;
+				if (setsBlockFound) {
+					token =  subparser.getFirstToken();
+					if ("charset".equalsIgnoreCase(token)) {  // found a charset
+						countCharSets++;
+						token = subparser.getNextToken();  // name of charset.
+						charSetNames[countCharSets]=token;
+						token = subparser.getNextToken();  // =
+						String remaining = subparser.getRemaining();  // the character list
+						Parser subsubparser = new Parser(remaining);
+						bitsArray[countCharSets] = new Bits(data.getNumChars());
+						MesquiteInteger startCharT = new MesquiteInteger(0);
+						processSpecSet(remaining,  subsubparser.getFirstToken(), bitsArray[countCharSets],  startCharT,  false, bitsArray, charSetNames);
+						//fillCharSetBits(bitsArray[countCharSets], token);
+					}
+					if ("charpartition".equalsIgnoreCase(token)) {  // found the partition
+						token = subparser.getNextToken();  // name of partition (ignore).
+						token = subparser.getNextToken();  // =
+						String remaining = subparser.getRemaining();  // the character list
+						Parser subsubparser = new Parser(remaining);
+						MesquiteInteger startCharT = new MesquiteInteger(0);
+						addCharPartionFromIQTree (remaining, subsubparser.getFirstToken(),  startCharT,  true, bitsArray, charSetNames);
+					}
+				}
+				line = parser.getRawNextDarkLine();
+				subparser.setString(line);
+			}
+	}
+
 	/*.................................................................................................................*/
 	boolean expectSchemeFile() {
 		if (substitutionModel==null)
@@ -887,7 +1054,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		String treeFilePath = outputFilePaths[OUT_TREEFILE];
 
 		runFilesAvailable();
-		
+
 		// read in the tree files
 		success = false;
 		Tree t= null;
@@ -990,12 +1157,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		}
 
 		if (expectSchemeFile()) {
-			//WAYNECHECK:  the file at the path outputFilePaths[OUT_SCHEMEFILE] is the NEXUS file containing the SETS block.  
-			// At this point the file should exist and it is ready to be read. 
-			// We want this to be linked into "data"  
-			
-			
-	//		String contents = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SCHEMEFILE]);
+			String contents = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SCHEMEFILE]);
+			if (StringUtil.notEmpty(contents))
+				processSchemeFile(contents);
 		}
 
 
@@ -1125,7 +1289,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 			} 
 		}
-		
+
 
 	}
 
