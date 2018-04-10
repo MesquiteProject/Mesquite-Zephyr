@@ -78,6 +78,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	protected RadioButtons charPartitionButtons = null;
 
+	protected boolean importBestPartitionScheme = true;
+
 
 	long summaryFilePosition =0;
 
@@ -92,7 +94,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected javax.swing.JLabel commandLabel;
 	protected SingleLineTextArea commandField;
 	protected IntegerField numRunsField, bootStrapRepsField;
-	protected Checkbox onlyBestBox, retainFilescheckBox, useConstraintTreeCheckbox;
+	protected Checkbox onlyBestBox, retainFilescheckBox, useConstraintTreeCheckbox, importBestPartitionSchemeCheckbox;
 	//	int count=0;
 
 	protected double finalValue = MesquiteDouble.unassigned;
@@ -303,10 +305,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 		checkEnabled(searchStyle);
 
-		if (getConstrainedSearchAllowed())
-			tabbedPanel.addPanel("Character Models & Constraints", true);
-		else
-			tabbedPanel.addPanel("Character Models", true);
+		tabbedPanel.addPanel("Character Models", true);
 		if (!data.hasCharacterGroups()) {
 			if (partitionScheme == partitionByCharacterGroups)
 				partitionScheme = noPartition;
@@ -334,17 +333,22 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		modelOptionChoice = dialog.addPopUpMenu("Model option", modelStrings(), modelOption); 
 		modelOptionChoice.addItemListener(this);
 		substitutionModelField = dialog.addTextField("Substitution model:", substitutionModel, 20);
+		importBestPartitionSchemeCheckbox = dialog.addCheckBox("import best partition scheme", importBestPartitionScheme);
+		checkEnablingOfImportOption(substitutionModel);
 
-		if (getConstrainedSearchAllowed()) {
-			dialog.addHorizontalLine(1);
-			useConstraintTreeCheckbox = dialog.addCheckBox("use topological constraint", useConstraintTree);
-		}
 
 		/*		dialog.addHorizontalLine(1);
 		MPISetupField = dialog.addTextField("MPI setup command: ", MPIsetupCommand, 20);
 		 */
 
-		tabbedPanel.addPanel("Other options", true);
+		if (getConstrainedSearchAllowed())
+			tabbedPanel.addPanel("Constraints & Other options", true);
+		else
+			tabbedPanel.addPanel("Other options", true);
+		if (getConstrainedSearchAllowed()) {
+			useConstraintTreeCheckbox = dialog.addCheckBox("use topological constraint", useConstraintTree);
+			dialog.addHorizontalLine(1);
+		}
 		otherOptionsField = dialog.addTextField("Other "+getExecutableName()+" options:", otherOptions, 60);
 
 		dialog.addHorizontalLine(1);
@@ -393,6 +397,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 						setConstrainedSearch(true);
 				}
 				partitionScheme = charPartitionButtons.getValue();
+				importBestPartitionScheme = importBestPartitionSchemeCheckbox.getState();
 				otherOptions = otherOptionsField.getText();
 				processRunnerOptions();
 				storeRunnerPreferences();
@@ -469,10 +474,18 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		}
 
 	}
+	/*.................................................................................................................*/
+	public void checkEnablingOfImportOption(String modelFieldText){
+		importBestPartitionSchemeCheckbox.setEnabled(expectSchemeFile(modelFieldText));
+	}
+
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getItemSelectable() == modelOptionChoice){
 			int selected = modelOptionChoice.getSelectedIndex();
-			substitutionModelField.setText(getModel(selected));
+			String modelName =getModel(selected); 
+			substitutionModelField.setText(modelName);
+			checkEnablingOfImportOption(modelName);
+			
 		}
 		else if (e.getItemSelectable() == useConstraintTreeCheckbox && useConstraintTreeCheckbox.getState()){
 
@@ -968,14 +981,15 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 
 	public  void addCharPartionFromIQTree (String command, String firstToken, MesquiteInteger startCharT, boolean hasSpecificationTokens, Bits[] bitsArray, String[] charSetNames) {
-
-		CharacterPartition characterPartition= new CharacterPartition("IQ-TREE", data.getNumChars(), null, data);
+		CharacterPartition characterPartition= new CharacterPartition("IQ-TREE "+ StringUtil.getDateDayOnly()+"."+partitionNumber, data.getNumChars(), null, data);
+		partitionNumber++;
 		characterPartition.setNexusBlockStored("SETS");
 		processSpecSet (command,  firstToken, characterPartition,  startCharT,  hasSpecificationTokens, bitsArray, charSetNames);
 		characterPartition.addToFile(getProject().getHomeFile(), getProject(), null);   // WAYNECHECK:  the charpartition here seems valid, yet it never seems to get added.  
 		data.storeSpecsSet(characterPartition, CharacterPartition.class); //DAVIDCHECK: try this? 
 	}
 
+	static int partitionNumber = 1;
 
 	void processSchemeFile(String contents) {
 		int numLines = StringUtil.getNumberOfLines(contents);
@@ -1015,6 +1029,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 						String remaining = subparser.getRemaining();  // the character list
 						Parser subsubparser = new Parser(remaining);
 						MesquiteInteger startCharT = new MesquiteInteger(0);
+						subsubparser.setPunctuationString("(){}:,;-<>=\\*/\''\"[]");  //// took + out of it
+						
 						addCharPartionFromIQTree (remaining, subsubparser.getFirstToken(),  startCharT,  true, bitsArray, charSetNames);
 					}
 				}
@@ -1024,10 +1040,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 
 	/*.................................................................................................................*/
-	boolean expectSchemeFile() {
-		if (substitutionModel==null)
+	boolean expectSchemeFile(String subModel) {
+		if (subModel==null)
 			return false;
-		return (substitutionModel.equalsIgnoreCase("TESTMERGEONLY")||substitutionModel.equalsIgnoreCase("TESTMERGE")||substitutionModel.equalsIgnoreCase("MF+MERGE")||substitutionModel.equalsIgnoreCase("MFP+MERGE"));
+		return (subModel.equalsIgnoreCase("TESTMERGEONLY")||subModel.equalsIgnoreCase("TESTMERGE")||subModel.equalsIgnoreCase("MF+MERGE")||subModel.equalsIgnoreCase("MFP+MERGE"));
 	}
 
 	/*.................................................................................................................*/
@@ -1156,7 +1172,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			logln("Best score: " + finalValue);
 		}
 
-		if (expectSchemeFile()) {
+		if (expectSchemeFile(substitutionModel) && importBestPartitionScheme) {
 			String contents = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SCHEMEFILE]);
 			if (StringUtil.notEmpty(contents))
 				processSchemeFile(contents);
