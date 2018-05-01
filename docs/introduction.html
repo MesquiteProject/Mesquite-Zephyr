@@ -41,7 +41,7 @@
     <td width="51%"><img src="images/zephyrBannerNarrow.jpg" width="628" height="110" /></td>
     <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->Introduction<!-- InstanceEndEditable --></div></td>
     <td width="2%">&nbsp;</td>
-    <td width="14%">Version 2.1Beta<br />
+    <td width="14%">Version 2.1<br />
       1 May 2018<br /></td>
   </tr>
 </table>
@@ -54,8 +54,12 @@
   
   
   
-  <div id="NonCollapsiblePanel">
-    <a href="javascript:pageLink('index.html')">Home</a>
+   <div id="NonCollapsiblePanel">
+    <a href="http://mesquiteproject.github.io/Mesquite-Zephyr">Zephyr Website</a>
+  </div>
+
+	<div id="NonCollapsiblePanel">
+    <a href="javascript:pageLink('introduction.html')">Introduction</a>
   </div>
    <div id="NonCollapsiblePanel">
     <a href="javascript:pageLink('download.html')">Download & Installation</a>
@@ -64,7 +68,6 @@
     <div class="CollapsiblePanelTab" tabindex="0">Getting Started</div>
     <div class="CollapsiblePanelContent" style="display: block">
   		<table width="100%" border="0" cellpadding="1">
-  			<tr><td><a href="javascript:pageLink('introduction.html');">Introduction to Zephyr</a></td></tr>
   			<tr><td><a href="javascript:pageLink('beginning.html');">Beginning Zephyr</a></td></tr>
   			<tr><td><a href="javascript:pageLink('generalfeatures.html');">General Features</a></td></tr>
   			<tr><td><a href="javascript:pageLink('localanalyses.html');">Local Analyses</a></td></tr>
@@ -76,10 +79,10 @@
     <div class="CollapsiblePanelTab" tabindex="0">Tree Inference Programs</div>
     <div class="CollapsiblePanelContent" style="display: block">
   		<table width="100%" border="0" cellpadding="1">
-  			<tr><td><a href="javascript:pageLink('RAXMLOverview.html');">RAxML</a></td></tr>
+  			<tr><td><a href="javascript:pageLink('GARLIOverview.html');">GARLI</a></td></tr>
   			<tr><td><a href="javascript:pageLink('IQTREEOverview.html');">IQ-TREE</a></td></tr>
   			<tr><td><a href="javascript:pageLink('PAUPOverview.html');">PAUP*</a></td></tr>
-  			<tr><td><a href="javascript:pageLink('GARLIOverview.html');">GARLI</a></td></tr>
+  			<tr><td><a href="javascript:pageLink('RAXMLOverview.html');">RAxML</a></td></tr>
   			<tr><td><a href="javascript:pageLink('TNTOverview.html');">TNT</a></td></tr>
 		</table>
     </div>
@@ -137,9 +140,21 @@
     
 <!-- InstanceBeginEditable name="content" -->
     <h1 id="toc0"><a name="Introduction to Zephyr"></a>Introduction to Zephyr</h1>
- <br />
-Zephyr is a Mesquite package that allows you to conduct analyses in external phylogenetics programs and have Mesquite automatically harvest the results for you. Zephyr will communicate with GARLI, RAxML, PAUP*, and TNT. Zephyr is primitive in some aspects (for example, there is no elegant way to stop a run in process), but it can still be quite useful. Zephyr also allows you to conduct a SOWH test.<br />
+ 
+	  <strong><em>Lead developers</em></strong></h4>
+ <em>David R. Maddison, Oregon State University</em><br />
+<em>Wayne P. Maddison, University of British Columbia</em><br />
 <br />
+<strong><em>Other contributors</em></strong><br />
+<em>Kipling W. Will, University of California at Berkeley (design and troubleshooting for TNT interactions for version 1.1 of Zephyr)</em><br />
+<br />
+	<br />
+Zephyr 2.1 requires <a class="wiki_link" href="http://mesquiteproject.wikispaces.com/home">Mesquite 3.41</a> or later.<br />
+<br />
+	
+	Zephyr is a Mesquite package that allows you to conduct analyses in external phylogenetics programs and have Mesquite automatically harvest the results for you. Zephyr will communicate with GARLI, RAxML, PAUP*, and TNT. Zephyr is primitive in some aspects (for example, there is no elegant way to stop a run in process), but it can still be quite useful. Zephyr also allows you to conduct a SOWH test.<br />
+	<br />
+
 For example, you might start out with a DNA sequence matrix in Mesquite:<br />
 <br />
 <div style="text-align: center"><img src="files/zephyrMatrix.jpg" alt="zephyrMatrix.jpg" title="zephyrMatrix.jpg" style="height: 479px; width: 511px;" /></div><br />
@@ -157,8 +172,17 @@ While GARLI is searching, Zephyr harvest the intermediate results, and presents 
 <br />
 When the GARLI run is finished, Zephyr reads the final tree or trees in, and saves them in a tree block within your file:<br />
 <br />
-<div style="text-align: center"><img src="files/GarliEndResult.jpg" alt="GarliEndResult.jpg" title="GarliEndResult.jpg" style="height: 539px; width: 575px;" /></div><br />
-There are other options, and other features, but this will give you a brief idea of Zephyr's basic features; the <a class="wiki_link" href="SOWH%20test.html">SOWH test</a> is described elsewhere.
+<div style="text-align: center"><img src="files/GarliEndResult.jpg" alt="GarliEndResult.jpg" title="GarliEndResult.jpg" style="height: 539px; width: 575px;" /></div>
+<br />
+There are other options, and other features, but this will give you a brief idea of Zephyr's basic features; the <a class="wiki_link" href="SOWH%20test.html">SOWH test</a> is described elsewhere. <br />
+<br />
+Currently, Zephyr supports the following inference programs:<br />
+<ul>
+	<li><a class="wiki_link" href="GARLIOverview.html">GARLI</a> (either on your local machine or CIPRes)</li>
+	<li><a class="wiki_link" href="IQTREEOverview.html">IQ-TREE</a> (on your local machine)</li>
+	<li><a class="wiki_link" href="RAxMLOverview.html">RAxML</a> (either on your local machine or CIPRes)</li>
+	<li><a class="wiki_link" href="PAUPOverview.html">PAUP*</a> (parsimony, likelihood, distance, or SVD Quartets analyses)</li>
+	<li><a class="wiki_link" href="TNTOverview.html">TNT</a></li></ul>
 
     
 <!-- InstanceEndEditable -->

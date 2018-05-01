@@ -41,7 +41,7 @@
     <td width="51%"><img src="images/zephyrBannerNarrow.jpg" width="628" height="110" /></td>
     <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->Preparing for SOWH<!-- InstanceEndEditable --></div></td>
     <td width="2%">&nbsp;</td>
-    <td width="14%">Version 2.1Beta<br />
+    <td width="14%">Version 2.1<br />
       1 May 2018<br /></td>
   </tr>
 </table>
@@ -54,8 +54,12 @@
   
   
   
-  <div id="NonCollapsiblePanel">
-    <a href="javascript:pageLink('index.html')">Home</a>
+   <div id="NonCollapsiblePanel">
+    <a href="http://mesquiteproject.github.io/Mesquite-Zephyr">Zephyr Website</a>
+  </div>
+
+	<div id="NonCollapsiblePanel">
+    <a href="javascript:pageLink('introduction.html')">Introduction</a>
   </div>
    <div id="NonCollapsiblePanel">
     <a href="javascript:pageLink('download.html')">Download & Installation</a>
@@ -64,7 +68,6 @@
     <div class="CollapsiblePanelTab" tabindex="0">Getting Started</div>
     <div class="CollapsiblePanelContent" style="display: block">
   		<table width="100%" border="0" cellpadding="1">
-  			<tr><td><a href="javascript:pageLink('introduction.html');">Introduction to Zephyr</a></td></tr>
   			<tr><td><a href="javascript:pageLink('beginning.html');">Beginning Zephyr</a></td></tr>
   			<tr><td><a href="javascript:pageLink('generalfeatures.html');">General Features</a></td></tr>
   			<tr><td><a href="javascript:pageLink('localanalyses.html');">Local Analyses</a></td></tr>
@@ -76,10 +79,10 @@
     <div class="CollapsiblePanelTab" tabindex="0">Tree Inference Programs</div>
     <div class="CollapsiblePanelContent" style="display: block">
   		<table width="100%" border="0" cellpadding="1">
-  			<tr><td><a href="javascript:pageLink('RAXMLOverview.html');">RAxML</a></td></tr>
+  			<tr><td><a href="javascript:pageLink('GARLIOverview.html');">GARLI</a></td></tr>
   			<tr><td><a href="javascript:pageLink('IQTREEOverview.html');">IQ-TREE</a></td></tr>
   			<tr><td><a href="javascript:pageLink('PAUPOverview.html');">PAUP*</a></td></tr>
-  			<tr><td><a href="javascript:pageLink('GARLIOverview.html');">GARLI</a></td></tr>
+  			<tr><td><a href="javascript:pageLink('RAXMLOverview.html');">RAxML</a></td></tr>
   			<tr><td><a href="javascript:pageLink('TNTOverview.html');">TNT</a></td></tr>
 		</table>
     </div>
@@ -138,7 +141,7 @@
 <!-- InstanceBeginEditable name="content" -->
     <h1 id="toc0"><a name="Preparing files for the SOWH Test"></a>Preparing files for the SOWH Test</h1>
  In order to conduct an SOWH test, you need to have a Mesquite file (such as this <a href="files/TrachypachidSOWHTest.nex">example file</a>, which you can download and open in Mesquite) containing the following elements:<br />
-<ol><li>The data matrix to be analyzed.</li><li>A constraint tree that embodies the general aspects of the hypothesis you wish to test; this tree needs to be in a tree window in the file. The example file has the constraint tree shown in a window called &quot;Constraint tree&quot;</li><li>The optimal tree found from a search in which the constraint tree is enforced; that is, you need to have an optimal, constrained tree; this tree needs to be in a tree window in the file. The example file has the constraint tree shown in a window called &quot;Hypothesis to test&quot;.</li><li>Models of character evolution. If DNA data, then you should have a Composite DNA Simulation Model, consisting of various components, including a state frequency submodel, a site-to-site rate variation submodel, and a rate matrix model. The parameter values for these models should come from a tree analysis in a likelihood program (RAxML, GARLI, or PAUP), and should be the values inferred on the optimal constrained tree. In the example file, the Composite DNA Simulation Model is called &quot;GTR+G+I&quot;, and its values were inferred from a PAUP analyses.</li><li>Have the optimal constrained tree (the hypothesis tree you are attempting to test) visible in the frontmost window.</li></ol>
+<ol><li>The data matrix to be analyzed.</li><li>A constraint tree that embodies the general aspects of the hypothesis you wish to test; this tree needs to be in a tree window in the file. The example file has the constraint tree shown in a window called &quot;Constraint tree&quot;</li><li>The optimal tree found from a search in which the constraint tree is enforced; that is, you need to have an optimal, constrained tree; this tree needs to be in a tree window in the file. The example file has the constraint tree shown in a window called &quot;Hypothesis to test&quot;.</li><li>Models of character evolution. If DNA data, then you should have a Composite DNA Simulation Model, consisting of various components, including a state frequency submodel, a site-to-site rate variation submodel, and a rate matrix model. The parameter values for these models should come from a tree analysis in a likelihood program (GARLI, IQ-TREE, PAUP, or RAxML), and should be the values inferred on the optimal constrained tree. In the example file, the Composite DNA Simulation Model is called &quot;GTR+G+I&quot;, and its values were inferred from a PAUP analyses.</li><li>Have the optimal constrained tree (the hypothesis tree you are attempting to test) visible in the frontmost window.</li></ol>
 
     
 <!-- InstanceEndEditable -->
