@@ -114,7 +114,7 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.0";
+		return "1.6.4";
 	}
 
 	/*.................................................................................................................*/
@@ -226,6 +226,7 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 					localArguments += " -bb " + LOCbootstrapreps+" -wbt "; 
 				else
 					localArguments += " -bb 1000 -wbt";
+			//	localArguments += " -alrt 1000";
 			} else {
 				if (LOCbootstrapreps>0)
 					localArguments += " -bo " + LOCbootstrapreps; 

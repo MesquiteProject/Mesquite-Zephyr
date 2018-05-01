@@ -222,7 +222,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.3a";
+		return "1.6.4";
 	}
 	public abstract void addRunnerOptions(ExtensibleDialog dialog);
 	public abstract void processRunnerOptions();
@@ -1143,6 +1143,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 						((AdjustableTree)t).setName(newName);
 				}
 				finalValue = bestScore;
+				finalScore.setValue(finalValue);
 
 			} else {
 				t =readTreeFile(treeList, treeFilePath, getExecutableName()+" Tree", readSuccess, true);
