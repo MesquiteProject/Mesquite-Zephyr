@@ -662,7 +662,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		String helpString = "This module will prepare a matrix for PAUP, and ask PAUP do to an analysis.  A command-line version of PAUP must be installed. ";
 		dialog.appendToHelpString(helpString);
 
-		dialog.setHelpURL("https://mesquitezephyr.wikispaces.com/PAUP");
+		dialog.setHelpURL("http://zephyr.mesquiteproject.org/PAUPOverview.html");
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 		String extraLabel = getLabelForQueryOptions();
