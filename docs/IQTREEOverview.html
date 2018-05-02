@@ -141,13 +141,34 @@
 <!-- InstanceBeginEditable name="content" -->
     <h1 id="toc0"><a name="RAXML"></a>IQ-TREE</h1>
     <p>IQ-TREE is a program for maximum likelihood inference of phylogenies, written by Bui Quang Minh and other code contributors. For details about IQ-TREE and how to acquire it for runs on your local computer, go to the <a class="wiki_link_ext" href="http://www.iqtree.org" rel="nofollow">IQ-TREE web page</a>. Zephyr requires version 1.6.4 or later of IQ-TREE. If you use IQ-TREE, please cite it appropriately as recommended in the program's documentation.</p>
-    <p>The IQ-TREE dialog box within Zephyr has four panels. The first panel (&quot;IQ-TREE Program Details&quot;) has the standard Zephyr options. You can also choose the number of processors</p>
+    <p>The IQ-TREE dialog box within Zephyr has four panels. The first panel (&quot;IQ-TREE Program Details&quot;) has the standard Zephyr options. You can also choose the number of processors that will be used for the analysis. If you choose &quot;Let IW-TREE choose the number of processors&quot;, this in general will work best, except in unusual circumstances (in which case you will receive an error message in the log window from IQ-TREE).</p>
     <p><img src="files/iqtree1.jpg" width="701" height="442" alt=""/></p>
-    <p>&nbsp;</p>
+    <p>The second panel allows you to choose the type of analysis that will be done: a standard bootstrap analysis, and ultrafast bootstrap analysis, or a basic search for the maximum likelihood tree.</p>
     <p><img src="files/iqtree2.jpg" width="701" height="442" alt=""/></p>
-    <p>&nbsp;</p>
+    <p>A key panel is the third one, in which you ask IQ-TREE what models of character evolution to use. </p>
     <p><img src="files/iqtree3.jpg" width="701" height="442" alt=""/></p>
-    <p>&nbsp;</p>
+    <p>The first secion of the above panel lets you specify whether or not to use a partition, and how to treat the rates of different parts of a partition; the second section  the model of character evolution, including whether different parts of different models. If you choose &quot;don't partition&quot;, IQ-TREE will treat all sites as one part; if you choose &quot;use character groups&quot;, it will use any character groups you have specified as the parts of a partition; if you choose &quot;use codon positions&quot; it will use the codon positions you have defined. </p>
+    <p>Under &quot;Partition linkages&quot; you can choose one of three options regarding how branch lengths and partitions interact:</p>
+    <ul>
+      <li> Edge-linked partition model  [the -q option]</li>
+      <li>Edge-linked partition model (with partition-specific rates)  [the -spp option]. This is the recommended option; for it, all branches have one set of relative rates for all partition elements, but the different partitions can have different overall rates.</li>
+      <li>Edge-unlinked partition model (like -M option of RAxML) [the -sp option]</li>
+    </ul>
+    <p>See the IQ-TREE documentation for <a href="http://www.iqtree.org/doc/Advanced-Tutorial#partitioned-analysis-for-multi-gene-alignments">more details</a>. </p>
+    <p>Under &quot;Model option&quot; you can choose how the model of character evolution and the partition scheme is </p>
+    <ul>
+      <li> Standard model selection (like jModelTest, ProtTest)</li>
+      <li>Standard model selection followed by tree inference</li>
+      <li>Extended model selection with FreeRate heterogeneity</li>
+      <li>Extended model selection followed by tree inference</li>
+      <li>Find best partition scheme (like PartitionFinder)</li>
+      <li>Find best partition scheme followed by tree inference</li>
+      <li>Find best partition scheme inc FreeRate heterogeneity</li>
+      <li>Find best partition scheme inc FreeRate heterogeneity followed by tree inference</li>
+      <li>or, you can enter a specific model into the field below</li>
+    </ul>
+    <p>When you use one of these, Zephyr puts into the field the specification of IQ-TREE's &quot;-m&quot; option. See the IQ-TREE documentation for more details <a href="http://www.iqtree.org/doc/Command-Reference#automatic-model-selection">here</a> and <a href="http://www.iqtree.org/doc/Command-Reference#specifying-substitution-models">here</a>.    </p>
+    <p>The final panel allows you to specify a topological constraint (Zephyr will ask you for the tree to use as the constraint), and a text field in which you can enter addition IQ-TREE options otherwise not available within Mesquite's graphical user interface. </p>
     <p><img src="files/iqtree4.jpg" width="701" height="442" alt=""/></p>
     <p><br />
       <br />
