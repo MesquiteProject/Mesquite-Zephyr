@@ -422,6 +422,11 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 	public void checkEnabled(int searchStyle) {
 		onlyBestBox.setEnabled(searchStyle==STANDARDSEARCH);
+		numSearchRunsField.getTextField().setEnabled(searchStyle==STANDARDSEARCH);
+		numUFBootRunsField.getTextField().setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
+		bootStrapRepsField.getTextField().setEnabled(searchStyle!=STANDARDSEARCH);
+		seedField.getTextField().setEnabled(searchStyle!=STANDARDSEARCH);
+	
 	}
 	/* ................................................................................................................. */
 	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */
