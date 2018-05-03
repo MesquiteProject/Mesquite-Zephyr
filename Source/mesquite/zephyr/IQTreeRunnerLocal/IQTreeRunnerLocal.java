@@ -153,11 +153,20 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		dialog.addHorizontalLine(1);
 		autoNumProcessorsCheckBox = dialog.addCheckBox("Let IQ-TREE choose number of processors", autoNumProcessors);
+		autoNumProcessorsCheckBox.addItemListener(this);
 		numProcessorsField = dialog.addIntegerField("Specify number of processors", numProcessors, 8, 1, MesquiteInteger.infinite);
 		dialog.addHorizontalLine(1);
 
 		dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());
 	}
+	/*.................................................................................................................*/
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getItemSelectable() == autoNumProcessorsCheckBox){
+			numProcessorsField.getTextField().setEnabled(!autoNumProcessorsCheckBox.getState());
+		} else
+			super.itemStateChanged(e);
+	}
+
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
 		autoNumProcessors = autoNumProcessorsCheckBox.getState();
