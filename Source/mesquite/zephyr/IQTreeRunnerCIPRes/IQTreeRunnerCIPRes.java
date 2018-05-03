@@ -89,21 +89,12 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.0";
+		return "1.6.4";
 	}
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
 		appendToSearchDetails("CIPRes analysis completed "+StringUtil.getDateTime()+"\n");
-		appendToSearchDetails("Search details: \n");
-			if (bootstrapOrJackknife()){
-				appendToSearchDetails("   Bootstrap analysis\n");
-				appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
-			} else {
-				appendToSearchDetails("   Search for maximum-likelihood tree\n");
-				appendToSearchDetails("   "+numRuns + " search replicate");
-				if (numRuns>1)
-					appendToSearchDetails("s");
-			}
+		super.appendAdditionalSearchDetails();
 	}
 
 	/*.................................................................................................................*/
@@ -125,11 +116,11 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 	int currentRunProcessed=0;
 	/*.................................................................................................................*/
 	public String[] modifyOutputPaths(String[] outputFilePaths){
-		if (!bootstrapOrJackknife() && numRuns>1 ) {
+		if (!bootstrapOrJackknife() && numSearchRuns>1 ) {
 			String[] fileNames = getLogFileNames();
 			externalProcRunner.setOutputFileNameToWatch(WORKING_TREEFILE, fileNames[WORKING_TREEFILE]);
 			outputFilePaths[WORKING_TREEFILE] = externalProcRunner.getOutputFilePath(fileNames[WORKING_TREEFILE]);
-			for (int i=currentRunProcessed; i<numRuns; i++) {
+			for (int i=currentRunProcessed; i<numSearchRuns; i++) {
 				String candidate = outputFilePaths[WORKING_TREEFILE]+i;
 				if (MesquiteFile.fileExists(candidate)) {
 					outputFilePaths[WORKING_TREEFILE]= candidate;
@@ -148,7 +139,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 
 			MultipartEntityBuilder arguments = MultipartEntityBuilder.create();
 			StringBuffer sb = new StringBuffer();
-			getArguments(arguments, sb, "[fileName]", "[setsBlockFileName]", substitutionModelField.getText(), otherOptionsField.getText(), searchStyleButtons.getValue(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), charPartitionButtons.getValue(), partitionLinkageChoice.getSelectedIndex(), outgroupTaxSetString, null,  false);
+			getArguments(arguments, sb, "[fileName]", "[setsBlockFileName]", substitutionModelField.getText(), otherOptionsField.getText(), searchStyleButtons.getValue(), bootStrapRepsField.getValue(), bootstrapSeed, numSearchRunsField.getValue(), numUFBootRunsField.getValue(), charPartitionButtons.getValue(), partitionLinkageChoice.getSelectedIndex(), outgroupTaxSetString, null,  false);
 			String command = externalProcRunner.getExecutableCommand() + arguments.toString();
 			commandLabel.setText("This command will be used by CIPRes to run IQ-TREE:");
 			commandField.setText(command);
@@ -176,7 +167,8 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 			String setsFileName,
 			String LOCSubstitutionModel, String LOCotherOptions, 
 			int LOCsearchStyle, int LOCbootstrapreps, int LOCbootstrapSeed, 
-			int LOCnumRuns, 
+			int LOCnumSearchRuns, 
+			int LOCnumUFBootRuns, 
 			int LOCPartitionScheme,
 			int LOCPartitionLinkage,
 			String LOCoutgroupTaxSetString, String LOCMultipleModelFile, 
@@ -289,9 +281,9 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 		StringBuffer sb = new StringBuffer();
 
 		if (!isPreflight) {
-			getArguments(arguments, sb, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, multipleModelFileName, false);
+			getArguments(arguments, sb, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, multipleModelFileName, false);
 		} else {
-			getArguments(arguments, sb, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, multipleModelFileName, true);
+			getArguments(arguments, sb, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, multipleModelFileName, true);
 		}
 	
 		if (!isPreflight && isVerbose())
