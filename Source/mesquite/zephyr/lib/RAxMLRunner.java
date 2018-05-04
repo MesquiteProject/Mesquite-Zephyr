@@ -1,7 +1,7 @@
 /* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
 
 Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
-Zephry's web site is http://mesquitezephyr.wikispaces.com
+Zephry's web site is http://zephyr.mesquiteproject.org
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
@@ -319,7 +319,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		commandField = dialog.addSingleLineTextArea("", 2);
 		dialog.addBlankLine();
 		Button showCommand = dialog.addAListenedButton("Compose Command",null, this);
-		showCommand.setActionCommand("composeRAxMLCommand");
+		showCommand.setActionCommand(composeProgramCommand);
 		Button clearCommand = dialog.addAListenedButton("Clear",null, this);
 		clearCommand.setActionCommand("clearCommand");
 
@@ -364,6 +364,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 	public void checkEnabled(boolean doBoot) {
 		onlyBestBox.setEnabled(!doBoot);
+		numRunsField.getTextField().setEnabled(!doBoot);
+		bootStrapRepsField.getTextField().setEnabled(doBoot);
+		seedField.getTextField().setEnabled(doBoot);
 	}
 	/* ................................................................................................................. */
 	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */

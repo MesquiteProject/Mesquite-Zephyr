@@ -1,7 +1,7 @@
 /* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
 
 Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
-Zephry's web site is http://mesquitezephyr.wikispaces.com
+Zephry's web site is http://zephyr.mesquiteproject.org
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
@@ -192,10 +192,10 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 	}
 	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
+		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {
 
 			MesquiteString arguments = new MesquiteString();
-			getArguments(arguments, "fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, nobfgsCheckBox.getState(), false);
+			getArguments(arguments, "[fileName]", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, nobfgsCheckBox.getState(), false);
 			String command = externalProcRunner.getExecutableCommand() + arguments.getValue();
 			commandLabel.setText("This command will be used to run RAxML:");
 			commandField.setText(command);
@@ -214,7 +214,10 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 
 
 	/*.................................................................................................................*/
-	void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean LOCnobfgs, boolean preflight){
+	void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, 
+			String LOCdnaModel, String LOCotherOptions, 
+			boolean LOCdoBootstrap, int LOCbootstrapreps, int LOCbootstrapSeed, 
+			int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean LOCnobfgs, boolean preflight){
 		if (arguments == null)
 			return;
 
@@ -250,7 +253,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 		else if (useConstraintTree == MONOPHYLY)
 			localArguments += " -g constraintTree.tre "; 
 			
-		if (bootstrapOrJackknife()) {
+		if (LOCdoBootstrap) {
 			if (LOCbootstrapreps>0)
 				localArguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
 			else
@@ -332,11 +335,11 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 		MesquiteString arguments = new MesquiteString();
 
 		if (!isPreflight) {
-			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
+			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, doBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
 			if (isVerbose())
 				logln("RAxML arguments: \n" + arguments.getValue() + "\n");
 		} else {
-			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
+			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
 		if (threadingVersion==THREADING_PTHREADS) {
 			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ");   // have to ensure that there are at least two threads requested

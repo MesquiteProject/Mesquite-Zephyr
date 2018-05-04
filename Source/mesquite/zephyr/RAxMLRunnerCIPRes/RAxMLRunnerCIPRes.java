@@ -1,7 +1,7 @@
 /* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
 
 Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
-Zephry's web site is http://mesquitezephyr.wikispaces.com
+Zephry's web site is http://zephyr.mesquiteproject.org
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
@@ -156,7 +156,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
+		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {
 
 			MultipartEntityBuilder arguments = MultipartEntityBuilder.create();
 			StringBuffer sb = new StringBuffer();
@@ -175,12 +175,14 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 		this.randseed = seed;
 	}
 	
-	static final int DATAFILENUMBER = 0;
-	static final int MULTIMODELFILENUMBER = 1;
-	static final int CONSTRAINTFILENUMBER = 3;
 	public int minimumNumSearchReplicates() {
 		return 2;
 	}
+	/*.................................................................................................................*
+
+	static final int DATAFILENUMBER = 0;
+	static final int MULTIMODELFILENUMBER = 1;
+	static final int CONSTRAINTFILENUMBER = 3;
 
 	public void prepareRunnerObject(Object obj){
 		if (obj instanceof MultipartEntityBuilder) {

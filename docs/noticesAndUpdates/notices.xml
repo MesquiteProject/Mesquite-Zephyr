@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<mesquite>
+	<MessagesFromHome>
+		<version>1</version>
+		<notice><!--Zephyr notice of update -->
+			<forBuildNumberEqualOrLess>885</forBuildNumberEqualOrLess> <!-- this refers to Mesquite build, e.g. for compatibility -->
+			<noticeNumber>5</noticeNumber>
+			<messageType>alert</messageType>
+			<identity>Zephyr</identity>
+			<updateVersion>005</updateVersion>
+			<packageName>Zephyr version 2.1</packageName>
+			<message>
+			<![CDATA[<img src="http://zephyr.mesquiteproject.org/splash.jpg"><p>
+			In order to install Zephyr, you need to first update to Mesquite version 3.5.  
+			You can get Mesquite 3.5 at <a href = "http://www.mesquiteproject.org/Installation.html">http://www.mesquiteproject.org/Installation.html</a>
+			]]>
+			</message>
+		</notice>
+		<currentReleaseVersion>
+			<versionString>2.1</versionString>
+			<version>2010</version>
+			<downloadURL>http://zephyr.mesquiteproject.org/download.html</downloadURL>
+		</currentReleaseVersion>
+		<notice>
+			<forPackageVersionEqualOrLess>2010</forPackageVersionEqualOrLess>
+			<messageType>update</messageType>
+			<identity>Zephyr</identity>
+			<packageName>Zephyr 2.1</packageName>
+			<explanation><![CDATA[This is an important update to Zephyr.   Zephyr 2.1 adds support for IQ-TREE, as well as Mesquite 3.5.]]>
+			</explanation>
+			<noticeNumber>005</noticeNumber>
+			<updateVersion>005</updateVersion>
+			<install>
+				<location>mesquite</location>
+				<file>zephyr</file>
+				<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/2.1/Zephyr.2.1.zip</url>
+				<treatment>unzip</treatment>
+				<updateVersion>005</updateVersion>
+			</install>
+		</notice>
+		
+	</MessagesFromHome>
+</mesquite>

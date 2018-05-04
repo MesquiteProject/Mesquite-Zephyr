@@ -1,7 +1,7 @@
 /* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
 
 Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
-Zephry's web site is http://mesquitezephyr.wikispaces.com
+Zephry's web site is http://zephyr.mesquiteproject.org
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
@@ -622,7 +622,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	RadioButtons constraintButtons;
 	/*.................................................................................................................*
 	public  void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase("composeRAxMLCommand")) {
+		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {
 
 			MesquiteString arguments = new MesquiteString();
 			getArguments(arguments, "fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, false);
@@ -662,7 +662,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		String helpString = "This module will prepare a matrix for PAUP, and ask PAUP do to an analysis.  A command-line version of PAUP must be installed. ";
 		dialog.appendToHelpString(helpString);
 
-		dialog.setHelpURL("https://mesquitezephyr.wikispaces.com/PAUP");
+		dialog.setHelpURL("http://zephyr.mesquiteproject.org/PAUPOverview.html");
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 		String extraLabel = getLabelForQueryOptions();

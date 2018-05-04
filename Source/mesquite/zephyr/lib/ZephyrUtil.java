@@ -1,7 +1,7 @@
 /* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
 
 Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
-Zephry's web site is http://mesquitezephyr.wikispaces.com
+Zephry's web site is http://zephyr.mesquiteproject.org
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
@@ -265,7 +265,7 @@ public class ZephyrUtil {
 		return -1;
 	}
 	/*.................................................................................................................*/
-	public static String getStandardPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters){
+	public static String getStandardPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters, boolean includeAsterisk){
 		String standardPartitionSection = "";
 		String standardPartition = "";
 		String partitionCommand = "";
@@ -301,12 +301,15 @@ public class ZephyrUtil {
 		}
 		if (!StringUtil.blank(standardPartition)) {
 			standardPartitionSection +=standardPartition;
-			standardPartitionSection += "\n\tcharpartition * currentPartition = " + partitionCommand + ";\n";
+			standardPartitionSection += "\n\tcharpartition ";
+			if (includeAsterisk)
+			standardPartitionSection += "* ";
+			standardPartitionSection += "currentPartition = " + partitionCommand + ";\n";
 		}	
 		return standardPartitionSection;
 	}
 	/*.................................................................................................................*/
-	public static String getCodPosPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters){
+	public static String getCodPosPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters, boolean includeAsterisk){
 		//codon positions if nucleotide
 		String codPosPartitionSection = "";
 		int numberCharSets = 0;
@@ -334,7 +337,10 @@ public class ZephyrUtil {
 		//	String codPos = ((DNAData)data).getCodonsAsNexusCharSets(numberCharSets, charSetList); // equivalent to list
 		if (!StringUtil.blank(charSetCommands)) {
 			codPosPartitionSection +=charSetCommands;
-			codPosPartitionSection += "\n\tcharpartition * currentPartition = " + partitionCommand + ";\n";
+			codPosPartitionSection += "\n\tcharpartition ";
+			if (includeAsterisk)
+				codPosPartitionSection += "* ";
+			codPosPartitionSection += "currentPartition = " + partitionCommand + ";\n";
 		}	
 		return codPosPartitionSection;
 	}
@@ -420,14 +426,14 @@ public class ZephyrUtil {
 	}
 	/*.................................................................................................................*/
 
-	public static  String getNEXUSSetsBlock(CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters){
+	public static  String getNEXUSSetsBlock(CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters, boolean includeAsterisk){
 		StringBuffer sb = new StringBuffer();
 
 		String partitions = "";
 		if (useCodPosIfAvailable && data instanceof DNAData && ((DNAData)data).someCoding())
-			partitions = getCodPosPartitionNEXUSCommands(data, writeExcludedCharacters);
+			partitions = getCodPosPartitionNEXUSCommands(data, writeExcludedCharacters, includeAsterisk);
 		else
-			partitions = getStandardPartitionNEXUSCommands(data, writeExcludedCharacters);
+			partitions = getStandardPartitionNEXUSCommands(data, writeExcludedCharacters, includeAsterisk);
 
 		if (StringUtil.notEmpty(partitions)) {
 			sb.append("\nBEGIN sets;\n");
@@ -455,7 +461,7 @@ public class ZephyrUtil {
 			NexusBlock.suppressNEXUSIDS = true;
 			data.getMatrixManager().writeCharactersBlock(data, null, f, null);
 			if (writeSetsBlock) {
-				String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, false);
+				String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, writeExcludedCharacters, true);
 				if (StringUtil.notEmpty(setsBlock))
 					f.writeLine(setsBlock + StringUtil.lineEnding());
 			}
@@ -467,6 +473,22 @@ public class ZephyrUtil {
 			NexusBlock.suppressNEXUSIDS = nexusIDs;
 
 			//data.getMatrixManager().writeCharactersBlock(data, cB, file, progIndicator)
+			f.closeWriting();
+			return true;
+		}
+		return false;
+	}
+
+	/*.................................................................................................................*/
+	public static boolean writeNEXUSSetsBlock(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters, boolean includeAsterisk) {
+		if (path != null) {
+			MesquiteFile f = MesquiteFile.newFile(dir, fileName);
+			f.openWriting(true);
+			f.writeLine("#NEXUS" + StringUtil.lineEnding());
+			String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, writeExcludedCharacters, includeAsterisk);
+			if (StringUtil.notEmpty(setsBlock))
+				f.writeLine(setsBlock + StringUtil.lineEnding());
+
 			f.closeWriting();
 			return true;
 		}

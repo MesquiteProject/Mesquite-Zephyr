@@ -1,7 +1,7 @@
 /* Mesquite.zephyr source code.  Copyright 2007 and onwards D. Maddison and W. Maddison. 
 
 Mesquite.zephyr is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
-Zephry's web site is http://mesquitezephyr.wikispaces.com
+Zephry's web site is http://zephyr.mesquiteproject.org
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
@@ -655,6 +655,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	}
 
 	Button setByModelNameButton;
+	IntegerField numRunsField;
+	IntegerField bootStrapRepsField;
 	/*.................................................................................................................*/
 	public abstract String queryOptionsDialogTitle();
 	/*.................................................................................................................*/
@@ -708,7 +710,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		externalProcRunner.addNoteToBottomOfDialog(dialog);
 		
 		
-		IntegerField bootStrapRepsField=null;
+		 bootStrapRepsField=null;
 
 		if (bootstrapAllowed) {
 			tabbedPanel.addPanel("Replicates & Constraints", true);
@@ -724,7 +726,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		dialog.addLabel("Maximum Likelihood Tree Search Options", Label.LEFT, false, true);
 		if (numRuns<minimumNumSearchReplicates())
 			numRuns = minimumNumSearchReplicates();
-		IntegerField numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, minimumNumSearchReplicates(), MesquiteInteger.infinite);
+		 numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, minimumNumSearchReplicates(), MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 
 		if (getConstrainedSearchAllowed()) {
@@ -830,6 +832,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	}
 
 	/*.................................................................................................................*/
+	public void checkEnabled(boolean doBoot) {
+		onlyBestBox.setEnabled(!doBoot);
+		bootStrapRepsField.getTextField().setEnabled(doBoot);
+	}
+
 	/*.................................................................................................................*/
 	public void setGarliSeed(long seed) {
 		this.randseed = seed;
@@ -1260,10 +1267,6 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	/*.................................................................................................................*/
 	public boolean getOnlyBest() {
 		return onlyBest;
-	}
-
-	public void checkEnabled(boolean doBoot) {
-		onlyBestBox.setEnabled(!doBoot);
 	}
 
 	/*.................................................................................................................*/
