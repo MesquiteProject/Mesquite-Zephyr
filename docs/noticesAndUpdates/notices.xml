@@ -19,7 +19,7 @@
 		<currentReleaseVersion>
 			<versionString>2.1</versionString>
 			<version>2010</version>
-			<downloadURL>http://mesquitezephyr.wikispaces.com/Download</downloadURL>
+			<downloadURL>http://zephyr.mesquiteproject.org/download.html</downloadURL>
 		</currentReleaseVersion>
 		<notice>
 			<forPackageVersionEqualOrLess>2010</forPackageVersionEqualOrLess>
