@@ -3,26 +3,26 @@
 	<MessagesFromHome>
 		<version>1</version>
 		<notice><!--Zephyr notice of update -->
-			<forBuildNumberEqualOrLess>855</forBuildNumberEqualOrLess> <!-- this refers to Mesquite build, e.g. for compatibility -->
-			<noticeNumber>4</noticeNumber>
+			<forBuildNumberEqualOrLess>885</forBuildNumberEqualOrLess> <!-- this refers to Mesquite build, e.g. for compatibility -->
+			<noticeNumber>5</noticeNumber>
 			<messageType>alert</messageType>
 			<identity>Zephyr</identity>
-			<updateVersion>004</updateVersion>
-			<packageName>Zephyr version 2.01</packageName>
+			<updateVersion>005</updateVersion>
+			<packageName>Zephyr version 2.1</packageName>
 			<message>
-			<![CDATA[<img src="http://mesquiteproject.org/packages/zephyr/splash.jpg"><p>
-			In order to install Zephyr, you need to first update to <b>Mesquite version 3.31</b>.  
-			You can get Mesquite 3.31 at https://mesquiteproject.wikispaces.com/Installation
+			<![CDATA[<img src="http://zephyr.mesquiteproject.org/splash.jpg"><p>
+			In order to install Zephyr, you need to first update to Mesquite version 3.5.  
+			You can get Mesquite 3.5 at <a href = "http://www.mesquiteproject.org/Installation.html">http://www.mesquiteproject.org/Installation.html</a>
 			]]>
 			</message>
 		</notice>
 		<notice><!--Zephyr install -->
-			<forBuildNumberEqualOrGreater>856</forBuildNumberEqualOrGreater> <!-- this refers to Mesquite build, e.g. for compatibility -->
-			<noticeNumber>4</noticeNumber>
+			<forBuildNumberEqualOrGreater>888</forBuildNumberEqualOrGreater> <!-- this refers to Mesquite build, e.g. for compatibility -->
+			<noticeNumber>5</noticeNumber>
 			<messageType>update</messageType>
 			<identity>Zephyr</identity>
-			<updateVersion>004</updateVersion>
-			<packageName>Zephyr version 2.01</packageName>
+			<updateVersion>005</updateVersion>
+			<packageName>Zephyr version 2.1</packageName>
 			<beforeMessage>This may take a while to download; please wait until a message appears saying it's finished.</beforeMessage>
 			<explanation>
 			<![CDATA[<img src="http://mesquiteproject.org/packages/zephyr/splash.jpg"><p>
@@ -30,15 +30,15 @@
 			For example, you can ask Mesquite to send a matrix to RAxML, have RAxML search for maximum likelihood trees, and
 			then harvest the results automatically back into Mesquite.
 			For more information about the features of Zephyr, see the 
-			<a href = "https://mesquitezephyr.wikispaces.com">Zephyr web page</a>. (3)
+			<a href = "http://zephyr.mesquiteproject.org">Zephyr web page</a>. (3)
 			]]>
 			</explanation>
 				<install>
 					<location>mesquite</location>
 					<file>zephyr</file>
-					<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/2.01/Zephyr.2.01.zip</url>
+					<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/2.1/Zephyr.2.1.zip</url>
 					<treatment>unzip</treatment>
-					<updateVersion>004</updateVersion>
+					<updateVersion>005</updateVersion>
 				</install>
 		</notice>
 		

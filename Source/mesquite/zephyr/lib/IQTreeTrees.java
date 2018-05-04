@@ -42,7 +42,7 @@ public abstract class IQTreeTrees extends ZephyrTreeSearcher implements Likeliho
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){

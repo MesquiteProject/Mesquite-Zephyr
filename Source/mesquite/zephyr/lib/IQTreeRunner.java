@@ -1324,8 +1324,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 			} 
 		}
-
-
 	}
 
 	protected static final int OUT_LOGFILE=0;
@@ -1334,7 +1332,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected static final int WORKING_TREEFILE=3;
 	//protected static final int BESTTREEFILE = 4;
 	protected static final int OUT_SCHEMEFILE = 4;
-
 
 	/*.................................................................................................................*/
 	public String[] getLogFileNames(){
