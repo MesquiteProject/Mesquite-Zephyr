@@ -25,7 +25,7 @@
 			<packageName>Zephyr version 2.1</packageName>
 			<beforeMessage>This may take a while to download; please wait until a message appears saying it's finished.</beforeMessage>
 			<explanation>
-			<![CDATA[<img src="http://mesquiteproject.org/packages/zephyr/splash.jpg"><p>
+			<![CDATA[<img src="http://zephyr.mesquiteproject.org/splash.jpg"><p>
 			Zephyr is a package of Mesquite modules designed to allow Mesquite to interact with phylogenetic inference programs.  
 			For example, you can ask Mesquite to send a matrix to RAxML, have RAxML search for maximum likelihood trees, and
 			then harvest the results automatically back into Mesquite.
