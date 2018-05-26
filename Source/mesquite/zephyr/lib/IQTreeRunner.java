@@ -941,7 +941,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 							//check here if next char is "\"; if so then need to skip
 							int temp = startCharT.getValue();
 							token = ParseUtil.getToken(command, startCharT, whitespaceString, punctuationString); 
-							if (token.equals("\\")){
+							if (token!=null && token.equals("\\")){
 								token = ParseUtil.getToken(command, startCharT, whitespaceString, punctuationString); 
 								int tSkip = MesquiteInteger.fromString(token, false);
 								if (MesquiteInteger.isCombinable(tSkip))
