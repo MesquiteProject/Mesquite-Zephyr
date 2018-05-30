@@ -208,6 +208,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 	public boolean initialize(Taxa taxa) {
 		this.taxa = taxa;
+		observedStates = null; //DAVIDCHECK: iis this OK?
 		if (matrixSourceTask!=null) {
 			matrixSourceTask.initialize(taxa);
 		} else
@@ -288,6 +289,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		MesquiteDouble finalScores = new MesquiteDouble();
 
 		runner.setTreeInferer(getTreeInferer());
+		
 		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 		runner.setRunInProgress(false);
 		appendSearchDetails();
@@ -372,7 +374,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		taxa = treeList.getTaxa();
 		if (!initialize(taxa))
 			return;
-
+		
 		//DISCONNECTABLE
 		TreeVector trees = getTrees(taxa);
 		if (trees == null)
