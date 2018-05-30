@@ -1000,8 +1000,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		partitionNumber++;
 		characterPartition.setNexusBlockStored("SETS");
 		processSpecSet (command,  firstToken, characterPartition,  startCharT,  hasSpecificationTokens, bitsArray, charSetNames);
-		characterPartition.addToFile(getProject().getHomeFile(), getProject(), null);   // WAYNECHECK:  the charpartition here seems valid, yet it never seems to get added.  
-		data.storeSpecsSet(characterPartition, CharacterPartition.class); //DAVIDCHECK: try this? 
+		characterPartition.addToFile(getProject().getHomeFile(), getProject(), null);    
+		data.storeSpecsSet(characterPartition, CharacterPartition.class); 
 	}
 
 	static int partitionNumber = 1;
