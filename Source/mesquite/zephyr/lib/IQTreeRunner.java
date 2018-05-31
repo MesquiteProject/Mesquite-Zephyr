@@ -602,12 +602,12 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		}
 	}
 
-	protected String multipleModelFileName;
+	//protected String multipleModelFileName;
 	protected String constraintTreeFileName="constraintTree.tre";
 
 	/*.................................................................................................................*/
 	public void setFileNames () {
-		multipleModelFileName = "multipleModelFile.txt";
+	//	multipleModelFileName = "multipleModelFile.txt";
 
 	}
 
@@ -701,11 +701,12 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		setFileNames();
 
-		String multipleModelFileContents = IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
+		//DAVIDCHECK: following commented out, and multipleModelFileName zapped (also has defunct code in CIPRes and Local versions)
+	/*	String multipleModelFileContents = IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
 
 		if (StringUtil.blank(multipleModelFileContents)) 
 			multipleModelFileName=null;
-
+*/
 		String constraintTree = "";
 
 		if ( isConstrainedSearch()){
