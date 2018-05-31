@@ -745,7 +745,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		//	String preflightCommand = externalProcRunner.getExecutableCommand()+" --flag-check " + ((MesquiteString)preflightArguments).getValue();
 		String programCommand = externalProcRunner.getExecutableCommand();
 		//programCommand += StringUtil.lineEnding();  
-
+ 
 		//	if (preFlightSuccessful(preflightCommand)) {
 		//	}
 
