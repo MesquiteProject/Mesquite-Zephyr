@@ -208,7 +208,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 	public boolean initialize(Taxa taxa) {
 		this.taxa = taxa;
-		observedStates = null; //DAVIDCHECK: iis this OK?
+		observedStates = null; 
 		if (matrixSourceTask!=null) {
 			matrixSourceTask.initialize(taxa);
 		} else
