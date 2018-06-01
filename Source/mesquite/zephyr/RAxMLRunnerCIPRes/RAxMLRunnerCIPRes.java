@@ -178,7 +178,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	public int minimumNumSearchReplicates() {
 		return 2;
 	}
-	/*.................................................................................................................*
+	/*.................................................................................................................*/
 
 	static final int DATAFILENUMBER = 0;
 	static final int MULTIMODELFILENUMBER = 1;
@@ -230,6 +230,8 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 		else
 			arguments += " -s " + fileName + " -n file.out "; 
 		*/
+		
+
 		
 		if (isProtein) {
 			if (StringUtil.blank(LOCproteinModel))
