@@ -160,7 +160,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 			MultipartEntityBuilder arguments = MultipartEntityBuilder.create();
 			StringBuffer sb = new StringBuffer();
-			getArguments(arguments, sb, "fileName", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, nobfgsCheckBox.getState(), false);
+			getArguments(arguments, sb, "fileName", proteinModelField.getText(), proteinModelMatrixChoice.getSelectedItem(), dnaModelField.getText(), otherOptionsField.getText(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, nobfgsCheckBox.getState(), false);
 			String command = externalProcRunner.getExecutableCommand() + arguments.toString();
 			commandLabel.setText("This command will be used by CIPRes to run RAxML:");
 			commandField.setText(command);
@@ -221,7 +221,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			sb.append("\n  " + param + " = " + value);
 	}
 	/*.................................................................................................................*/
-	void getArguments(MultipartEntityBuilder builder, StringBuffer sb, String fileName, String LOCproteinModel, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean LOCnobfgs, boolean preflight){
+	void getArguments(MultipartEntityBuilder builder, StringBuffer sb, String fileName, String LOCproteinModel, String LOCproteinModelMatrix, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean LOCnobfgs, boolean preflight){
 		if (builder==null)
 			return;
 	/*	
@@ -234,15 +234,22 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 		
 		if (isProtein) {
+			addArgument(builder, sb, "vparam.datatype_", "protein");
 			if (StringUtil.blank(LOCproteinModel))
-				addArgument(builder, sb, "vparam.protein_opts_", "PROTGAMMAJTT");
+				addArgument(builder, sb, "vparam.prot_sub_model_", "PROTGAMMA");
 			else
-				addArgument(builder, sb, "vparam.protein_opts_", LOCproteinModel);
+				addArgument(builder, sb, "vparam.prot_sub_model_", LOCproteinModel);
+			if (StringUtil.blank(LOCproteinModelMatrix))
+				addArgument(builder, sb, "vparam.prot_matrix_spec_", "JTT");
+			else
+				addArgument(builder, sb, "vparam.prot_matrix_spec_", LOCproteinModelMatrix);
+		} else {
+			addArgument(builder, sb, "vparam.datatype_", "dna");
+			if (StringUtil.blank(LOCdnaModel))
+				addArgument(builder, sb, "vparam.dna_gtrcat_", "GTRGAMMA");
+			else
+				addArgument(builder, sb, "vparam.dna_gtrcat_","GTRGAMMA");
 		}
-		else if (StringUtil.blank(LOCdnaModel))
-			addArgument(builder, sb, "vparam.dna_gtrcat_", "GTRGAMMA");
-		else
-			addArgument(builder, sb, "vparam.dna_gtrcat_","GTRGAMMA");
 	//	builder.addTextBody("vparam.dna_gtrcat_",LOCdnaModel);
 
 		
@@ -331,7 +338,11 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	
 	
 	TaxaSelectionSet outgroupSet;
-	
+	/*.................................................................................................................*/
+	public boolean multipleModelFileAllowed() {
+		return false;
+	}
+
 	/*.................................................................................................................*/
 	public boolean preFlightSuccessful(String preflightCommand){
 		return runPreflightCommand(preflightCommand);
@@ -344,11 +355,11 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 		StringBuffer sb = new StringBuffer();
 
 		if (!isPreflight) {
-			getArguments(arguments, sb, dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
+			getArguments(arguments, sb, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
 			if (isVerbose())
 				logln("RAxML arguments: \n" + sb.toString() + "\n");
 		} else {
-			getArguments(arguments, sb, dataFileName, proteinModel, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
+			getArguments(arguments, sb, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
 		return arguments;
 

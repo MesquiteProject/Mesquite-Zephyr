@@ -195,7 +195,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {
 
 			MesquiteString arguments = new MesquiteString();
-			getArguments(arguments, "[fileName]", proteinModelField.getText(), dnaModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, nobfgsCheckBox.getState(), false);
+			getArguments(arguments, "[fileName]", proteinModelField.getText(), proteinModelMatrixChoice.getSelectedItem(), dnaModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, nobfgsCheckBox.getState(), false);
 			String command = externalProcRunner.getExecutableCommand() + arguments.getValue();
 			commandLabel.setText("This command will be used to run RAxML:");
 			commandField.setText(command);
@@ -214,7 +214,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 
 
 	/*.................................................................................................................*/
-	void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, 
+	void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, String LOCproteinModelMatrix,
 			String LOCdnaModel, String LOCotherOptions, 
 			boolean LOCdoBootstrap, int LOCbootstrapreps, int LOCbootstrapSeed, 
 			int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean LOCnobfgs, boolean preflight){
@@ -234,7 +234,7 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 			if (StringUtil.blank(LOCproteinModel))
 				localArguments += "PROTGAMMAJTT";
 			else
-				localArguments += LOCproteinModel;
+				localArguments += LOCproteinModel+LOCproteinModelMatrix;
 		}
 		else if (StringUtil.blank(LOCdnaModel))
 			localArguments += "GTRGAMMA";
@@ -335,11 +335,11 @@ public class RAxMLRunnerLocal extends RAxMLRunner  implements ActionListener, It
 		MesquiteString arguments = new MesquiteString();
 
 		if (!isPreflight) {
-			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, doBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
+			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
 			if (isVerbose())
 				logln("RAxML arguments: \n" + arguments.getValue() + "\n");
 		} else {
-			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
+			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
 		if (threadingVersion==THREADING_PTHREADS) {
 			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ");   // have to ensure that there are at least two threads requested
