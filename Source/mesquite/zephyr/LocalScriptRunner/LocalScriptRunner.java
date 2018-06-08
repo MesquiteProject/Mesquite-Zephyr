@@ -399,28 +399,32 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		if (scriptBased) {
 			runningFilePath = rootDir + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);
 			StringBuffer shellScript = new StringBuffer(1000);
+			String suffix = "";
+			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
+				suffix="\"";
 			shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
+			if (processRequester.allowStdErrRedirect()) {  //DAVIDCHECK: using "exec" redirects all script commands, not just program's. Main thing I'm worried about is if I put the suffix in the right place.
+				if (visibleTerminal && MesquiteTrunk.isMacOSX())
+					shellScript.append("exec >/dev/tty" + StringUtil.lineEnding());
+				else
+					shellScript.append("exec > " + ShellScriptRunner.stOutFileName +StringUtil.lineEnding());
+				shellScript.append("exec 2> " + ShellScriptRunner.stErrorFileName +StringUtil.lineEnding());
+			}
+			shellScript.append("badCommand0 "+StringUtil.lineEnding()); //Debugg.println
 			if (StringUtil.notEmpty(additionalShellScriptCommands))
 				shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
 			// 30 June 2017: added redirect of stderr
 			//		shellScript.append(programCommand + " " + args+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
-			String suffix = "";
-			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands()) {
+			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands()) 
 				shellScript.append(getLinuxBashScriptPreCommand());
-				suffix="\"";
-			}
-			if (!processRequester.allowStdErrRedirect())
-				shellScript.append(programCommand + " " + args + suffix+StringUtil.lineEnding());
-			else {
-				if (visibleTerminal && MesquiteTrunk.isMacOSX()) {
-					shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  suffix+StringUtil.lineEnding());
-				}
-				else
-					shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName + suffix+ StringUtil.lineEnding());
-			}
+			
+			shellScript.append(programCommand + " " + args +  suffix+StringUtil.lineEnding()); //DAVIDCHECK
+			shellScript.append("badCommand1 "+StringUtil.lineEnding()); //Debugg.println
+
 			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
 				shellScript.append(getLinuxBashScriptPostCommand());
 			shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
+			shellScript.append("badCommand2 "+StringUtil.lineEnding()); //Debugg.println
 			if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailableAndUseful())
 				shellScript.append("\n" + ShellScriptUtil.getExitCommand() + "\n");
 
