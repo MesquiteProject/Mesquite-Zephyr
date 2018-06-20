@@ -183,6 +183,8 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	static final int DATAFILENUMBER = 0;
 	static final int MULTIMODELFILENUMBER = 1;
 	static final int CONSTRAINTFILENUMBER = 3;
+	
+	String inputFilesInRunnerObject = "";
 
 	public void prepareRunnerObject(Object obj){
 		if (obj instanceof MultipartEntityBuilder) {
@@ -190,14 +192,19 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			final File file = new File(externalProcRunner.getInputFilePath(DATAFILENUMBER));
 			FileBody fb = new FileBody(file);
 			builder.addPart("input.infile_", fb);  
+			inputFilesInRunnerObject+= " input.infile_ transmitted\n";
 			if (useConstraintTree==SKELETAL || useConstraintTree==MONOPHYLY) {
 				final File constraintFile = new File(externalProcRunner.getInputFilePath(CONSTRAINTFILENUMBER));
 				if (constraintFile!=null && constraintFile.exists()) {
 					FileBody fb2 = new FileBody(constraintFile);
-					if (useConstraintTree == SKELETAL) 
+					if (useConstraintTree == SKELETAL) {
 						builder.addPart("input.binary_backbone_", fb2);  
-					else if (useConstraintTree == MONOPHYLY)
+						inputFilesInRunnerObject+= " input.binary_backbone_ constraint tree transmitted\n";
+					}
+					else if (useConstraintTree == MONOPHYLY) {
 						builder.addPart("input.constraint_", fb2);  
+						inputFilesInRunnerObject+= " input.constraint_ constraint tree transmitted\n";
+					}
 				}
 			}
 			String modelFilePath = externalProcRunner.getInputFilePath(MULTIMODELFILENUMBER);
@@ -206,10 +213,11 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 				if (modelFile!=null && modelFile.exists()) {
 					FileBody fb2 = new FileBody(modelFile);
 					builder.addPart("input.partition_", fb2);  
+					inputFilesInRunnerObject+= " input.partition_ model file transmitted\n";
 				}
 			}
-			
-
+			if (isVerbose() && StringUtil.notEmpty(inputFilesInRunnerObject))
+				logln(inputFilesInRunnerObject);		
 		}
 	}
 
@@ -254,7 +262,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 		
 		if (StringUtil.notEmpty(LOCMultipleModelFile)){
-			//addArgument(builder, sb, "input.partition_",multipleModelFileName);
+//			addArgument(builder, sb, "input.partition_",multipleModelFileName);
 		}
 			
 			//arguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
@@ -340,7 +348,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	TaxaSelectionSet outgroupSet;
 	/*.................................................................................................................*/
 	public boolean multipleModelFileAllowed() {
-		return false;
+		return true;
 	}
 
 	/*.................................................................................................................*/
@@ -356,8 +364,9 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 		if (!isPreflight) {
 			getArguments(arguments, sb, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
-			if (isVerbose())
+			if (isVerbose()) {
 				logln("RAxML arguments: \n" + sb.toString() + "\n");
+			}
 		} else {
 			getArguments(arguments, sb, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
