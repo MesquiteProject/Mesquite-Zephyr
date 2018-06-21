@@ -1165,8 +1165,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				if (!MesquiteLong.isCombinable(screenFilePos))
 					screenFilePos = 0;
 				screenFile.goToFilePosition(screenFilePos);
+				boolean errorFound=false;
 				String s = screenFile.readLine();
-				while (s != null) { // &&
+				while (s != null && !errorFound) { // &&
 					// screenFile.getFilePosition()<screenFile.existingLength()-2)
 					// {
 					if (s.startsWith("Final score")) {
@@ -1195,8 +1196,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 						}
 						logln("  Running time so far " + StringUtil.secondsToHHMMSS((int) timer.timeSinceVeryStartInSeconds()) + ", approximate time remaining "+ StringUtil.secondsToHHMMSS(timeLeft));
 
-					} else if (s.startsWith("ERROR:"))
+					} else if (s.startsWith("ERROR:")) {
 						MesquiteMessage.discreetNotifyUser("GARLI " + s);
+						errorFound=true;
+					}
 					s = screenFile.readLine();
 					count++;
 				}
@@ -1565,6 +1568,9 @@ class GarliCharModel {
 		if (modelNumber >= 0)
 			sb.append("\n[model" + modelNumber + "]");
 
+		if (ip){
+			sb.append("\ndatatype = aminoacid");
+		}
 
 		sb.append("\nratematrix = " + ratematrix);
 		sb.append("\nstatefrequencies = " + statefrequencies);
