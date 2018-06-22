@@ -53,6 +53,11 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	}
 	public void endJob(){
 		storePreferences();  //also after options chosen
+		if (getProject().getHomeFile().isDirty()) {
+			Debugg.println("DIRTY");
+		} else {
+			Debugg.println("NOT DIRTY");
+		}
 		super.endJob();
 	}
 
