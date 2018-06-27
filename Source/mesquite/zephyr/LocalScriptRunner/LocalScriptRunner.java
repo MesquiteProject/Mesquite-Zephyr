@@ -442,6 +442,10 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 					shellScript.append("exec > " + ShellScriptRunner.stOutFileName +StringUtil.lineEnding());
 				shellScript.append("exec 2> " + ShellScriptRunner.stErrorFileName +StringUtil.lineEnding());
 			}
+<<<<<<< HEAD
+=======
+			//shellScript.append("badCommand0 "+StringUtil.lineEnding()); //Debugg.println
+>>>>>>> branch 'development' of https://github.com/MesquiteProject/Mesquite-Zephyr/
 			if (StringUtil.notEmpty(additionalShellScriptCommands))
 				shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
 			// 30 June 2017: added redirect of stderr
@@ -449,12 +453,17 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands()) 
 				shellScript.append(getLinuxBashScriptPreCommand());
 			
+<<<<<<< HEAD
 			shellScript.append(programCommand + " " + args +  suffix+StringUtil.lineEnding()); 
+=======
+			shellScript.append(programCommand + " " + args +  suffix+StringUtil.lineEnding()); //DAVIDCHECK
+			//shellScript.append("badCommand1 "+StringUtil.lineEnding()); //Debugg.println
+>>>>>>> branch 'development' of https://github.com/MesquiteProject/Mesquite-Zephyr/
 
 			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
 				shellScript.append(getLinuxBashScriptPostCommand());
 			shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
-			shellScript.append("badCommand2 "+StringUtil.lineEnding()); //Debugg.println
+			//shellScript.append("badCommand2 "+StringUtil.lineEnding()); //Debugg.println
 			if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailableAndUseful())
 				shellScript.append("\n" + ShellScriptUtil.getExitCommand() + "\n");
 			scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
