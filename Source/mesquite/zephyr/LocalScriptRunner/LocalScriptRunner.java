@@ -399,18 +399,49 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		if (scriptBased) {
 			runningFilePath = rootDir + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);
 			StringBuffer shellScript = new StringBuffer(1000);
+			shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
+			if (StringUtil.notEmpty(additionalShellScriptCommands))
+				shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
+			// 30 June 2017: added redirect of stderr
+			//		shellScript.append(programCommand + " " + args+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+			String suffix = "";
+			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands()) {
+				shellScript.append(getLinuxBashScriptPreCommand());
+				suffix="\"";
+			}
+			if (!processRequester.allowStdErrRedirect())
+				shellScript.append(programCommand + " " + args + suffix+StringUtil.lineEnding());
+			else {
+				if (visibleTerminal && MesquiteTrunk.isMacOSX()) {
+					shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  suffix+StringUtil.lineEnding());
+				}
+				else
+					shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName + suffix+ StringUtil.lineEnding());
+			}
+			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
+				shellScript.append(getLinuxBashScriptPostCommand());
+			shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
+			if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailableAndUseful())
+				shellScript.append("\n" + ShellScriptUtil.getExitCommand() + "\n");
+
+			scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
+			MesquiteFile.putFileContents(scriptPath, shellScript.toString(), false);
+		}
+		/* alternative, not well tested
+		if (scriptBased) {
+			runningFilePath = rootDir + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);
+			StringBuffer shellScript = new StringBuffer(1000);
 			String suffix = "";
 			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
 				suffix="\"";
 			shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
-			if (processRequester.allowStdErrRedirect()) {  //DAVIDCHECK: using "exec" redirects all script commands, not just program's. Main thing I'm worried about is if I put the suffix in the right place.
+			if (processRequester.allowStdErrRedirect()) {  //using "exec" redirects all script commands, not just program's. 
 				if (visibleTerminal && MesquiteTrunk.isMacOSX())
 					shellScript.append("exec >/dev/tty" + StringUtil.lineEnding());
 				else
 					shellScript.append("exec > " + ShellScriptRunner.stOutFileName +StringUtil.lineEnding());
 				shellScript.append("exec 2> " + ShellScriptRunner.stErrorFileName +StringUtil.lineEnding());
 			}
-			shellScript.append("badCommand0 "+StringUtil.lineEnding()); //Debugg.println
 			if (StringUtil.notEmpty(additionalShellScriptCommands))
 				shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
 			// 30 June 2017: added redirect of stderr
@@ -418,8 +449,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands()) 
 				shellScript.append(getLinuxBashScriptPreCommand());
 			
-			shellScript.append(programCommand + " " + args +  suffix+StringUtil.lineEnding()); //DAVIDCHECK
-			shellScript.append("badCommand1 "+StringUtil.lineEnding()); //Debugg.println
+			shellScript.append(programCommand + " " + args +  suffix+StringUtil.lineEnding()); 
 
 			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
 				shellScript.append(getLinuxBashScriptPostCommand());
@@ -427,10 +457,10 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			shellScript.append("badCommand2 "+StringUtil.lineEnding()); //Debugg.println
 			if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailableAndUseful())
 				shellScript.append("\n" + ShellScriptUtil.getExitCommand() + "\n");
-
 			scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
 			MesquiteFile.putFileContents(scriptPath, shellScript.toString(), false);
 		}
+		*/
 		return true;
 	}
 	/*.................................................................................................................*/
