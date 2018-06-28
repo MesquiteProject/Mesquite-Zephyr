@@ -475,7 +475,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			return "TEST";
 		case 2: 
 			return "MF";
-		case 3: 
+		case 3:  //MFPOption
 			return "MFP";
 		case 4: 
 			return "TESTMERGEONLY";
@@ -701,12 +701,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		setFileNames();
 
-		//DAVIDCHECK: following commented out, and multipleModelFileName zapped (also has defunct code in CIPRes and Local versions)
-	/*	String multipleModelFileContents = IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
-
-		if (StringUtil.blank(multipleModelFileContents)) 
-			multipleModelFileName=null;
-*/
 		String constraintTree = "";
 
 		if ( isConstrainedSearch()){
