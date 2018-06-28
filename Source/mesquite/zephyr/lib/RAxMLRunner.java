@@ -52,7 +52,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected int bootstrapreps = 100;
 	protected int bootstrapSeed = Math.abs((int)System.currentTimeMillis());
 	protected static String dnaModel = "GTRGAMMAI";
-	protected static String proteinModel = "PROTGAMMAJTT";
+	protected static String proteinModel = "PROTGAMMA";
+	protected static String proteinModelMatrix = "JTT";
 	protected static String otherOptions = "";
 	protected boolean doBootstrap = false;
 	protected static final int NOCONSTRAINT = 0;
@@ -70,6 +71,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	static String constraintfile = "none";
 
 	protected  SingleLineTextField dnaModelField, proteinModelField, otherOptionsField;
+	protected Choice proteinModelMatrixChoice;
 	IntegerField seedField;
 	protected javax.swing.JLabel commandLabel;
 	protected SingleLineTextArea commandField;
@@ -226,6 +228,20 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	/*.................................................................................................................*/
 	public abstract String queryOptionsDialogTitle();
 
+	/*.................................................................................................................*/
+	public String[] getProteinModelMatrixOptions() {
+		return new String[] {"DAYHOFF", "DCMUT", "JTT", "MTREV", "WAG", "RTREV", "CPREV", "VT", "BLOSUM62", "MTMAM", "LG", "MTART", "MTZOA", "PMB", "HIVB", "HIVW", "JTTDCMUT", "FLU", "STMTREV", "DUMMY", "DUMMY2", "AUTO", "LG4M", "LG4X", "PROT_FILE", "GTR_UNLINKED", "GTR"};
+	}
+	/*.................................................................................................................*/
+	public int getProteinModelMatrixNumber(String name) {
+		if (StringUtil.blank(name))
+			return 0;
+		String[] names = getProteinModelMatrixOptions();
+		for (int i=0;  i<names.length; i++)
+			if (names[i]!=null && names[i].equalsIgnoreCase(name))
+				return i;
+		return 0;
+	}
 
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
@@ -298,6 +314,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			tabbedPanel.addPanel("Character Models", true);
 		dnaModelField = dialog.addTextField("DNA Model:", dnaModel, 20);
 		proteinModelField = dialog.addTextField("Protein Model:", proteinModel, 20);
+		proteinModelMatrixChoice = dialog.addPopUpMenu("Protein Transition Matrix Model", getProteinModelMatrixOptions(), getProteinModelMatrixNumber(proteinModelMatrix));
 
 		if (getConstrainedSearchAllowed()) {
 			dialog.addHorizontalLine(1);
@@ -338,6 +355,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			if (externalProcRunner.optionsChosen() && infererOK) {
 				dnaModel = dnaModelField.getText();
 				proteinModel = proteinModelField.getText();
+				String name = proteinModelMatrixChoice.getSelectedItem();
+				if (StringUtil.notEmpty(name))
+					proteinModelMatrix = name;
 				numRuns = numRunsField.getValue();
 				if (bootstrapAllowed) {
 					doBootstrap = doBootstrapCheckbox.getState();
@@ -571,6 +591,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 
 	/*.................................................................................................................*/
+	public boolean multipleModelFileAllowed() {
+		return true;
+	}
+	/*.................................................................................................................*/
 	public synchronized Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		finalValues=null;
 		optimizedValues =null;
@@ -609,7 +633,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		setFileNames();
 
-		String multipleModelFileContents = IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
+		String multipleModelFileContents = "";
+		if (multipleModelFileAllowed())
+			multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
 		//Debugg.println: David: could there be a choice for partByCodPos?  I'd like that
 		//Debugg.println("multipleModelFileContents " + multipleModelFileContents);
 		

@@ -475,7 +475,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			return "TEST";
 		case 2: 
 			return "MF";
-		case 3: 
+		case 3:  //MFPOption
 			return "MFP";
 		case 4: 
 			return "TESTMERGEONLY";
@@ -602,12 +602,12 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		}
 	}
 
-	protected String multipleModelFileName;
+	//protected String multipleModelFileName;
 	protected String constraintTreeFileName="constraintTree.tre";
 
 	/*.................................................................................................................*/
 	public void setFileNames () {
-		multipleModelFileName = "multipleModelFile.txt";
+	//	multipleModelFileName = "multipleModelFile.txt";
 
 	}
 
@@ -701,11 +701,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		setFileNames();
 
-		String multipleModelFileContents = IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
-
-		if (StringUtil.blank(multipleModelFileContents)) 
-			multipleModelFileName=null;
-
 		String constraintTree = "";
 
 		if ( isConstrainedSearch()){
@@ -744,7 +739,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		//	String preflightCommand = externalProcRunner.getExecutableCommand()+" --flag-check " + ((MesquiteString)preflightArguments).getValue();
 		String programCommand = externalProcRunner.getExecutableCommand();
 		//programCommand += StringUtil.lineEnding();  
-
+ 
 		//	if (preFlightSuccessful(preflightCommand)) {
 		//	}
 
@@ -941,7 +936,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 							//check here if next char is "\"; if so then need to skip
 							int temp = startCharT.getValue();
 							token = ParseUtil.getToken(command, startCharT, whitespaceString, punctuationString); 
-							if (token.equals("\\")){
+							if (token!=null && token.equals("\\")){
 								token = ParseUtil.getToken(command, startCharT, whitespaceString, punctuationString); 
 								int tSkip = MesquiteInteger.fromString(token, false);
 								if (MesquiteInteger.isCombinable(tSkip))
@@ -1000,8 +995,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		partitionNumber++;
 		characterPartition.setNexusBlockStored("SETS");
 		processSpecSet (command,  firstToken, characterPartition,  startCharT,  hasSpecificationTokens, bitsArray, charSetNames);
-		characterPartition.addToFile(getProject().getHomeFile(), getProject(), null);   // WAYNECHECK:  the charpartition here seems valid, yet it never seems to get added.  
-		data.storeSpecsSet(characterPartition, CharacterPartition.class); //DAVIDCHECK: try this? 
+		characterPartition.addToFile(getProject().getHomeFile(), getProject(), null);    
+		data.storeSpecsSet(characterPartition, CharacterPartition.class); 
 	}
 
 	static int partitionNumber = 1;
