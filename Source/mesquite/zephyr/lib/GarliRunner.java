@@ -20,6 +20,7 @@ import javax.swing.event.*;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
+import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -957,7 +958,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 
 		// setting up the arrays of input file names and contents
-		int numInputFiles = 3;
+		int numInputFiles = 4;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i = 0; i < numInputFiles; i++) {
@@ -972,6 +973,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 		fileContents[CONFIGFILENUMBER] = config;
 		fileNames[CONFIGFILENUMBER] = configFileName;
+		fileContents[3] = getRunInformation();
+		fileNames[3] = IOUtil.runInformationFileName;
 
 		String GARLIcommand = externalProcRunner.getExecutableCommand();
 		Object arguments = getProgramArguments(dataFileName, configFileName, false);

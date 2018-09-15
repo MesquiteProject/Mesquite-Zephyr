@@ -614,6 +614,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			return null;
 		String dataFileName = getDataFileName();   //replace this with actual file name?
 		String translationFileName = IOUtil.translationTableFileName;   
+		String runInformationFileName = IOUtil.runInformationFileName;   
 		String dataFilePath = tempDir +  dataFileName;
 		FileInterpreterI exporter = null;
 		if (data instanceof DNAData)
@@ -688,6 +689,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			}
 			}
 		}
+		
+		
 		setRootNameForDirectoryInProcRunner();
 		//now establish the commands for invoking RAxML
 		
@@ -701,12 +704,13 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		//	if (preFlightSuccessful(preflightCommand)) {
 		//	}
+
 		
 		if (updateWindow)
 			parametersChanged(); //just a way to ping the coordinator to update the window
 
 		//setting up the arrays of input file names and contents
-		int numInputFiles = 4;
+		int numInputFiles = 5;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -721,6 +725,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		fileNames[2] = translationFileName;
 		fileContents[3] = constraintTree;
 		fileNames[3] = constraintTreeFileName;
+		fileContents[4] = getRunInformation();
+		fileNames[4] = runInformationFileName;
 
 		numRunsCompleted = 0;
 		completedRuns = new boolean[numRuns];

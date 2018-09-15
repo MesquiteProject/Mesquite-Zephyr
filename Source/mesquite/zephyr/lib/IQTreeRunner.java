@@ -747,7 +747,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			parametersChanged(); //just a way to ping the coordinator to update the window
 
 		//setting up the arrays of input file names and contents
-		int numInputFiles = 3;
+		int numInputFiles = 4;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -764,6 +764,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		//fileNames[2] = translationFileName;
 		fileContents[2] = constraintTree;
 		fileNames[2] = constraintTreeFileName;
+		fileContents[3] = getRunInformation();
+		fileNames[3] = IOUtil.runInformationFileName;
 
 		switch (searchStyle) {
 		case STANDARDSEARCH: 

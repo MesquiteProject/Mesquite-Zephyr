@@ -15,6 +15,7 @@ import java.awt.event.*;
 import java.util.*;
 
 import mesquite.categ.lib.*;
+import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -328,7 +329,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 
 
-		int numInputFiles = 2;
+		int numInputFiles = 3;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -339,6 +340,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		fileNames[0] = dataFileName;
 		fileContents[1] = commands;
 		fileNames[1] = commandFileName;
+		fileContents[2] = getRunInformation();
+		fileNames[2] = IOUtil.runInformationFileName;
 
 
 		//----------//

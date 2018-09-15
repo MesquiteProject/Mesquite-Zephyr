@@ -571,6 +571,24 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return useDiscreetAlert;
 	}
 	/*.................................................................................................................*/
+//TODO: generalize to all programs (e.g., not in TNTRunner)
+	public String getRunInformation() {
+		StringBuffer sb = new StringBuffer(1000);
+		sb.append("Trees acquired from " + getProgramName() + " using Mesquite's Zephyr package. \n");
+		sb.append(getProgramName() + " run on " + getProgramLocation() +" \n");
+		sb.append("Analysis started " + getDateAndTime()+ "\n");
+		sb.append("------------------------------------------\n");
+		sb.append("Taxa: " + taxa.getName() + "\n");
+		sb.append("Matrix: " + data.getName() + "\n");
+		sb.append("Number of taxa analyzed: ");
+		if (selectedTaxaOnly) {
+			sb.append(data.numSelectedTaxa()+" (selected taxa only)\n");
+		} else
+			sb.append(data.getNumTaxa());
+
+		return sb.toString();
+	}
+	/*.................................................................................................................*/
 	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle) {
 		runInProgress=true;
 
