@@ -614,7 +614,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			return null;
 		String dataFileName = getDataFileName();   //replace this with actual file name?
 		String translationFileName = IOUtil.translationTableFileName;   
-		String runInformationFileName = IOUtil.runInformationFileName;   
 		String dataFilePath = tempDir +  dataFileName;
 		FileInterpreterI exporter = null;
 		if (data instanceof DNAData)

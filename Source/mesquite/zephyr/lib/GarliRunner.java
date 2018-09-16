@@ -974,7 +974,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		fileContents[CONFIGFILENUMBER] = config;
 		fileNames[CONFIGFILENUMBER] = configFileName;
 		fileContents[3] = getRunInformation();
-		fileNames[3] = IOUtil.runInformationFileName;
+		fileNames[3] = runInformationFileName;
 
 		String GARLIcommand = externalProcRunner.getExecutableCommand();
 		Object arguments = getProgramArguments(dataFileName, configFileName, false);

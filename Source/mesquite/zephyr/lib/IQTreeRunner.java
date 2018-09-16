@@ -765,7 +765,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		fileContents[2] = constraintTree;
 		fileNames[2] = constraintTreeFileName;
 		fileContents[3] = getRunInformation();
-		fileNames[3] = IOUtil.runInformationFileName;
+		fileNames[3] = runInformationFileName;
 
 		switch (searchStyle) {
 		case STANDARDSEARCH: 

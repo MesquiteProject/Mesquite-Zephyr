@@ -23,6 +23,7 @@ import mesquite.lib.duties.TreeInferer;
 public abstract class ZephyrRunner extends MesquiteModule implements ExternalProcessRequester, OutputFilePathModifier{
 
 	protected TreeInferer treeInferer = null;
+	public static String runInformationFileName = "runInformation.txt";
 
 	String[] logFileNames;
 	protected ExternalProcessRunner externalProcRunner;
