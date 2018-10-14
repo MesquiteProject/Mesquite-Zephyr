@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.CIPResRESTRunner;
+package mesquite.zephyr.SSHRunner;
 
 import java.awt.Button;
 import java.awt.Checkbox;
@@ -15,24 +15,26 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 
+import mesquite.externalCommunication.lib.*;
 import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
-public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFileProcessor, ShellScriptWatcher, OutputFilePathModifier {
-	String rootDir = null;
-	MesquiteString jobURL = null;
-	MesquiteString jobID = null;
+public class SSHRunner extends ExternalProcessRunner implements OutputFileProcessor, ShellScriptWatcher, OutputFilePathModifier {
+	String rootDir = null;  // local directory for storing files on local machine
+//	MesquiteString jobURL = null;
+//	MesquiteString jobID = null;
 	ExternalProcessRequester processRequester;
 	MesquiteString xmlPrefs= new MesquiteString();
 	String xmlPrefsString = null;
+	StringBuffer extraPreferences;
+
+	String remoteExecutablePath = "/usr/local/bin/raxmlHPC-PTHREADS8210-AVX2";
 
 	boolean verbose = true;
 	boolean forgetPassword=false;
-	double runLimit=0.5;
 	
-	CIPResCommunicator communicator;
+	SimpleSSHCommunicator communicator;
 
 	/*.================================================================..*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
@@ -48,15 +50,17 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	}
 	
 	public  String getProgramLocation(){
-		return "CIPRes";
+		if (communicator!=null)
+			return "SSH "+communicator.getHost();
+		return "SSH";
 	}
 
 	
 	public String getName() {
-		return "CIPRes REST Runner";
+		return "SSH Runner";
 	}
 	public String getExplanation() {
-		return "Runs jobs on CIPRes.";
+		return "Runs jobs by SSH on a server.";
 	}
 	public boolean isReconnectable(){
 		return true;
@@ -64,10 +68,10 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	
 	
 	public String getMessageIfUserAbortRequested () {
-		return "Do you wish to stop the CIPRes analysis?  No intermediate trees will be saved if you do.";
+		return "Do you wish to stop the analysis conducted via SSH?  No intermediate trees will be saved if you do.";
 	}
 	public String getMessageIfCloseFileRequested () {  
-		return "If Mesquite closes this file, it will not stop the run on CIPRes.  To stop the run on CIPRes, press the \"Stop\" link in the analysis window before closing.";  
+		return "If Mesquite closes this file, it will not stop the run on the server.  To stop the run on the server, press the \"Stop\" link in the analysis window before closing.";  
 	}
 
 	/*.................................................................................................................*/
@@ -76,7 +80,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return false;
+		return true;
 	}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){
@@ -91,18 +95,42 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	}
 
 	/*.................................................................................................................*/
-	public String preparePreferencesForXML () {
-		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "runLimit", runLimit);  
-		return buffer.toString();
-	}
-	/*.................................................................................................................*/
-	public void processSingleXMLPreference (String tag, String content) {
-		if ("runLimit".equalsIgnoreCase(tag))
-			runLimit = MesquiteDouble.fromString(content);
+	public void processSingleXMLPreference (String tag, String flavor, String content) {
+		if (StringUtil.notEmpty(flavor) && "remoteExecutablePath".equalsIgnoreCase(tag)){   // it is one with the flavor attribute
+			if (flavor.equalsIgnoreCase(getExecutableName()))   /// check to see if flavor is correct!!!
+				remoteExecutablePath = StringUtil.cleanXMLEscapeCharacters(content);
+			else {
+				String path = StringUtil.cleanXMLEscapeCharacters(content);
+				StringUtil.appendXMLTag(extraPreferences, 2, "remoteExecutablePath", flavor, path);  		// store for next time
+			}
+		}
 		super.processSingleXMLPreference(tag, content);
 	}
-
+	/*.................................................................................................................*/
+	public String preparePreferencesForXML () {
+		StringBuffer buffer = new StringBuffer(200);
+		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), remoteExecutablePath);  
+		/*if (visibleTerminalOptionAllowed())
+			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
+		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
+		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
+		StringUtil.appendXMLTag(buffer, 2, "addExitCommand", addExitCommand);  
+		*/
+		buffer.append(extraPreferences);
+		return buffer.toString();
+	}
+	/*.................................................................................................................*
+	public String preparePreferencesForXML () {
+		StringBuffer buffer = new StringBuffer(200);
+		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), executablePath);  
+		if (visibleTerminalOptionAllowed())
+			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
+		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
+		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
+		StringUtil.appendXMLTag(buffer, 2, "addExitCommand", addExitCommand);  
+		buffer.append(extraPreferences);
+		return buffer.toString();
+	}
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
@@ -123,22 +151,14 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 			temp.addLine("endTell");
 			//	temp.addLine("startMonitoring ");  this happens via reconnectToRequester so that it happens on the separate thread
 		}
-		temp.addLine("setRunLimit " +  runLimit);
-		if (jobURL != null)
-			temp.addLine("setJobURL " +  ParseUtil.tokenize(jobURL.getValue()));
 		return temp;
 	}
 	boolean reportJobURL = false;
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
 		if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveCommunicator")) {
-			logln("Reviving CIPRes Communicator");
-			communicator = new CIPResCommunicator(this, xmlPrefsString,outputFilePaths);
-			//setOutputFileNamesToWatch(fileNames[]);
-			if (jobURL!=null)
-				logln("\nJob URL: " + jobURL.getValue()+"\n");
-			else
-				reportJobURL=true;
+			logln("Reviving SSH Communicator");
+			communicator = new SimpleSSHCommunicator(this, xmlPrefsString,outputFilePaths);
 			communicator.setOutputProcessor(this);
 			communicator.setWatcher(this);
 			communicator.setRootDir(rootDir);
@@ -156,24 +176,10 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 			for (int i=1; i<num; i++)
 				outputFilePaths[i] = parser.getNextToken();
 		}
-		else if (checker.compare(this.getClass(), "Sets the job URL", null, commandName, "setJobURL")) {
-			if (jobURL==null)
-				jobURL = new MesquiteString();
-			jobURL.setValue(parser.getFirstToken(arguments));
-			if (reportJobURL) {
-				logln("Job URL: " + jobURL.getValue());
-				reportJobURL=false;
-			}
-		}
 		else if (checker.compare(this.getClass(), "Sets root directory", null, commandName, "setRootDir")) {
 			rootDir = parser.getFirstToken(arguments);
 			if (communicator!=null)
 				communicator.setRootDir(rootDir);
-		}
-		else if (checker.compare(this.getClass(), "Sets runLimit", null, commandName, "setRunLimit")) {
-			runLimit = MesquiteDouble.fromString(parser.getFirstToken(arguments));
-			if (communicator!=null)
-				communicator.setRunLimit(runLimit);
 		}
 		return null;
 	}	
@@ -197,34 +203,63 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	
 	// given the opportunity to fill in options for user
 	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
-		dialog.addBoldLabel("CIPRes Options");
-		ForgetPasswordCheckbox = dialog.addCheckBox("Require new login to CIPRes", false);
-		runLimitField = dialog.addDoubleField("maximum hours of CIPRes time for run", runLimit, 5, 0, 168);
+		if (communicator!=null) {
+			dialog.addBoldLabel(communicator.getServiceName()+" Server Options");
+			ForgetPasswordCheckbox = dialog.addCheckBox("Require new login to "+communicator.getServiceName()+" Server", false);
+		} else {
+			dialog.addBoldLabel("SSH Server Options");
+			ForgetPasswordCheckbox = dialog.addCheckBox("Require new login to SSH Server", false);
+		}
 	}
 	
 	public void addNoteToBottomOfDialog(ExtensibleDialog dialog){
 		dialog.addHorizontalLine(1);
-		dialog.addLabelSmallText("CIPRes features in Zephyr are preliminary, and may have some flaws.");
+		dialog.addLabelSmallText("SSH features in Zephyr are preliminary, and may have some flaws.");
 		dialog.addLabelSmallText("Please send feedback to info@mesquiteproject.org");
 	}
 
 	public boolean optionsChosen(){
 		if (ForgetPasswordCheckbox.getState())
 			forgetCIPResPassword();
-		runLimit = runLimitField.getValue();
 		return true;
 	}
 
+	public boolean requiresLinuxTerminalCommands(){
+		return processRequester.requiresLinuxTerminalCommands();
+	}
+	
+	/** Following section on how to invoke a linux terminal and have it not be asynchronous comes from
+	 * https://askubuntu.com/questions/627019/blocking-start-of-terminal, courtesy of users Byte Commander and terdon.
+	 * */
+	
+	String linuxTerminalCommand = "gnome-terminal -x bash -c \"echo \\$$>$pidfile; ";
+
+	public String getLinuxTerminalCommand() {
+		return linuxTerminalCommand;
+	}
+	public void setLinuxTerminalCommand(String linuxTerminalCommand) {
+		this.linuxTerminalCommand = linuxTerminalCommand;
+	}
 	/*.................................................................................................................*/
 	public String getExecutableCommand(){
-		return processRequester.getExecutableName();
+		if (MesquiteTrunk.isWindows())
+			return "call " + StringUtil.protectFilePathForWindows(remoteExecutablePath);
+		else if (MesquiteTrunk.isLinux()) {
+			if (requiresLinuxTerminalCommands())
+				return getLinuxTerminalCommand() + " " + StringUtil.protectFilePathForUnix(remoteExecutablePath);
+			else 
+				return " \"" + remoteExecutablePath+"\"";
+		}
+		else
+			return StringUtil.protectFilePathForUnix(remoteExecutablePath);
 	}
 	
 	String executableRemoteName;
-	MultipartEntityBuilder builder;
+	String[] commands;
 	String[] outputFilePaths;
 	String[] outputFileNames;
 	String[] inputFilePaths;
+	String[] inputFileNames;
 	/*.................................................................................................................*/
 	public String getDirectoryPath(){  
 		return rootDir;
@@ -241,22 +276,25 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	// the actual data & scripts.  
 	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
 		executableRemoteName= programCommand;
-		if (!(arguments instanceof MultipartEntityBuilder))
+		if (!(arguments instanceof MesquiteString))
 			return false;
-		builder = (MultipartEntityBuilder)arguments;
+		//communicator.setRemoteWorkingDirectoryPath("/Users/david/Desktop/runTest");
+		commands = new String[] {"> "+communicator.runningFileName, programCommand+" "+((MesquiteString)arguments).getValue(), "rm -f "+communicator.runningFileName};
 		if (rootDir==null) 
 			rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
 		if (rootDir==null)
 			return false;
 		
 		inputFilePaths = new String[fileNames.length];
+		inputFileNames = new String[fileNames.length];
 		for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
 			if (StringUtil.notEmpty(fileNames[i]) && fileContents[i]!=null) {
 				MesquiteFile.putFileContents(rootDir+fileNames[i], fileContents[i], true);
 				inputFilePaths[i]=rootDir+fileNames[i];
+				inputFileNames[i]=fileNames[i];
 			}
 		}
-		processRequester.prepareRunnerObject(builder);
+		processRequester.prepareRunnerObject(commands);
 
 		return true;
 	}
@@ -313,22 +351,28 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	/*.................................................................................................................*/
 	// starting the run
 	public boolean startExecution(){  //do we assume these are disconnectable?
-		communicator = new CIPResCommunicator(this,xmlPrefsString, outputFilePaths);
-		communicator.setRunLimit(runLimit);
+		communicator = new SimpleSSHCommunicator(this,xmlPrefsString, outputFilePaths);
 		communicator.setOutputProcessor(this);
 		communicator.setWatcher(this);
 		communicator.setRootDir(rootDir);
+		communicator.setRemoteServerDirectoryPath("/Users/david/Desktop/");
+		Debugg.println("******rootDir: " + rootDir);
+		Debugg.println("******last bit: " + MesquiteFile.getFileNameFromFilePath(rootDir));
+		communicator.setRemoteWorkingDirectoryName(MesquiteFile.getFileNameFromFilePath(rootDir));
+		communicator.setHost("10.0.0.7");
+		if (communicator.checkUsernamePassword(false))
+			communicator.transferFilesToServer(inputFilePaths, inputFileNames);
+		
 		if (forgetPassword)
 			communicator.forgetPassword();
 		forgetPassword = false;
 
-		jobURL = new MesquiteString();
-		return communicator.sendJobToCipres(builder, executableRemoteName, jobURL);
+		return communicator.sendCommands(commands,true, true, true);
 	}
 
 	public boolean monitorExecution(ProgressIndicator progIndicator){
-		 if (communicator!=null && jobURL!=null)
-			 return communicator.monitorAndCleanUpShell(jobURL.getValue(), progIndicator);
+		 if (communicator!=null)
+			 return communicator.monitorAndCleanUpShell(null, progIndicator);
 		 return false;
 	}
 
@@ -336,7 +380,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		return null;
 	}
 	public boolean stopExecution(){
-		communicator.deleteJob(jobURL.getValue());
+		communicator.deleteJob(null);
 		communicator.setAborted(true);
 		return true;
 	}
