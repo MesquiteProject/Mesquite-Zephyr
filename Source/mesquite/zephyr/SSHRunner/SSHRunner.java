@@ -356,8 +356,6 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 		communicator.setWatcher(this);
 		communicator.setRootDir(rootDir);
 		communicator.setRemoteServerDirectoryPath("/Users/david/Desktop/");
-		Debugg.println("******rootDir: " + rootDir);
-		Debugg.println("******last bit: " + MesquiteFile.getFileNameFromFilePath(rootDir));
 		communicator.setRemoteWorkingDirectoryName(MesquiteFile.getFileNameFromFilePath(rootDir));
 		communicator.setHost("10.0.0.7");
 		if (communicator.checkUsernamePassword(false))

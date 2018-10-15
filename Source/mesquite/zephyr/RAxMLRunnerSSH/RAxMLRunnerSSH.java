@@ -14,12 +14,8 @@ import java.awt.*;
 import java.io.*;
 import java.awt.event.*;
 
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
 
 import mesquite.lib.*;
-import mesquite.lib.system.SystemUtil;
 import mesquite.zephyr.SSHRunner.SSHRunner;
 import mesquite.zephyr.lib.*;
 
@@ -272,15 +268,6 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 	public void prepareRunnerObject(Object obj){
 	}
 
-	/*.................................................................................................................*/
-	void addArgument(MultipartEntityBuilder builder, StringBuffer sb, String param, String value) {
-		if (builder!=null)
-			builder.addTextBody(param, value);
-		if (sb!=null)
-			sb.append("\n  " + param + " = " + value);
-	}
-
-
 
 	/*.................................................................................................................*/
 	public String[] getLogFileNames(){
@@ -288,17 +275,17 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 		String workingTreeFileName;
 		String logFileName;
 		if (bootstrapOrJackknife())
-			treeFileName = "RAxML_bootstrap.result";
+			treeFileName = "RAxML_bootstrap.file.out";
 		else 
-			treeFileName = "RAxML_result.result";
-		logFileName = "RAxML_info.result";
+			treeFileName = "RAxML_result.file.out";
+		logFileName = "RAxML_log.file.out";
 		workingTreeFileName= treeFileName;
 		if (!bootstrapOrJackknife() && numRuns>1) {
 			treeFileName+=".RUN.";
-			workingTreeFileName= treeFileName;
+			workingTreeFileName= treeFileName + currentRun;
 			logFileName+=".RUN.";
 		}
-		return new String[]{logFileName, treeFileName, "RAxML_info.result", workingTreeFileName};
+		return new String[]{logFileName, treeFileName, "RAxML_info.file.out", workingTreeFileName};
 	}
 
 	/*.................................................................................................................*/
