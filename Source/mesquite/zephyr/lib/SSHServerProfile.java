@@ -1,0 +1,194 @@
+/* Mesquite Chromaseq source code.  Copyright 2005-2011 David Maddison and Wayne Maddison.
+Version 1.0   December 2011
+Disclaimer:  The Mesquite source code is lengthy and we are few.  There are no doubt inefficiencies and goofs in this code. 
+The commenting leaves much to be desired. Please approach this source code with the spirit of helping out.
+Perhaps with your help we can be more than a few, and make Mesquite better.
+
+Mesquite is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.
+Mesquite's web site is http://mesquiteproject.org
+
+This source code and its compiled class files are free and modifiable under the terms of 
+GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
+ */
+
+
+package mesquite.zephyr.lib;
+
+import java.awt.*;
+import java.util.regex.*;
+
+import org.dom4j.*;
+
+import mesquite.lib.*;
+
+public class SSHServerProfile implements Listable, Explainable {
+
+	public String name = "SSH Server";
+	public String host = "10.0.0.7";   
+	public String OSType = "MacOS X";  
+	public String description = "";  
+	public String tempFileDirectory = "/Users/david/Desktop/";  
+	
+	public String path;
+
+	public String explanation;
+
+	public SSHServerProfile() {
+	}
+
+	public SSHServerProfile(SSHServerProfile spec) {
+		if (spec!=null) {
+			name = spec.name;
+			description = spec.description;
+			host = spec.host;
+			OSType = spec.OSType;
+			tempFileDirectory = spec.tempFileDirectory;
+		}
+	}
+
+	public void setPath(String path){
+		this.path = path;
+	}
+	public void setName(String name){
+		this.name = name;
+	}
+	public String getName(){
+		return name;
+	}
+	public String getTempFileDirectory(){
+		return tempFileDirectory;
+	}
+	public String getDescription(){
+		return description;
+	}
+
+	public String getHost(){
+		return host;
+	}
+	public String getExplanation(){
+		return explanation;
+	}
+	String getProcessedTokenForWrite(String s) {
+		if (" ".equals(s))
+			return "\\ ";
+		else if (StringUtil.blank(s))
+			return " ";
+		else
+			return s;
+	}
+	public String getXML(){
+		Element mesquiteElement = DocumentHelper.createElement("mesquite");
+		Document doc = DocumentHelper.createDocument(mesquiteElement);
+		Element sequenceProfileElement = DocumentHelper.createElement("sshServerProfile");
+		mesquiteElement.add(sequenceProfileElement);
+		XMLUtil.addFilledElement(sequenceProfileElement, "version","1");
+		Element boundedByTokensElement = DocumentHelper.createElement("boundedByTokens");
+		sequenceProfileElement.add(boundedByTokensElement);
+		XMLUtil.addFilledElement(boundedByTokensElement, "name",name);
+		XMLUtil.addFilledElement(boundedByTokensElement, "host",DocumentHelper.createCDATA(host));
+		XMLUtil.addFilledElement(boundedByTokensElement, "OSType",DocumentHelper.createCDATA(OSType));
+		XMLUtil.addFilledElement(boundedByTokensElement, "description",DocumentHelper.createCDATA(description));
+		XMLUtil.addFilledElement(boundedByTokensElement, "tempFileDirectory",DocumentHelper.createCDATA(tempFileDirectory));
+		
+		return XMLUtil.getDocumentAsXMLString(doc);
+	}
+	public void save(String path, String name){
+		this.name = name;
+		this.path = path;
+		MesquiteFile.putFileContents(path, getXML(), true); 	
+	}
+
+	public void save(){
+		if (path!=null)
+			MesquiteFile.putFileContents(path, getXML(), true); 	
+	}
+
+	/*.................................................................................................................*/
+	public boolean readXML(String contents) {
+		Element root = XMLUtil.getRootXMLElementFromString("mesquite", contents);
+		if (root==null)
+			return false;
+
+		Element sequenceProfileElement = root.element("sshServerProfile");
+		if (sequenceProfileElement != null) {
+			Element versionElement = sequenceProfileElement.element("version");
+			if (versionElement == null || !versionElement.getText().equals("1")) {
+				return false;
+			}
+			Element boundedByTokens = sequenceProfileElement.element("boundedByTokens");
+			if (boundedByTokens == null) {
+				return false;
+			}
+			name = boundedByTokens.elementText("name");
+			host = boundedByTokens.elementText("host");
+			OSType = boundedByTokens.elementText("OSType");
+			description = boundedByTokens.elementText("description");
+			tempFileDirectory = boundedByTokens.elementText("tempFileDirectory");
+			
+		} else {
+			return false;
+		}
+		return true;
+	}
+
+	/*.................................................................................................................*
+	public String processTokenAfterRead(String s) {
+		if ("\\ ".equals(s))
+			return " ";
+		else if (StringUtil.blank(s))
+			return "";
+		else
+			return s;
+	}
+	/*.................................................................................................................*/
+	public String[] OSStrings() {   // from http://www.insdc.org/controlled-vocabulary-moltype-qualifier
+		return new String[] {
+				"Linux", 
+				"MacOS X", 
+				"Windows", 
+		};
+	}
+
+	/*.................................................................................................................*/
+	public boolean queryOptions(String name) {
+		MesquiteInteger buttonPressed = new MesquiteInteger(1);
+		ExtensibleDialog dialog = new ExtensibleDialog(MesquiteTrunk.mesquiteTrunk.containerOfModule(), "SSH Server Profile",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
+		String s = "This allows you to create a profile for each server on which you can analyzed data using Zephyr via SSH.\n";
+		
+		dialog.appendToHelpString(s);
+		if (!StringUtil.blank(name))
+			dialog.addLabel("SSH Server Profile: "+name);
+		else
+			dialog.addLabel("SSH Server Profile");
+
+		SingleLineTextField nameField = dialog.addTextField("Name of Server:", name,80, true);
+		SingleLineTextField descriptionField = dialog.addTextField("Description:", description,80, true);
+		SingleLineTextField hostField = dialog.addTextField("Server address:", host,80, true);
+		SingleLineTextField tempFileDirectoryField = dialog.addTextField("Path to temporary files directory:", tempFileDirectory, 80, true);
+		
+		int item = StringArray.indexOfIgnoreCase(OSStrings(), OSType);
+		if (item<0) item=0;
+		Choice OSTypeChoice = dialog.addPopUpMenu("Operating System", OSStrings(), 	item);
+
+
+		dialog.completeAndShowDialog(true);
+		if (buttonPressed.getValue()==0)  {
+			description = descriptionField.getText();
+			host = hostField.getText();
+			OSType = OSTypeChoice.getSelectedItem();
+			tempFileDirectory = tempFileDirectoryField.getText();
+			name = nameField.getText();
+		}
+		//storePreferences();  // do this here even if Cancel pressed as the File Locations subdialog box might have been used
+		dialog.dispose();
+		return (buttonPressed.getValue()==0);
+	}
+
+	/*.................................................................................................................*/
+	public String getDefinitions (MesquiteModule ownerModule){
+		return "";
+
+	}
+
+
+}

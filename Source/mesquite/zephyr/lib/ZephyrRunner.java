@@ -611,6 +611,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (progIndicator!=null){
 			progIndicator.start();
 		}
+		externalProcRunner.setProgressIndicator(progIndicator);
 		setSearchDetails();
 		appendToSearchDetails(getExtraSearchDetails().toString());
 		if (constrainedSearch) 

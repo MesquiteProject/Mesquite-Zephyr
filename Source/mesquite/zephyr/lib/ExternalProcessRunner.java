@@ -17,6 +17,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	String rootNameForDirectory;
 	TreeInferer treeInferrer;
 	boolean aborted = false;
+	protected ProgressIndicator progressIndicator;
 
 	public Class getDutyClass() {
 		return ExternalProcessRunner.class;
@@ -70,6 +71,9 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public  boolean canCalculateTimeRemaining(int repsCompleted){
 		return true;
 	}
+	public void setProgressIndicator(ProgressIndicator progressIndicator) {
+		this.progressIndicator= progressIndicator;
+	}
 
 	public String getInputFilePath(int i){ 
 		return null;
@@ -93,7 +97,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public abstract void setProcessRequester(ExternalProcessRequester processRequester);
 
 	// given the opportunity to fill in options for user
-	public abstract void addItemsToDialogPanel(ExtensibleDialog dialog);
+	public abstract boolean addItemsToDialogPanel(ExtensibleDialog dialog);
 	public  void addNoteToBottomOfDialog(ExtensibleDialog dialog){
 	}
 	public abstract boolean optionsChosen();

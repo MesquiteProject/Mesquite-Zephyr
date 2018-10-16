@@ -11,16 +11,16 @@ package mesquite.zephyr.SSHRunner;
 
 import java.awt.Button;
 import java.awt.Checkbox;
+import java.awt.Choice;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
-
 
 import mesquite.externalCommunication.lib.*;
 import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
-public class SSHRunner extends ExternalProcessRunner implements OutputFileProcessor, ShellScriptWatcher, OutputFilePathModifier {
+public class SSHRunner extends ExternalProcessRunner implements OutputFileProcessor, ShellScriptWatcher, OutputFilePathModifier, ActionListener {
 	String rootDir = null;  // local directory for storing files on local machine
 //	MesquiteString jobURL = null;
 //	MesquiteString jobID = null;
@@ -28,6 +28,9 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	MesquiteString xmlPrefs= new MesquiteString();
 	String xmlPrefsString = null;
 	StringBuffer extraPreferences;
+	SSHServerProfileManager sshServerProfileManager;
+	SSHServerProfile sshServerProfile = null;
+	String sshServerProfileName = "";
 
 	String remoteExecutablePath = "/usr/local/bin/raxmlHPC-PTHREADS8210-AVX2";
 
@@ -40,6 +43,11 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		MesquiteModule mm = getEmployer();
 		loadPreferences(xmlPrefs);
+		if (sshServerProfileManager == null)
+			sshServerProfileManager= (SSHServerProfileManager)MesquiteTrunk.mesquiteTrunk.hireEmployee(SSHServerProfileManager.class, "Supplier of SSH server specifications.");
+		if (sshServerProfileManager == null) {
+			return false;
+		} 
 		xmlPrefsString = xmlPrefs.getValue();
 
 		return true;
@@ -104,12 +112,16 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 				StringUtil.appendXMLTag(extraPreferences, 2, "remoteExecutablePath", flavor, path);  		// store for next time
 			}
 		}
+		if ("serverProfileName".equalsIgnoreCase(tag))
+			sshServerProfileName=content;
 		super.processSingleXMLPreference(tag, content);
 	}
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), remoteExecutablePath);  
+		if (StringUtil.notEmpty(sshServerProfileName))
+			StringUtil.appendXMLTag(buffer, 2, "serverProfileName",sshServerProfileName);
 		/*if (visibleTerminalOptionAllowed())
 			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
 		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
@@ -123,11 +135,8 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), executablePath);  
-		if (visibleTerminalOptionAllowed())
-			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
-		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
-		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
-		StringUtil.appendXMLTag(buffer, 2, "addExitCommand", addExitCommand);  
+		if (StringUtil.notEmpty(sshServerProfileName))
+			StringUtil.appendXMLTag(buffer, 2, "serverProfileName",sshServerProfileName);
 		buffer.append(extraPreferences);
 		return buffer.toString();
 	}
@@ -198,11 +207,16 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 		forgetPassword=true;
 	}
 
+	Choice sshServerProfileChoice;
 	Checkbox ForgetPasswordCheckbox;
 	DoubleField runLimitField;
-	
+	ExtensibleDialog optionsDialog;
+	/*.................................................................................................................*/
 	// given the opportunity to fill in options for user
-	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
+	int dialogCounter = 1;
+	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
+		Debugg.println("add items to dialog panel "+dialogCounter);
+		dialogCounter++;
 		if (communicator!=null) {
 			dialog.addBoldLabel(communicator.getServiceName()+" Server Options");
 			ForgetPasswordCheckbox = dialog.addCheckBox("Require new login to "+communicator.getServiceName()+" Server", false);
@@ -210,6 +224,20 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 			dialog.addBoldLabel("SSH Server Options");
 			ForgetPasswordCheckbox = dialog.addCheckBox("Require new login to SSH Server", false);
 		}
+		String[] specifications = sshServerProfileManager.getListOfProfiles();
+		optionsDialog=dialog;
+		if (specifications==null)
+			if (!sshServerProfileManager.queryOptions())
+				return false;
+
+		int index = sshServerProfileManager.findProfileIndex(sshServerProfileName);
+		if (index<0) index=0;
+		sshServerProfileChoice = dialog.addPopUpMenu("SSH Server Profile", sshServerProfileManager.getListOfProfiles(), index);
+		final Button manageSpecificationsButton = dialog.addAListenedButton("Manage...",null, this);
+		manageSpecificationsButton.setActionCommand("ManageSpecifications");
+		sshServerProfileManager.setChoice(sshServerProfileChoice);
+
+		return true;
 	}
 	
 	public void addNoteToBottomOfDialog(ExtensibleDialog dialog){
@@ -221,7 +249,38 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	public boolean optionsChosen(){
 		if (ForgetPasswordCheckbox.getState())
 			forgetCIPResPassword();
+		int sshServerProfileIndex = sshServerProfileChoice.getSelectedIndex();
+		sshServerProfile = sshServerProfileManager.getSSHServerProfile(sshServerProfileIndex);
+		sshServerProfileName = sshServerProfile.getName();
 		return true;
+	}
+
+	/*.................................................................................................................*/
+	public  void actionPerformed(ActionEvent e) {
+		if (e.getActionCommand().equalsIgnoreCase("ManageSpecifications")) {
+			int currentSSHServerProfileIndex = sshServerProfileChoice.getSelectedIndex();
+			SSHServerProfile currentSSHServerProfile = sshServerProfileManager.getSSHServerProfile(currentSSHServerProfileIndex);
+			String currentSSHServerProfileName = currentSSHServerProfile.getName();
+			if (sshServerProfileManager.manageSSHServerProfiles()) {
+				int count2 = sshServerProfileChoice.getItemCount();
+				while (sshServerProfileChoice.getItemCount()>0)
+					sshServerProfileChoice.remove(0);
+				String[] specList = sshServerProfileManager.getListOfProfiles();
+				if (specList!=null && specList.length>0)
+					for (int i=0; i<specList.length; i++)
+						sshServerProfileChoice.add(specList[i]);
+				if (MesquiteTrunk.isJavaGreaterThanOrEqualTo(1.8)) 
+					sshServerProfileChoice.revalidate();
+				int index = sshServerProfileManager.findProfileIndex(currentSSHServerProfileName);
+				if (index<0) index=0;
+				sshServerProfileChoice.select(index);
+				sshServerProfileChoice.repaint();
+				optionsDialog.prepareDialog();
+				optionsDialog.repaint();
+			} else
+				Debugg.println("manageSSHServerSpecifications=false");
+		} 
+
 	}
 
 	public boolean requiresLinuxTerminalCommands(){
@@ -351,13 +410,16 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	/*.................................................................................................................*/
 	// starting the run
 	public boolean startExecution(){  //do we assume these are disconnectable?
+		if (sshServerProfile==null)
+			return false;
 		communicator = new SimpleSSHCommunicator(this,xmlPrefsString, outputFilePaths);
 		communicator.setOutputProcessor(this);
 		communicator.setWatcher(this);
 		communicator.setRootDir(rootDir);
-		communicator.setRemoteServerDirectoryPath("/Users/david/Desktop/");
+		communicator.setProgressIndicator(progressIndicator);
+		communicator.setRemoteServerDirectoryPath(sshServerProfile.getTempFileDirectory());
 		communicator.setRemoteWorkingDirectoryName(MesquiteFile.getFileNameFromFilePath(rootDir));
-		communicator.setHost("10.0.0.7");
+		communicator.setHost(sshServerProfile.getHost());
 		if (communicator.checkUsernamePassword(false))
 			communicator.transferFilesToServer(inputFilePaths, inputFileNames);
 		

@@ -5,7 +5,7 @@ Zephry's web site is http://zephyr.mesquiteproject.org
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
-*/
+ */
 
 package mesquite.zephyr.RAxMLRunnerSSH;
 
@@ -28,7 +28,6 @@ outgroups
 
 public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
 
-	//boolean RAxML814orLater = false;
 	static final int THREADING_OTHER =0;
 	static final int THREADING_PTHREADS = 1;
 	static final int THREADING_MPI = 2;
@@ -40,24 +39,24 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 	boolean showIntermediateTrees = true;
 
 
-	//Checkbox RAxML814orLaterCheckbox;
+	Checkbox RAxML814orLaterCheckbox;
 
 
 	/*.................................................................................................................*/
-	 public String getExternalProcessRunnerModuleName(){
-			return "#mesquite.zephyr.SSHRunner.SSHRunner";
-	 }
+	public String getExternalProcessRunnerModuleName(){
+		return "#mesquite.zephyr.SSHRunner.SSHRunner";
+	}
 	/*.................................................................................................................*/
-	 public Class getExternalProcessRunnerClass(){
-			return SSHRunner.class;
-	 }
+	public Class getExternalProcessRunnerClass(){
+		return SSHRunner.class;
+	}
 
-		public String getLogText() {
-			String log= externalProcRunner.getStdOut();
-			if (StringUtil.blank(log))
-				log="Waiting for log file from SSH...";
-			return log;
-		}
+	public String getLogText() {
+		String log= externalProcRunner.getStdOut();
+		if (StringUtil.blank(log))
+			log="Waiting for log file from SSH...";
+		return log;
+	}
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
@@ -79,22 +78,22 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 			return super.doCommand(commandName, arguments, checker);
 	}	
 
-	/*.................................................................................................................*
+	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("RAxML814orLater".equalsIgnoreCase(tag))
-		RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
+			RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
 
-		
+
 		super.processSingleXMLPreference(tag, content);
 
 		preferencesSet = true;
 	}
-	
-	/*.................................................................................................................*
+
+	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "RAxML814orLater", RAxML814orLater);  
-		
+
 		buffer.append(super.preparePreferencesForXML());
 
 		preferencesSet = true;
@@ -103,21 +102,21 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "?????";
+		return "8.2.10";
 	}
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
 		appendToSearchDetails("SSH analysis completed "+StringUtil.getDateTime()+"\n");
 		appendToSearchDetails("Search details: \n");
-			if (bootstrapOrJackknife()){
-				appendToSearchDetails("   Bootstrap analysis\n");
-				appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
-			} else {
-				appendToSearchDetails("   Search for maximum-likelihood tree\n");
-				appendToSearchDetails("   "+numRuns + " search replicate");
-				if (numRuns>1)
-					appendToSearchDetails("s");
-			}
+		if (bootstrapOrJackknife()){
+			appendToSearchDetails("   Bootstrap analysis\n");
+			appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
+		} else {
+			appendToSearchDetails("   Search for maximum-likelihood tree\n");
+			appendToSearchDetails("   "+numRuns + " search replicate");
+			if (numRuns>1)
+				appendToSearchDetails("s");
+		}
 	}
 
 	/*.................................................................................................................*/
@@ -127,14 +126,13 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
-//		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
-		//dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
-		//externalProcRunner.addItemsToDialogPanel(dialog);
+		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
+		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
-//		RAxML814orLater = RAxML814orLaterCheckbox.getState();
-//		externalProcRunner.optionsChosen();
+		RAxML814orLater = RAxML814orLaterCheckbox.getState();
+		externalProcRunner.optionsChosen();
 	}
 	int currentRunProcessed=0;
 	/*.................................................................................................................*
@@ -209,13 +207,13 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 			localArguments += " -r constraintTree.tre "; 
 		else if (useConstraintTree == MONOPHYLY)
 			localArguments += " -g constraintTree.tre "; 
-			
+
 		if (LOCdoBootstrap) {
 			if (LOCbootstrapreps>0)
 				localArguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
 			else
 				localArguments += " -# 1 -b " + LOCbootstrapSeed;   // just do one rep
-			}
+		}
 		else {
 			if (LOCnobfgs)
 				localArguments += " --no-bfgs ";
@@ -253,7 +251,7 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 	public void setRAxMLSeed(long seed){
 		this.randseed = seed;
 	}
-	
+
 	public int minimumNumSearchReplicates() {
 		return 2;
 	}
@@ -262,7 +260,7 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 	static final int DATAFILENUMBER = 0;
 	static final int MULTIMODELFILENUMBER = 1;
 	static final int CONSTRAINTFILENUMBER = 3;
-	
+
 	String inputFilesInRunnerObject = "";
 
 	public void prepareRunnerObject(Object obj){
@@ -293,8 +291,8 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 		return "RAxML_log.file.out";	
 	}
 
-	
-	
+
+
 	TaxaSelectionSet outgroupSet;
 	/*.................................................................................................................*/
 	public boolean multipleModelFileAllowed() {

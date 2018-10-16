@@ -293,7 +293,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 		if (element!=null) {
 			minPollIntervalSeconds = MesquiteInteger.fromString(element.getText());
 			if (!MesquiteInteger.isCombinable(minPollIntervalSeconds) || minPollIntervalSeconds<=0)
-				minPollIntervalSeconds = defaultMinPollIntervalSeconds;
+				minPollIntervalSeconds = getDefaultMinPollIntervalSeconds();
 		}
 		if (!queryFrequencyReported) {
 			ownerModule.logln("   Mesquite will query "+getServiceName()+" about the status every " + minPollIntervalSeconds + " seconds\n");

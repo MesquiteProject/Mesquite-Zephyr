@@ -265,7 +265,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	Checkbox addExitCommandCheckBox = null;
 
 	// given the opportunity to fill in options for user
-	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
+	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
 		executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
 		browseButton.setActionCommand("browse");
@@ -283,6 +283,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			addExitCommandCheckBox.setEnabled(scriptBased);	
 		} 
 		deleteAnalysisDirectoryCheckBox = dialog.addCheckBox("Delete analysis directory after completion", deleteAnalysisDirectory);
+		return true;
 
 	}
 	/*.................................................................................................................*/

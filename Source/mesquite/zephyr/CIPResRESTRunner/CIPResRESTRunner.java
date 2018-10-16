@@ -196,10 +196,11 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	DoubleField runLimitField;
 	
 	// given the opportunity to fill in options for user
-	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
+	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
 		dialog.addBoldLabel("CIPRes Options");
 		ForgetPasswordCheckbox = dialog.addCheckBox("Require new login to CIPRes", false);
 		runLimitField = dialog.addDoubleField("maximum hours of CIPRes time for run", runLimit, 5, 0, 168);
+		return true;
 	}
 	
 	public void addNoteToBottomOfDialog(ExtensibleDialog dialog){
