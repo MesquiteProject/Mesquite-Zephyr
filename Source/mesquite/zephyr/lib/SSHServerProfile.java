@@ -27,8 +27,10 @@ public class SSHServerProfile implements Listable, Explainable {
 	public String host = "10.0.0.7";   
 	public String OSType = "MacOS X";  
 	public String description = "";  
+	public String username = "";  
 	public String tempFileDirectory = "/Users/david/Desktop/";  
-	
+	public int pollingInterval = 30;
+
 	public String path;
 
 	public String explanation;
@@ -43,6 +45,8 @@ public class SSHServerProfile implements Listable, Explainable {
 			host = spec.host;
 			OSType = spec.OSType;
 			tempFileDirectory = spec.tempFileDirectory;
+			if (MesquiteInteger.isCombinable(spec.pollingInterval))
+				pollingInterval = spec.pollingInterval;
 		}
 	}
 
@@ -55,8 +59,17 @@ public class SSHServerProfile implements Listable, Explainable {
 	public String getName(){
 		return name;
 	}
+	public void setUsername(String username){
+		this.username = username;
+	}
+	public String getUsername(){
+		return username;
+	}
 	public String getTempFileDirectory(){
 		return tempFileDirectory;
+	}
+	public int getPollingInterval(){
+		return pollingInterval;
 	}
 	public String getDescription(){
 		return description;
@@ -86,10 +99,12 @@ public class SSHServerProfile implements Listable, Explainable {
 		sequenceProfileElement.add(boundedByTokensElement);
 		XMLUtil.addFilledElement(boundedByTokensElement, "name",name);
 		XMLUtil.addFilledElement(boundedByTokensElement, "host",DocumentHelper.createCDATA(host));
+		XMLUtil.addFilledElement(boundedByTokensElement, "username",DocumentHelper.createCDATA(username));
 		XMLUtil.addFilledElement(boundedByTokensElement, "OSType",DocumentHelper.createCDATA(OSType));
 		XMLUtil.addFilledElement(boundedByTokensElement, "description",DocumentHelper.createCDATA(description));
 		XMLUtil.addFilledElement(boundedByTokensElement, "tempFileDirectory",DocumentHelper.createCDATA(tempFileDirectory));
-		
+		XMLUtil.addFilledElement(boundedByTokensElement, "pollingInterval",DocumentHelper.createCDATA(""+pollingInterval));
+
 		return XMLUtil.getDocumentAsXMLString(doc);
 	}
 	public void save(String path, String name){
@@ -121,10 +136,12 @@ public class SSHServerProfile implements Listable, Explainable {
 			}
 			name = boundedByTokens.elementText("name");
 			host = boundedByTokens.elementText("host");
+			username = boundedByTokens.elementText("username");
 			OSType = boundedByTokens.elementText("OSType");
 			description = boundedByTokens.elementText("description");
 			tempFileDirectory = boundedByTokens.elementText("tempFileDirectory");
-			
+			pollingInterval = MesquiteInteger.fromString(boundedByTokens.elementText("pollingInterval"));
+
 		} else {
 			return false;
 		}
@@ -149,34 +166,40 @@ public class SSHServerProfile implements Listable, Explainable {
 		};
 	}
 
+	Choice OSTypeChoice;
 	/*.................................................................................................................*/
 	public boolean queryOptions(String name) {
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
 		ExtensibleDialog dialog = new ExtensibleDialog(MesquiteTrunk.mesquiteTrunk.containerOfModule(), "SSH Server Profile",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 		String s = "This allows you to create a profile for each server on which you can analyzed data using Zephyr via SSH.\n";
-		
 		dialog.appendToHelpString(s);
+
 		if (!StringUtil.blank(name))
-			dialog.addLabel("SSH Server Profile: "+name);
+			dialog.addLabel("SSH Server Profile ("+name+")");
 		else
 			dialog.addLabel("SSH Server Profile");
 
-		SingleLineTextField nameField = dialog.addTextField("Name of Server:", name,80, true);
-		SingleLineTextField descriptionField = dialog.addTextField("Description:", description,80, true);
-		SingleLineTextField hostField = dialog.addTextField("Server address:", host,80, true);
-		SingleLineTextField tempFileDirectoryField = dialog.addTextField("Path to temporary files directory:", tempFileDirectory, 80, true);
-		
+		SingleLineTextField nameField = dialog.addTextField("Name of Server:", name,60, true);
+		SingleLineTextField descriptionField = dialog.addTextField("Description:", description,60, true);
+		SingleLineTextField hostField = dialog.addTextField("Server domain name or IP address:", host,50, true);
+		SingleLineTextField usernameField = dialog.addTextField("Default username:", username,50, true);
+		IntegerField pollingIntervalField = dialog.addIntegerField("Interval (in seconds) between server checks", pollingInterval, 10, 1, Integer.MAX_VALUE);
+		SingleLineTextField tempFileDirectoryField = dialog.addTextField("Path to temporary files directory:", tempFileDirectory, 60, true);
+
 		int item = StringArray.indexOfIgnoreCase(OSStrings(), OSType);
 		if (item<0) item=0;
-		Choice OSTypeChoice = dialog.addPopUpMenu("Operating System", OSStrings(), 	item);
+		OSTypeChoice = dialog.addPopUpMenu("Operating System", OSStrings(), 	item);
 
 
 		dialog.completeAndShowDialog(true);
+
 		if (buttonPressed.getValue()==0)  {
 			description = descriptionField.getText();
 			host = hostField.getText();
+			username = usernameField.getText();
 			OSType = OSTypeChoice.getSelectedItem();
 			tempFileDirectory = tempFileDirectoryField.getText();
+			pollingInterval = pollingIntervalField.getValue();
 			name = nameField.getText();
 		}
 		//storePreferences();  // do this here even if Cancel pressed as the File Locations subdialog box might have been used
@@ -184,11 +207,6 @@ public class SSHServerProfile implements Listable, Explainable {
 		return (buttonPressed.getValue()==0);
 	}
 
-	/*.................................................................................................................*/
-	public String getDefinitions (MesquiteModule ownerModule){
-		return "";
-
-	}
 
 
 }

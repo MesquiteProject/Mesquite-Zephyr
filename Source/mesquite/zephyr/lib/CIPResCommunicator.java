@@ -69,6 +69,14 @@ public class CIPResCommunicator extends RESTCommunicator {
 	public String getAPIURL() {
 		return "";
 	}
+	/*.................................................................................................................*/
+	public String getRegistrationHint() {
+		return "Touch on the web link icon on the left to register for this service.";
+	}
+	/*.................................................................................................................*/
+	public boolean showNeedToRegisterNote() {
+		return true;
+	}
 
 	/*.................................................................................................................*/
 	/** This method returns a Document from the contents of the XML file as contained in the String xmlFile.  If rootTag is not empty AND

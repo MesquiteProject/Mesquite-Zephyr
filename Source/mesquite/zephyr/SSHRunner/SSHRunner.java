@@ -420,6 +420,7 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 		communicator.setRemoteServerDirectoryPath(sshServerProfile.getTempFileDirectory());
 		communicator.setRemoteWorkingDirectoryName(MesquiteFile.getFileNameFromFilePath(rootDir));
 		communicator.setHost(sshServerProfile.getHost());
+		communicator.setUsername(sshServerProfile.getUsername());
 		if (communicator.checkUsernamePassword(false))
 			communicator.transferFilesToServer(inputFilePaths, inputFileNames);
 		
