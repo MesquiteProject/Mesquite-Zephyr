@@ -32,7 +32,7 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	SSHServerProfile sshServerProfile = null;
 	String sshServerProfileName = "";
 
-	String remoteExecutablePath = "/usr/local/bin/raxmlHPC-PTHREADS8210-AVX2";
+	String remoteExecutablePath = "/usr/local/bin/raxmlHPC-PTHREADS8211-AVX2";
 
 	boolean verbose = true;
 	boolean forgetPassword=false;
@@ -203,7 +203,7 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	}
 
 	/*.................................................................................................................*/
-	public void forgetCIPResPassword() {
+	public void forgetServerPassword() {
 		forgetPassword=true;
 	}
 
@@ -248,7 +248,7 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 
 	public boolean optionsChosen(){
 		if (ForgetPasswordCheckbox.getState())
-			forgetCIPResPassword();
+			forgetServerPassword();
 		int sshServerProfileIndex = sshServerProfileChoice.getSelectedIndex();
 		sshServerProfile = sshServerProfileManager.getSSHServerProfile(sshServerProfileIndex);
 		sshServerProfileName = sshServerProfile.getName();
@@ -413,6 +413,8 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 		if (sshServerProfile==null)
 			return false;
 		communicator = new SimpleSSHCommunicator(this,xmlPrefsString, outputFilePaths);
+		if (forgetPassword)
+			communicator.forgetPassword();
 		communicator.setOutputProcessor(this);
 		communicator.setWatcher(this);
 		communicator.setRootDir(rootDir);
@@ -424,8 +426,6 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 		if (communicator.checkUsernamePassword(false))
 			communicator.transferFilesToServer(inputFilePaths, inputFileNames);
 		
-		if (forgetPassword)
-			communicator.forgetPassword();
 		forgetPassword = false;
 
 		return communicator.sendCommands(commands,true, true, true);
