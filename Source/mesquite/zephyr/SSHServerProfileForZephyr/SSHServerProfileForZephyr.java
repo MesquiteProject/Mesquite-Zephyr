@@ -31,8 +31,6 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 	public String prefDirectoryName = "SSHServerProfilesForZephyr";
 	ManageGeneProfileDLOG chooseSSHServerProfileDialog;
 
-	private SSHServerProfile sshServerProfile=null;
-	private String sshServerProfileName="";	
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences();
@@ -96,17 +94,19 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 		return buffer.toString();
 	}
 	/*.................................................................................................................*/
+	public void processSingleXMLPreference (String tag, String content) {
+		if ("serverProfileName".equalsIgnoreCase(tag)) {
+			sshServerProfileName = StringUtil.cleanXMLEscapeCharacters(content);
+			
+		}
+	}
+	/*.................................................................................................................*/
 	public String getParameters () {
 		if (StringUtil.blank(sshServerProfileName))
 			return "Server profile: not chosen.";
 		return "Server profile: " + sshServerProfileName;
 	}
 
-	/*.................................................................................................................*/
-	public void processSingleXMLPreference (String tag, String content) {
-		if ("serverProfileName".equalsIgnoreCase(tag))
-			sshServerProfileName = StringUtil.cleanXMLEscapeCharacters(content);
-	}
 	/*.................................................................................................................*/
 	public SSHServerProfile loadServerProfileFile(String cPath, String fileName, boolean requiresEnding,  boolean userDef) {
 		File cFile = new File(cPath);

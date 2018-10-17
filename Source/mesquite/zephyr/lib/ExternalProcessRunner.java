@@ -14,6 +14,7 @@ import mesquite.lib.duties.*;
 
 public abstract class ExternalProcessRunner extends MesquiteModule {
 	String executableName;
+	int executableNumber;
 	String rootNameForDirectory;
 	TreeInferer treeInferrer;
 	boolean aborted = false;
@@ -34,6 +35,9 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		return "";
 	}
 
+	public void storeRunnerPreferences() {
+		super.storePreferences();
+	}
 	public String getMessageIfCloseFileRequested () {
 		return "";
 	}
@@ -50,6 +54,14 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	
 	public void setExecutableName(String executableName) {
 		this.executableName = executableName;
+	}
+	
+	public int getExecutableNumber() {
+		return executableNumber;
+	}
+	
+	public void setExecutableNumber(int executableNumber) {
+		this.executableNumber = executableNumber;
 	}
 	
 	public String getRootNameForDirectory() {

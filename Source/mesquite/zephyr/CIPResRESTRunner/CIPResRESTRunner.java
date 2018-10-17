@@ -181,6 +181,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	// setting the requester, to whom this runner will communicate about the run
 	public  void setProcessRequester(ExternalProcessRequester processRequester){
 		setExecutableName(processRequester.getProgramName());
+		setExecutableNumber(processRequester.getProgramNumber());
 		setRootNameForDirectory(processRequester.getRootNameForDirectory());
 		this.processRequester = processRequester;
 		loadPreferences();

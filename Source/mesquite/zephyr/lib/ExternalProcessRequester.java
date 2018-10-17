@@ -24,6 +24,8 @@ public interface ExternalProcessRequester {
 	
 	public String getProgramName();
 	
+	public int getProgramNumber();
+	
 	public boolean getDirectProcessConnectionAllowed();
 	
 	public boolean requiresLinuxTerminalCommands();

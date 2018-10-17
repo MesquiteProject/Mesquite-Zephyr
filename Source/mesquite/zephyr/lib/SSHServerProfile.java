@@ -30,12 +30,24 @@ public class SSHServerProfile implements Listable, Explainable {
 	public String username = "";  
 	public String tempFileDirectory = "/Users/david/Desktop/";  
 	public int pollingInterval = 30;
+	
+	public static int numProgramsSupported = 4;
+	public static int RAxML = 0;
+	public static int IQTREE = 1;
+	public static int GARLI = 2;
+	public static int PAUP = 3;
+	public static int TNT = 4;
+	public String[] programNames = new String[]{"RAxML", "IQ-TREE", "GARLI", "PAUP*", "TNT"};
+	public String[] programPaths;
+	
+	public String RAxMLpath = "";
 
 	public String path;
 
 	public String explanation;
 
 	public SSHServerProfile() {
+		initializeProgramPaths();
 	}
 
 	public SSHServerProfile(SSHServerProfile spec) {
@@ -48,10 +60,20 @@ public class SSHServerProfile implements Listable, Explainable {
 			if (MesquiteInteger.isCombinable(spec.pollingInterval))
 				pollingInterval = spec.pollingInterval;
 		}
+		initializeProgramPaths();
+	}
+	
+	void initializeProgramPaths() {
+		programPaths= new String[numProgramsSupported];
+		for (int i=0; i<numProgramsSupported; i++)
+			programPaths[i] = "";
 	}
 
 	public void setPath(String path){
 		this.path = path;
+	}
+	public String getProgramPath(int program){
+		return programPaths[program];
 	}
 	public void setName(String name){
 		this.name = name;
@@ -104,6 +126,8 @@ public class SSHServerProfile implements Listable, Explainable {
 		XMLUtil.addFilledElement(boundedByTokensElement, "description",DocumentHelper.createCDATA(description));
 		XMLUtil.addFilledElement(boundedByTokensElement, "tempFileDirectory",DocumentHelper.createCDATA(tempFileDirectory));
 		XMLUtil.addFilledElement(boundedByTokensElement, "pollingInterval",DocumentHelper.createCDATA(""+pollingInterval));
+		for (int i=0; i<numProgramsSupported; i++)
+			XMLUtil.addFilledElement(boundedByTokensElement, StringUtil.cleanseStringOfFancyChars(programNames[i]+"_path", false, true),DocumentHelper.createCDATA(programPaths[i]));
 
 		return XMLUtil.getDocumentAsXMLString(doc);
 	}
@@ -141,6 +165,8 @@ public class SSHServerProfile implements Listable, Explainable {
 			description = boundedByTokens.elementText("description");
 			tempFileDirectory = boundedByTokens.elementText("tempFileDirectory");
 			pollingInterval = MesquiteInteger.fromString(boundedByTokens.elementText("pollingInterval"));
+			for (int i=0; i<numProgramsSupported; i++)
+				programPaths[i] = boundedByTokens.elementText(StringUtil.cleanseStringOfFancyChars(programNames[i]+"_path", false, true));
 
 		} else {
 			return false;
@@ -186,6 +212,10 @@ public class SSHServerProfile implements Listable, Explainable {
 		IntegerField pollingIntervalField = dialog.addIntegerField("Interval (in seconds) between server checks", pollingInterval, 10, 1, Integer.MAX_VALUE);
 		SingleLineTextField tempFileDirectoryField = dialog.addTextField("Path to temporary files directory:", tempFileDirectory, 60, true);
 
+		SingleLineTextField[] pathsField = new SingleLineTextField[numProgramsSupported];
+		for (int i=0; i<numProgramsSupported; i++)
+			pathsField[i] = dialog.addTextField("Path to "+programNames[i]+": ", programPaths[i],60, true);
+
 		int item = StringArray.indexOfIgnoreCase(OSStrings(), OSType);
 		if (item<0) item=0;
 		OSTypeChoice = dialog.addPopUpMenu("Operating System", OSStrings(), 	item);
@@ -201,6 +231,8 @@ public class SSHServerProfile implements Listable, Explainable {
 			tempFileDirectory = tempFileDirectoryField.getText();
 			pollingInterval = pollingIntervalField.getValue();
 			name = nameField.getText();
+			for (int i=0; i<numProgramsSupported; i++)
+				programPaths[i] = pathsField[i].getText();
 		}
 		//storePreferences();  // do this here even if Cancel pressed as the File Locations subdialog box might have been used
 		dialog.dispose();

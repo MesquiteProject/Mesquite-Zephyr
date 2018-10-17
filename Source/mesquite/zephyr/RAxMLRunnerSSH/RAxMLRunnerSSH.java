@@ -31,7 +31,7 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 	static final int THREADING_OTHER =0;
 	static final int THREADING_PTHREADS = 1;
 	static final int THREADING_MPI = 2;
-	int threadingVersion = THREADING_OTHER;
+	int threadingVersion = THREADING_PTHREADS;
 	int numProcessors = 2;
 	boolean RAxML814orLater = false;
 
@@ -41,7 +41,10 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 
 	Checkbox RAxML814orLaterCheckbox;
 
-
+	/*.................................................................................................................*/
+	public int getProgramNumber() {
+		return SSHServerProfile.RAxML;
+	}
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
 		return "#mesquite.zephyr.SSHRunner.SSHRunner";
@@ -308,6 +311,7 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 	/*.................................................................................................................*/
 	public Object getProgramArguments(String dataFileName, boolean isPreflight) {
 		MesquiteString arguments = new MesquiteString();
+
 
 		if (!isPreflight) {
 			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);

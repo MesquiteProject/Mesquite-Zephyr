@@ -30,9 +30,9 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	StringBuffer extraPreferences;
 	SSHServerProfileManager sshServerProfileManager;
 	SSHServerProfile sshServerProfile = null;
-	String sshServerProfileName = "";
+//	String sshServerProfileName = "";
 
-	String remoteExecutablePath = "/usr/local/bin/raxmlHPC-PTHREADS8211-AVX2";
+//	String remoteExecutablePath = "./usr/local/bin/raxmlHPC8211-PTHREADS-AVX2";
 
 	boolean verbose = true;
 	boolean forgetPassword=false;
@@ -102,7 +102,7 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 		return false;
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void processSingleXMLPreference (String tag, String flavor, String content) {
 		if (StringUtil.notEmpty(flavor) && "remoteExecutablePath".equalsIgnoreCase(tag)){   // it is one with the flavor attribute
 			if (flavor.equalsIgnoreCase(getExecutableName()))   /// check to see if flavor is correct!!!
@@ -112,22 +112,18 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 				StringUtil.appendXMLTag(extraPreferences, 2, "remoteExecutablePath", flavor, path);  		// store for next time
 			}
 		}
-		if ("serverProfileName".equalsIgnoreCase(tag))
-			sshServerProfileName=content;
 		super.processSingleXMLPreference(tag, content);
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), remoteExecutablePath);  
-		if (StringUtil.notEmpty(sshServerProfileName))
-			StringUtil.appendXMLTag(buffer, 2, "serverProfileName",sshServerProfileName);
-		/*if (visibleTerminalOptionAllowed())
+		if (visibleTerminalOptionAllowed())
 			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
 		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
 		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
 		StringUtil.appendXMLTag(buffer, 2, "addExitCommand", addExitCommand);  
-		*/
+		
 		buffer.append(extraPreferences);
 		return buffer.toString();
 	}
@@ -196,6 +192,7 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	// setting the requester, to whom this runner will communicate about the run
 	public  void setProcessRequester(ExternalProcessRequester processRequester){
 		setExecutableName(processRequester.getProgramName());
+		setExecutableNumber(processRequester.getProgramNumber());
 		setRootNameForDirectory(processRequester.getRootNameForDirectory());
 		this.processRequester = processRequester;
 		loadPreferences();
@@ -230,7 +227,7 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 			if (!sshServerProfileManager.queryOptions())
 				return false;
 
-		int index = sshServerProfileManager.findProfileIndex(sshServerProfileName);
+		int index = sshServerProfileManager.findProfileIndex(sshServerProfileManager.getSshServerProfileName());
 		if (index<0) index=0;
 		sshServerProfileChoice = dialog.addPopUpMenu("SSH Server Profile", sshServerProfileManager.getListOfProfiles(), index);
 		final Button manageSpecificationsButton = dialog.addAListenedButton("Manage...",null, this);
@@ -251,8 +248,14 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 			forgetServerPassword();
 		int sshServerProfileIndex = sshServerProfileChoice.getSelectedIndex();
 		sshServerProfile = sshServerProfileManager.getSSHServerProfile(sshServerProfileIndex);
-		sshServerProfileName = sshServerProfile.getName();
+		//sshServerProfileName = sshServerProfile.getName();
+		sshServerProfileManager.setSshServerProfileName(sshServerProfile.getName());
 		return true;
+	}
+	public void storeRunnerPreferences() {
+		if (sshServerProfileManager!=null)
+			sshServerProfileManager.storePreferences();
+		super.storePreferences();
 	}
 
 	/*.................................................................................................................*/
@@ -300,7 +303,12 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 		this.linuxTerminalCommand = linuxTerminalCommand;
 	}
 	/*.................................................................................................................*/
+	public String getProgramSSHName() {
+		return "";
+	}
+	/*.................................................................................................................*/
 	public String getExecutableCommand(){
+		String remoteExecutablePath = sshServerProfile.getProgramPath(getExecutableNumber());
 		if (MesquiteTrunk.isWindows())
 			return "call " + StringUtil.protectFilePathForWindows(remoteExecutablePath);
 		else if (MesquiteTrunk.isLinux()) {

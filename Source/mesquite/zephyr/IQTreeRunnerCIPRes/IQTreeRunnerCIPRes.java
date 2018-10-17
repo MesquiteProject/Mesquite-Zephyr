@@ -64,6 +64,10 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 		} else
 			return super.doCommand(commandName, arguments, checker);
 	}	
+	/*.................................................................................................................*/
+	public int getProgramNumber() {
+		return -1;
+	}
 
 	/*.................................................................................................................*
 	public void processSingleXMLPreference (String tag, String content) {

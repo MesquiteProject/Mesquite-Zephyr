@@ -191,7 +191,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	public void storeRunnerPreferences() {
 		if (externalProcRunner!=null)
-			externalProcRunner.storePreferences();
+			externalProcRunner.storeRunnerPreferences();
 		storePreferences();
 		if (treeInferer!=null)
 			treeInferer.storePreferences();

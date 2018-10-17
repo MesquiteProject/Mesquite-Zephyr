@@ -66,6 +66,10 @@ public class IQTreeRunnerLocal extends IQTreeRunner  implements ActionListener, 
 	public String getLogText() {
 		return externalProcRunner.getStdOut();
 	}
+	/*.................................................................................................................*/
+	public int getProgramNumber() {
+		return -1;
+	}
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 

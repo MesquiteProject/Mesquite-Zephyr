@@ -21,6 +21,8 @@ import java.awt.*;
 /* Modules of this duty class are responsible for being able to supply the sample code and primer name given the chromatogram file name */
 public abstract class SSHServerProfileManager extends MesquiteInit {
 	public Choice choice;
+	protected SSHServerProfile sshServerProfile=null;
+	protected String sshServerProfileName="";	
 
 	public Class getDutyClass(){
 		return SSHServerProfileManager.class;
@@ -36,6 +38,13 @@ public abstract class SSHServerProfileManager extends MesquiteInit {
 
 	public boolean optionsSpecified(){
 		return false;
+	}
+	public String getSshServerProfileName() {
+		return sshServerProfileName;
+	}
+
+	public void setSshServerProfileName(String sshServerProfileName) {
+		this.sshServerProfileName = sshServerProfileName;
 	}
 
 	/*.................................................................................................................*/
