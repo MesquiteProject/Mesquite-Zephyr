@@ -20,11 +20,9 @@ import mesquite.externalCommunication.lib.*;
 import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
-public class SSHRunner extends ExternalProcessRunner implements OutputFileProcessor, ShellScriptWatcher, OutputFilePathModifier, ActionListener {
-	String rootDir = null;  // local directory for storing files on local machine
+public class SSHRunner extends ScriptRunner implements OutputFileProcessor, ShellScriptWatcher, OutputFilePathModifier, ActionListener {
 //	MesquiteString jobURL = null;
 //	MesquiteString jobID = null;
-	ExternalProcessRequester processRequester;
 	MesquiteString xmlPrefs= new MesquiteString();
 	String xmlPrefsString = null;
 	StringBuffer extraPreferences;
@@ -149,8 +147,8 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
-		if (rootDir != null)
-			temp.addLine("setRootDir " +  ParseUtil.tokenize(rootDir));
+		if (localRootDir != null)
+			temp.addLine("setRootDir " +  ParseUtil.tokenize(localRootDir));
 		if (outputFilePaths != null){
 			String files = " ";
 			for (int i = 0; i< outputFilePaths.length; i++){
@@ -175,7 +173,7 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 			communicator = new SimpleSSHCommunicator(this, xmlPrefsString,outputFilePaths);
 			communicator.setOutputProcessor(this);
 			communicator.setWatcher(this);
-			communicator.setRootDir(rootDir);
+			communicator.setRootDir(localRootDir);
 			if (forgetPassword)
 				communicator.forgetPassword();
 			forgetPassword = false;
@@ -191,9 +189,9 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 				outputFilePaths[i] = parser.getNextToken();
 		}
 		else if (checker.compare(this.getClass(), "Sets root directory", null, commandName, "setRootDir")) {
-			rootDir = parser.getFirstToken(arguments);
+			localRootDir = parser.getFirstToken(arguments);
 			if (communicator!=null)
-				communicator.setRootDir(rootDir);
+				communicator.setRootDir(localRootDir);
 		}
 		return null;
 	}	
@@ -316,19 +314,10 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 		return "";
 	}
 	/*.................................................................................................................*/
-	public String getExecutableCommand(){
-		String remoteExecutablePath = sshServerProfile.getProgramPath(getExecutableNumber());
-		if (MesquiteTrunk.isWindows())
-			return "call " + StringUtil.protectFilePathForWindows(remoteExecutablePath);
-		else if (MesquiteTrunk.isLinux()) {
-			if (requiresLinuxTerminalCommands())
-				return getLinuxTerminalCommand() + " " + StringUtil.protectFilePathForUnix(remoteExecutablePath);
-			else 
-				return " \"" + remoteExecutablePath+"\"";
-		}
-		else
-			return StringUtil.protectFilePathForUnix(remoteExecutablePath);
+	public String getExecutablePath(){
+		return sshServerProfile.getProgramPath(getExecutableNumber());
 	}
+
 	
 	String executableRemoteName;
 	String[] commands;
@@ -338,7 +327,7 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	String[] inputFileNames;
 	/*.................................................................................................................*/
 	public String getDirectoryPath(){  
-		return rootDir;
+		return localRootDir;
 	}
 
 	/*.................................................................................................................*/
@@ -356,17 +345,17 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 			return false;
 		//communicator.setRemoteWorkingDirectoryPath("/Users/david/Desktop/runTest");
 		commands = new String[] {"> "+communicator.runningFileName, programCommand+" "+((MesquiteString)arguments).getValue(), "rm -f "+communicator.runningFileName};
-		if (rootDir==null) 
-			rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
-		if (rootDir==null)
+		if (localRootDir==null) 
+			localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		if (localRootDir==null)
 			return false;
 		
 		inputFilePaths = new String[fileNames.length];
 		inputFileNames = new String[fileNames.length];
 		for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
 			if (StringUtil.notEmpty(fileNames[i]) && fileContents[i]!=null) {
-				MesquiteFile.putFileContents(rootDir+fileNames[i], fileContents[i], true);
-				inputFilePaths[i]=rootDir+fileNames[i];
+				MesquiteFile.putFileContents(localRootDir+fileNames[i], fileContents[i], true);
+				inputFilePaths[i]=localRootDir+fileNames[i];
 				inputFileNames[i]=fileNames[i];
 			}
 		}
@@ -377,8 +366,8 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
 	public boolean setPreflightInputFiles(String script){  //assumes for now that all input files are in the same directory
-		rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
-		if (rootDir==null)
+		localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		if (localRootDir==null)
 			return false;
 		
 		return true;
@@ -390,7 +379,7 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 			outputFileNames = new String[fileNames.length];
 			outputFilePaths = new String[fileNames.length];
 			for (int i=0; i<fileNames.length; i++){
-				outputFilePaths[i]=rootDir+fileNames[i];
+				outputFilePaths[i]=localRootDir+fileNames[i];
 				outputFileNames[i]=fileNames[i];
 			}
 		}
@@ -398,7 +387,7 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	/*.................................................................................................................*/
 	public void setOutputFileNameToWatch(int index, String fileName){
 		if (outputFileNames!=null && index>=0 && index < outputFileNames.length) {
-				outputFilePaths[index]=rootDir+fileName;
+				outputFilePaths[index]=localRootDir+fileName;
 				outputFileNames[index]=fileName;
 		}
 	}
@@ -434,10 +423,10 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 			communicator.forgetPassword();
 		communicator.setOutputProcessor(this);
 		communicator.setWatcher(this);
-		communicator.setRootDir(rootDir);
+		communicator.setRootDir(localRootDir);
 		communicator.setProgressIndicator(progressIndicator);
 		communicator.setRemoteServerDirectoryPath(sshServerProfile.getTempFileDirectory());
-		communicator.setRemoteWorkingDirectoryName(MesquiteFile.getFileNameFromFilePath(rootDir));
+		communicator.setRemoteWorkingDirectoryName(MesquiteFile.getFileNameFromFilePath(localRootDir));
 		communicator.setHost(sshServerProfile.getHost());
 		communicator.setUsername(sshServerProfile.getUsername());
 		if (communicator.checkUsernamePassword(false))
@@ -463,7 +452,7 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 		return true;
 	}
 	public String getPreflightFile(String preflightLogFileName){
-		String filePath = rootDir + preflightLogFileName;
+		String filePath = localRootDir + preflightLogFileName;
 		String fileContents = MesquiteFile.getFileContentsAsString(filePath);
 		return fileContents;
 	}
