@@ -109,6 +109,9 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 	public  boolean isLinux() {
 		return MesquiteTrunk.isLinux();
 	}
+	public  boolean isMacOSX() {
+		return MesquiteTrunk.isMacOSX();
+	}
 
 	/*.................................................................................................................*/
 	public String getStdErr() {
@@ -360,9 +363,9 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		}
 	/*.................................................................................................................*/
 	public String getExecutableCommand(){
-		if (MesquiteTrunk.isWindows())
+		if (isWindows())
 			return "call " + StringUtil.protectFilePathForWindows(executablePath);
-		else if (MesquiteTrunk.isLinux()) {
+		else if (isLinux()) {
 			if (requiresLinuxTerminalCommands())
 				return getLinuxTerminalCommand() + " " + StringUtil.protectFilePathForUnix(executablePath);
 			else 
@@ -377,6 +380,37 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		return rootDir;
 	}
 
+	
+	/*.................................................................................................................*/
+	public String getShellScript(String programCommand, String args) {
+		runningFilePath = rootDir + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);
+		StringBuffer shellScript = new StringBuffer(1000);
+		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(isWindows(), rootDir)+ StringUtil.lineEnding());
+		if (StringUtil.notEmpty(additionalShellScriptCommands))
+			shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
+		// 30 June 2017: added redirect of stderr
+		//		shellScript.append(programCommand + " " + args+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+		String suffix = "";
+		if (isLinux()&&requiresLinuxTerminalCommands()) {
+			shellScript.append(getLinuxBashScriptPreCommand());
+			suffix="\"";
+		}
+		if (!processRequester.allowStdErrRedirect())
+			shellScript.append(programCommand + " " + args + suffix+StringUtil.lineEnding());
+		else {
+			if (visibleTerminal && isMacOSX()) {
+				shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  suffix+StringUtil.lineEnding());
+			}
+			else
+				shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName + suffix+ StringUtil.lineEnding());
+		}
+		if (isLinux()&&requiresLinuxTerminalCommands())
+			shellScript.append(getLinuxBashScriptPostCommand());
+		shellScript.append(ShellScriptUtil.getRemoveCommand(isWindows(), runningFilePath));
+		if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailableAndUseful())
+			shellScript.append("\n" + ShellScriptUtil.getExitCommand() + "\n");
+		return shellScript.toString();
+	}
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
 	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
@@ -399,35 +433,9 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 		this.arguments = args;
 
 		if (scriptBased) {
-			runningFilePath = rootDir + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);
-			StringBuffer shellScript = new StringBuffer(1000);
-			shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
-			if (StringUtil.notEmpty(additionalShellScriptCommands))
-				shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
-			// 30 June 2017: added redirect of stderr
-			//		shellScript.append(programCommand + " " + args+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
-			String suffix = "";
-			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands()) {
-				shellScript.append(getLinuxBashScriptPreCommand());
-				suffix="\"";
-			}
-			if (!processRequester.allowStdErrRedirect())
-				shellScript.append(programCommand + " " + args + suffix+StringUtil.lineEnding());
-			else {
-				if (visibleTerminal && MesquiteTrunk.isMacOSX()) {
-					shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  suffix+StringUtil.lineEnding());
-				}
-				else
-					shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName + suffix+ StringUtil.lineEnding());
-			}
-			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
-				shellScript.append(getLinuxBashScriptPostCommand());
-			shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
-			if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailableAndUseful())
-				shellScript.append("\n" + ShellScriptUtil.getExitCommand() + "\n");
-
+			String shellScript = getShellScript(programCommand, args);
 			scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
-			MesquiteFile.putFileContents(scriptPath, shellScript.toString(), false);
+			MesquiteFile.putFileContents(scriptPath, shellScript, false);
 		}
 		/* alternative, not well tested
 		if (scriptBased) {
@@ -472,7 +480,7 @@ public class LocalScriptRunner extends ExternalProcessRunner implements ActionLi
 			return false;
 
 		StringBuffer shellScript = new StringBuffer(1000);
-		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(rootDir)+ StringUtil.lineEnding());
+		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(isWindows(), rootDir)+ StringUtil.lineEnding());
 		shellScript.append(script);
 
 		scriptPath = rootDir + "preflight.bat";

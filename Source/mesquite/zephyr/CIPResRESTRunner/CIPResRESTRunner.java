@@ -89,6 +89,9 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	public  boolean isLinux() {
 		return false;
 	}
+	public  boolean isMacOSX() {
+		return false;
+	}
 
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {

@@ -25,7 +25,10 @@ public class SSHServerProfile implements Listable, Explainable {
 
 	public String name = "SSH Server";
 	public String host = "10.0.0.7";   
-	public String OSType = "MacOS X";  
+	static String macOS = "MacOS X";
+	static String linuxOS = "Linux";
+	static String windowsOS = "Windows";
+	public String OSType = macOS;  
 	public String description = "";  
 	public String username = "";  
 	public String tempFileDirectory = "/Users/david/Desktop/";  
@@ -69,6 +72,21 @@ public class SSHServerProfile implements Listable, Explainable {
 			programPaths[i] = "";
 	}
 
+	public void setOSType(String OSType){
+		this.OSType = OSType;
+	}
+	public String getOSType(){
+		return OSType;
+	}
+	public boolean isMacOSX(){
+		return macOS.equalsIgnoreCase(OSType);
+	}
+	public boolean isLinux(){
+		return linuxOS.equalsIgnoreCase(OSType);
+	}
+	public boolean isWindows(){
+		return windowsOS.equalsIgnoreCase(OSType);
+	}
 	public void setPath(String path){
 		this.path = path;
 	}
@@ -186,9 +204,9 @@ public class SSHServerProfile implements Listable, Explainable {
 	/*.................................................................................................................*/
 	public String[] OSStrings() {   // from http://www.insdc.org/controlled-vocabulary-moltype-qualifier
 		return new String[] {
-				"Linux", 
-				"MacOS X", 
-				"Windows", 
+				linuxOS, 
+				macOS, 
+				windowsOS, 
 		};
 	}
 

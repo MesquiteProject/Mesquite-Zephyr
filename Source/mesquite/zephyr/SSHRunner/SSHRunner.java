@@ -96,10 +96,19 @@ public class SSHRunner extends ExternalProcessRunner implements OutputFileProces
 	}
 
 	public  boolean isWindows() {
-		return false;
+		if (sshServerProfile==null)
+			return false;
+		return sshServerProfile.isWindows();
 	}
 	public  boolean isLinux() {
-		return false;
+		if (sshServerProfile==null)
+			return true;
+		return sshServerProfile.isLinux();
+	}
+	public  boolean isMacOSX() {
+		if (sshServerProfile==null)
+			return false;
+		return sshServerProfile.isMacOSX();
 	}
 
 	/*.................................................................................................................*

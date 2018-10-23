@@ -103,6 +103,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 
 	public abstract boolean isWindows();
 	public abstract boolean isLinux();
+	public abstract boolean isMacOSX();
 
 
 	// setting the requester, to whom this runner will communicate about the run
