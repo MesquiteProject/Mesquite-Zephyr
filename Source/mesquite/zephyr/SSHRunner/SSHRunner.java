@@ -5,7 +5,7 @@ Zephry's web site is http://zephyr.mesquiteproject.org
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
-*/
+ */
 
 package mesquite.zephyr.SSHRunner;
 
@@ -14,6 +14,7 @@ import java.awt.Checkbox;
 import java.awt.Choice;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.Random;
 
 import mesquite.externalCommunication.lib.*;
@@ -21,20 +22,20 @@ import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
 public class SSHRunner extends ScriptRunner implements OutputFileProcessor, ShellScriptWatcher, OutputFilePathModifier, ActionListener {
-//	MesquiteString jobURL = null;
-//	MesquiteString jobID = null;
+	//	MesquiteString jobURL = null;
+	//	MesquiteString jobID = null;
 	MesquiteString xmlPrefs= new MesquiteString();
 	String xmlPrefsString = null;
 	StringBuffer extraPreferences;
 	SSHServerProfileManager sshServerProfileManager;
 	SSHServerProfile sshServerProfile = null;
-//	String sshServerProfileName = "";
+	//	String sshServerProfileName = "";
 
-//	String remoteExecutablePath = "./usr/local/bin/raxmlHPC8211-PTHREADS-AVX2";
+	//	String remoteExecutablePath = "./usr/local/bin/raxmlHPC8211-PTHREADS-AVX2";
 
 	boolean verbose = true;
 	boolean forgetPassword=false;
-	
+
 	SimpleSSHCommunicator communicator;
 
 	/*.================================================================..*/
@@ -47,21 +48,21 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			return false;
 		} 
 		xmlPrefsString = xmlPrefs.getValue();
-
+		scriptBased = true;
 		return true;
 	}
 	public void endJob(){
 		storePreferences();  //also after options chosen
 		super.endJob();
 	}
-	
+
 	public  String getProgramLocation(){
 		if (communicator!=null)
 			return "SSH "+communicator.getHost();
 		return "SSH";
 	}
 
-	
+
 	public String getName() {
 		return "SSH Runner";
 	}
@@ -71,8 +72,8 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	public boolean isReconnectable(){
 		return true;
 	}
-	
-	
+
+
 	public String getMessageIfUserAbortRequested () {
 		return "Do you wish to stop the analysis conducted via SSH?  No intermediate trees will be saved if you do.";
 	}
@@ -130,7 +131,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
 		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
 		StringUtil.appendXMLTag(buffer, 2, "addExitCommand", addExitCommand);  
-		
+
 		buffer.append(extraPreferences);
 		return buffer.toString();
 	}
@@ -243,7 +244,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 
 		return true;
 	}
-	
+
 	public void addNoteToBottomOfDialog(ExtensibleDialog dialog){
 		dialog.addHorizontalLine(1);
 		dialog.addLabelSmallText("SSH features in Zephyr are preliminary, and may have some flaws.");
@@ -296,11 +297,11 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	public boolean requiresLinuxTerminalCommands(){
 		return processRequester.requiresLinuxTerminalCommands();
 	}
-	
+
 	/** Following section on how to invoke a linux terminal and have it not be asynchronous comes from
 	 * https://askubuntu.com/questions/627019/blocking-start-of-terminal, courtesy of users Byte Commander and terdon.
 	 * */
-	
+
 	String linuxTerminalCommand = "gnome-terminal -x bash -c \"echo \\$$>$pidfile; ";
 
 	public String getLinuxTerminalCommand() {
@@ -318,7 +319,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		return sshServerProfile.getProgramPath(getExecutableNumber());
 	}
 
-	
+
 	String executableRemoteName;
 	String[] commands;
 	String[] outputFilePaths;
@@ -341,15 +342,29 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	// the actual data & scripts.  
 	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
 		executableRemoteName= programCommand;
-		if (!(arguments instanceof MesquiteString))
+		String args = null;
+		if (arguments instanceof MesquiteString)
+			args = ((MesquiteString)arguments).getValue();
+		else if (arguments instanceof String)
+			args = (String)arguments;
+		else 
 			return false;
-		//communicator.setRemoteWorkingDirectoryPath("/Users/david/Desktop/runTest");
-		commands = new String[] {"> "+communicator.runningFileName, programCommand+" "+((MesquiteString)arguments).getValue(), "rm -f "+communicator.runningFileName};
 		if (localRootDir==null) 
 			localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
 		if (localRootDir==null)
 			return false;
+
+		localScriptFilePath = localRootDir + scriptFileName;
 		
+		if (!prepareCommunicator())
+			return false;
+		if (scriptBased) {
+			String shellScript = getShellScript(programCommand, communicator.getRemoteWorkingDirectoryPath(), args);
+			MesquiteFile.putFileContents(localScriptFilePath, shellScript, false);
+		}
+		//communicator.setRemoteWorkingDirectoryPath("/Users/david/Desktop/runTest");
+		commands = new String[] {"> "+communicator.runningFileName, programCommand+" "+args, "rm -f "+communicator.runningFileName};
+
 		inputFilePaths = new String[fileNames.length];
 		inputFileNames = new String[fileNames.length];
 		for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
@@ -369,7 +384,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
 		if (localRootDir==null)
 			return false;
-		
+
 		return true;
 	}
 
@@ -387,8 +402,8 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	/*.................................................................................................................*/
 	public void setOutputFileNameToWatch(int index, String fileName){
 		if (outputFileNames!=null && index>=0 && index < outputFileNames.length) {
-				outputFilePaths[index]=localRootDir+fileName;
-				outputFileNames[index]=fileName;
+			outputFilePaths[index]=localRootDir+fileName;
+			outputFileNames[index]=fileName;
 		}
 	}
 
@@ -403,7 +418,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	public String[] getOutputFilePaths(){
 		return outputFilePaths;
 	}
-	
+
 	/*.................................................................................................................*/
 	public String getLastLineOfOutputFile(String fileName){
 		String contents = null;
@@ -414,11 +429,21 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	}
 
 	/*.................................................................................................................*/
-	// starting the run
-	public boolean startExecution(){  //do we assume these are disconnectable?
-		if (sshServerProfile==null)
-			return false;
+	public String getDirectorySeparator() {
+		if (isWindows())
+			return "\\";
+		return "//";
+	}
+	
+	/*.................................................................................................................*/
+	public String getRemoteScriptPath() {
+		return communicator.getRemoteWorkingDirectoryPath() + getDirectorySeparator() + scriptFileName;
+	}
+	/*.................................................................................................................*/
+	private boolean prepareCommunicator() {
 		communicator = new SimpleSSHCommunicator(this,xmlPrefsString, outputFilePaths);
+		if (communicator==null) 
+			return false;
 		if (forgetPassword)
 			communicator.forgetPassword();
 		communicator.setOutputProcessor(this);
@@ -429,18 +454,35 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		communicator.setRemoteWorkingDirectoryName(MesquiteFile.getFileNameFromFilePath(localRootDir));
 		communicator.setHost(sshServerProfile.getHost());
 		communicator.setUsername(sshServerProfile.getUsername());
-		if (communicator.checkUsernamePassword(false))
-			communicator.transferFilesToServer(inputFilePaths, inputFileNames);
-		
+		return true;
+	}
+	/*.................................................................................................................*/
+	// starting the run
+	public boolean startExecution(){  //do we assume these are disconnectable?
+		if (sshServerProfile==null)
+			return false;
+		if (communicator.checkUsernamePassword(false)) {
+			if (communicator.createRemoteWorkingDirectory()) {
+				communicator.transferFilesToServer(inputFilePaths, inputFileNames);
+				if (MesquiteFile.fileExists(localScriptFilePath)) {
+					communicator.transferFileToServer(localScriptFilePath, scriptFileName);
+					communicator.setRemoteFileToExecutable(scriptFileName);
+				}
+			}
+		}
+
 		forgetPassword = false;
 
-		return communicator.sendCommands(commands,true, true, true);
+		if (scriptBased)
+			return communicator.sendCommands(new String[] {getExecuteScriptCommand(getRemoteScriptPath(), visibleTerminal)},true, true, true);
+		else
+			return communicator.sendCommands(commands,true, true, true);
 	}
 
 	public boolean monitorExecution(ProgressIndicator progIndicator){
-		 if (communicator!=null)
-			 return communicator.monitorAndCleanUpShell(null, progIndicator);
-		 return false;
+		if (communicator!=null)
+			return communicator.monitorAndCleanUpShell(null, progIndicator);
+		return false;
 	}
 
 	public String checkStatus(){
@@ -456,13 +498,33 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		String fileContents = MesquiteFile.getFileContentsAsString(filePath);
 		return fileContents;
 	}
+	/*.................................................................................................................*/
+	public String getExecuteScriptCommand(String scriptPath, boolean visibleTerminal){ 
+		if (isMacOSX()){
+			if (visibleTerminal) {
+				return "open -a /Applications/Utilities/Terminal.app "+ scriptPath;
+			}
+			else {
+				scriptPath = scriptPath.replaceAll("//", "/");
+				return scriptPath;
+			}
+		}
+		else if (isLinux()) {
+			// remove double slashes or things won't execute properly
+			scriptPath = scriptPath.replaceAll("//", "/");
+			return scriptPath;
+		} else {  
+			scriptPath = "\"" + scriptPath + "\"";
+			return "cmd /c start \"\" " + scriptPath;
+		}
+	}
 
 	/*.................................................................................................................*/
 	public String getStdErr() {
 		//communicator.getRootDir();
 		return "";  //TODO: Implement!!!
 	}
-	
+
 	/*.................................................................................................................*/
 	public String getStdOut() {
 		if (communicator!=null) {
@@ -504,5 +566,5 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		return false;
 	}
 
-	
+
 }

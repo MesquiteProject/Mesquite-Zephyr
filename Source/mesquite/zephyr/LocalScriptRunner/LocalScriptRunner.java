@@ -50,19 +50,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		super.endJob();
 	}
 
-	public String getMessageIfUserAbortRequested () {
-		if (scriptBased)
-			return "Mesquite will stop its monitoring of the analysis, but it will not be able to directly stop the other program.  To stop the other program, you will need to "
-					+ "use either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
-		return "";
-	}
-	public String getMessageIfCloseFileRequested () { 
-		if (scriptBased)
-			return "If Mesquite closes this file, it will not directly stop the other program.  To stop the other program, you will need to "
-					+ "use either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
-		return "";
-	}
-
 	public String getName() {
 		return "Local Script Runner";
 	}
@@ -389,7 +376,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		this.arguments = args;
 
 		if (scriptBased) {
-			String shellScript = getShellScript(programCommand, args);
+			String shellScript = getShellScript(programCommand, localRootDir, args);
 			scriptPath = localRootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
 			MesquiteFile.putFileContents(scriptPath, shellScript, false);
 		}

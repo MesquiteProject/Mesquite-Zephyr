@@ -15,12 +15,14 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 	public boolean scriptBased = false;
 	public boolean addExitCommand = true;
 	protected boolean visibleTerminal = false;
+	protected static String scriptFileName = "Script.bat";
+	protected String localScriptFilePath = "";
 
 	/*.................................................................................................................*/
-	public String getShellScript(String programCommand, String args) {
+	public String getShellScript(String programCommand, String workingDirectory, String args) {
 		runningFilePath = localRootDir + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);
 		StringBuffer shellScript = new StringBuffer(1000);
-		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(isWindows(), localRootDir)+ StringUtil.lineEnding());
+		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(isWindows(), workingDirectory)+ StringUtil.lineEnding());
 		if (StringUtil.notEmpty(additionalShellScriptCommands))
 			shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
 		// 30 June 2017: added redirect of stderr
@@ -46,6 +48,20 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 			shellScript.append("\n" + ShellScriptUtil.getExitCommand() + "\n");
 		return shellScript.toString();
 	}
+
+	public String getMessageIfUserAbortRequested () {
+		if (scriptBased)
+			return "Mesquite will stop its monitoring of the analysis, but it will not be able to directly stop the other program.  To stop the other program, you will need to "
+					+ "use either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
+		return "";
+	}
+	public String getMessageIfCloseFileRequested () { 
+		if (scriptBased)
+			return "If Mesquite closes this file, it will not directly stop the other program.  To stop the other program, you will need to "
+					+ "use either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
+		return "";
+	}
+
 
 	public boolean requiresLinuxTerminalCommands(){
 		return processRequester.requiresLinuxTerminalCommands();

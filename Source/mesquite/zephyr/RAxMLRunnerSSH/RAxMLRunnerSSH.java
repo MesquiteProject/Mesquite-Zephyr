@@ -124,7 +124,7 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 
 	/*.................................................................................................................*/
 	public  String queryOptionsDialogTitle() {
-		return "RAxML Options on SSH";
+		return "RAxML Options on SSH Server";
 	}
 
 	/*.................................................................................................................*/
