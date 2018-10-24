@@ -76,6 +76,10 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 		return true;
 	}
+	/*.................................................................................................................*/
+	public int getProgramNumber() {
+		return -1;
+	}
 
 	public String getLogText() {
 		return externalProcRunner.getStdOut();

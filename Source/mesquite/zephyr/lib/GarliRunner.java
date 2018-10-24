@@ -213,6 +213,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	public void appendToConfigFileGeneral(StringBuffer config) {
 	}
 	/*.................................................................................................................*/
+	public int getProgramNumber() {
+		return -1;
+	}
+
+	/*.................................................................................................................*/
 
 	public String getGARLIConfigurationFile(CharacterData data) {
 		StringBuffer sb = new StringBuffer();
@@ -586,8 +591,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	}
 
 	/*.................................................................................................................*/
-	public void addRunnerOptions(ExtensibleDialog dialog) {
-		externalProcRunner.addItemsToDialogPanel(dialog);
+	public boolean addRunnerOptions(ExtensibleDialog dialog) {
+		return externalProcRunner.addItemsToDialogPanel(dialog);
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {

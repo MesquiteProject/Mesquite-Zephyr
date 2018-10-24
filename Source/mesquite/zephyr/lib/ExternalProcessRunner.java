@@ -14,9 +14,11 @@ import mesquite.lib.duties.*;
 
 public abstract class ExternalProcessRunner extends MesquiteModule {
 	String executableName;
+	int executableNumber;
 	String rootNameForDirectory;
 	TreeInferer treeInferrer;
 	boolean aborted = false;
+	protected ProgressIndicator progressIndicator;
 
 	public Class getDutyClass() {
 		return ExternalProcessRunner.class;
@@ -33,6 +35,9 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		return "";
 	}
 
+	public void storeRunnerPreferences() {
+		super.storePreferences();
+	}
 	public String getMessageIfCloseFileRequested () {
 		return "";
 	}
@@ -49,6 +54,14 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	
 	public void setExecutableName(String executableName) {
 		this.executableName = executableName;
+	}
+	
+	public int getExecutableNumber() {
+		return executableNumber;
+	}
+	
+	public void setExecutableNumber(int executableNumber) {
+		this.executableNumber = executableNumber;
 	}
 	
 	public String getRootNameForDirectory() {
@@ -70,6 +83,9 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public  boolean canCalculateTimeRemaining(int repsCompleted){
 		return true;
 	}
+	public void setProgressIndicator(ProgressIndicator progressIndicator) {
+		this.progressIndicator= progressIndicator;
+	}
 
 	public String getInputFilePath(int i){ 
 		return null;
@@ -87,13 +103,14 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 
 	public abstract boolean isWindows();
 	public abstract boolean isLinux();
+	public abstract boolean isMacOSX();
 
 
 	// setting the requester, to whom this runner will communicate about the run
 	public abstract void setProcessRequester(ExternalProcessRequester processRequester);
 
 	// given the opportunity to fill in options for user
-	public abstract void addItemsToDialogPanel(ExtensibleDialog dialog);
+	public abstract boolean addItemsToDialogPanel(ExtensibleDialog dialog);
 	public  void addNoteToBottomOfDialog(ExtensibleDialog dialog){
 	}
 	public abstract boolean optionsChosen();
@@ -125,5 +142,6 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public void resetLastModified(int i){
 	}
 
+	
 	//results can be harvested by getOutputFile	
 }

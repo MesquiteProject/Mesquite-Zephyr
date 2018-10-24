@@ -208,6 +208,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 					appendToSearchDetails("s");
 			}
 	}
+	/*.................................................................................................................*/
+	public int getProgramNumber() {
+		return -1;
+	}
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){

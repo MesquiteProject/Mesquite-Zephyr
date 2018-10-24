@@ -149,9 +149,10 @@ public class GarliRunnerCIPRes extends GarliRunner {
 
 	IntegerField memoryRequestField;
 	/*.................................................................................................................*/
-	public void addRunnerOptions(ExtensibleDialog dialog) {
+	public boolean addRunnerOptions(ExtensibleDialog dialog) {
 		externalProcRunner.addItemsToDialogPanel(dialog);
 		memoryRequestField = dialog.addIntegerField("Memory requested for analysis (MB)", memoryRequest, 8, 500, 20000);
+		return true;
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {

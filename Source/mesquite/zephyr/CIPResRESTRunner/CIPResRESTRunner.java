@@ -89,6 +89,9 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	public  boolean isLinux() {
 		return false;
 	}
+	public  boolean isMacOSX() {
+		return false;
+	}
 
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
@@ -181,6 +184,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	// setting the requester, to whom this runner will communicate about the run
 	public  void setProcessRequester(ExternalProcessRequester processRequester){
 		setExecutableName(processRequester.getProgramName());
+		setExecutableNumber(processRequester.getProgramNumber());
 		setRootNameForDirectory(processRequester.getRootNameForDirectory());
 		this.processRequester = processRequester;
 		loadPreferences();
@@ -196,10 +200,11 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	DoubleField runLimitField;
 	
 	// given the opportunity to fill in options for user
-	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
+	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
 		dialog.addBoldLabel("CIPRes Options");
 		ForgetPasswordCheckbox = dialog.addCheckBox("Require new login to CIPRes", false);
 		runLimitField = dialog.addDoubleField("maximum hours of CIPRes time for run", runLimit, 5, 0, 168);
+		return true;
 	}
 	
 	public void addNoteToBottomOfDialog(ExtensibleDialog dialog){
@@ -220,7 +225,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		return processRequester.getExecutableName();
 	}
 	
-	String executableCIPResName;
+	String executableRemoteName;
 	MultipartEntityBuilder builder;
 	String[] outputFilePaths;
 	String[] outputFileNames;
@@ -240,7 +245,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
 	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
-		executableCIPResName= programCommand;
+		executableRemoteName= programCommand;
 		if (!(arguments instanceof MultipartEntityBuilder))
 			return false;
 		builder = (MultipartEntityBuilder)arguments;
@@ -323,7 +328,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		forgetPassword = false;
 
 		jobURL = new MesquiteString();
-		return communicator.sendJobToCipres(builder, executableCIPResName, jobURL);
+		return communicator.sendJobToCipres(builder, executableRemoteName, jobURL);
 	}
 
 	public boolean monitorExecution(ProgressIndicator progIndicator){
