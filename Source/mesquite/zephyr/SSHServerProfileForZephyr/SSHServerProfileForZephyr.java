@@ -215,6 +215,11 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 
 	}
 	/*.................................................................................................................*/
+	public SSHServerProfile getSSHServerProfile(String name){
+		int index = sshServerProfileVector.indexOfByName(name);
+		return (SSHServerProfile)(sshServerProfileVector.elementAt(index));
+	}
+	/*.................................................................................................................*/
 	public MesquiteString getProfile(int i){
 		if (i<0 || i>= sshServerProfileVector.size())
 			return null;

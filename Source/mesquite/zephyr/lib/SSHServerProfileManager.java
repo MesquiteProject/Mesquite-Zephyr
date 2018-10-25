@@ -53,6 +53,9 @@ public abstract class SSHServerProfileManager extends MesquiteInit {
 	/*.................................................................................................................*/
 	public abstract int findProfileIndex(String name);
 
+	/*.................................................................................................................*/
+	public abstract SSHServerProfile getSSHServerProfile(String name);
+
 
 	public boolean hasOptions(){
 		return false;

@@ -210,8 +210,5 @@ public class SimpleSSHCommunicator extends SSHCommunicator {
 		return null;
 	}
 
-	public String getSystemName() {
-		return "SSH";
-	}
 
 }

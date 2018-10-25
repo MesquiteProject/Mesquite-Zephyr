@@ -106,20 +106,10 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	}
 
 	/*.................................................................................................................*
-	public void processSingleXMLPreference (String tag, String flavor, String content) {
-		if (StringUtil.notEmpty(flavor) && "remoteExecutablePath".equalsIgnoreCase(tag)){   // it is one with the flavor attribute
-			if (flavor.equalsIgnoreCase(getExecutableName()))   /// check to see if flavor is correct!!!
-				remoteExecutablePath = StringUtil.cleanXMLEscapeCharacters(content);
-			else {
-				String path = StringUtil.cleanXMLEscapeCharacters(content);
-				StringUtil.appendXMLTag(extraPreferences, 2, "remoteExecutablePath", flavor, path);  		// store for next time
-			}
-		}
-		super.processSingleXMLPreference(tag, content);
-	}
-	/*.................................................................................................................*
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
+		if (sshServerProfile!=null)
+			StringUtil.appendXMLTag(buffer, 2, "sshServerProfileName", sshServerProfile.getName());  
 		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), remoteExecutablePath);  
 		if (visibleTerminalOptionAllowed())
 			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
@@ -130,12 +120,18 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		buffer.append(extraPreferences);
 		return buffer.toString();
 	}
-	/*.................................................................................................................*
+	/*.................................................................................................................*/
+	public void processSingleXMLPreference (String tag, String content) {
+		if ("sshServerProfileName".equalsIgnoreCase(tag) && sshServerProfileManager!=null) {
+			sshServerProfile = sshServerProfileManager.getSSHServerProfile(content);
+		}
+		super.processSingleXMLPreference(tag, content);
+	}
+	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), executablePath);  
-		if (StringUtil.notEmpty(sshServerProfileName))
-			StringUtil.appendXMLTag(buffer, 2, "serverProfileName",sshServerProfileName);
+		if (sshServerProfile!=null)
+			StringUtil.appendXMLTag(buffer, 2, "sshServerProfileName",sshServerProfile.getName());
 		buffer.append(extraPreferences);
 		return buffer.toString();
 	}
@@ -145,6 +141,8 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		Snapshot temp = new Snapshot();
 		if (localRootDir != null)
 			temp.addLine("setRootDir " +  ParseUtil.tokenize(localRootDir));
+		if (sshServerProfile != null)
+			temp.addLine("setServerProfileName " +  ParseUtil.tokenize(sshServerProfile.getName()));
 		if (outputFilePaths != null){
 			String files = " ";
 			for (int i = 0; i< outputFilePaths.length; i++){
@@ -164,16 +162,13 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	boolean reportJobURL = false;
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-		if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveCommunicator")) {
+		if (checker.compare(this.getClass(), "Sets the sshServerProfile", "[file path]", commandName, "setServerProfileName")) {
+			String sshServerProfileName = parser.getFirstToken(arguments);
+			sshServerProfile = sshServerProfileManager.getSSHServerProfile(sshServerProfileName);
+			return sshServerProfile;
+		} else if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveCommunicator")) {
 			logln("Reviving SSH Communicator");
-			communicator = new SimpleSSHCommunicator(this, xmlPrefsString,outputFilePaths);
-			communicator.setOutputProcessor(this);
-			communicator.setWatcher(this);
-			communicator.setRootDir(localRootDir);
-			if (forgetPassword)
-				communicator.forgetPassword();
-			forgetPassword = false;
-
+			prepareCommunicator();
 			return communicator;
 		}
 		else if (checker.compare(this.getClass(), "Sets the output file paths", "[file paths]", commandName, "setOutputFilePaths")) {
@@ -350,7 +345,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			return false;
 
 		localScriptFilePath = localRootDir + scriptFileName;
-		
+
 		if (!prepareCommunicator())
 			return false;
 		if (scriptBased) {
@@ -429,7 +424,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			return "\\";
 		return "//";
 	}
-	
+
 	/*.................................................................................................................*/
 	public String getRemoteScriptPath() {
 		return communicator.getRemoteWorkingDirectoryPath() + getDirectorySeparator() + scriptFileName;
@@ -445,10 +440,13 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		communicator.setWatcher(this);
 		communicator.setRootDir(localRootDir);
 		communicator.setProgressIndicator(progressIndicator);
-		communicator.setRemoteServerDirectoryPath(sshServerProfile.getTempFileDirectory());
 		communicator.setRemoteWorkingDirectoryName(MesquiteFile.getFileNameFromFilePath(localRootDir));
-		communicator.setHost(sshServerProfile.getHost());
-		communicator.setUsername(sshServerProfile.getUsername());
+		if (sshServerProfile!=null) {
+			communicator.setSshServiceProfileName(sshServerProfile.getName());
+			communicator.setRemoteServerDirectoryPath(sshServerProfile.getTempFileDirectory());
+			communicator.setHost(sshServerProfile.getHost());
+			communicator.setUsername(sshServerProfile.getUsername());
+		}
 		return true;
 	}
 	/*.................................................................................................................*/
