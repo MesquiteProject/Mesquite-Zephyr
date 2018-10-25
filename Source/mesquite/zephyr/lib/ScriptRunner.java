@@ -61,6 +61,14 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 					+ "use either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
 		return "";
 	}
+	
+	public boolean isScriptBased() {
+		return scriptBased;
+	}
+
+	public void setScriptBased(boolean scriptBased) {
+		this.scriptBased = scriptBased;
+	}
 
 
 	public boolean requiresLinuxTerminalCommands(){

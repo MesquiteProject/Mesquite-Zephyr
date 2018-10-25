@@ -22,16 +22,11 @@ import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
 public class SSHRunner extends ScriptRunner implements OutputFileProcessor, ShellScriptWatcher, OutputFilePathModifier, ActionListener {
-	//	MesquiteString jobURL = null;
-	//	MesquiteString jobID = null;
 	MesquiteString xmlPrefs= new MesquiteString();
 	String xmlPrefsString = null;
 	StringBuffer extraPreferences;
 	SSHServerProfileManager sshServerProfileManager;
 	SSHServerProfile sshServerProfile = null;
-	//	String sshServerProfileName = "";
-
-	//	String remoteExecutablePath = "./usr/local/bin/raxmlHPC8211-PTHREADS-AVX2";
 
 	boolean verbose = true;
 	boolean forgetPassword=false;
@@ -289,7 +284,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 				optionsDialog.prepareDialog();
 				optionsDialog.repaint();
 			} else
-				Debugg.println("manageSSHServerSpecifications=false");
+				logln("NOTE: manageSSHServerSpecifications=false");
 		} 
 
 	}
