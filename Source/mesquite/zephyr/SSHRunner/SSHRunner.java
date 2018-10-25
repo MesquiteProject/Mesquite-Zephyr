@@ -168,7 +168,9 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			return sshServerProfile;
 		} else if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveCommunicator")) {
 			logln("Reviving SSH Communicator");
-			prepareCommunicator();
+			if (!prepareCommunicator())
+				return null;
+			communicator.monitorRun(true);
 			return communicator;
 		}
 		else if (checker.compare(this.getClass(), "Sets the output file paths", "[file paths]", commandName, "setOutputFilePaths")) {
