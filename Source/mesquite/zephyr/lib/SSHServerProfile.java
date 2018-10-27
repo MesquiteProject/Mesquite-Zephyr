@@ -24,14 +24,14 @@ import mesquite.lib.*;
 public class SSHServerProfile implements Listable, Explainable {
 
 	public String name = "SSH Server";
-	public String host = "10.0.0.7";   
+	public String host = "";   
 	static String macOS = "MacOS X";
 	static String linuxOS = "Linux";
 	static String windowsOS = "Windows";
 	public String OSType = macOS;  
 	public String description = "";  
 	public String username = "";  
-	public String tempFileDirectory = "/Users/david/Desktop/";  
+	public String tempFileDirectory = "";  
 	public int pollingInterval = 30;
 	
 	public static int numProgramsSupported = 4;

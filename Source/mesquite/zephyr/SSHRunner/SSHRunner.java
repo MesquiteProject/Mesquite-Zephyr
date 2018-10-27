@@ -67,6 +67,9 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	public boolean isReconnectable(){
 		return true;
 	}
+	public void setForgetPassword(boolean forgetPassword){
+		this.forgetPassword=forgetPassword;
+	}
 
 
 	public String getMessageIfUserAbortRequested () {
