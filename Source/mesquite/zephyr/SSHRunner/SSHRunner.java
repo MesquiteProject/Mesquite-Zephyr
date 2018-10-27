@@ -286,9 +286,6 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 
 	}
 
-	public boolean requiresLinuxTerminalCommands(){
-		return processRequester.requiresLinuxTerminalCommands();
-	}
 
 	/** Following section on how to invoke a linux terminal and have it not be asynchronous comes from
 	 * https://askubuntu.com/questions/627019/blocking-start-of-terminal, courtesy of users Byte Commander and terdon.
@@ -456,6 +453,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	public boolean startExecution(){  //do we assume these are disconnectable?
 		if (sshServerProfile==null)
 			return false;
+		boolean successfulStart = false;
 		if (communicator.checkUsernamePassword(false)) {
 			if (communicator.createRemoteWorkingDirectory()) {
 				communicator.transferFilesToServer(inputFilePaths, inputFileNames);
@@ -463,15 +461,19 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 					communicator.transferFileToServer(localScriptFilePath, scriptFileName);
 					communicator.setRemoteFileToExecutable(scriptFileName);
 				}
+				successfulStart = true;
 			}
 		}
 
-		forgetPassword = false;
-
-		if (scriptBased)
-			return communicator.sendCommands(new String[] {getExecuteScriptCommand(getRemoteScriptPath(), visibleTerminal)},true, true, true);
-		else
-			return communicator.sendCommands(commands,true, true, true);
+		if (successfulStart) {
+			forgetPassword = false;
+			if (scriptBased)
+				return communicator.sendCommands(new String[] {getExecuteScriptCommand("./"+scriptFileName, visibleTerminal)},true, true, true);  // this works on Linux or Mac
+		//	return communicator.sendCommands(new String[] {getExecuteScriptCommand(getRemoteScriptPath(), visibleTerminal)},true, true, true);  // this works on Mac
+			else
+				return communicator.sendCommands(commands,true, true, true);
+		}
+		return false;
 	}
 
 	public boolean monitorExecution(ProgressIndicator progIndicator){
