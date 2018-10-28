@@ -31,9 +31,9 @@ public class SSHServerProfile implements Listable, Explainable {
 	public String OSType = macOS;  
 	public String description = "";  
 	public String username = "";  
-	public String tempFileDirectory = "";  
+	protected String tempFileDirectory = "";  
 	public int pollingInterval = 30;
-	
+
 	public static int numProgramsSupported = 4;
 	public static int RAxML = 0;
 	public static int IQTREE = 1;
@@ -42,7 +42,7 @@ public class SSHServerProfile implements Listable, Explainable {
 	public static int TNT = 4;
 	public String[] programNames = new String[]{"RAxML", "IQ-TREE", "GARLI", "PAUP*", "TNT"};
 	public String[] programPaths;
-	
+
 	public String RAxMLpath = "";
 
 	public String path;
@@ -65,7 +65,7 @@ public class SSHServerProfile implements Listable, Explainable {
 		}
 		initializeProgramPaths();
 	}
-	
+
 	void initializeProgramPaths() {
 		programPaths= new String[numProgramsSupported];
 		for (int i=0; i<numProgramsSupported; i++)
@@ -105,7 +105,22 @@ public class SSHServerProfile implements Listable, Explainable {
 	public String getUsername(){
 		return username;
 	}
+	/*.................................................................................................................*/
+	public String getDirectorySeparator() {
+		if (isWindows())
+			return "\\";
+		return "//";
+	}
+
+	public void adjustTempFileDirectory(){
+		tempFileDirectory = StringUtil.stripTrailingWhitespace(tempFileDirectory);
+
+		String lastCharacter=tempFileDirectory.substring(tempFileDirectory.length()-1, tempFileDirectory.length());
+		if (!getDirectorySeparator().equalsIgnoreCase(lastCharacter))  // make sure it ends in a separator
+			tempFileDirectory = tempFileDirectory+getDirectorySeparator();
+	}
 	public String getTempFileDirectory(){
+		adjustTempFileDirectory();
 		return tempFileDirectory;
 	}
 	public int getPollingInterval(){
@@ -215,7 +230,7 @@ public class SSHServerProfile implements Listable, Explainable {
 	public boolean queryOptions(String name) {
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
 		ExtensibleDialog dialog = new ExtensibleDialog(MesquiteTrunk.mesquiteTrunk.containerOfModule(), "SSH Server Profile",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
-		String s = "This allows you to create a profile for each server on which you can analyzed data using Zephyr via SSH.\n";
+		String s = "This allows you to create a profile for each server on which you can analyzed data using Zephyr via SSH. The file paths to be entered here are file paths on the remote server.\n";
 		dialog.appendToHelpString(s);
 
 		if (!StringUtil.blank(name))
@@ -226,6 +241,9 @@ public class SSHServerProfile implements Listable, Explainable {
 		SingleLineTextField nameField = dialog.addTextField("Name of Server:", name,60, true);
 		SingleLineTextField descriptionField = dialog.addTextField("Description:", description,60, true);
 		SingleLineTextField hostField = dialog.addTextField("Server domain name or IP address:", host,50, true);
+		int item = StringArray.indexOfIgnoreCase(OSStrings(), OSType);
+		if (item<0) item=0;
+		OSTypeChoice = dialog.addPopUpMenu("Operating System", OSStrings(), 	item);
 		SingleLineTextField usernameField = dialog.addTextField("Default username:", username,50, true);
 		IntegerField pollingIntervalField = dialog.addIntegerField("Interval (in seconds) between server checks", pollingInterval, 10, 1, Integer.MAX_VALUE);
 		SingleLineTextField tempFileDirectoryField = dialog.addTextField("Path to temporary files directory:", tempFileDirectory, 60, true);
@@ -234,9 +252,6 @@ public class SSHServerProfile implements Listable, Explainable {
 		for (int i=0; i<numProgramsSupported; i++)
 			pathsField[i] = dialog.addTextField("Path to "+programNames[i]+": ", programPaths[i],60, true);
 
-		int item = StringArray.indexOfIgnoreCase(OSStrings(), OSType);
-		if (item<0) item=0;
-		OSTypeChoice = dialog.addPopUpMenu("Operating System", OSStrings(), 	item);
 
 
 		dialog.completeAndShowDialog(true);
