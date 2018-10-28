@@ -470,9 +470,11 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 
 		if (successfulStart) {
 			forgetPassword = false;
-			if (scriptBased)
+			if (scriptBased) {
+				communicator.addEmptyFileToWorkingDirectory(communicator.runningFileName);
 				return communicator.sendCommands(new String[] {getExecuteScriptCommand("./"+scriptFileName, visibleTerminal)},true, true, true);  // this works on Linux or Mac
 		//	return communicator.sendCommands(new String[] {getExecuteScriptCommand(getRemoteScriptPath(), visibleTerminal)},true, true, true);  // this works on Mac
+			}
 			else
 				return communicator.sendCommands(commands,true, true, true);
 		}
