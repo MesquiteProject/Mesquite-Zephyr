@@ -114,6 +114,8 @@ public class SSHServerProfile implements Listable, Explainable {
 
 	public void adjustTempFileDirectory(){
 		tempFileDirectory = StringUtil.stripTrailingWhitespace(tempFileDirectory);
+		if (StringUtil.blank(tempFileDirectory))
+				return;
 
 		String lastCharacter=tempFileDirectory.substring(tempFileDirectory.length()-1, tempFileDirectory.length());
 		if (!getDirectorySeparator().equalsIgnoreCase(lastCharacter))  // make sure it ends in a separator
