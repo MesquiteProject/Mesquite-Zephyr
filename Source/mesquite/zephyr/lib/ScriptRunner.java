@@ -19,8 +19,13 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 	protected String localScriptFilePath = "";
 
 	/*.................................................................................................................*/
-	public String getShellScript(String programCommand, String workingDirectory, String args) {
+	public void setRunningFilePath() {
 		runningFilePath = localRootDir + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);
+
+	}
+	/*.................................................................................................................*/
+	public String getShellScript(String programCommand, String workingDirectory, String args) {
+		setRunningFilePath();
 		StringBuffer shellScript = new StringBuffer(1000);
 		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(isWindows(), workingDirectory)+ StringUtil.lineEnding());
 		if (StringUtil.notEmpty(additionalShellScriptCommands))

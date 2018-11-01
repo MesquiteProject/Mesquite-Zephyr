@@ -419,6 +419,11 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			contents = MesquiteFile.getFileLastContents(outputFileNames[fileNumber]);
 		return contents;
 	}
+	/*.................................................................................................................*/
+	public void setRunningFilePath() {
+		runningFilePath = communicator.getRemoteWorkingDirectoryPath() + getDirectorySeparator() + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);
+
+	}
 
 	/*.................................................................................................................*/
 	public String getDirectorySeparator() {
