@@ -355,7 +355,7 @@ public class RAxMLRunnerSSH extends RAxMLRunner  implements ActionListener, Item
 	}
 
 	public String getName() {
-		return "RAxML Likelihood (SSH)";
+		return "RAxML Likelihood (SSH Server)";
 	}
 
 	/*.................................................................................................................*/

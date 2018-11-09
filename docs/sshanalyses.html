@@ -5,7 +5,7 @@
 
 
 <!-- InstanceBeginEditable name="doctitle" -->
-<title>Tutorial</title>
+<title>CIPRes Analyses</title>
 <!-- InstanceEndEditable -->
 
 <![endif]--><!--[if IE]>
@@ -29,10 +29,6 @@
 <script type="text/javascript" src="javascript/mesquiteZephyr.js"></script>
 
 <!-- InstanceBeginEditable name="head" -->
-<style type="text/css">
-<!--
--->
-</style>
 <!-- InstanceEndEditable -->
 </head>
 
@@ -43,9 +39,7 @@
     <table width="100%" border="0" cellpadding="4">
   <tr>
     <td width="51%"><img src="images/zephyrBannerNarrow.jpg" width="628" height="110" /></td>
-    <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->
-    <p>Tutorial</p>
-    <!-- InstanceEndEditable --></div></td>
+    <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->SSH Server Analyses<!-- InstanceEndEditable --></div></td>
     <td width="2%">&nbsp;</td>
     <td width="14%">Version 2.5beta<br />
       4 November 2018<br /></td>
@@ -146,11 +140,42 @@
   <div id="mainContent">
     
 <!-- InstanceBeginEditable name="content" -->
-  <p>&nbsp;</p>
-<p>&nbsp;</p>
-  <p>&nbsp;</p>
-  <p>&nbsp;</p>
-  <p>&nbsp;</p>
+    
+    <h1 id="toc0"><a name="CIPRes Analyses"></a>SSH Server Analyses</h1>
+    <p><br />
+      In addition to conducting analyses on the same computer as Mesquite, or on CIPRes, you can ask Zephyr to conduct analyses on a remote computer to which you have SSH access.  "SSH" stands for "Secure Shell", and allows one to communicate with and run programs on a remote computer. 
+  <br />
+    </p>
+    <p>Before you use this tool in Mesquite, make sure that you have SSH access to the server. If your local computer is a Mac or Linux machine, then you can open up the Terminal (on the Mac this is in Applications/Utilities), and type the command&quot;ssh username@serveraddress&quot;, where the &quot;username&quot; is the username of your account on that computer, and &quot;serveraddress&quot; is the domain name (e.g., &quot;mycomputer.edu&quot;) or IP address of the server. On an updated Windows 10 machine, you will need to enable OpenSSH first. If you cannot successfully SSH into your server, it could be that the server is protected behind a firewall (e.g., you may need to VPN into the local network to have SSH access to the server), or it might be that restrictions have been put on who can SSH into the machine, or it might be that the server is a Windows machine that does not have SSH software installed or enabled. Contact the administrator of the computer to help establish an SSH connection to the computer. <br />
+      <br />
+    Once you have confirmed that you can SSH into the server, then you can being a phylogenetic inference on the server for choosing one of the tools from the Analyses&gt;Tree Inference submenus that have &quot;[SSH Server]&quot; at the end of their names. In addition to following the instructions for each program, you will also need to set up an SSH Server Profile, as described in the next section</p>
+    <h2 id="toc3"><a name="CIPRes Analyses-Reconnecting to CIPRes analyses" id="CIPRes Analyses-Reconnecting to CIPRes analyses"></a>Setting up an SSH Server Profile</h2>
+You will need to establish, once, an profile for a particular SSH server.  Once established, the SSH server can be simply chosen for later analyses; you will not need to set up the profile for that server again (unless you change aspects of the server).  In fact, once established, you can share server profiles with other computers, but going into your Mesquite_Support_Files directory, and opening up the Mesquite_Prefs/SSHServerProfilesForZephyr directory, and finding the XML file that describes the server profile - by placing that file in the equivalent location on another computer, Mesquite will then have access to that server profile.
+<p>To set up a server profile, first click on the &quot;Manage&quot; button on the appears on the first panel of one of Zephyr's dialog boxes when you request to use an SSH server:</p>
+<p><img src="images/sshProfileManage.jpeg" width="520" height="46" alt=""/></p>
+<p>In the dialog box that appears, create a new server profile, and then edit it. The dialog box for editing a profile will look something like this:</p>
+<p><img src="images/sshProfileDLOG.jpeg" width="766" height="572" alt=""/></p>
+<p>Most of the entries are self-explanatory. Note that the various paths are the paths to those files or directories on the remote server on which analyses will be conducted. Your account will need to have permission to access those files, and, in the case of the temporary files directory, it will need to be able to create folders within that directory.<br />
+      <br />
+    </p>
+    <h2 id="toc1"><a name="CIPRes Analyses-Reconnecting to CIPRes analyses"></a>Reconnecting to SSH analyses</h2>
+ If you begin a RAxML search on an SSH Server, the Mesquite's log window will give information about the status of the analysis. If you save your file in Mesquite while the run is happening, and then quit Mesquite, when you next open the file in Mesquite Zephyr will attempt to reconnect with remote analysis again, and read in any available results.<br />
+<br />
+<h2 id="toc2"><a name="CIPRes Analyses-Signing in to CIPRes"></a>Signing in to the SSH server</h2>
+ Before Mesquite can communicate to SSH server, you will need to enter your  username and password for that remote computer. Mesquite will query you whenever it needs the information, which will be once in each run of Mesquite (unless you specifically request to sign in again). The next time you start up Mesquite you will need to re-enter your information.<br />
+<br />
+The dialog box you will be presented with looks like this:<br />
+<br />
+<div style="text-align: center"></div>
+<img src="images/sshSignIn.jpg" width="393" height="277" alt=""/><br />
+<br />
+By entering your username and password for the SSH server, you will be allowing Mesquite to sign in to the remote computer and conduct analyses on it.<br />
+<h2 id="toc3"><a name="CIPRes Analyses-CIPRes Utilities"></a>SSH Server Utilities</h2>
+ There are several tools available to allow you to manage your SSH-based analyses. With Mesquite's log window frontmost, there are the following entries under the SSH Server Utility menu of the Utilities menu:<br />
+<ul>
+  <li><strong>Manage SSH Server Profiles</strong>:This option will present a dialog box in which you can create, delete, rename, or edit your SSH server profiles. </li>
+</ul>
+
 <!-- InstanceEndEditable -->
 
     
