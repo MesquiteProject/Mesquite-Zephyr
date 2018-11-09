@@ -232,7 +232,7 @@ public class SSHServerProfile implements Listable, Explainable {
 	public boolean queryOptions(String name) {
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
 		ExtensibleDialog dialog = new ExtensibleDialog(MesquiteTrunk.mesquiteTrunk.containerOfModule(), "SSH Server Profile",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
-		String s = "This allows you to create a profile for each server on which you can analyzed data using Zephyr via SSH. The file paths to be entered here are file paths on the remote server.\n";
+		String s = "This allows you to create a profile for each server on which you can analyze data using Zephyr. You must have an account on the server, and the ability to SSH into the server. The file paths to be entered here are file paths on the remote server.\n";
 		dialog.appendToHelpString(s);
 
 		if (!StringUtil.blank(name))
