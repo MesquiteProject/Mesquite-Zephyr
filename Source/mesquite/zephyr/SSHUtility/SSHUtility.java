@@ -1,5 +1,6 @@
 package mesquite.zephyr.SSHUtility;
 
+import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.*;
 
@@ -10,28 +11,41 @@ import mesquite.zephyr.lib.*;
 
 public class SSHUtility extends UtilitiesAssistant {
 
-
 	SimpleSSHCommunicator communicator;
+	MesquiteString xmlPrefs= new MesquiteString();
+	String xmlPrefsString = null;
+	StringBuffer extraPreferences;
+	SSHServerProfileManager sshServerProfileManager;
 
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
+		loadPreferences(xmlPrefs);
+		if (sshServerProfileManager == null)
+			sshServerProfileManager= (SSHServerProfileManager)MesquiteTrunk.mesquiteTrunk.hireEmployee(SSHServerProfileManager.class, "Supplier of SSH server specifications.");
+		if (sshServerProfileManager == null) {
+			return false;
+		} 
+		xmlPrefsString = xmlPrefs.getValue();
 
-		MesquiteSubmenuSpec mss = addSubmenu(null,"SSH Utility");
+		MesquiteSubmenuSpec mss = addSubmenu(null,"SSH Server Utility");
 
-		addItemToSubmenu(null, mss, "Send Commands", makeCommand("sendCommands", this));
-		addItemToSubmenu(null, mss, "Start Run", makeCommand("startRun", this));
-		addItemToSubmenu(null, mss, "Start Batch File", makeCommand("startBatch", this));
-		addItemToSubmenu(null, mss, "List files", makeCommand("listFiles", this));
-		addItemToSubmenu(null, mss, "Send file", makeCommand("sendFile", this));
-		communicator = new SimpleSSHCommunicator(this, null, null);
+		addItemToSubmenu(null, mss, "Manage SSH Server Profiles", makeCommand("manageServers", this));
+	//	addLineToSubmenu(null, mss);
 		return true;
 	}
+
+	/*.................................................................................................................*/
+	public  void manageServers() {
+		sshServerProfileManager.manageSSHServerProfiles();
+	}
+
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-		String tempHostOld1 = "192.168.0.102";
-		String tempHostOld2 = "10.0.0.7";
-		String tempHost = "10.0.0.7";
-		if (checker.compare(this.getClass(), "send commands", null, commandName, "sendCommands")) {
+		if (checker.compare(this.getClass(), "Manage SSH Servers", null, commandName, "manageServers")) {
+			manageServers();
+		} 
+		/*else if (checker.compare(this.getClass(), "send commands", null, commandName, "sendCommands")) {
+			communicator = new SimpleSSHCommunicator(this, null, null);
 			communicator.setHost(tempHost);
 			if (communicator.checkUsernamePassword(false)) {
 				String programCommand = "/usr/local/bin/raxmlHPC-PTHREADS8210-AVX2  -s data.phy -n file.out  -m GTRGAMMAI -q multipleModelFile.txt -p 1083962335 -# 100 -b 1083962335 -T 2  >StandardOutputFile   2> StandardErrorFile";
@@ -72,7 +86,7 @@ public class SSHUtility extends UtilitiesAssistant {
 				String programCommand = "./Script.bat";
 				communicator.execBinary(programCommand);
 			}
-		}
+		}*/
 		else
 			return super.doCommand(commandName, arguments, checker);
 		return null;
