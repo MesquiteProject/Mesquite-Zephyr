@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
  */
 
-package mesquite.zephyr.IQTreeRunnerLocal;
+package mesquite.zephyr.IQTreeRunnerSSH;
 
 
 import java.awt.*;
@@ -25,25 +25,43 @@ import mesquite.lib.system.SystemUtil;
 import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
 import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
+import mesquite.zephyr.RAxMLRunnerSSH.RAxMLRunnerSSH;
+import mesquite.zephyr.SSHRunner.SSHRunner;
 import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
 
 
-public class IQTreeRunnerLocal extends IQTreeRunnerBasic  {
+public class IQTreeRunnerSSH extends IQTreeRunnerBasic  {
 
 
 	/*.................................................................................................................*/
+	public int getProgramNumber() {
+		return SSHServerProfile.IQTREE;
+	}
+	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
-		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
+		return "#mesquite.zephyr.SSHRunner.SSHRunner";
+	}
+
+	public Class getDutyClass() {
+		return IQTreeRunnerSSH.class;
+	}
+
+	public String getLogText() {
+		String log= externalProcRunner.getStdOut();
+		if (StringUtil.blank(log))
+			log="Waiting for log file from SSH...";
+		return log;
 	}
 	/*.................................................................................................................*/
 	public Class getExternalProcessRunnerClass(){
-		return LocalScriptRunner.class;
+		return SSHRunner.class;
 	}
 
 
-	public Class getDutyClass() {
-		return IQTreeRunnerLocal.class;
+	/*.................................................................................................................*/
+	public  String queryOptionsDialogTitle() {
+		return "IQ-TREE Options on SSH Server";
 	}
 
 	/*.................................................................................................................*/
@@ -51,16 +69,16 @@ public class IQTreeRunnerLocal extends IQTreeRunnerBasic  {
 	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
 	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
 	public int getVersionOfFirstRelease(){
-		return -2100;  
+		return -2500;  
 	}
 
 	public String getName() {
-		return "IQ-TREE Likelihood (Local)";
+		return "IQ-TREE Likelihood (SSH Server)";
 	}
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return false;
+		return true;
 	}
 
 

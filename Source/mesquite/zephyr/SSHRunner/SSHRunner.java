@@ -53,7 +53,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 
 	public  String getProgramLocation(){
 		if (communicator!=null)
-			return "SSH "+communicator.getHost();
+			return "SSH "+communicator.getSshServiceProfileName() + " (" + communicator.getHost()+")";
 		return "SSH";
 	}
 
