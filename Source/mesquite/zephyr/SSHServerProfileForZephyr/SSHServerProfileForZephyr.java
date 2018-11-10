@@ -34,6 +34,7 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences();
+		checkForProfileDirectory();
 		sshServerProfileVector = new ListableVector();
 		loadServerProfiles();
 		if (getNumRules()<=0) {
@@ -230,12 +231,18 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 			return null;
 	}
 	/*.................................................................................................................*/
-	private String newProfilePath(String name){
+	private void checkForProfileDirectory(){
 		String base = MesquiteModule.prefsDirectory+ MesquiteFile.fileSeparator + prefDirectoryName;
 		if (!MesquiteFile.fileExists(base)) {
 			File f = new File(base);
 			f.mkdir();
 		}
+	}
+
+	/*.................................................................................................................*/
+	private String newProfilePath(String name){
+		checkForProfileDirectory();
+		String base = MesquiteModule.prefsDirectory+ MesquiteFile.fileSeparator + prefDirectoryName;
 		String candidate = base + MesquiteFile.fileSeparator + StringUtil.punctuationToUnderline(name)+ ".xml";
 		if (!MesquiteFile.fileExists(candidate))
 			return candidate;
@@ -250,7 +257,8 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 	public void addProfile(SSHServerProfile serverProfile, String name){
 		serverProfile.save(newProfilePath(name), name);
 		sshServerProfileVector.addElement(serverProfile, false);	
-		choice.add(name);
+		if (choice!=null)
+			choice.add(name);
 		sshServerProfileName = name;
 		//	return s;
 	}
@@ -261,7 +269,8 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 		specification.setPath(newProfilePath(name));
 		specification.save();
 		sshServerProfileVector.addElement(specification, false);	
-		choice.add(name);
+		if (choice!=null)
+			choice.add(name);
 		sshServerProfileName = name;
 		return specification;
 		//	return s;
@@ -271,8 +280,10 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 		SSHServerProfile specification = (SSHServerProfile)sshServerProfileVector.elementAt(i);
 		specification.setName(name);
 		specification.save();
-		choice.remove(i);
-		choice.insert(name,i);
+		if (choice!=null) {
+			choice.remove(i);
+			choice.insert(name,i);
+		}
 		sshServerProfileName=name;
 	}
 	/*.................................................................................................................*/
@@ -285,7 +296,8 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 			//MesquiteString s = getNameRule(i);
 			//if (s !=null)
 			sshServerProfileVector.removeElement(specification, false);  //deletes it from the vector
-			choice.remove(i);
+			if (choice!=null)
+				choice.remove(i);
 		}
 	}
 	/*.................................................................................................................*/
