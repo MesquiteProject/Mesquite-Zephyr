@@ -341,13 +341,19 @@ public class CIPResCommunicator extends RESTCommunicator {
 
 
 	/*.................................................................................................................*/
-	public String getJobStatus(Object location) {
+	public String getJobStatus(Object location, boolean warn) {
 		if (checkUsernamePassword(false)) {
 			String jobURL = (String)location;
 			HttpClient httpclient = getHttpClient();
 			return getJobStatus(httpclient, jobURL);
 		}
-		return "Status not available";
+		if (warn)
+			return "Status not available";
+		return "";
+	}
+	/*.................................................................................................................*/
+	public String getJobStatus(Object location) {
+		return getJobStatus(location, true);
 
 	}
 	/*.................................................................................................................*/
@@ -721,7 +727,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 				processOutputFiles(location);
 			}
 		}
-		ownerModule.logln(getServiceName()+" job completed. (" + StringUtil.getDateTime() + " or earlier)");
+		ownerModule.logln("\n"+getServiceName()+" job completed. (" + StringUtil.getDateTime() + " or earlier)");
 		if (outputFileProcessor!=null) {
 			if (rootDir!=null) {
 				ownerModule.logln("About to download results from "+getServiceName()+" (this may take some time).");
