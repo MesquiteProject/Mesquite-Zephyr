@@ -54,16 +54,21 @@ public class SSHServerProfile implements Listable, Explainable {
 	}
 
 	public SSHServerProfile(SSHServerProfile spec) {
+		initializeProgramPaths();
 		if (spec!=null) {
 			name = spec.name;
 			description = spec.description;
 			host = spec.host;
 			OSType = spec.OSType;
+			pollingInterval = spec.pollingInterval;
 			tempFileDirectory = spec.tempFileDirectory;
+			username = spec.username;
+			for (int i=0; i<numProgramsSupported; i++)
+				programPaths[i] = spec.programPaths[i];
+
 			if (MesquiteInteger.isCombinable(spec.pollingInterval))
 				pollingInterval = spec.pollingInterval;
 		}
-		initializeProgramPaths();
 	}
 
 	void initializeProgramPaths() {

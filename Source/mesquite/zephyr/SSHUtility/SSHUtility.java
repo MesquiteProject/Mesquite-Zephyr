@@ -29,7 +29,7 @@ public class SSHUtility extends UtilitiesAssistant {
 
 		MesquiteSubmenuSpec mss = addSubmenu(null,"SSH Server Utility");
 
-		addItemToSubmenu(null, mss, "Manage SSH Server Profiles", makeCommand("manageServers", this));
+		addItemToSubmenu(null, mss, "Manage SSH Server Profiles...", makeCommand("manageServers", this));
 	//	addLineToSubmenu(null, mss);
 		return true;
 	}

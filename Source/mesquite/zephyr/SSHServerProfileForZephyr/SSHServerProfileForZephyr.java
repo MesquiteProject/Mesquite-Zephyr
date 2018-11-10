@@ -263,7 +263,7 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 		//	return s;
 	}
 	/*.................................................................................................................*/
-	public SSHServerProfile duplicateNameRule(SSHServerProfile serverProfile, String name){
+	public SSHServerProfile duplicate(SSHServerProfile serverProfile, String name){
 		SSHServerProfile specification = new SSHServerProfile(serverProfile);
 		specification.setName(name);
 		specification.setPath(newProfilePath(name));
@@ -368,7 +368,7 @@ class ManageGeneProfileDLOG extends ExtensibleListDialog {
 	}
 	/*.................................................................................................................*/
 	public Listable duplicateElement(String name){
-		SSHServerProfile serverProfile = ownerModule.duplicateNameRule((SSHServerProfile)currentElement, name);
+		SSHServerProfile serverProfile = ownerModule.duplicate((SSHServerProfile)currentElement, name);
 		return serverProfile;
 	}
 	/*.................................................................................................................*/
