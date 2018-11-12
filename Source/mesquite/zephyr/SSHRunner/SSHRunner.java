@@ -31,7 +31,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	boolean verbose = true;
 	boolean forgetPassword=false;
 
-	SimpleSSHCommunicator communicator;
+	SSHCommunicator communicator;
 
 	/*.================================================================..*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
@@ -438,7 +438,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	}
 	/*.................................................................................................................*/
 	private boolean prepareCommunicator() {
-		communicator = new SimpleSSHCommunicator(this,xmlPrefsString, outputFilePaths);
+		communicator = new SSHCommunicator(this,xmlPrefsString, outputFilePaths);
 		if (communicator==null) 
 			return false;
 		if (forgetPassword)
