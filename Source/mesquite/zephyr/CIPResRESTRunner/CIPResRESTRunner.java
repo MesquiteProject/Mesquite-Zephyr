@@ -21,7 +21,6 @@ import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
 public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFileProcessor, ShellScriptWatcher, OutputFilePathModifier {
-	String rootDir = null;
 	MesquiteString jobURL = null;
 	MesquiteString jobID = null;
 	ExternalProcessRequester processRequester;
@@ -110,8 +109,8 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
-		if (rootDir != null)
-			temp.addLine("setRootDir " +  ParseUtil.tokenize(rootDir));
+		if (localRootDir != null)
+			temp.addLine("setRootDir " +  ParseUtil.tokenize(localRootDir));
 		if (outputFilePaths != null){
 			String files = " ";
 			for (int i = 0; i< outputFilePaths.length; i++){
@@ -144,7 +143,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 				reportJobURL=true;
 			communicator.setOutputProcessor(this);
 			communicator.setWatcher(this);
-			communicator.setRootDir(rootDir);
+			communicator.setRootDir(localRootDir);
 			if (forgetPassword)
 				communicator.forgetPassword();
 			forgetPassword = false;
@@ -169,9 +168,9 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 			}
 		}
 		else if (checker.compare(this.getClass(), "Sets root directory", null, commandName, "setRootDir")) {
-			rootDir = parser.getFirstToken(arguments);
+			localRootDir = parser.getFirstToken(arguments);
 			if (communicator!=null)
-				communicator.setRootDir(rootDir);
+				communicator.setRootDir(localRootDir);
 		}
 		else if (checker.compare(this.getClass(), "Sets runLimit", null, commandName, "setRunLimit")) {
 			runLimit = MesquiteDouble.fromString(parser.getFirstToken(arguments));
@@ -232,7 +231,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	String[] inputFilePaths;
 	/*.................................................................................................................*/
 	public String getDirectoryPath(){  
-		return rootDir;
+		return localRootDir;
 	}
 
 	/*.................................................................................................................*/
@@ -242,6 +241,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		return null;
 	}
 
+	
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
 	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
@@ -249,16 +249,14 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		if (!(arguments instanceof MultipartEntityBuilder))
 			return false;
 		builder = (MultipartEntityBuilder)arguments;
-		if (rootDir==null) 
-			rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
-		if (rootDir==null)
+		if (!setRootDir())
 			return false;
 		
 		inputFilePaths = new String[fileNames.length];
 		for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
 			if (StringUtil.notEmpty(fileNames[i]) && fileContents[i]!=null) {
-				MesquiteFile.putFileContents(rootDir+fileNames[i], fileContents[i], true);
-				inputFilePaths[i]=rootDir+fileNames[i];
+				MesquiteFile.putFileContents(localRootDir+fileNames[i], fileContents[i], true);
+				inputFilePaths[i]=localRootDir+fileNames[i];
 			}
 		}
 		processRequester.prepareRunnerObject(builder);
@@ -268,8 +266,8 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
 	public boolean setPreflightInputFiles(String script){  //assumes for now that all input files are in the same directory
-		rootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
-		if (rootDir==null)
+		localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		if (localRootDir==null)
 			return false;
 		
 		return true;
@@ -281,7 +279,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 			outputFileNames = new String[fileNames.length];
 			outputFilePaths = new String[fileNames.length];
 			for (int i=0; i<fileNames.length; i++){
-				outputFilePaths[i]=rootDir+fileNames[i];
+				outputFilePaths[i]=localRootDir+fileNames[i];
 				outputFileNames[i]=fileNames[i];
 			}
 		}
@@ -289,7 +287,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	/*.................................................................................................................*/
 	public void setOutputFileNameToWatch(int index, String fileName){
 		if (outputFileNames!=null && index>=0 && index < outputFileNames.length) {
-				outputFilePaths[index]=rootDir+fileName;
+				outputFilePaths[index]=localRootDir+fileName;
 				outputFileNames[index]=fileName;
 		}
 	}
@@ -322,7 +320,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		communicator.setRunLimit(runLimit);
 		communicator.setOutputProcessor(this);
 		communicator.setWatcher(this);
-		communicator.setRootDir(rootDir);
+		communicator.setRootDir(localRootDir);
 		if (forgetPassword)
 			communicator.forgetPassword();
 		forgetPassword = false;
@@ -346,7 +344,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		return true;
 	}
 	public String getPreflightFile(String preflightLogFileName){
-		String filePath = rootDir + preflightLogFileName;
+		String filePath = localRootDir + preflightLogFileName;
 		String fileContents = MesquiteFile.getFileContentsAsString(filePath);
 		return fileContents;
 	}

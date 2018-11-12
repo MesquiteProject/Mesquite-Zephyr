@@ -19,6 +19,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	TreeInferer treeInferrer;
 	boolean aborted = false;
 	protected ProgressIndicator progressIndicator;
+	protected String localRootDir = null;  // local directory for storing files on local machine
 
 	public Class getDutyClass() {
 		return ExternalProcessRunner.class;
@@ -98,6 +99,12 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	/*.................................................................................................................*/
 	public void setAdditionalShellScriptCommands(String additionalShellScriptCommands) {
 		this.additionalShellScriptCommands = additionalShellScriptCommands;
+	}
+	/*.................................................................................................................*/
+	public boolean setRootDir() {
+		if (localRootDir==null) 
+			localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		return localRootDir!=null; 
 	}
 
 	/*.................................................................................................................*/

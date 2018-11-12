@@ -346,9 +346,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			args = (String)arguments;
 		else 
 			return false;
-		if (localRootDir==null) 
-			localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
-		if (localRootDir==null)
+		if (!setRootDir())
 			return false;
 
 		localScriptFilePath = localRootDir + scriptFileName;
@@ -394,6 +392,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 				outputFilePaths[i]=localRootDir+fileNames[i];
 				outputFileNames[i]=fileNames[i];
 			}
+			communicator.setOutputFilePaths(outputFilePaths);
 		}
 	}
 	/*.................................................................................................................*/
@@ -483,7 +482,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			if (scriptBased) {
 				communicator.addEmptyFileToWorkingDirectory(communicator.runningFileName);
 				return communicator.sendCommands(new String[] {getExecuteScriptCommand("./"+scriptFileName, visibleTerminal)},true, true, true);  // this works on Linux or Mac
-		//	return communicator.sendCommands(new String[] {getExecuteScriptCommand(getRemoteScriptPath(), visibleTerminal)},true, true, true);  // this works on Mac
+				//	return communicator.sendCommands(new String[] {getExecuteScriptCommand(getRemoteScriptPath(), visibleTerminal)},true, true, true);  // this works on Mac
 			}
 			else
 				return communicator.sendCommands(commands,true, true, true);

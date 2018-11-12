@@ -29,7 +29,6 @@ public class CIPResCommunicator extends RESTCommunicator {
 
 
 
-
 	static boolean preferencesProcessed=false;
 
 	int jobNumber = 3;

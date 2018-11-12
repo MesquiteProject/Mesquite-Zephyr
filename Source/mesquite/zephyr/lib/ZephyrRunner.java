@@ -593,6 +593,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle) {
 		runInProgress=true;
 
+
 		/*  ============ SETTING UP THE RUN ============  */
 		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, fileContents, fileNames);
 		if (!success){
@@ -602,11 +603,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			beanWritten = true;
 			return false;
 		}
-		
-		logln("Analysis on: " + externalProcRunner.getProgramLocation());
-
 		logFileNames = getLogFileNames();
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
+
+		logln("Analysis on: " + externalProcRunner.getProgramLocation());
+
 
 		if (!MesquiteThread.pleaseSuppressProgressIndicatorsCurrentThread())
 			progIndicator = new ProgressIndicator(getProject(),progTitle, getProgramName() + " Search", 0, true);

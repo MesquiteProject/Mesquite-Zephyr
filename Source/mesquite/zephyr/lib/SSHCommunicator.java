@@ -60,6 +60,9 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		this.sshServiceProfileName = sshServiceProfileName;
 	}
 
+	public void setOutputFilePaths(String[] outputFilePaths) {
+		this.outputFilePaths = outputFilePaths;
+	}
 
 	public String getHost() {
 		return host;

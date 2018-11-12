@@ -11,7 +11,6 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 
 	protected String runningFilePath = "";
 	protected ExternalProcessRequester processRequester;
-	protected String localRootDir = null;  // local directory for storing files on local machine
 	public boolean scriptBased = false;
 	public boolean addExitCommand = true;
 	protected boolean visibleTerminal = false;

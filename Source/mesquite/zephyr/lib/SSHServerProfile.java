@@ -45,7 +45,7 @@ public class SSHServerProfile implements Listable, Explainable {
 	public String[] programPaths;
 
 	public String RAxMLpath = "";
-
+	
 	public String path;
 
 	public String explanation;
