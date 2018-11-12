@@ -33,6 +33,7 @@ public class SSHServerProfile implements Listable, Explainable {
 	public String username = "";  
 	protected String tempFileDirectory = "";  
 	public int pollingInterval = 30;
+	public int maxCores = 2;
 
 	public static int numProgramsSupported = 4;
 	public static int RAxML = 0;
@@ -60,7 +61,6 @@ public class SSHServerProfile implements Listable, Explainable {
 			description = spec.description;
 			host = spec.host;
 			OSType = spec.OSType;
-			pollingInterval = spec.pollingInterval;
 			tempFileDirectory = spec.tempFileDirectory;
 			username = spec.username;
 			for (int i=0; i<numProgramsSupported; i++)
@@ -68,6 +68,8 @@ public class SSHServerProfile implements Listable, Explainable {
 
 			if (MesquiteInteger.isCombinable(spec.pollingInterval))
 				pollingInterval = spec.pollingInterval;
+			if (MesquiteInteger.isCombinable(spec.maxCores))
+				maxCores = spec.maxCores;
 		}
 	}
 
@@ -133,6 +135,9 @@ public class SSHServerProfile implements Listable, Explainable {
 	public int getPollingInterval(){
 		return pollingInterval;
 	}
+	public int getMaxCores(){
+		return maxCores;
+	}
 	public String getDescription(){
 		return description;
 	}
@@ -166,6 +171,7 @@ public class SSHServerProfile implements Listable, Explainable {
 		XMLUtil.addFilledElement(boundedByTokensElement, "description",DocumentHelper.createCDATA(description));
 		XMLUtil.addFilledElement(boundedByTokensElement, "tempFileDirectory",DocumentHelper.createCDATA(tempFileDirectory));
 		XMLUtil.addFilledElement(boundedByTokensElement, "pollingInterval",DocumentHelper.createCDATA(""+pollingInterval));
+		XMLUtil.addFilledElement(boundedByTokensElement, "maxCores",DocumentHelper.createCDATA(""+maxCores));
 		for (int i=0; i<numProgramsSupported; i++)
 			XMLUtil.addFilledElement(boundedByTokensElement, StringUtil.cleanseStringOfFancyChars(programNames[i]+"_path", false, true),DocumentHelper.createCDATA(programPaths[i]));
 
@@ -205,6 +211,9 @@ public class SSHServerProfile implements Listable, Explainable {
 			description = boundedByTokens.elementText("description");
 			tempFileDirectory = boundedByTokens.elementText("tempFileDirectory");
 			pollingInterval = MesquiteInteger.fromString(boundedByTokens.elementText("pollingInterval"));
+			int tempMaxCores = MesquiteInteger.fromString(boundedByTokens.elementText("maxCores"));
+			if (MesquiteInteger.isCombinable(tempMaxCores))
+				maxCores = tempMaxCores;
 			for (int i=0; i<numProgramsSupported; i++)
 				programPaths[i] = boundedByTokens.elementText(StringUtil.cleanseStringOfFancyChars(programNames[i]+"_path", false, true));
 
@@ -253,6 +262,7 @@ public class SSHServerProfile implements Listable, Explainable {
 		OSTypeChoice = dialog.addPopUpMenu("Operating System", OSStrings(), 	item);
 		SingleLineTextField usernameField = dialog.addTextField("Default username:", username,50, true);
 		IntegerField pollingIntervalField = dialog.addIntegerField("Interval (in seconds) between server checks", pollingInterval, 10, 1, Integer.MAX_VALUE);
+		IntegerField maxCoresField = dialog.addIntegerField("Maximum number of processor to use on server", maxCores, 10, 1, Integer.MAX_VALUE);
 		SingleLineTextField tempFileDirectoryField = dialog.addTextField("Path to temporary files directory:", tempFileDirectory, 60, true);
 
 		SingleLineTextField[] pathsField = new SingleLineTextField[numProgramsSupported];
@@ -270,6 +280,7 @@ public class SSHServerProfile implements Listable, Explainable {
 			OSType = OSTypeChoice.getSelectedItem();
 			tempFileDirectory = tempFileDirectoryField.getText();
 			pollingInterval = pollingIntervalField.getValue();
+			maxCores = maxCoresField.getValue();
 			name = nameField.getText();
 			for (int i=0; i<numProgramsSupported; i++)
 				programPaths[i] = pathsField[i].getText();

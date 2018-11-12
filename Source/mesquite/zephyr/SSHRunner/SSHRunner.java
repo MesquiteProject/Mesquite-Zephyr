@@ -50,6 +50,11 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		storePreferences();  //also after options chosen
 		super.endJob();
 	}
+	public int getMaxCores() {
+		if (sshServerProfile!=null)
+			return sshServerProfile.getMaxCores();
+		return MesquiteInteger.infinite;
+	}
 
 	public  String getProgramLocation(){
 		if (communicator!=null)

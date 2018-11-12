@@ -603,6 +603,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			return false;
 		}
 		
+		logln("Analysis on: " + externalProcRunner.getProgramLocation());
+
 		logFileNames = getLogFileNames();
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 

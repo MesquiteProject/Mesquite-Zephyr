@@ -31,6 +31,10 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		return new String[] {""};
 	}
 	
+	public int getMaxCores() {
+		return MesquiteInteger.infinite;
+	}
+	
 	public String getMessageIfUserAbortRequested () {
 		return "";
 	}

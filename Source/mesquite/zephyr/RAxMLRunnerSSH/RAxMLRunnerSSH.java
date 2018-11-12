@@ -51,6 +51,12 @@ public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
 			log="Waiting for log file from SSH...";
 		return log;
 	}
+	/*.................................................................................................................*/
+	public int getMaxCores(){
+		if (externalProcRunner!=null)
+			return externalProcRunner.getMaxCores();
+		return MesquiteInteger.infinite ;
+	}
 
 	/*.................................................................................................................*/
 	public  String queryOptionsDialogTitle() {

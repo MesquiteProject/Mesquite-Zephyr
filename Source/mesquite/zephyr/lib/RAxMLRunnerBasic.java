@@ -36,7 +36,7 @@ outgroups
 
  */
 
-public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
+public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements ActionListener, KeyListener, ExternalProcessRequester  {
 
 	protected static final int THREADING_OTHER =0;
 	protected static final int THREADING_PTHREADS = 1;
@@ -118,31 +118,31 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements ActionLis
 	public String getTestedProgramVersions(){
 		return "8.0.0–8.2.11";
 	}
-	
+
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
-			appendToSearchDetails("Search details: \n");
-			if (bootstrapOrJackknife()){
-				appendToSearchDetails("   Bootstrap analysis\n");
-				appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
-			} else {
-				appendToSearchDetails("   Search for maximum-likelihood tree\n");
-				appendToSearchDetails("   "+numRuns + " search replicate");
-				if (numRuns>1)
-					appendToSearchDetails("s");
-			}
-			MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(), false);
-			if (arguments!=null && !arguments.isBlank()){
-				appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString());
-			}
+		appendToSearchDetails("Search details: \n");
+		if (bootstrapOrJackknife()){
+			appendToSearchDetails("   Bootstrap analysis\n");
+			appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
+		} else {
+			appendToSearchDetails("   Search for maximum-likelihood tree\n");
+			appendToSearchDetails("   "+numRuns + " search replicate");
+			if (numRuns>1)
+				appendToSearchDetails("s");
+		}
+		MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(), false);
+		if (arguments!=null && !arguments.isBlank()){
+			appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString());
+		}
 	}
 	/*.................................................................................................................*/
 	public  String queryOptionsDialogTitle() {
 		return "RAxML Options & Locations";
 	}
-	
+
 	//TEST IF WORKS ON SSH
-	 /*.................................................................................................................*/
+	/*.................................................................................................................*/
 	public String getHTMLDescriptionOfStatus(){
 		String s = "";
 		if (getRunInProgress()) {
@@ -174,8 +174,9 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements ActionLis
 		dialog.addLabel("RAxML parallelization style:");
 		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);
 		numProcessorsField = dialog.addIntegerField("Number of Processors", numProcessors, 8, 1, MesquiteInteger.infinite);
+		numProcessorsField.addKeyListener(this);
 		dialog.addHorizontalLine(1);
-		
+
 		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
 		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
 	}
@@ -188,6 +189,10 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements ActionLis
 	/*.................................................................................................................*/
 	public void setRAxMLSeed(long seed){
 		this.randseed = seed;
+	}
+	/*.................................................................................................................*/
+	public int getMaxCores(){
+		return 2;
 	}
 	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
@@ -203,6 +208,25 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements ActionLis
 			commandField.setText("");
 			commandLabel.setText("");
 		}
+	}
+	public void checkFields() {
+		int max = getMaxCores();
+		if (MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
+			MesquiteMessage.notifyUser("Number of processors used cannot exceed "+max +", as that is the maximum specified in the SSH Server Profile");			
+			numProcessorsField.setValue(max);
+		}
+	}
+
+	/*.................................................................................................................*/
+	public void keyPressed(KeyEvent e) {
+	}
+
+	public void keyReleased(KeyEvent e) {
+		checkFields();
+	}
+
+	public void keyTyped(KeyEvent e) {
+		checkFields();
 	}
 
 	/*.................................................................................................................*/
@@ -244,13 +268,13 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements ActionLis
 			localArguments += " -r constraintTree.tre "; 
 		else if (useConstraintTree == MONOPHYLY)
 			localArguments += " -g constraintTree.tre "; 
-			
+
 		if (LOCdoBootstrap) {
 			if (LOCbootstrapreps>0)
 				localArguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
 			else
 				localArguments += " -# 1 -b " + LOCbootstrapSeed;   // just do one rep
-			}
+		}
 		else {
 			if (LOCnobfgs)
 				localArguments += " --no-bfgs ";
@@ -325,8 +349,9 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements ActionLis
 
 		if (!isPreflight) {
 			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
-			if (isVerbose())
+			if (isVerbose()) {
 				logln("RAxML arguments: \n" + arguments.getValue() + "\n");
+			}
 		} else {
 			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
