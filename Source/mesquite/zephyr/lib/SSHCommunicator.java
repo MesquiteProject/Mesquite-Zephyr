@@ -22,7 +22,8 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	protected String remoteServerDirectoryPath = "";
 	public static final String runningFileName = "running";
 	protected ProgressIndicator progressIndicator;
-	protected String sshServiceProfileName = "";
+	protected String sshServerProfileName = "";
+	protected SSHServerProfile sshServerProfile;
 
 
 	public SSHCommunicator (MesquiteModule mb, String xmlPrefsString,String[] outputFilePaths) {
@@ -53,11 +54,18 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			return null;
 		}
 	}
-	public String getSshServiceProfileName() {
-		return sshServiceProfileName;
+	public SSHServerProfile getSSHServerProfile() {
+		return sshServerProfile;
 	}
-	public void setSshServiceProfileName(String sshServiceProfileName) {
-		this.sshServiceProfileName = sshServiceProfileName;
+	public void setSSHServerProfile(SSHServerProfile sshServerProfile) {
+		this.sshServerProfile = sshServerProfile;
+	}
+
+	public String getSshServerProfileName() {
+		return sshServerProfileName;
+	}
+	public void setSshServerProfileName(String sshServerProfileName) {
+		this.sshServerProfileName = sshServerProfileName;
 	}
 
 	public void setOutputFilePaths(String[] outputFilePaths) {
@@ -437,6 +445,19 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 	public void deleteJob(Object location) {
 	}
+	/*.................................................................................................................*/
+	public void setPasswordToSSHProfilePassword(){
+		password=sshServerProfile.getPassword();
+	}
+
+	/*.................................................................................................................*/
+	public void setPassword(String newPassword){
+		if (!useAPITestUser()) {
+			password=newPassword;
+			if (sshServerProfile!=null)
+				sshServerProfile.setPassword(newPassword);
+		}
+	}
 
 	/*.................................................................................................................*/
 	public String getServiceName() {
@@ -448,8 +469,8 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		return "";
 	}
 	public String getSystemName() {
-		if (StringUtil.notEmpty(sshServiceProfileName))
-			return sshServiceProfileName +" (via SSH)";
+		if (StringUtil.notEmpty(sshServerProfileName))
+			return sshServerProfileName +" (via SSH)";
 		return "Server (via SSH)";
 	}
 	@Override

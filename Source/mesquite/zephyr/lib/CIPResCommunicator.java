@@ -23,11 +23,12 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 
 public class CIPResCommunicator extends RESTCommunicator {
+
 	public static final String CIPResRESTURL = "https://cipresrest.sdsc.edu/cipresrest/v1";
 
 	double runLimit=0.5;
 
-
+	static String CIPResPassword ="";
 
 	static boolean preferencesProcessed=false;
 
@@ -64,6 +65,19 @@ public class CIPResCommunicator extends RESTCommunicator {
 	public String getRESTURL() {
 		return CIPResRESTURL;
 	}
+	/*.................................................................................................................*/
+	public void setPassword(String newPassword){
+		if (!useAPITestUser()) {
+			password=newPassword;
+			CIPResPassword = newPassword;
+		}
+	}
+
+	/*.................................................................................................................*/
+	public void setPasswordToCIPResPassword() {
+		password = CIPResPassword;
+	}
+
 	/*.................................................................................................................*/
 	public String getAPIURL() {
 		return "";

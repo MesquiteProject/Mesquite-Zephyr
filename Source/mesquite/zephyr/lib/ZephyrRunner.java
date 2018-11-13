@@ -572,12 +572,14 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return useDiscreetAlert;
 	}
 	/*.................................................................................................................*/
+	/*.................................................................................................................*/
 //TODO: generalize to all programs (e.g., not in TNTRunner)
 	public String getRunInformation() {
 		StringBuffer sb = new StringBuffer(1000);
 		sb.append("Trees acquired from " + getProgramName() + " using Mesquite's Zephyr package. \n");
 		sb.append(getProgramName() + " run on " + getProgramLocation() +" \n");
 		sb.append("Analysis started " + getDateAndTime()+ "\n");
+		sb.append("User on originating (local) computer: " + MesquiteTrunk.getUserName()+ "\n");
 		sb.append("------------------------------------------\n");
 		sb.append("Taxa: " + taxa.getName() + "\n");
 		sb.append("Matrix: " + data.getName() + "\n");
@@ -590,12 +592,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return sb.toString();
 	}
 	/*.................................................................................................................*/
-	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle) {
+	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle, int runInfoFileNumber) {
 		runInProgress=true;
-
-
+		
 		/*  ============ SETTING UP THE RUN ============  */
-		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, fileContents, fileNames);
+		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, fileContents, fileNames, runInfoFileNumber);
 		if (!success){
 			// give message about failure
 			if (!beanWritten)

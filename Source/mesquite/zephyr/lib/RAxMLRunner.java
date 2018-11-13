@@ -730,6 +730,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		fileNames[3] = constraintTreeFileName;
 		fileContents[4] = getRunInformation();
 		fileNames[4] = runInformationFileName;
+		int runInformationFileNumber = 4;
 
 		numRunsCompleted = 0;
 		completedRuns = new boolean[numRuns];
@@ -737,7 +738,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		summaryFilePosition=0;
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
 
 		MesquiteFile.deleteDirectory(tempDir);
 		if (!isDoomed()){

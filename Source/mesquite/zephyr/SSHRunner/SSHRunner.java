@@ -58,7 +58,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 
 	public  String getProgramLocation(){
 		if (communicator!=null)
-			return "SSH "+communicator.getSshServiceProfileName() + " (" + communicator.getHost()+")";
+			return "SSH "+communicator.getSshServerProfileName() + " (" + communicator.getHost()+")";
 		return "SSH";
 	}
 
@@ -337,7 +337,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
-	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
+	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames, int runInfoFileNumber){  //assumes for now that all input files are in the same directory
 		executableRemoteName= programCommand;
 		String args = null;
 		if (arguments instanceof MesquiteString)
@@ -447,13 +447,16 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			return false;
 		if (forgetPassword)
 			communicator.forgetPassword();
+		else
+			communicator.setPasswordToSSHProfilePassword();
 		communicator.setOutputProcessor(this);
 		communicator.setWatcher(this);
 		communicator.setRootDir(localRootDir);
 		communicator.setProgressIndicator(progressIndicator);
 		communicator.setRemoteWorkingDirectoryName(MesquiteFile.getFileNameFromFilePath(localRootDir));
 		if (sshServerProfile!=null) {
-			communicator.setSshServiceProfileName(sshServerProfile.getName());
+			communicator.setSshServerProfileName(sshServerProfile.getName());
+			communicator.setSSHServerProfile(sshServerProfile);
 			communicator.setRemoteServerDirectoryPath(sshServerProfile.getTempFileDirectory());
 			communicator.setHost(sshServerProfile.getHost());
 			communicator.setUsername(sshServerProfile.getUsername());

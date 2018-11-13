@@ -980,6 +980,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		fileNames[CONFIGFILENUMBER] = configFileName;
 		fileContents[3] = getRunInformation();
 		fileNames[3] = runInformationFileName;
+		int runInformationFileNumber = 3;
 
 		String GARLIcommand = externalProcRunner.getExecutableCommand();
 		Object arguments = getProgramArguments(dataFileName, configFileName, false);
@@ -990,7 +991,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		if (updateWindow)
 			parametersChanged(); //just a way to ping the coordinator to update the window
 		
-		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName());
+		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName(), runInformationFileNumber);
 
 		if (!isDoomed()){
 			if (success) {

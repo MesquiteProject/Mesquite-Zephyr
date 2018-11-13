@@ -46,6 +46,8 @@ public class SSHServerProfile implements Listable, Explainable {
 
 	public String RAxMLpath = "";
 	
+	private static String password = "";  // for temporary storage
+	
 	public String path;
 
 	public String explanation;
@@ -85,6 +87,14 @@ public class SSHServerProfile implements Listable, Explainable {
 	public String getOSType(){
 		return OSType;
 	}
+
+	public static String getPassword() {
+		return password;
+	}
+	public static void setPassword(String password) {
+		SSHServerProfile.password = password;
+	}
+
 	public boolean isMacOSX(){
 		return macOS.equalsIgnoreCase(OSType);
 	}

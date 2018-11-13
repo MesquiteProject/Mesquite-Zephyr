@@ -766,6 +766,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		fileNames[2] = constraintTreeFileName;
 		fileContents[3] = getRunInformation();
 		fileNames[3] = runInformationFileName;
+		int runInformationFileNumber = 3;
 
 		switch (searchStyle) {
 		case STANDARDSEARCH: 
@@ -785,7 +786,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		summaryFilePosition=0;
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
 
 		MesquiteFile.deleteDirectory(tempDir);
 		if (!isDoomed()){

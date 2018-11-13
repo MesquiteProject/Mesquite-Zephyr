@@ -96,12 +96,17 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "runLimit", runLimit);  
+		if (communicator!=null)
+			buffer.append(communicator.preparePreferencesForXML());
 		return buffer.toString();
 	}
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("runLimit".equalsIgnoreCase(tag))
 			runLimit = MesquiteDouble.fromString(content);
+		else 
+			if (communicator!=null)
+				communicator.processSingleXMLPreference(tag, content);
 		super.processSingleXMLPreference(tag, content);
 	}
 
@@ -244,7 +249,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
-	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
+	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames, int runInfoFileNumber){  //assumes for now that all input files are in the same directory
 		executableRemoteName= programCommand;
 		if (!(arguments instanceof MultipartEntityBuilder))
 			return false;
@@ -323,6 +328,8 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		communicator.setRootDir(localRootDir);
 		if (forgetPassword)
 			communicator.forgetPassword();
+		else
+			communicator.setPasswordToCIPResPassword();
 		forgetPassword = false;
 
 		jobURL = new MesquiteString();

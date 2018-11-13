@@ -356,7 +356,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
-	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames){  //assumes for now that all input files are in the same directory
+	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames, int runInfoFileNumber){  //assumes for now that all input files are in the same directory
 		//String unique = MesquiteTrunk.getUniqueIDBase() + Math.abs(rng.nextInt());
 		if (!setRootDir())
 			return false;

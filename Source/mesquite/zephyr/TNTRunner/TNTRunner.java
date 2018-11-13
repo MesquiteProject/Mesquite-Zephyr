@@ -720,7 +720,7 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		String programCommand = externalProcRunner.getExecutableCommand();
 
 
-		int numInputFiles = 3;
+		int numInputFiles = 4;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -733,10 +733,12 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		fileNames[1] = commandsFileName;
 		fileContents[2] = translationTable;
 		fileNames[2] = translationFileName;
-
+		fileContents[3] = getRunInformation();
+		fileNames[3] = runInformationFileName;
+		int runInformationFileNumber = 3;
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(),runInformationFileNumber);
 
 		if (!isDoomed()){
 			if (success){
