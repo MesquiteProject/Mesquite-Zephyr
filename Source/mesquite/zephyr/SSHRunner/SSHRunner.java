@@ -334,6 +334,16 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			return inputFilePaths[i];
 		return null;
 	}
+	/*.................................................................................................................*/
+	public String getAdditionalRunInformation(){  
+		StringBuffer sb = new StringBuffer();
+		sb.append("\n\n------------------------------------------\n");
+		sb.append("Remote computer on which analysis was conducted: " + getProgramLocation() +" \n");
+		if (communicator!=null) {
+				sb.append("Username on remote computer: " + communicator.getUserName() +" \n");
+		}
+		return sb.toString();
+	}
 
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
@@ -360,6 +370,8 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		//communicator.setRemoteWorkingDirectoryPath("/Users/david/Desktop/runTest");
 		commands = new String[] {"> "+communicator.runningFileName, programCommand+" "+args, "rm -f "+communicator.runningFileName};
 
+		if (runInfoFileNumber<fileContents.length)
+			fileContents[runInfoFileNumber]+= getAdditionalRunInformation();
 		inputFilePaths = new String[fileNames.length];
 		inputFileNames = new String[fileNames.length];
 		for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
