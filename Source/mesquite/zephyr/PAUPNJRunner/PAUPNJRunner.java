@@ -17,6 +17,7 @@ import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
+import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 import mesquite.zephyr.lib.*;
 
 /* TODO:
@@ -26,6 +27,15 @@ import mesquite.zephyr.lib.*;
 public class PAUPNJRunner extends PAUPRunner {
 	int bootStrapReps = 500;
 	protected String paupCommands = "";
+
+	/*.................................................................................................................*/
+	public String getExternalProcessRunnerModuleName(){
+		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
+	}
+	/*.................................................................................................................*/
+	public Class getExternalProcessRunnerClass(){
+		return LocalScriptRunner.class;
+	}
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {

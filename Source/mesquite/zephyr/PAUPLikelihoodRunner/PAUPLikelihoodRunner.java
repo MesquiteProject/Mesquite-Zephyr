@@ -19,6 +19,7 @@ import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
+import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 import mesquite.zephyr.lib.*;
 
 /* TODO:
@@ -34,6 +35,15 @@ public class PAUPLikelihoodRunner extends PAUPSearchRunner {
 
 	public String getCriterionScoreCommand() {
 		return "lscore";
+	}
+
+	/*.................................................................................................................*/
+	public String getExternalProcessRunnerModuleName(){
+		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
+	}
+	/*.................................................................................................................*/
+	public Class getExternalProcessRunnerClass(){
+		return LocalScriptRunner.class;
 	}
 
 	IntegerField numThreadsField;

@@ -19,6 +19,7 @@ import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
+import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 import mesquite.zephyr.lib.*;
 
 /* TODO:
@@ -36,6 +37,15 @@ public  class PAUPSVDRunner extends PAUPRunner implements ConstrainedSearcher {
 	TextArea paupPreSearchCommandsField,paupExtraSVDCommandsField;
 	protected String paupPreSearchCommands = "";
 	protected String paupExtraSVDCommands = "";
+
+	/*.................................................................................................................*/
+	public String getExternalProcessRunnerModuleName(){
+		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
+	}
+	/*.................................................................................................................*/
+	public Class getExternalProcessRunnerClass(){
+		return LocalScriptRunner.class;
+	}
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {

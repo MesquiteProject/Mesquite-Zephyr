@@ -15,7 +15,7 @@ import java.util.Random;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
-import mesquite.zephyr.PAUPParsimonyRunner.PAUPParsimonyRunner;
+import mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal;
 import mesquite.zephyr.RAxMLRunnerLocal.RAxMLRunnerLocal;
 import mesquite.zephyr.lib.*;
 
@@ -62,7 +62,7 @@ public class PAUPParsimonyTrees extends PAUPTrees implements ParsimonyAnalysis {
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return PAUPParsimonyRunner.class;
+		return PAUPParsimonyRunnerLocal.class;
 	}
 
 

@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPDistanceRunner;
+package mesquite.zephyr.PAUPParsimonyRunnerLocal;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -22,12 +22,9 @@ import mesquite.lib.duties.*;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 import mesquite.zephyr.lib.*;
 
-/* TODO:
- * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
- */
 
-public class PAUPDistanceRunner extends PAUPSearchRunner {
 
+public class PAUPParsimonyRunnerLocal extends PAUPParsimonyRunnerBasic {
 
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
@@ -36,32 +33,6 @@ public class PAUPDistanceRunner extends PAUPSearchRunner {
 	/*.................................................................................................................*/
 	public Class getExternalProcessRunnerClass(){
 		return LocalScriptRunner.class;
-	}
-
-	public String getCriterionSetCommand() {
-		return "set criterion=distance;";
-	}
-
-	public String getCriterionScoreCommand() {
-		return "dscore";
-	}
-
-
-	public String getOptimalTreeAdjectiveLowerCase() {
-		return "optimal distance";
-	}
-
-	public String getOptimalTreeAdjectiveTitleCase() {
-		return "Optimal Distance";
-	}
-
-
-	public String getName() {
-		return "PAUP Distance";
-	}
-	/*.................................................................................................................*/
-	public boolean allowRerooting() {
-		return false;
 	}
 
 

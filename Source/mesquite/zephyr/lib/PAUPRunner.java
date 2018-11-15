@@ -89,14 +89,6 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	}
 
 
-	/*.................................................................................................................*/
-	public String getExternalProcessRunnerModuleName(){
-		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
-	}
-	/*.................................................................................................................*/
-	public Class getExternalProcessRunnerClass(){
-		return LocalScriptRunner.class;
-	}
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 		MesquiteFile.suppressReadWriteLogging=!verbose;

@@ -13,7 +13,7 @@ import java.awt.*;
 
 import mesquite.lib.*;
 import mesquite.zephyr.PAUPNJRunner.PAUPNJRunner;
-import mesquite.zephyr.PAUPParsimonyRunner.PAUPParsimonyRunner;
+import mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal;
 import mesquite.zephyr.lib.*;
 import mesquite.categ.lib.*;
 
