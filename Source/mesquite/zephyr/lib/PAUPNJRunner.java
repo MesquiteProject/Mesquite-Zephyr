@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPNJRunner;
+package mesquite.zephyr.lib;
 
 import java.awt.Checkbox;
 import java.awt.TextArea;
@@ -24,7 +24,7 @@ import mesquite.zephyr.lib.*;
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
  */
 
-public class PAUPNJRunner extends PAUPRunner {
+public abstract class PAUPNJRunner extends PAUPRunner {
 	int bootStrapReps = 500;
 	protected String paupCommands = "";
 

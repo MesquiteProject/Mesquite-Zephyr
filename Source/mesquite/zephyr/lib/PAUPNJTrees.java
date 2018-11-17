@@ -7,17 +7,17 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPNJTrees;
+package mesquite.zephyr.lib;
 
 import java.awt.*;
 
 import mesquite.lib.*;
-import mesquite.zephyr.PAUPNJRunner.PAUPNJRunner;
+import mesquite.zephyr.PAUPNJRunnerSSH.PAUPNJRunnerSSH;
 import mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal;
 import mesquite.zephyr.lib.*;
 import mesquite.categ.lib.*;
 
-public class PAUPNJTrees extends ZephyrTreeSearcher implements DistanceAnalysis {
+public abstract class PAUPNJTrees extends ZephyrTreeSearcher implements DistanceAnalysis {
 
 	/*.................................................................................................................*
 	public String getExtraTreeWindowCommands (){
@@ -101,7 +101,7 @@ public class PAUPNJTrees extends ZephyrTreeSearcher implements DistanceAnalysis 
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return PAUPNJRunner.class;
+		return PAUPNJRunnerSSH.class;
 	}
 
 	/*.................................................................................................................*/
