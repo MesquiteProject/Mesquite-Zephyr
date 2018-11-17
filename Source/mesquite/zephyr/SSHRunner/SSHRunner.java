@@ -317,7 +317,12 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	}
 	/*.................................................................................................................*/
 	public String getExecutablePath(){
-		return sshServerProfile.getProgramPath(getExecutableNumber());
+		int num = getExecutableNumber();
+		if (num<0) {
+			logln("WARNING: Executable number not specified!");
+			return null;
+		}
+		return sshServerProfile.getProgramPath(num);
 	}
 
 

@@ -41,4 +41,9 @@ public class PAUPParsimonyRunnerSSH extends PAUPParsimonyRunnerBasic {
 		return "PAUP Trees (Parsimony) [SSH Server] Runner";
 	}
 
+	/*.................................................................................................................*/
+	public int getProgramNumber() {
+		return SSHServerProfile.PAUP;
+	}
+
 }
