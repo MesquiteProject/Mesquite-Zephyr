@@ -284,7 +284,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		}
 		return s;
 	}
-	int numTreesFound=0;
+	//int numTreesFound=0;
 	/*.................................................................................................................*/
 		public void appendAdditionalSearchDetails() {
 			appendToSearchDetails("Search details: \n");

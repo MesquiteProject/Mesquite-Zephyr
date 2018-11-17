@@ -18,7 +18,7 @@ import mesquite.lib.*;
 import mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal;
 import mesquite.zephyr.lib.*;
 
-public class PAUPParsimonyTreesLocal extends PAUPTrees implements ParsimonyAnalysis {
+public class PAUPParsimonyTreesLocal extends PAUPParsimonyTrees  {
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
