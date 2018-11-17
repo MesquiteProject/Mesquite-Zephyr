@@ -60,6 +60,7 @@ public abstract class PAUPNJTrees extends ZephyrTreeSearcher implements Distance
 		return commands;
 	}
 
+
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
 		return true;

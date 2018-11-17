@@ -39,13 +39,15 @@ public abstract class PAUPNJRunner extends PAUPRunner {
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
 		appendToSearchDetails("NJ Analysis details: \n");
+		if (StringUtil.notEmpty(paupCommands))
+			appendToSearchDetails("   Pre-NJ commands: " + paupCommands);
 		if (bootstrapOrJackknife()){
 			appendToSearchDetails("   "+getResamplingKindName() +"\n");
 			appendToSearchDetails("   "+bootStrapReps + " replicates");
 		} 
-		//TODO: add distance measure  //Debugg.println
 }
 
+	
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("bootStrapReps".equalsIgnoreCase(tag))
