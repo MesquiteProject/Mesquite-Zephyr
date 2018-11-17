@@ -313,7 +313,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	}
 	/*.................................................................................................................*/
 	public String getTreeBlockName(boolean completedRun){
-		String s = getProgramName() + getMethodNameForTreeBlock() ;
+		String s = getProgramName() + " " + getMethodNameForTreeBlock() ;
 		if (runner != null){
 			if (runner.bootstrapOrJackknife()) {
 				if (runner.singleTreeFromResampling()) //this means we have read in all of the bootstrap trees

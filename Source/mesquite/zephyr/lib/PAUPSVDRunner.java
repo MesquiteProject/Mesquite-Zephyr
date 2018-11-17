@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPSVDRunner;
+package mesquite.zephyr.lib;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -26,7 +26,7 @@ import mesquite.zephyr.lib.*;
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
  */
 
-public  class PAUPSVDRunner extends PAUPRunner implements ConstrainedSearcher {
+public abstract class PAUPSVDRunner extends PAUPRunner implements ConstrainedSearcher {
 
 	int bootStrapReps = 500;
 
@@ -38,14 +38,6 @@ public  class PAUPSVDRunner extends PAUPRunner implements ConstrainedSearcher {
 	protected String paupPreSearchCommands = "";
 	protected String paupExtraSVDCommands = "";
 
-	/*.................................................................................................................*/
-	public String getExternalProcessRunnerModuleName(){
-		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
-	}
-	/*.................................................................................................................*/
-	public Class getExternalProcessRunnerClass(){
-		return LocalScriptRunner.class;
-	}
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
@@ -249,7 +241,7 @@ public  class PAUPSVDRunner extends PAUPRunner implements ConstrainedSearcher {
 
 	/*.................................................................................................................*/
 	public String getMethodNameForTreeBlock() {
-		return " SVD Quartets";
+		return " SVD";
 	}
 
 	/*.................................................................................................................*/

@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPSVDTrees;
+package mesquite.zephyr.lib;
 
 import java.util.*;
 
@@ -15,11 +15,11 @@ import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
-import mesquite.zephyr.PAUPSVDRunner.PAUPSVDRunner;
+import mesquite.zephyr.PAUPSVDRunnerSSH.PAUPSVDRunnerSSH;
 import mesquite.zephyr.lib.*;
 
 
-public class PAUPSVDTrees extends ZephyrTreeSearcher implements InvariantsAnalysis {
+public abstract class PAUPSVDTrees extends ZephyrTreeSearcher implements InvariantsAnalysis {
 	TreeSource treeRecoveryTask;
 	//Taxa taxa;
 	//private MatrixSourceCoord matrixSourceTask;
@@ -27,10 +27,6 @@ public class PAUPSVDTrees extends ZephyrTreeSearcher implements InvariantsAnalys
 	//int rerootNode = 0;
 
 
-	/*.................................................................................................................*/
-	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.PAUPSVDRunner.PAUPSVDRunner";
-	}
 	/*.................................................................................................................*/
 	public String getProgramName() {
 		return "PAUP";
@@ -41,7 +37,7 @@ public class PAUPSVDTrees extends ZephyrTreeSearcher implements InvariantsAnalys
 		 return PAUPRunner.PAUPURL;
 	 }
 	 public Class getRunnerClass(){
-		 return PAUPSVDRunner.class;
+		 return PAUPSVDRunnerSSH.class;
 	 }
 
 	 /*.................................................................................................................*/
@@ -56,6 +52,19 @@ public class PAUPSVDTrees extends ZephyrTreeSearcher implements InvariantsAnalys
 	public boolean canGiveIntermediateResults(){
 		return false;
 	}
+	public String getExtraTreeWindowCommands (boolean finalTree){
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, finalTree)+ eachTreeCommands();
+	}
+
+	public String eachTreeCommands (){
+		String commands="";
+		if (runner.outgroupTaxSetString==null && rerootNode>0 && MesquiteInteger.isCombinable(rerootNode)) {
+			commands += " rootAlongBranch " + rerootNode + "; ";
+		}
+		commands += " ladderize root; ";
+		return commands;
+	}
+
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
 	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
