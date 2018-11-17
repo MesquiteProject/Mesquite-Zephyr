@@ -54,7 +54,7 @@ public class PAUPParsimonyTreesSSH extends PAUPTrees implements ParsimonyAnalysi
 	/*.................................................................................................................*/
 
 	public String getName() {
-		return "PAUP Trees (Parsimony) [SSH Server]";
+		return "PAUP* Trees (Parsimony) [SSH Server]";
 	}
 
 

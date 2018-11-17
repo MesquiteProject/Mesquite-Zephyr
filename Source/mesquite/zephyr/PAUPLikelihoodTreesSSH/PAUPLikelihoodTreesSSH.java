@@ -7,26 +7,24 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPNJTreesSSH;
+package mesquite.zephyr.PAUPLikelihoodTreesSSH;
 
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.util.Random;
 
-import mesquite.lib.*;
-import mesquite.zephyr.PAUPNJRunnerSSH.PAUPNJRunnerSSH;
-import mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal;
-import mesquite.zephyr.PAUPParsimonyRunnerSSH.PAUPParsimonyRunnerSSH;
-import mesquite.zephyr.lib.*;
 import mesquite.categ.lib.*;
+import mesquite.lib.*;
+import mesquite.lib.duties.TreeSource;
+import mesquite.zephyr.PAUPLikelihoodRunnerSSH.PAUPLikelihoodRunnerSSH;
+import mesquite.zephyr.lib.*;
 
-public class PAUPNJTreesSSH extends PAUPNJTrees {
+public class PAUPLikelihoodTreesSSH extends PAUPTrees implements LikelihoodAnalysis {
 
-
-	
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
 		return true;
 	}
-
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
@@ -36,19 +34,18 @@ public class PAUPNJTreesSSH extends PAUPNJTrees {
 		return -2500;  
 	}
 
-
-
-
+	
 	public String getExplanation() {
-		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a neighbor-joining or bootstrap neighbor-joining on a server to which you can connect via SSH, and harvest the resulting trees.";
+		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a likelihood search on a server to which you can connect via SSH, and harvest the resulting trees.";
 	}
+	
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.PAUPNJRunnerSSH.PAUPNJRunnerSSH";
+		return "#mesquite.zephyr.PAUPLikelihoodRunnerSSH.PAUPLikelihoodRunnerSSH";
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return PAUPNJRunnerSSH.class;
+		return PAUPLikelihoodRunnerSSH.class;
 	}
 	/*.................................................................................................................*/
 	public String getProgramLocation(){
@@ -57,7 +54,7 @@ public class PAUPNJTreesSSH extends PAUPNJTrees {
 	/*.................................................................................................................*/
 
 	public String getName() {
-		return "PAUP* Trees (NJ) [SSH Server]";
+		return "PAUP* Trees (Likelihood) [SSH Server]";
 	}
 
 

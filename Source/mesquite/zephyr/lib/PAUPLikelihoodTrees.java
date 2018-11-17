@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPLikelihoodTrees;
+package mesquite.zephyr.lib;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -16,10 +16,10 @@ import java.util.Random;
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.duties.TreeSource;
-import mesquite.zephyr.PAUPLikelihoodRunner.PAUPLikelihoodRunner;
+import mesquite.zephyr.PAUPLikelihoodRunnerSSH.PAUPLikelihoodRunnerSSH;
 import mesquite.zephyr.lib.*;
 
-public class PAUPLikelihoodTrees extends PAUPTrees implements LikelihoodAnalysis {
+public abstract class PAUPLikelihoodTrees extends PAUPTrees implements LikelihoodAnalysis {
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
@@ -55,7 +55,7 @@ public class PAUPLikelihoodTrees extends PAUPTrees implements LikelihoodAnalysis
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return PAUPLikelihoodRunner.class;
+		return PAUPLikelihoodRunnerSSH.class;
 	}
 	/*.................................................................................................................*/
 	 public String getProgramLocation(){

@@ -54,7 +54,7 @@ public class PAUPNJTreesLocal extends PAUPNJTrees {
 	/*.................................................................................................................*/
 
 	public String getName() {
-		return "PAUP Trees (NJ) [Local]";
+		return "PAUP* Trees (NJ) [Local]";
 	}
 
 

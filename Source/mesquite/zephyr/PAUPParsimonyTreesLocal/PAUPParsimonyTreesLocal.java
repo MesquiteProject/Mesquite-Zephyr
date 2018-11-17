@@ -52,7 +52,7 @@ public class PAUPParsimonyTreesLocal extends PAUPTrees implements ParsimonyAnaly
 	}
 		/*.................................................................................................................*/
 		public String getName() {
-			return "PAUP Trees (Parsimony) [Local]";
+			return "PAUP* Trees (Parsimony) [Local]";
 		}
 
 
