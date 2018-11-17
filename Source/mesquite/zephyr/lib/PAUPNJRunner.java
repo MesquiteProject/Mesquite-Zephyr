@@ -36,6 +36,15 @@ public abstract class PAUPNJRunner extends PAUPRunner {
 	public Class getExternalProcessRunnerClass(){
 		return LocalScriptRunner.class;
 	}
+	/*.................................................................................................................*/
+	public void appendAdditionalSearchDetails() {
+		appendToSearchDetails("NJ Analysis details: \n");
+		if (bootstrapOrJackknife()){
+			appendToSearchDetails("   "+getResamplingKindName() +"\n");
+			appendToSearchDetails("   "+bootStrapReps + " replicates");
+		} 
+		//TODO: add distance measure  //Debugg.println
+}
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {

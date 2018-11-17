@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPDistanceTrees;
+package mesquite.zephyr.PAUPDistanceTreesSSH;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -15,60 +15,47 @@ import java.util.Random;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
-import mesquite.zephyr.PAUPDistanceRunner.PAUPDistanceRunner;
+import mesquite.zephyr.PAUPDistanceRunnerSSH.PAUPDistanceRunnerSSH;
 import mesquite.zephyr.lib.*;
 
-public class PAUPDistanceTrees extends PAUPTrees implements DistanceAnalysis {
+public class PAUPDistanceTreesSSH extends PAUPDistanceTrees {
 
 		/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return false;
+		return true;
 	}
-
-	/*.................................................................................................................*/
-	public String getMethodNameForTreeBlock() {
-		return "Distance";
-	}
-
-
-	/*.................................................................................................................*/
-	public String getMethodNameForMenu() {
-		return "Distance";
-	}
-
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
 	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
 	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
 	public int getVersionOfFirstRelease(){
-		return -2000;  
+		return -2500;  
 	}
 
 
 	public String getExplanation() {
-		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a distance search, and harvest the resulting trees.";
+		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a distance search on a remote server to which you can connect via SSH, and harvest the resulting trees.";
 	}
-	public String getName() {
-		return "PAUP (Distance)";
-	}
-	public String getNameForMenuItem() {
-		return "PAUP (Distance)...";
-	}
-
 	
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.PAUPDistanceRunner";
+		return "#mesquite.zephyr.PAUPDistanceRunnerSSH.PAUPDistanceRunnerSSH";
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return PAUPDistanceRunner.class;
+		return PAUPDistanceRunnerSSH.class;
 	}
 
 	/*.................................................................................................................*/
 	 public String getProgramLocation(){
-		 return "Local";
+		 return "SSH Server";
 	}
+
+		/*.................................................................................................................*/
+
+		public String getName() {
+			return "PAUP* Trees (Distance) [SSH Server]";
+		}
 
 }

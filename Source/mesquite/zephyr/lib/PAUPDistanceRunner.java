@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPDistanceRunner;
+package mesquite.zephyr.lib;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -26,17 +26,9 @@ import mesquite.zephyr.lib.*;
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
  */
 
-public class PAUPDistanceRunner extends PAUPSearchRunner {
+public abstract class PAUPDistanceRunner extends PAUPSearchRunner {
 
 
-	/*.................................................................................................................*/
-	public String getExternalProcessRunnerModuleName(){
-		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
-	}
-	/*.................................................................................................................*/
-	public Class getExternalProcessRunnerClass(){
-		return LocalScriptRunner.class;
-	}
 
 	public String getCriterionSetCommand() {
 		return "set criterion=distance;";
