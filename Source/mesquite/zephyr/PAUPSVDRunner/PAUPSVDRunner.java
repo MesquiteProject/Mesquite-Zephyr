@@ -247,9 +247,16 @@ public  class PAUPSVDRunner extends PAUPRunner implements ConstrainedSearcher {
 	}
 	
 
+	/*.................................................................................................................*/
+	public String getMethodNameForTreeBlock() {
+		return " SVD Quartets";
+	}
+
+	/*.................................................................................................................*/
 	public String getName() {
 		return "PAUP SVD Quartets";
 	}
+
 
 
 

@@ -738,5 +738,27 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 	}
 
+	/*.................................................................................................................*/
+	public String getMethodNameForMenu() {
+		return "";
+	}
+	/*.................................................................................................................*/
+	public String getMethodNameForTreeBlock() {
+		return "";
+	}
+	/*.................................................................................................................*/
+
+	public String getName() {
+		String name =  getProgramName() + " Trees";
+		if (StringUtil.notEmpty(getMethodNameForTreeBlock()))
+			name += " ("+ getMethodNameForMenu() +")";
+		return name;
+	}
+	/*.................................................................................................................*/
+
+	public String getNameForMenuItem() {
+		return getName()+ "..."; 
+	}
+
 
 }

@@ -64,6 +64,10 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			externalRunner.setOutputTextListener(textListener);
 	}
 
+	public static String getDefaultProgramLocation() {
+		return "Local Computer";
+	}
+
 	public  String getProgramLocation(){
 		return "local computer";
 	}

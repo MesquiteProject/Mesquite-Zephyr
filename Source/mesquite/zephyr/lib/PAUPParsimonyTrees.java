@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPParsimonyTrees;
+package mesquite.zephyr.lib;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -19,7 +19,7 @@ import mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal;
 import mesquite.zephyr.RAxMLRunnerLocal.RAxMLRunnerLocal;
 import mesquite.zephyr.lib.*;
 
-public class PAUPParsimonyTrees extends PAUPTrees implements ParsimonyAnalysis {
+public abstract class PAUPParsimonyTrees extends PAUPTrees implements ParsimonyAnalysis {
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
@@ -27,8 +27,12 @@ public class PAUPParsimonyTrees extends PAUPTrees implements ParsimonyAnalysis {
 	}
 
 	/*.................................................................................................................*/
+	public String getMethodNameForMenu() {
+		return "Parsimony";
+	}
+	/*.................................................................................................................*/
 	public String getMethodNameForTreeBlock() {
-		return " MP";
+		return "MP";
 	}
 
 	/*.................................................................................................................*/
@@ -48,21 +52,18 @@ public class PAUPParsimonyTrees extends PAUPTrees implements ParsimonyAnalysis {
 	public String getExplanation() {
 		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a parsimony search, and harvest the resulting trees.";
 	}
-	public String getName() {
-		return "PAUP (Parsimony)";
-	}
-	public String getNameForMenuItem() {
-		return "PAUP (Parsimony)...";
-	}
-
 	
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.PAUPParsimonyRunner";
+		return "#mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal";
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
 		return PAUPParsimonyRunnerLocal.class;
+	}
+	/*.................................................................................................................*/
+	 public String getProgramLocation(){
+		 return "Local";
 	}
 
 

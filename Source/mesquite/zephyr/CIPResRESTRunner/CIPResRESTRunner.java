@@ -46,6 +46,10 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		super.endJob();
 	}
 	
+	public static String getDefaultProgramLocation() {
+		return "CIPRes";
+	}
+
 	public  String getProgramLocation(){
 		return "CIPRes";
 	}

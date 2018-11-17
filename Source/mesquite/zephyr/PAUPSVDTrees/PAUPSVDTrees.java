@@ -79,8 +79,8 @@ public class PAUPSVDTrees extends ZephyrTreeSearcher implements InvariantsAnalys
 		return "PAUP (SVD Quartets)";
 	}
 	/*.................................................................................................................*/
-	public String getNameForMenuItem() {
-		return "PAUP (SVD Quartets)...";
+	 public String getProgramLocation(){
+		 return "Local";
 	}
 
 

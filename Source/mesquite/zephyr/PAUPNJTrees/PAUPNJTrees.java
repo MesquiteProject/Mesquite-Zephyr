@@ -85,16 +85,14 @@ public class PAUPNJTrees extends ZephyrTreeSearcher implements DistanceAnalysis 
 	public String getExplanation() {
 		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a neighbor-joining or bootstrap neighbor-joining, and harvest the resulting trees.";
 	}
-	public String getName() {
-		return "PAUP (NJ)";
-	}
-	public String getNameForMenuItem() {
-		return "PAUP (NJ)...";
+	/*.................................................................................................................*/
+	public String getMethodNameForTreeBlock() {
+		return "NJ";
 	}
 
 	/*.................................................................................................................*/
-	public String getMethodNameForTreeBlock() {
-		return " NJ";
+	public String getMethodNameForMenu() {
+		return "NJ";
 	}
 
 	/*.................................................................................................................*/
@@ -115,5 +113,9 @@ public class PAUPNJTrees extends ZephyrTreeSearcher implements DistanceAnalysis 
 	 public String getProgramURL() {
 		 return PAUPRunner.PAUPURL;
 	 }
+		/*.................................................................................................................*/
+	 public String getProgramLocation(){
+		 return "Local";
+	}
 
 }

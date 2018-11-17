@@ -46,9 +46,6 @@ public abstract class PAUPParsimonyRunnerBasic extends PAUPSearchRunner {
 	}
 
 
-	public String getName() {
-		return "PAUP Parsimony";
-	}
 
 
 }

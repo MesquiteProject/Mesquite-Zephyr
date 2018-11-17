@@ -56,10 +56,14 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		return MesquiteInteger.infinite;
 	}
 
-	public  String getProgramLocation(){
+	public static String getDefaultProgramLocation() {
+		return "SSH Server";
+	}
+
+	public String getProgramLocation(){
 		if (communicator!=null)
 			return "SSH "+communicator.getSshServerProfileName() + " (" + communicator.getHost()+")";
-		return "SSH";
+		return getDefaultProgramLocation();
 	}
 
 

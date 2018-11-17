@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPParsimonyRunnerLocal;
+package mesquite.zephyr.PAUPParsimonyRunnerSSH;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -19,26 +19,26 @@ import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
-import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
+import mesquite.zephyr.SSHRunner.SSHRunner;
 import mesquite.zephyr.lib.*;
 
 
 
-public class PAUPParsimonyRunnerLocal extends PAUPParsimonyRunnerBasic {
+public class PAUPParsimonyRunnerSSH extends PAUPParsimonyRunnerBasic {
 
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
-		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
+		return "#mesquite.zephyr.SSHRunner.SSHRunner";
 	}
 	/*.................................................................................................................*/
 	public Class getExternalProcessRunnerClass(){
-		return LocalScriptRunner.class;
+		return SSHRunner.class;
 	}
+
 	/*.................................................................................................................*/
 
 	public String getName() {
-		return getProgramName() + " Trees (Parsimony) [Local] Runner";
+		return "PAUP Trees (Parsimony) [SSH Server] Runner";
 	}
-
 
 }

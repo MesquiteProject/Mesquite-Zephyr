@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.PAUPLikelihoodTrees;
+package mesquite.zephyr.PAUPParsimonyTreesLocal;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -15,11 +15,10 @@ import java.util.Random;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
-import mesquite.lib.duties.TreeSource;
-import mesquite.zephyr.PAUPLikelihoodRunner.PAUPLikelihoodRunner;
+import mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal;
 import mesquite.zephyr.lib.*;
 
-public class PAUPLikelihoodTrees extends PAUPTrees implements LikelihoodAnalysis {
+public class PAUPParsimonyTreesLocal extends PAUPTrees implements ParsimonyAnalysis {
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
@@ -27,40 +26,34 @@ public class PAUPLikelihoodTrees extends PAUPTrees implements LikelihoodAnalysis
 	}
 
 	/*.................................................................................................................*/
-	public String getMethodNameForMenu() {
-		return "Likelihood";
-	}
-	/*.................................................................................................................*/
-	public String getMethodNameForTreeBlock() {
-		return "ML";
-	}
-
-
-	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
 	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
 	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
 	public int getVersionOfFirstRelease(){
-		return -2000;  
+		return -100;  
 	}
 
-	
+
 	public String getExplanation() {
-		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a likelihood search, and harvest the resulting trees.";
+		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a parsimony search, and harvest the resulting trees.";
 	}
 	
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.PAUPLikelihoodRunner";
+		return "#mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal";
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return PAUPLikelihoodRunner.class;
+		return PAUPParsimonyRunnerLocal.class;
 	}
 	/*.................................................................................................................*/
 	 public String getProgramLocation(){
 		 return "Local";
 	}
+		/*.................................................................................................................*/
+		public String getName() {
+			return "PAUP Trees (Parsimony) [Local]";
+		}
 
 
 }

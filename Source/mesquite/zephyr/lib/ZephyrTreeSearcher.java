@@ -230,18 +230,15 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		return "If "+ getProgramName() + " is installed, will save a copy of a character matrix and script "+ getProgramName() + " to conduct one or more searches, and harvest the resulting trees, including their scores.";
 	}
 	public String getName() {
+		String name =  getProgramName() + " Trees";
+		if (StringUtil.notEmpty(getMethodNameForTreeBlock()))
+			name += " ("+ getMethodNameForMenu() +")";
 		if (StringUtil.notEmpty(getProgramLocation()))
-			return getProgramName() + " Trees ["+ getProgramLocation() +"]";
-		else {
-			return getProgramName() + " Trees";
-		}
+			name += " ["+ getProgramLocation() +"]";
+		return name;
 	}
 	public String getNameForMenuItem() {
-		if (StringUtil.notEmpty(getProgramLocation()))
-			return getProgramName() + " Trees ["+ getProgramLocation() +"]...";
-		else {
-			return getProgramName() + " Trees..."; 
-		}
+		return getName()+ "..."; 
 	}
 
 	/*.................................................................................................................*/
@@ -306,6 +303,10 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		return trees;
 	}
 
+	/*.................................................................................................................*/
+	public String getMethodNameForMenu() {
+		return "";
+	}
 	/*.................................................................................................................*/
 	public String getMethodNameForTreeBlock() {
 		return "";

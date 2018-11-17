@@ -284,7 +284,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	/*.................................................................................................................*/
 	public String getProgramLocation() {
-		return externalProcRunner.getProgramLocation();
+		if (externalProcRunner!=null)
+			return externalProcRunner.getProgramLocation();
+		return externalProcRunner.getDefaultProgramLocation();
 	}
 	/*.................................................................................................................*/
 	public void setSearchDetails() {  // for annotation to tree block.  designed to be composed after the tree search started.  

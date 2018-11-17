@@ -20,12 +20,16 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	boolean aborted = false;
 	protected ProgressIndicator progressIndicator;
 	protected String localRootDir = null;  // local directory for storing files on local machine
+	
 
 	public Class getDutyClass() {
 		return ExternalProcessRunner.class;
 	}
 	public String getDutyName() {
 		return "External Process Runner";
+	}
+	public static String getDefaultProgramLocation() {
+		return "";
 	}
 
 	public String[] getDefaultModule() {

@@ -27,7 +27,13 @@ public class PAUPDistanceTrees extends PAUPTrees implements DistanceAnalysis {
 
 	/*.................................................................................................................*/
 	public String getMethodNameForTreeBlock() {
-		return " Distance";
+		return "Distance";
+	}
+
+
+	/*.................................................................................................................*/
+	public String getMethodNameForMenu() {
+		return "Distance";
 	}
 
 
@@ -60,5 +66,9 @@ public class PAUPDistanceTrees extends PAUPTrees implements DistanceAnalysis {
 		return PAUPDistanceRunner.class;
 	}
 
+	/*.................................................................................................................*/
+	 public String getProgramLocation(){
+		 return "Local";
+	}
 
 }
