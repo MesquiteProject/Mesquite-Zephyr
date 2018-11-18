@@ -184,11 +184,12 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			Session session=createSession();
 			session.connect();
 			ChannelExec channel=(ChannelExec)session.openChannel("exec");
-			boolean visibleTerminal = true;
+	/*		boolean visibleTerminal = true;
 			if (visibleTerminal) {
 				channel.setPty(true);
 				channel.setPtyType("bash");
 			}
+			*/
 			String concatenated = "";
 			for (int i=0; i<commands.length; i++)
 				if (StringUtil.notEmpty(commands[i]))
