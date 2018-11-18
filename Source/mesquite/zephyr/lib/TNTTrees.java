@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.TNTTrees;
+package mesquite.zephyr.lib;
 
 import java.util.*;
 
@@ -15,11 +15,11 @@ import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
-import mesquite.zephyr.TNTRunner.TNTRunner;
+import mesquite.zephyr.TNTRunnerSSH.TNTRunnerSSH;
 import mesquite.zephyr.lib.*;
 
 
-public class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
+public abstract class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
 	TreeSource treeRecoveryTask;
 	//Taxa taxa;
 	//private MatrixSourceCoord matrixSourceTask;
@@ -27,10 +27,6 @@ public class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
 	//int rerootNode = 0;
 
 
-	/*.................................................................................................................*/
-	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.TNTRunner.TNTRunner";
-	}
 	/*.................................................................................................................*/
 	public String getProgramName() {
 		return "TNT";
@@ -46,7 +42,7 @@ public class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
 	 }
 
 	 public Class getRunnerClass(){
-		 return TNTRunner.class;
+		 return TNTRunnerSSH.class;
 	 }
 	 /*.................................................................................................................*/
 	 public String getCitation() {

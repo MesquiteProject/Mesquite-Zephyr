@@ -35,7 +35,7 @@ public class SSHServerProfile implements Listable, Explainable {
 	public int pollingInterval = 30;
 	public int maxCores = 2;
 
-	public static int numProgramsSupported = 4;
+	public static int numProgramsSupported = 5;
 	public static int RAxML = 0;
 	public static int IQTREE = 1;
 	public static int GARLI = 2;

@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
  */
 
-package mesquite.zephyr.TNTRunner;
+package mesquite.zephyr.lib;
 
 
 import java.awt.*;
@@ -20,7 +20,7 @@ import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.TNTTrees.*;
+import mesquite.zephyr.TNTTreesSSH.*;
 import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
 
@@ -32,7 +32,7 @@ import mesquite.io.lib.*;
 
  */
 
-public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionListener, ExternalProcessRequester, ZephyrFilePreparer  {
+public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, ActionListener, ExternalProcessRequester, ZephyrFilePreparer  {
 	public static final String SCORENAME = "TNTScore";
 
 
@@ -86,14 +86,6 @@ public class TNTRunner extends ZephyrRunner  implements ItemListener, ActionList
 		return logFileName;
 	}
 
-	/*.................................................................................................................*/
-	public String getExternalProcessRunnerModuleName(){
-		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
-	}
-	/*.................................................................................................................*/
-	public Class getExternalProcessRunnerClass(){
-		return LocalScriptRunner.class;
-	}
 	/*.................................................................................................................*/
 	public int getProgramNumber() {
 		return -1;
