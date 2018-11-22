@@ -31,11 +31,16 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 			shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
 		// 30 June 2017: added redirect of stderr
 		//		shellScript.append(programCommand + " " + args+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
+		
+		programCommand= processRequester.getPrefixForProgramCommand()+ programCommand;
+		
 		String suffix = "";
 		if (isLinux()&&requiresLinuxTerminalCommands()) {
 			shellScript.append(getLinuxBashScriptPreCommand());
 			suffix="\"";
 		}
+		suffix+= processRequester.getSuffixForProgramCommand();
+		
 		if (!processRequester.allowStdErrRedirect())
 			shellScript.append(programCommand + " " + args + suffix+StringUtil.lineEnding());
 		else {

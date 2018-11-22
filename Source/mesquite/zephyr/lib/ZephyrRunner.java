@@ -569,6 +569,13 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return false;
 	}
 
+	public String getPrefixForProgramCommand() {
+		return "";
+	}
+	public String getSuffixForProgramCommand() {
+		return "";
+	}
+
 	/*.................................................................................................................*/
 	public boolean useDiscreetAlert() {
 		return useDiscreetAlert;

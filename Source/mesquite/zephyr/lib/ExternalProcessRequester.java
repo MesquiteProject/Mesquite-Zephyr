@@ -46,5 +46,9 @@ public interface ExternalProcessRequester {
 	
 	public boolean allowStdErrRedirect();
 
+	public String getPrefixForProgramCommand();
 	
+	public String getSuffixForProgramCommand();
+	
+
 }

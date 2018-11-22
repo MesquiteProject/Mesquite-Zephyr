@@ -192,6 +192,10 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		return true;
 	}
 
+	public boolean vversionAllowed(){
+		return true;
+	}
+
 	/*.................................................................................................................*/
 	void formCommandFile(String dataFileName, int firstOutgroup) {
 		if (parallel) {
@@ -202,7 +206,8 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		commands += getTNTCommand("report+0/1/0");
 		commands += getTNTCommand("log "+logFileName) ; 
 		commands += getTNTCommand("p " + dataFileName);
-		commands += getTNTCommand("vversion");
+		if (vversionAllowed())
+			commands += getTNTCommand("vversion");
 		if (MesquiteInteger.isCombinable(firstOutgroup) && firstOutgroup>=0)
 			commands += getTNTCommand("outgroup " + firstOutgroup);
 		if (bootstrapOrJackknife()) {
@@ -662,6 +667,11 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 
 	}
 	int[] taxonNumberTranslation = null;
+	/*.................................................................................................................*/
+	protected String getExecutableCommand() {
+		String programCommand = externalProcRunner.getExecutableCommand();
+		return programCommand;
+	}
 
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
@@ -709,7 +719,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		MesquiteString arguments = new MesquiteString();
 		arguments.setValue(" proc " + commandsFileName);
 
-		String programCommand = externalProcRunner.getExecutableCommand();
+		String programCommand = getExecutableCommand();
 
 
 		int numInputFiles = 4;

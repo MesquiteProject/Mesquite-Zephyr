@@ -29,6 +29,26 @@ public class TNTRunnerSSH extends TNTRunner  {
 	public String getName() {
 		return "TNT Trees [SSH Server] Runner";
 	}
+	/*.................................................................................................................*/
+	public boolean vversionAllowed(){
+		return false;
+	}
+
+	/*.................................................................................................................*/
+
+	public String getPrefixForProgramCommand() {
+		return "nohup ";
+	}
+	/*.................................................................................................................*/
+
+	public String getSuffixForProgramCommand() {
+		return " &";
+	}
+	/*.................................................................................................................*/
+	protected String getExecutableCommand() {
+		String programCommand = externalProcRunner.getExecutableCommand();
+		return programCommand + " bground";
+	}
 
 	/*.................................................................................................................*/
 	public int getProgramNumber() {
