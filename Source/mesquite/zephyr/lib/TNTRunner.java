@@ -175,7 +175,8 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		searchArguments +=   getTNTCommand("xinact");   
 		searchArguments +=   getTNTCommand("xmult:  rss css fuse 6 drift 6 ratchet 20 replic 100");   
 		searchArguments +=   getTNTCommand("sec: slack 20");   
-		searchArguments +=   getTNTCommand("bbreak: tbr safe fillonly") ;   // actual search
+		//searchArguments +=   getTNTCommand("bbreak: tbr safe fillonly") ;   // actual search
+		searchArguments +=   getTNTCommand("bbreak: tbr fillonly") ;   // actual search.  Removed "safe" Nov 2018
 		searchArguments +=   getTNTCommand("xmult");   
 		searchArguments +=   getTNTCommand("bbreak");  
 
