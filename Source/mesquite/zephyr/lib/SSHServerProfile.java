@@ -126,7 +126,7 @@ public class SSHServerProfile implements Listable, Explainable {
 	public String getDirectorySeparator() {
 		if (isWindows())
 			return "\\";
-		return "//";
+		return "/";
 	}
 
 	public void adjustTempFileDirectory(){
