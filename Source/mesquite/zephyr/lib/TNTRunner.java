@@ -653,7 +653,29 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		return false;
 	}
 	public boolean requiresLinuxTerminalCommands() {
-		return true;
+		return false;
+	}
+	/*.................................................................................................................*/
+
+	public String getPrefixForProgramCommand() {
+		if (externalProcRunner.isLinux())
+			return "nohup ";
+		return "";
+	}
+	/*.................................................................................................................*/
+
+	public String getSuffixForProgramCommand() {
+		if (externalProcRunner.isLinux())
+			return " &";
+		return "";
+	}
+	/*.................................................................................................................*/
+	protected String getExecutableCommand() {
+		String programCommand = externalProcRunner.getExecutableCommand();
+		if (externalProcRunner.isLinux())
+			return programCommand + " bground";
+		else 
+			return programCommand;
 	}
 
 	/*.................................................................................................................*/
@@ -668,11 +690,6 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 
 	}
 	int[] taxonNumberTranslation = null;
-	/*.................................................................................................................*/
-	protected String getExecutableCommand() {
-		String programCommand = externalProcRunner.getExecutableCommand();
-		return programCommand;
-	}
 
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
