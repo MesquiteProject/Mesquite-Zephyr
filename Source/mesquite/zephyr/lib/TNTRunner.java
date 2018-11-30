@@ -658,24 +658,17 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 	/*.................................................................................................................*/
 
 	public String getPrefixForProgramCommand() {
-	/*	if (externalProcRunner.isLinux())
-			return "nohup ";*/
 		return "";
 	}
 	/*.................................................................................................................*/
 
 	public String getSuffixForProgramCommand() {
-	/*	if (externalProcRunner.isLinux())
-			return " &";*/
 		return "";
 	}
 	/*.................................................................................................................*/
 	protected String getExecutableCommand() {
 		String programCommand = externalProcRunner.getExecutableCommand();
-	/*	if (externalProcRunner.isLinux())
-			return programCommand + " bground";
-		else */
-			return programCommand;
+		return programCommand;
 	}
 
 	/*.................................................................................................................*/

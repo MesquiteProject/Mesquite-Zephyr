@@ -34,25 +34,27 @@ public class TNTRunnerSSH extends TNTRunner  {
 		return false;
 	}
 
-	/*.................................................................................................................*
-	public boolean requiresLinuxTerminalCommands() {
-		return false;
-	}
-
-	/*.................................................................................................................*
+	/*.................................................................................................................*/
 
 	public String getPrefixForProgramCommand() {
-		return "nohup ";
+		if (externalProcRunner.isLinux())
+			return "nohup ";
+		return "";
 	}
-	/*.................................................................................................................*
+	/*.................................................................................................................*/
 
 	public String getSuffixForProgramCommand() {
-		return " &";
+		if (externalProcRunner.isLinux())
+			return " &";
+		return "";
 	}
-	/*.................................................................................................................*
+	/*.................................................................................................................*/
 	protected String getExecutableCommand() {
 		String programCommand = externalProcRunner.getExecutableCommand();
-		return programCommand + " bground";
+		if (externalProcRunner.isLinux())
+			return programCommand + " bground";
+		else
+			return programCommand;
 	}
 
 	/*.................................................................................................................*/
