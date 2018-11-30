@@ -43,6 +43,28 @@ public class TNTRunnerLocal extends TNTRunner  {
 		return "TNT Trees [Local] Runner";
 	}
 
+	/*.................................................................................................................*/
+	public boolean requiresLinuxTerminalCommands() {
+		return true;
+	}
+
+	/*.................................................................................................................*
+
+	public String getPrefixForProgramCommand() {
+		return "nohup ";
+	}
+	/*.................................................................................................................*
+
+	public String getSuffixForProgramCommand() {
+		return " &";
+	}
+	/*.................................................................................................................*
+	protected String getExecutableCommand() {
+		String programCommand = externalProcRunner.getExecutableCommand();
+		return programCommand + " bground";
+	}
+/**/
+
 
 
 
