@@ -22,13 +22,14 @@ import mesquite.externalCommunication.lib.*;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
-public class CIPResCommunicator extends RESTCommunicator {
+public class CIPResCommunicator extends RESTCommunicator implements UsernamePasswordKeeper, XMLPreferencesProcessor {
 
 	public static final String CIPResRESTURL = "https://cipresrest.sdsc.edu/cipresrest/v1";
 
 	double runLimit=0.5;
 
 	static String CIPResPassword ="";
+	protected String username = "";
 
 	static boolean preferencesProcessed=false;
 
@@ -37,18 +38,34 @@ public class CIPResCommunicator extends RESTCommunicator {
 
 	public CIPResCommunicator (MesquiteModule mb, String xmlPrefsString,String[] outputFilePaths) {
 		super(mb, xmlPrefsString, outputFilePaths);
+		if (xmlPrefsString != null)
+			XMLUtil.readXMLPreferences(mb, this, xmlPrefsString);
+		super.setUsernamePasswordKeeper(this);
 	}
+	
+
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String flavor, String content) {
+		if ("userName".equalsIgnoreCase(tag))
+			username = StringUtil.cleanXMLEscapeCharacters(content);
 		 if ("jobNumber".equalsIgnoreCase(tag))
 			jobNumber = MesquiteInteger.fromString(content);
-		 super.processSingleXMLPreference(tag, flavor, content);
+		//super.processSingleXMLPreference(tag, flavor, content);
+	}
+	/*.................................................................................................................*/
+	public void processSingleXMLPreference (String tag, String content) {
+		if ("userName".equalsIgnoreCase(tag))
+			username = StringUtil.cleanXMLEscapeCharacters(content);
+		 if ("jobNumber".equalsIgnoreCase(tag))
+			jobNumber = MesquiteInteger.fromString(content);
+		//super.processSingleXMLPreference(tag, content);
 	}
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "jobNumber", jobNumber);  
-		return super.preparePreferencesForXML()+buffer.toString();
+		StringUtil.appendXMLTag(buffer, 2, "username", username);  
+		return buffer.toString();
 	}
 	public double getRunLimit() {
 		return runLimit;
@@ -66,14 +83,33 @@ public class CIPResCommunicator extends RESTCommunicator {
 		return CIPResRESTURL;
 	}
 	/*.................................................................................................................*/
-	public void setPassword(String newPassword){
-		if (!useAPITestUser()) {
-			password=newPassword;
-			CIPResPassword = newPassword;
-		}
+	public String getPassword(){
+		if (useAPITestUser()) {
+			return getAPITestPassword();
+		} else 
+			return CIPResPassword;
 	}
 
 	/*.................................................................................................................*/
+	public void setPassword(String newPassword){
+		if (!useAPITestUser()) {
+			CIPResPassword = newPassword;
+		}
+	}
+	/*.................................................................................................................*/
+	public String getUsername(){
+		if (useAPITestUser()) {
+			return getAPITestUserName();
+		} else 
+			return username;
+	}
+	/*.................................................................................................................*/
+	public void setUsername(String newName){
+		if (!useAPITestUser()) 
+			username=newName;
+	}
+
+	/*.................................................................................................................*
 	public void setPasswordToCIPResPassword() {
 		password = CIPResPassword;
 	}
@@ -121,7 +157,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 		if (StringUtil.notEmpty(message)) {
 			if ("Authentication Error".equalsIgnoreCase(displayMessage)) {
 				if (resetPassword)
-					password = "";
+					CIPResPassword = "";
 				ownerModule.logln("\n\n******************");
 				ownerModule.logln(noteToUser);
 				ownerModule.logln(message);
@@ -904,7 +940,6 @@ public class CIPResCommunicator extends RESTCommunicator {
 		return "CIPRes";
 
 	}
-
 
 }
 

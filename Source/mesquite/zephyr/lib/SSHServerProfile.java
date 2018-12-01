@@ -20,8 +20,9 @@ import java.util.regex.*;
 import org.dom4j.*;
 
 import mesquite.lib.*;
+import mesquite.externalCommunication.lib.*;
 
-public class SSHServerProfile implements Listable, Explainable {
+public class SSHServerProfile implements Listable, Explainable, UsernamePasswordKeeper {
 
 	public String name = "SSH Server";
 	public String host = "";   
@@ -88,11 +89,11 @@ public class SSHServerProfile implements Listable, Explainable {
 		return OSType;
 	}
 
-	public static String getPassword() {
+	public String getPassword() {
 		return password;
 	}
-	public static void setPassword(String password) {
-		SSHServerProfile.password = password;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public boolean isMacOSX(){

@@ -466,10 +466,15 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		communicator = new SSHCommunicator(this,xmlPrefsString, outputFilePaths);
 		if (communicator==null) 
 			return false;
+		if (sshServerProfile!=null) {
+			communicator.setSSHServerProfile(sshServerProfile);
+			if (!sshServerProfile.getName().equals(communicator.getSshServerProfileName())) // we've changed to a different 
+					communicator.forgetPassword();
+			//else
+			//	sshServerProfile.setPassword(sshServerProfile.getPassword());
+		}
 		if (forgetPassword)
 			communicator.forgetPassword();
-		else
-			communicator.setPasswordToSSHProfilePassword();
 		communicator.setOutputProcessor(this);
 		communicator.setWatcher(this);
 		communicator.setRootDir(localRootDir);
@@ -477,10 +482,9 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		communicator.setRemoteWorkingDirectoryName(MesquiteFile.getFileNameFromFilePath(localRootDir));
 		if (sshServerProfile!=null) {
 			communicator.setSshServerProfileName(sshServerProfile.getName());
-			communicator.setSSHServerProfile(sshServerProfile);
 			communicator.setRemoteServerDirectoryPath(sshServerProfile.getTempFileDirectory());
 			communicator.setHost(sshServerProfile.getHost());
-			communicator.setUsername(sshServerProfile.getUsername());
+			//communicator.setUsername(sshServerProfile.getUsername());
 		}
 		return true;
 	}

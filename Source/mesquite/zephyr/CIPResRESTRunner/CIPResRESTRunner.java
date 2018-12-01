@@ -332,8 +332,6 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		communicator.setRootDir(localRootDir);
 		if (forgetPassword)
 			communicator.forgetPassword();
-		else
-			communicator.setPasswordToCIPResPassword();
 		forgetPassword = false;
 
 		jobURL = new MesquiteString();

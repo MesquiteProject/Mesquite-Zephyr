@@ -22,27 +22,27 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	protected String remoteServerDirectoryPath = "";
 	public static final String runningFileName = "running";
 	protected ProgressIndicator progressIndicator;
-	protected String sshServerProfileName = "";
+	protected static String sshServerProfileName = "";
 	protected SSHServerProfile sshServerProfile;
 
 
 	public SSHCommunicator (MesquiteModule mb, String xmlPrefsString,String[] outputFilePaths) {
-		if (xmlPrefsString != null)
-			XMLUtil.readXMLPreferences(mb, this, xmlPrefsString);
 		this.outputFilePaths = outputFilePaths;
 		ownerModule = mb;
+		//forgetPassword();
 	}
 	public void setProgressIndicator(ProgressIndicator progressIndicator) {
 		this.progressIndicator= progressIndicator;
 	}
 
 	public Session createSession() {
+	//	Debugg.println(sshServerProfileName+ ", pwd: " + password);
 		try {
 			java.util.Properties config = new java.util.Properties(); 
-			config.put("StrictHostKeyChecking", "no");
+			config.put("StrictHostKeyChecking", "no"); //TODO: change this
 			JSch jsch = new JSch();
-			Session session=jsch.getSession(username, host, 22);
-			session.setPassword(password);
+			Session session=jsch.getSession(sshServerProfile.getUsername(), host, 22);
+			session.setPassword(sshServerProfile.getPassword());
 			session.setConfig(config);
 			//	if (verbose)
 			//		ownerModule.logln("Successfully created session to " + host);
@@ -59,9 +59,10 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	}
 	public void setSSHServerProfile(SSHServerProfile sshServerProfile) {
 		this.sshServerProfile = sshServerProfile;
+		setUsernamePasswordKeeper(this.sshServerProfile);
 	}
 
-	public String getSshServerProfileName() {
+	public static String getSshServerProfileName() {
 		return sshServerProfileName;
 	}
 	public void setSshServerProfileName(String sshServerProfileName) {
@@ -79,10 +80,10 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		this.host = host;
 	}
 	public String getUsername() {
-		return username;
+		return sshServerProfile.getUsername();
 	}
 	public void setUsername(String username) {
-		this.username = username;
+		sshServerProfile.setUsername(username);
 	}
 	public String getRemoteWorkingDirectoryName() {
 		return remoteWorkingDirectoryName;
@@ -451,15 +452,15 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 	public void deleteJob(Object location) {
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void setPasswordToSSHProfilePassword(){
-		password=sshServerProfile.getPassword();
+		if (sshServerProfile!=null)
+			password=sshServerProfile.getPassword();
 	}
 
 	/*.................................................................................................................*/
 	public void setPassword(String newPassword){
 		if (!useAPITestUser()) {
-			password=newPassword;
 			if (sshServerProfile!=null)
 				sshServerProfile.setPassword(newPassword);
 		}
