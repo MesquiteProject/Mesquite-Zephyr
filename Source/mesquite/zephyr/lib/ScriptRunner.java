@@ -53,8 +53,8 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 		if (isLinux()&&requiresLinuxTerminalCommands())
 			shellScript.append(getLinuxBashScriptPostCommand());
 		shellScript.append(ShellScriptUtil.getRemoveCommand(isWindows(), runningFilePath));
-		if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailableAndUseful())
-			shellScript.append("\n" + ShellScriptUtil.getExitCommand() + "\n");
+		if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailableAndUseful(isWindows()))
+			shellScript.append("\n" + ShellScriptUtil.getExitCommand(isMacOSX()) + "\n");
 		return shellScript.toString();
 	}
 

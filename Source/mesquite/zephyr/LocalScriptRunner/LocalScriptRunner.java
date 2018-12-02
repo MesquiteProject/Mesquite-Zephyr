@@ -271,7 +271,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			visibleTerminalCheckBox = dialog.addCheckBox("Terminal window visible (this will decrease error-reporting ability)", visibleTerminal);
 			visibleTerminalCheckBox.setEnabled(scriptBased);	
 		}
-		if (ShellScriptUtil.exitCommandIsAvailableAndUseful()) {
+		if (ShellScriptUtil.exitCommandIsAvailableAndUseful(isWindows())) {
 			addExitCommandCheckBox = dialog.addCheckBox("ask terminal window to exit after completion", addExitCommand);
 			addExitCommandCheckBox.setEnabled(scriptBased);	
 		} 
