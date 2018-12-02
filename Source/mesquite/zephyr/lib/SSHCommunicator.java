@@ -20,7 +20,6 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	//	protected String remoteWorkingDirectoryPath = "";
 	protected String remoteWorkingDirectoryName = "";
 	protected String remoteServerDirectoryPath = "";
-	public static final String runningFileName = "running";
 	protected ProgressIndicator progressIndicator;
 	protected static String sshServerProfileName = "";
 	protected SSHServerProfile sshServerProfile;
@@ -224,7 +223,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 					ownerModule.logln(new String(tmp, 0, i));
 				}
 
-				if (channel.isClosed() && (!waitForRunning || !remoteFileExists(runningFileName, false))) {
+				if (channel.isClosed() && (!waitForRunning || !remoteFileExists(ShellScriptUtil.runningFileName, false))) {
 					success=channel.getExitStatus()==0;
 					if (!success || verbose)
 						ownerModule.logln("exit-status: "+channel.getExitStatus());
@@ -257,7 +256,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 		while(true){
 
-			if ((!waitForRunning || !remoteFileExists(runningFileName, false))) {
+			if ((!waitForRunning || !remoteFileExists(ShellScriptUtil.runningFileName, false))) {
 				break;
 			} 
 			monitorAndCleanUpShell(null,progressIndicator);
@@ -379,11 +378,11 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	}
 
 	public  boolean jobCompleted (Object location) {
-		return !remoteFileExists(runningFileName, false);
+		return !remoteFileExists(ShellScriptUtil.runningFileName, false);
 	}
 
 	public String getJobStatus(Object location, boolean warn) {
-		if (remoteFileExists(runningFileName, false)) 
+		if (remoteFileExists(ShellScriptUtil.runningFileName, false)) 
 			return submitted;
 		if (warn)
 			return "Job completed or not found.";
@@ -415,7 +414,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			for (int i=0; i<remoteFiles.size(); i++) {
 				ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry)remoteFiles.elementAt(i);
 				String fileName = entry.getFilename();
-				if (!runningFileName.equalsIgnoreCase(fileName) && remoteFileExists(channel,fileName)) {
+				if (!ShellScriptUtil.runningFileName.equalsIgnoreCase(fileName) && remoteFileExists(channel,fileName)) {
 					if (!onlyNewOrModified || fileNewOrModified(previousRemoteJobFiles, remoteJobFiles, i))
 						channel.get(fileName, rootDir+fileName);
 				}

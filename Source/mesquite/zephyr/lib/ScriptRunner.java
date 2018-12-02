@@ -19,7 +19,7 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 
 	/*.................................................................................................................*/
 	public void setRunningFilePath() {
-		runningFilePath = localRootDir + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);
+		runningFilePath = localRootDir + ShellScriptUtil.runningFileName;//+ MesquiteFile.massageStringToFilePathSafe(unique);
 
 	}
 	/*.................................................................................................................*/

@@ -377,7 +377,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			MesquiteFile.putFileContents(localScriptFilePath, shellScript, false);
 		}
 		//communicator.setRemoteWorkingDirectoryPath("/Users/david/Desktop/runTest");
-		commands = new String[] {"> "+communicator.runningFileName, programCommand+" "+args, "rm -f "+communicator.runningFileName};
+		commands = new String[] {"> "+ShellScriptUtil.runningFileName, programCommand+" "+args, "rm -f "+ShellScriptUtil.runningFileName};
 
 		if (runInfoFileNumber<fileContents.length)
 			fileContents[runInfoFileNumber]+= getAdditionalRunInformation();
@@ -446,7 +446,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	}
 	/*.................................................................................................................*/
 	public void setRunningFilePath() {
-		runningFilePath = communicator.getRemoteWorkingDirectoryPath() + getDirectorySeparator() + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);
+		runningFilePath = communicator.getRemoteWorkingDirectoryPath() + getDirectorySeparator() + ShellScriptUtil.runningFileName;//+ MesquiteFile.massageStringToFilePathSafe(unique);
 
 	}
 
@@ -454,7 +454,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	public String getDirectorySeparator() {
 		if (isWindows())
 			return "\\";
-		return "//";
+		return "/";
 	}
 
 	/*.................................................................................................................*/
@@ -508,7 +508,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		if (successfulStart) {
 			forgetPassword = false;
 			if (scriptBased) {
-				communicator.addEmptyFileToWorkingDirectory(communicator.runningFileName);
+				communicator.addEmptyFileToWorkingDirectory(ShellScriptUtil.runningFileName);
 				return communicator.sendCommands(new String[] {getExecuteScriptCommand("./"+scriptFileName, visibleTerminal)},true, true, true);  // this works on Linux or Mac
 				//	return communicator.sendCommands(new String[] {getExecuteScriptCommand(getRemoteScriptPath(), visibleTerminal)},true, true, true);  // this works on Mac
 			}
