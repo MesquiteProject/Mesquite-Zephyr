@@ -26,9 +26,9 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 	public String getShellScript(String programCommand, String workingDirectory, String args) {
 		setRunningFilePath();
 		StringBuffer shellScript = new StringBuffer(1000);
-		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(isWindows(), workingDirectory)+ StringUtil.lineEnding());
+		shellScript.append(ShellScriptUtil.getChangeDirectoryCommand(isWindows(), workingDirectory)+ StringUtil.lineEnding(isWindows()));
 		if (StringUtil.notEmpty(additionalShellScriptCommands))
-			shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding());
+			shellScript.append(additionalShellScriptCommands + StringUtil.lineEnding(isWindows()));
 		// 30 June 2017: added redirect of stderr
 		//		shellScript.append(programCommand + " " + args+ " 2> " + ShellScriptRunner.stErrorFileName +  StringUtil.lineEnding());
 		
@@ -40,15 +40,16 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 			suffix="\"";
 		}
 		suffix+= processRequester.getSuffixForProgramCommand();
+			
 		
 		if (!processRequester.allowStdErrRedirect())
-			shellScript.append(programCommand + " " + args + suffix+StringUtil.lineEnding());
+			shellScript.append(programCommand + " " + args + suffix+StringUtil.lineEnding(isWindows()));
 		else {
 			if (visibleTerminal && isMacOSX()) {
-				shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  suffix+StringUtil.lineEnding());
+				shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  suffix+StringUtil.lineEnding(isWindows()));
 			}
 			else
-				shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName + suffix+ StringUtil.lineEnding());
+				shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName + suffix+ StringUtil.lineEnding(isWindows()));
 		}
 		if (isLinux()&&requiresLinuxTerminalCommands())
 			shellScript.append(getLinuxBashScriptPostCommand());
