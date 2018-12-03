@@ -87,6 +87,17 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	public String getRemoteWorkingDirectoryName() {
 		return remoteWorkingDirectoryName;
 	}
+	
+	public void findRemoteWorkingDirectoryName(String executableName) {
+		int i = 1;
+		String proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ "1";
+		while (remoteFileExists(proposedName,false)) {
+			i++;
+			proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ i;
+		}
+		remoteWorkingDirectoryName = proposedName;
+	}
+
 	public void setRemoteWorkingDirectoryName(String workingDirectoryName) {
 		this.remoteWorkingDirectoryName = workingDirectoryName;
 	}

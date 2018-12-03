@@ -462,6 +462,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		return communicator.getRemoteWorkingDirectoryPath() + getDirectorySeparator() + scriptFileName;
 	}
 	/*.................................................................................................................*/
+	/*.................................................................................................................*/
 	private boolean prepareCommunicator() {
 		communicator = new SSHCommunicator(this,xmlPrefsString, outputFilePaths);
 		if (communicator==null) 
@@ -479,13 +480,13 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		communicator.setWatcher(this);
 		communicator.setRootDir(localRootDir);
 		communicator.setProgressIndicator(progressIndicator);
-		communicator.setRemoteWorkingDirectoryName(MesquiteFile.getFileNameFromFilePath(localRootDir));
 		if (sshServerProfile!=null) {
 			communicator.setSshServerProfileName(sshServerProfile.getName());
 			communicator.setRemoteServerDirectoryPath(sshServerProfile.getTempFileDirectory());
 			communicator.setHost(sshServerProfile.getHost());
 			//communicator.setUsername(sshServerProfile.getUsername());
 		}
+		communicator.findRemoteWorkingDirectoryName(getExecutableName());
 		return true;
 	}
 	/*.................................................................................................................*/
