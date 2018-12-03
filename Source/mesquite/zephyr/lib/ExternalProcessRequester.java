@@ -50,5 +50,7 @@ public interface ExternalProcessRequester {
 	
 	public String getSuffixForProgramCommand();
 	
+	public boolean removeCommandSameCommandLineAsProgramCommand();
+
 
 }

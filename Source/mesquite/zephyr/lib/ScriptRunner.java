@@ -43,17 +43,27 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 			
 		
 		if (!processRequester.allowStdErrRedirect())
-			shellScript.append(programCommand + " " + args + suffix+StringUtil.lineEnding(isWindows()));
+			shellScript.append(programCommand + " " + args);
 		else {
 			if (visibleTerminal && isMacOSX()) {
-				shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName +  suffix+StringUtil.lineEnding(isWindows()));
+				shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName);
 			}
 			else
-				shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName + suffix+ StringUtil.lineEnding(isWindows()));
+				shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName);
 		}
-		if (isLinux()&&requiresLinuxTerminalCommands())
-			shellScript.append(getLinuxBashScriptPostCommand());
-		shellScript.append(ShellScriptUtil.getRemoveCommand(isWindows(), runningFilePath));
+		
+		if (!processRequester.removeCommandSameCommandLineAsProgramCommand()) {
+			shellScript.append(suffix + StringUtil.lineEnding(isWindows()));
+			if (isLinux()&&requiresLinuxTerminalCommands())
+				shellScript.append(getLinuxBashScriptPostCommand());
+		}
+		else 
+			shellScript.append(" && ");
+
+		shellScript.append(ShellScriptUtil.getRemoveCommand(isWindows(), runningFilePath, false));
+		if (processRequester.removeCommandSameCommandLineAsProgramCommand())
+			shellScript.append(suffix);
+		shellScript.append(StringUtil.lineEnding(isWindows()));
 		if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailableAndUseful(isWindows()))
 			shellScript.append("\n" + ShellScriptUtil.getExitCommand(isMacOSX()) + "\n");
 		return shellScript.toString();

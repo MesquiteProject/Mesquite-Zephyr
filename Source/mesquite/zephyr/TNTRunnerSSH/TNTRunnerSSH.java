@@ -44,7 +44,11 @@ public class TNTRunnerSSH extends TNTRunner  {
 	public String getSuffixForProgramCommand() {
 		return " &";
 	}
-	/*.................................................................................................................*/
+
+	public boolean removeCommandSameCommandLineAsProgramCommand() {
+		return true;
+	}
+/*.................................................................................................................*/
 	protected String getExecutableCommand() {
 		String programCommand = externalProcRunner.getExecutableCommand();
 		return programCommand + " bground";
