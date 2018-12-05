@@ -492,7 +492,8 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			communicator.setHost(sshServerProfile.getHost());
 			//communicator.setUsername(sshServerProfile.getUsername());
 		}
-		communicator.checkForUniqueRemoteWorkingDirectoryName(getExecutableName());
+		if (communicator.checkUsernamePassword(false))
+			communicator.checkForUniqueRemoteWorkingDirectoryName(getExecutableName());
 		return true;
 	}
 	/*.................................................................................................................*/

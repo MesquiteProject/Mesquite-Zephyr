@@ -103,13 +103,14 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			boolean isLink = false;
 
 			int i = 1;
-			proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ ".1";
+			Debugg.println("session open, looking for directory name");
 			while (isDirectory && !isLink) {
+				proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ "."+i;
+				Debugg.println("new proposed name: " + proposedName);
 				SftpATTRS sftpATTRS = channel.stat(proposedName);
 				isDirectory = sftpATTRS.isDir();
 				isLink = sftpATTRS.isLink();
 				i++;
-				proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ "."+i;
 			}
 
 			remoteWorkingDirectoryName = proposedName;
