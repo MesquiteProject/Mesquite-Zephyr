@@ -35,7 +35,6 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	}
 
 	public Session createSession() {
-	//	Debugg.println(sshServerProfileName+ ", pwd: " + password);
 		try {
 			java.util.Properties config = new java.util.Properties(); 
 			config.put("StrictHostKeyChecking", "no"); //TODO: change this
@@ -103,10 +102,8 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			boolean isLink = false;
 
 			int i = 1;
-			Debugg.println("session open, looking for directory name");
 			while (isDirectory && !isLink) {
 				proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ "."+i;
-				Debugg.println("new proposed name: " + proposedName);
 				SftpATTRS sftpATTRS = channel.stat(proposedName);
 				isDirectory = sftpATTRS.isDir();
 				isLink = sftpATTRS.isLink();

@@ -224,7 +224,6 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	// given the opportunity to fill in options for user
 	int dialogCounter = 1;
 	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
-		Debugg.println("add items to dialog panel "+dialogCounter);
 		dialogCounter++;
 		if (communicator!=null) {
 			dialog.addBoldLabel(communicator.getServiceName()+" Server Options");
