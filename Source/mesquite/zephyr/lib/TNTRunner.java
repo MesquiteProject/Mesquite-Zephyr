@@ -722,6 +722,12 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 
 		String programCommand = getExecutableCommand();
 
+		if (StringUtil.blank(programCommand)) {
+			MesquiteMessage.discreetNotifyUser("Path to TNT not specified!");
+			return null;
+		}
+
+
 
 		int numInputFiles = 4;
 		String[] fileContents = new String[numInputFiles];

@@ -88,6 +88,42 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		return remoteWorkingDirectoryName;
 	}
 	
+	public  void checkForUniqueRemoteWorkingDirectoryName (String executableName) {
+		boolean connected = false;
+		String proposedName="";
+		try {
+			Session session=createSession();
+			session.connect();
+
+			ChannelSftp channel=(ChannelSftp)session.openChannel("sftp");
+			channel.connect();
+			channel.cd(getRemoteWorkingDirectoryPath());		
+			connected=true;
+			boolean isDirectory = true;
+			boolean isLink = false;
+
+			int i = 1;
+			proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ ".1";
+			while (isDirectory && !isLink) {
+				SftpATTRS sftpATTRS = channel.stat(proposedName);
+				isDirectory = sftpATTRS.isDir();
+				isLink = sftpATTRS.isLink();
+				i++;
+				proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ "."+i;
+			}
+
+			remoteWorkingDirectoryName = proposedName;
+
+			
+			channel.disconnect();
+			session.disconnect();
+
+		}  catch (Exception e) {
+			if (connected)
+				remoteWorkingDirectoryName = proposedName;
+		}
+	}
+/*
 	public void checkForUniqueRemoteWorkingDirectoryName(String executableName) {
 		int i = 1;
 		String proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ ".1";
@@ -97,7 +133,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		}
 		remoteWorkingDirectoryName = proposedName;
 	}
-
+*/
 	public void setRemoteWorkingDirectoryName(String workingDirectoryName) {
 		this.remoteWorkingDirectoryName = workingDirectoryName;
 	}

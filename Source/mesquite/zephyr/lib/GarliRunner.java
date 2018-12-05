@@ -983,6 +983,12 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		int runInformationFileNumber = 3;
 
 		String GARLIcommand = externalProcRunner.getExecutableCommand();
+
+		if (StringUtil.blank(GARLIcommand)) {
+			MesquiteMessage.discreetNotifyUser("Path to GARLI not specified!");
+			return null;
+		}
+
 		Object arguments = getProgramArguments(dataFileName, configFileName, false);
 		completedRuns = new boolean[numRuns];
 		for (int i=0; i<numRuns; i++) completedRuns[i]=false;

@@ -322,6 +322,10 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			logln("WARNING: Executable number not specified!");
 			return null;
 		}
+		if (!sshServerProfile.validProgramPath(num)) {
+			logln("WARNING: Path to program on remote SSH Server not specified!");
+			return null;
+		}
 		return sshServerProfile.getProgramPath(num);
 	}
 
@@ -349,7 +353,9 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		sb.append("\n\n------------------------------------------\n");
 		sb.append("Remote computer on which analysis was conducted: " + getProgramLocation() +" \n");
 		if (communicator!=null) {
-				sb.append("Username on remote computer: " + communicator.getUserName() +" \n");
+			sb.append("Username on remote computer: " + communicator.getUserName() +" \n");
+			sb.append("Directory on remote computer holding working directory: " + communicator.getRemoteServerDirectoryPath() +" \n");
+			sb.append("Name of working directory on remote computer : " + communicator.getRemoteWorkingDirectoryName() +" \n");
 		}
 		return sb.toString();
 	}

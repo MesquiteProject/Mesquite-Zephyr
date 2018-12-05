@@ -108,6 +108,9 @@ public class SSHServerProfile implements Listable, Explainable, UsernamePassword
 	public void setPath(String path){
 		this.path = path;
 	}
+	public boolean validProgramPath(int program){
+		return StringUtil.notEmpty(programPaths[program]);
+	}
 	public String getProgramPath(int program){
 		return programPaths[program];
 	}

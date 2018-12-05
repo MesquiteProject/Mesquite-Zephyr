@@ -742,6 +742,12 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
  
 		//	if (preFlightSuccessful(preflightCommand)) {
 		//	}
+		
+		if (StringUtil.blank(programCommand)) {
+			MesquiteMessage.discreetNotifyUser("Path to IQ-TREE not specified!");
+			return null;
+		}
+		
 
 		if (updateWindow)
 			parametersChanged(); //just a way to ping the coordinator to update the window
