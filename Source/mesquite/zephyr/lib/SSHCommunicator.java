@@ -88,12 +88,12 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		return remoteWorkingDirectoryName;
 	}
 	
-	public void findRemoteWorkingDirectoryName(String executableName) {
+	public void checkForUniqueRemoteWorkingDirectoryName(String executableName) {
 		int i = 1;
-		String proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ "1";
-		while (remoteFileExists(proposedName,false)) {
+		String proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ ".1";
+		while (remoteDirectoryExists(proposedName,false)) {
 			i++;
-			proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ i;
+			proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ "."+i;
 		}
 		remoteWorkingDirectoryName = proposedName;
 	}
@@ -137,6 +137,33 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			return "";
 		}
 	}
+	public  boolean remoteDirectoryExists (String remoteDirectoryName, boolean warn) {
+		try {
+			Session session=createSession();
+			session.connect();
+
+			ChannelSftp channel=(ChannelSftp)session.openChannel("sftp");
+			channel.connect();
+			channel.cd(getRemoteWorkingDirectoryPath());
+
+			SftpATTRS sftpATTRS = channel.stat(remoteDirectoryName);
+			
+			boolean isDirectory = sftpATTRS.isDir();
+			boolean isLink = sftpATTRS.isLink();
+
+			channel.disconnect();
+			session.disconnect();
+			return isDirectory && !isLink;
+
+		}  catch (Exception e) {
+			if (warn) {
+				ownerModule.logln("Could not determine if directory exists on remote server.  Directory: " + remoteDirectoryName + ", Message: " + e.getMessage());
+				e.printStackTrace();
+			}
+			return false;
+		}
+	}
+
 	public  boolean remoteFileExists (String remoteFileName, boolean warn) {
 		try {
 			Session session=createSession();
@@ -147,6 +174,9 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			channel.cd(getRemoteWorkingDirectoryPath());
 
 			SftpATTRS sftpATTRS = channel.stat(remoteFileName);
+			
+			boolean isDirectory = sftpATTRS.isDir();
+			boolean isLink = sftpATTRS.isLink();
 
 			channel.disconnect();
 			session.disconnect();
