@@ -428,7 +428,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 		}  catch (Exception e) {
 			if (AuthorizationFailure(e)) {
-				ownerModule.logln("\n*********\nERROR: Could not create remote working directory (\""+getRemoteWorkingDirectoryName()+"\")\n*********");
+				ownerModule.logln("\n*********\nERROR: Could not create remote working directory (\""+getRemoteWorkingDirectoryName()+"\"); Authorization Failure!!!\n*********");
 			} else{
 				ownerModule.logln("\n*********\nERROR: Could not create remote working directory (\""+getRemoteWorkingDirectoryName()+"\")\n*********");
 				ownerModule.logln("Error message: "+e.getMessage());
