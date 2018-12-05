@@ -492,8 +492,11 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			communicator.setHost(sshServerProfile.getHost());
 			//communicator.setUsername(sshServerProfile.getUsername());
 		}
-		if (communicator.checkUsernamePassword(false))
-			communicator.checkForUniqueRemoteWorkingDirectoryName(getExecutableName());
+		if (communicator.checkUsernamePassword(false)&&!communicator.checkForUniqueRemoteWorkingDirectoryName(getExecutableName())) {
+			logln("\n*********\nERROR: Could not identify remote working directory; there may be a problem communicating with the SSH Server\n*********");
+			return false;
+		}
+
 		return true;
 	}
 	/*.................................................................................................................*/

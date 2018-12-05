@@ -88,7 +88,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		return remoteWorkingDirectoryName;
 	}
 	
-	public  void checkForUniqueRemoteWorkingDirectoryName (String executableName) {
+	public  boolean checkForUniqueRemoteWorkingDirectoryName (String executableName) {
 		boolean connected = false;
 		String proposedName="";
 		try {
@@ -120,9 +120,15 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			session.disconnect();
 
 		}  catch (Exception e) {
-			if (connected)
+			if (connected) {
 				remoteWorkingDirectoryName = proposedName;
+			}
+			else {
+				ownerModule.logln("WARNING: could not communicate with SSH server to identify working directory folder: " + e.getMessage());
+				return false;
+			}
 		}
+		return true;
 	}
 /*
 	public void checkForUniqueRemoteWorkingDirectoryName(String executableName) {
