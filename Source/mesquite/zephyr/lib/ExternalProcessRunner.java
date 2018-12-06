@@ -60,6 +60,8 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 
 	public void setReadyForReconnectionSave(boolean readyForReconnectionSave){
 		this.readyForReconnectionSave = readyForReconnectionSave;
+		if (readyForReconnectionSave)
+			Debugg.println("readyForReconnectionSave set to true");
 	}
 	public boolean getReadyForReconnectionSave(){
 		return readyForReconnectionSave;
