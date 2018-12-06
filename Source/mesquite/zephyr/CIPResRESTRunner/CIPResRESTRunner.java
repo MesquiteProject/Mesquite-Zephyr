@@ -38,6 +38,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		MesquiteModule mm = getEmployer();
 		loadPreferences(xmlPrefs);
 		xmlPrefsString = xmlPrefs.getValue();
+		setReadyForReconnectionSave(false);
 
 		return true;
 	}
@@ -335,6 +336,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		forgetPassword = false;
 
 		jobURL = new MesquiteString();
+		setReadyForReconnectionSave(true);
 		return communicator.sendJobToCipres(builder, executableRemoteName, jobURL);
 	}
 

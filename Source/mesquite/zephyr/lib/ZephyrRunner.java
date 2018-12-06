@@ -638,6 +638,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		timer.fullReset();
 
 		// starting the process
+		
 		success = externalProcRunner.startExecution();
 
 

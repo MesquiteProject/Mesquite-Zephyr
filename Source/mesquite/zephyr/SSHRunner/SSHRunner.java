@@ -44,6 +44,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		} 
 		xmlPrefsString = xmlPrefs.getValue();
 		scriptBased = true;
+		setReadyForReconnectionSave(false);
 		return true;
 	}
 	public void endJob(){
@@ -516,6 +517,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		}
 
 		if (successfulStart) {
+			setReadyForReconnectionSave(true);
 			forgetPassword = false;
 			if (scriptBased) {
 				communicator.addEmptyFileToWorkingDirectory(ShellScriptUtil.runningFileName);

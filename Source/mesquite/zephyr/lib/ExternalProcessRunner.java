@@ -20,7 +20,8 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	boolean aborted = false;
 	protected ProgressIndicator progressIndicator;
 	protected String localRootDir = null;  // local directory for storing files on local machine
-	
+	protected boolean readyForReconnectionSave = false;
+
 
 	public Class getDutyClass() {
 		return ExternalProcessRunner.class;
@@ -55,6 +56,13 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	}
 	public void setAborted(boolean aborted){
 		this.aborted = aborted;
+	}
+
+	public void setReadyForReconnectionSave(boolean readyForReconnectionSave){
+		this.readyForReconnectionSave = readyForReconnectionSave;
+	}
+	public boolean getReadyForReconnectionSave(){
+		return readyForReconnectionSave;
 	}
 
 	public String getExecutableName() {

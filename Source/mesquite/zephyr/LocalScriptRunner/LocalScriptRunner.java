@@ -43,6 +43,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		MesquiteModule mm = getEmployer();
 		rng = new Random(System.currentTimeMillis());
 		extraPreferences = new StringBuffer();
+		setReadyForReconnectionSave(false);
 		return true;
 	}
 	public void endJob(){
@@ -486,9 +487,11 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public boolean startExecution(){  //do we assume these are disconnectable?
 		if (scriptBased) {
 			scriptRunner = new ShellScriptRunner(scriptPath, runningFilePath, null, false, getExecutableName(), outputFilePaths, this, this, visibleTerminal);  //scriptPath, runningFilePath, null, true, name, outputFilePaths, outputFileProcessor, watcher, true
+			setReadyForReconnectionSave(true);
 			return scriptRunner.executeInShell();
 		} else {
 			externalRunner = new ExternalProcessManager(this, localRootDir, executablePath, arguments, getExecutableName(), outputFilePaths, this, this, false);
+			setReadyForReconnectionSave(true);
 			return externalRunner.executeInShell();
 		}
 	}
