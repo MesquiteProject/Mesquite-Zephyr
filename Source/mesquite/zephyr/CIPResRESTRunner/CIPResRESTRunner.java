@@ -154,6 +154,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 			communicator.setOutputProcessor(this);
 			communicator.setWatcher(this);
 			communicator.setRootDir(localRootDir);
+			communicator.setHasBeenReconnected(true);
 			if (forgetPassword)
 				communicator.forgetPassword();
 			forgetPassword = false;

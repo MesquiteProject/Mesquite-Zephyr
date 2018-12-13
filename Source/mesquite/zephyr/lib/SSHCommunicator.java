@@ -86,7 +86,37 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	public String getRemoteWorkingDirectoryName() {
 		return remoteWorkingDirectoryName;
 	}
+	/*.................................................................................................................*
+	public Snapshot getSnapshot(MesquiteFile file) { 
+		Snapshot temp = new Snapshot();
+		temp.addLine("setRemoteDirectoryPath " + ParseUtil.tokenize(getRemoteWorkingDirectoryPath()));
+		return temp;
+	}
+
 	
+	
+	/*.................................................................................................................*/
+	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
+		if (checker.compare(this.getClass(), "Sets the remote working directory path", "[file path]", commandName, "setRemoteDirectoryPath")) {
+			Parser parser = new Parser();
+			String path = parser.getFirstToken(arguments);
+			parser.setString(path);
+			String separator = sshServerProfile.getDirectorySeparator();
+			String name = Parser.getLastItem(path, separator, null, true);
+			String directory = Parser.getAllButLastItem(path, separator, null, true);
+			if (!StringUtil.endsWithIgnoreCase(directory, separator))
+				directory += separator;
+			
+			setRemoteWorkingDirectoryName(name);
+			setRemoteServerDirectoryPath(directory);
+			
+			return sshServerProfile;
+		} 
+		return null;
+	}	
+
+	
+
 	public  boolean checkForUniqueRemoteWorkingDirectoryName (String executableName) {
 		boolean connected = false;
 		String proposedName="";
@@ -507,6 +537,8 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			return true;
 		} catch(Exception e){
 			ownerModule.logln("Could not download files from remote server: " + e.getMessage());
+		//	ownerModule.logln("File: " + e.getMessage());
+
 			e.printStackTrace();
 			return false;
 		}

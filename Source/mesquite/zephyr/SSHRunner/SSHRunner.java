@@ -164,7 +164,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			temp.addLine("setOutputFilePaths " + files);
 		}
 		if (communicator != null){
-			temp.addLine("reviveCommunicator ");
+			temp.addLine("reviveCommunicator "+ ParseUtil.tokenize(communicator.getRemoteWorkingDirectoryPath()));
 			temp.addLine("tell It");
 			temp.incorporate(communicator.getSnapshot(file), true);
 			temp.addLine("endTell");
@@ -181,8 +181,18 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			return sshServerProfile;
 		} else if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveCommunicator")) {
 			logln("Reviving SSH Communicator");
-			if (!prepareCommunicator())
+			String path = parser.getFirstToken(arguments);
+			parser.setString(path);
+			String separator = sshServerProfile.getDirectorySeparator();
+			String name = Parser.getLastItem(path, separator, null, true);
+			String directory = Parser.getAllButLastItem(path, separator, null, true);
+			if (!StringUtil.endsWithIgnoreCase(directory, separator))
+				directory += separator;
+			
+			if (!prepareCommunicator(true))
 				return null;
+			communicator.setRemoteWorkingDirectoryName(name);
+			communicator.setRemoteServerDirectoryPath(directory);
 			communicator.monitorRun(true);
 			return communicator;
 		}
@@ -202,6 +212,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		return null;
 	}	
 
+	
 	// setting the requester, to whom this runner will communicate about the run
 	public  void setProcessRequester(ExternalProcessRequester processRequester){
 		setExecutableName(processRequester.getProgramName());
@@ -376,7 +387,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 
 		localScriptFilePath = localRootDir + scriptFileName;
 
-		if (!prepareCommunicator())
+		if (!prepareCommunicator(false))
 			return false;
 		if (scriptBased) {
 			String shellScript = getShellScript(programCommand, communicator.getRemoteWorkingDirectoryPath(), args);
@@ -469,10 +480,11 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	}
 	/*.................................................................................................................*/
 	/*.................................................................................................................*/
-	private boolean prepareCommunicator() {
+	private boolean prepareCommunicator(boolean hasBeenReconnected) {
 		communicator = new SSHCommunicator(this,xmlPrefsString, outputFilePaths);
 		if (communicator==null) 
 			return false;
+		communicator.setHasBeenReconnected(hasBeenReconnected);
 		if (sshServerProfile!=null) {
 			communicator.setSSHServerProfile(sshServerProfile);
 			if (!sshServerProfile.getName().equals(communicator.getSshServerProfileName())) // we've changed to a different 
@@ -492,10 +504,11 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			communicator.setHost(sshServerProfile.getHost());
 			//communicator.setUsername(sshServerProfile.getUsername());
 		}
-		if (communicator.checkUsernamePassword(false)&&!communicator.checkForUniqueRemoteWorkingDirectoryName(getExecutableName())) {
-			logln("\n*********\nERROR: Could not identify remote working directory; there may be a problem communicating with the SSH Server\n*********");
-			return false;
-		}
+		if (communicator.checkUsernamePassword(false))
+			if (!hasBeenReconnected && !communicator.checkForUniqueRemoteWorkingDirectoryName(getExecutableName())) {
+				logln("\n*********\nERROR: Could not identify remote working directory; there may be a problem communicating with the SSH Server\n*********");
+				return false;
+			}
 
 		return true;
 	}
