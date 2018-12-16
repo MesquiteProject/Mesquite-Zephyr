@@ -201,6 +201,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 				communicator.setRemoteWorkingDirectoryName(name);
 				communicator.setRemoteServerDirectoryPath(directory);
 			}
+			setReadyForReconnectionSave(true);
 			return communicator;
 		}
 		else if (checker.compare(this.getClass(), "Sets the output file paths", "[file paths]", commandName, "setOutputFilePaths")) {
