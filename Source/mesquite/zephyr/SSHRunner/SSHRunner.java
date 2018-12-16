@@ -89,6 +89,12 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		return "If Mesquite closes this file, it will not stop the run on the server.  To stop the run on the server, press the \"Stop\" link in the analysis window before closing.";  
 	}
 
+	public  boolean canCalculateTimeRemaining(int repsCompleted){
+		if (communicator!=null)
+			return !communicator.hasBeenReconnected();
+		return true;
+	}
+
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
 		return true;
@@ -164,6 +170,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			temp.addLine("setOutputFilePaths " + files);
 		}
 		if (communicator != null){
+			temp.addLine("reviveCommunicator ");
 			temp.addLine("reviveCommunicator "+ ParseUtil.tokenize(communicator.getRemoteWorkingDirectoryPath()));
 			temp.addLine("tell It");
 			temp.incorporate(communicator.getSnapshot(file), true);
@@ -179,21 +186,21 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			String sshServerProfileName = parser.getFirstToken(arguments);
 			sshServerProfile = sshServerProfileManager.getSSHServerProfile(sshServerProfileName);
 			return sshServerProfile;
-		} else if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveCommunicator")) {
+		} else if (checker.compare(this.getClass(), "Revives the communicator", "[file path]", commandName, "reviveCommunicator")) {
 			logln("Reviving SSH Communicator");
-			String path = parser.getFirstToken(arguments);
-			parser.setString(path);
-			String separator = sshServerProfile.getDirectorySeparator();
-			String name = Parser.getLastItem(path, separator, null, true);
-			String directory = Parser.getAllButLastItem(path, separator, null, true);
-			if (!StringUtil.endsWithIgnoreCase(directory, separator))
-				directory += separator;
-			
 			if (!prepareCommunicator(true))
 				return null;
-			communicator.setRemoteWorkingDirectoryName(name);
-			communicator.setRemoteServerDirectoryPath(directory);
-			communicator.monitorRun(true);
+			String path = parser.getFirstToken(arguments);
+			if (StringUtil.notEmpty(path)) {
+				parser.setString(path);
+				String separator = sshServerProfile.getDirectorySeparator();
+				String name = Parser.getLastItem(path, separator, null, true);
+				String directory = Parser.getAllButLastItem(path, separator, null, true);
+				if (!StringUtil.endsWithIgnoreCase(directory, separator))
+					directory += separator;
+				communicator.setRemoteWorkingDirectoryName(name);
+				communicator.setRemoteServerDirectoryPath(directory);
+			}
 			return communicator;
 		}
 		else if (checker.compare(this.getClass(), "Sets the output file paths", "[file paths]", commandName, "setOutputFilePaths")) {
@@ -204,10 +211,15 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			for (int i=1; i<num; i++)
 				outputFilePaths[i] = parser.getNextToken();
 		}
-		else if (checker.compare(this.getClass(), "Sets root directory", null, commandName, "setRootDir")) {
+		else if (checker.compare(this.getClass(), "Sets local directory for temporary files", null, commandName, "setRootDir")) {
 			localRootDir = parser.getFirstToken(arguments);
 			if (communicator!=null)
 				communicator.setRootDir(localRootDir);
+		}
+		else if (checker.compare(this.getClass(), "Sets name of the directory for temporary files for this run on the remote computer", null, commandName, "setRemoteWorkingDirectoryName")) {
+			String name = parser.getFirstToken(arguments);
+			if (communicator!=null)
+				communicator.setRemoteWorkingDirectoryName(name);
 		}
 		return null;
 	}	
@@ -430,7 +442,8 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 				outputFilePaths[i]=localRootDir+fileNames[i];
 				outputFileNames[i]=fileNames[i];
 			}
-			communicator.setOutputFilePaths(outputFilePaths);
+			if (communicator!=null)
+				communicator.setOutputFilePaths(outputFilePaths);
 		}
 	}
 	/*.................................................................................................................*/

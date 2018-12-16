@@ -367,10 +367,11 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 		while(true){
 
+			monitorAndCleanUpShell(null,progressIndicator);
+
 			if ((!waitForRunning || !remoteFileExists(ShellScriptUtil.runningFileName, false))) {
 				break;
 			} 
-			monitorAndCleanUpShell(null,progressIndicator);
 
 			try{Thread.sleep(1000);}catch(Exception ee){}
 		}

@@ -86,6 +86,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean stopExecution(){
 		return externalProcRunner.stopExecution();
 	}
+	/*.................................................................................................................*/
+	public  CategoricalData getData(){
+		return data;
+	}
+
 	public String getMessageIfUserAbortRequested () {
 		if (externalProcRunner!=null)
 			return externalProcRunner.getMessageIfUserAbortRequested();

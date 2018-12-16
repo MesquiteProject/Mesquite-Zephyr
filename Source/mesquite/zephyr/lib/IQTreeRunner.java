@@ -1321,6 +1321,14 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 								logln("    Average time per replicate:  " +  StringUtil.secondsToHHMMSS((int)timePerRep));
 								logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
 							}
+						} else {  // at least report the number of reps
+							logln("");
+							if (searchStyle==STANDARDBOOTSTRAP) 
+								logln(getExecutableName()+" bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
+							else if (searchStyle==ULTRAFASTBOOTSTRAP) 
+								logln(getExecutableName()+" ultrafast bootstrap run " + numRunsCompleted + " of " + numRuns+" completed");
+							else 
+								logln(getExecutableName()+" search replicate " + numRunsCompleted + " of " + numRuns+" completed");
 						}
 					}
 

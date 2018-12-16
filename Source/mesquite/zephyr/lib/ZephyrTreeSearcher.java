@@ -11,6 +11,7 @@ package mesquite.zephyr.lib;
 
 import java.util.*;
 
+import mesquite.categ.lib.CategoricalData;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -55,6 +56,13 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	public String getMessageIfUserAbortRequested () {
 		if (runner!=null)
 			return runner.getMessageIfUserAbortRequested();
+		return null;
+	}
+
+	/*.................................................................................................................*/
+	public  CategoricalData getData(){
+		if (runner!=null)
+			return runner.getData();
 		return null;
 	}
 
@@ -159,9 +167,12 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (checker.compare(this.getClass(), "Sets the runner", "[module]", commandName, "getRunner")) {
 			return runner;
 		}
-		else if (checker.compare(this.getClass(), "Sets the runner", "[module]", commandName, "getMatrixSource")) {
+		else if (checker.compare(this.getClass(), "Gets the matrix source", "[module]", commandName, "getMatrixSource")) {
 			if (matrixSourceTask!=null && observedStates ==null) {
-				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
+				if (getData()!=null)
+					observedStates = getData().getMCharactersDistribution();   //WAYNECHECK: if we have just reconnected, we can't use the matrixSource to get the current matrix - we need to get the matrix that was recorded on save (but is that necessarily stored???)
+				else
+					observedStates = matrixSourceTask.getCurrentMatrix(taxa);
 			}
 			return matrixSourceTask;
 		}
