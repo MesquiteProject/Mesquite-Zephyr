@@ -24,7 +24,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	protected TreeSource treeRecoveryTask;
 	protected Tree latestTree = null;
 	protected Taxa taxa;
-	protected long treesInferred;
+	protected long treeBlockID;
 	protected MatrixSourceCoord matrixSourceTask;
 	protected MCharactersDistribution observedStates;
 	protected int rerootNode = 0;
@@ -185,8 +185,9 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 
 
-	public String getExtraTreeWindowCommands (boolean finalTree){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, true)+ eachTreeCommands();
+	public String getExtraTreeWindowCommands (boolean finalTree, long treeBlockID){
+		this.treeBlockID = treeBlockID;
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treeBlockID, true)+ eachTreeCommands();
 	}
 
 
@@ -309,7 +310,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 					return null;
 				bestScore = finalScores.getValue();
 			}
-			treesInferred = trees.getID();
+			treeBlockID = trees.getID();
 		}
 		return trees;
 	}
@@ -396,7 +397,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (trees!=null)
 			treeList.addElements(trees, false);
 		trees.dispose();
-		treesInferred = treeList.getID();
+		treeBlockID = treeList.getID();
 
 	}
 

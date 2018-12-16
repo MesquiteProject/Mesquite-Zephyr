@@ -31,8 +31,9 @@ public abstract class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAn
 	public String getProgramName() {
 		return "TNT";
 	}
-	public String getExtraTreeWindowCommands (boolean finalTree){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, false)+ eachTreeCommands();
+	public String getExtraTreeWindowCommands (boolean finalTree, long treeBlockID){
+		this.treeBlockID = treeBlockID;
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treeBlockID, false)+ eachTreeCommands();
 	}
 
 

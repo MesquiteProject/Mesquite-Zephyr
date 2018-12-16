@@ -47,8 +47,9 @@ public abstract class PAUPNJTrees extends ZephyrTreeSearcher implements Distance
 
 		}
 	}
-	public String getExtraTreeWindowCommands (boolean finalTree){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, finalTree)+ eachTreeCommands();
+	public String getExtraTreeWindowCommands (boolean finalTree, long treeBlockID){
+		this.treeBlockID = treeBlockID;
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treeBlockID, finalTree)+ eachTreeCommands();
 	}
 	public String eachTreeCommands (){
 		String commands="";
