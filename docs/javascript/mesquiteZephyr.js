@@ -31,6 +31,10 @@ parameterString = function()
 		if (paramString=='') paramString+='?'; else paramString+='&';
 		paramString+= 'OverviewPanel=open';
 	}
+	if (LocationPanel.isOpen()) {
+		if (paramString=='') paramString+='?'; else paramString+='&';
+		paramString+= 'LocationPanel=open';
+	}
 	if (TreeInferenceProgramsPanel.isOpen()) {
 		if (paramString=='') paramString+='?'; else paramString+='&';
 		paramString+= 'TreeInferenceProgramsPanel=open';
