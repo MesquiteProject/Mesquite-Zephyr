@@ -33,6 +33,8 @@ public class RAxMLTreesSSH extends RAxMLTrees {
 
 	/*.................................................................................................................*/
 	 public String getProgramLocation(){
+		 if (runner!=null)
+			 return runner.getProgramLocation();
 		 return "SSH Server";
 	}
 

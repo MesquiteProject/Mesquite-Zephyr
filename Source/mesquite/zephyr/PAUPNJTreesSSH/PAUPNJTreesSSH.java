@@ -51,8 +51,10 @@ public class PAUPNJTreesSSH extends PAUPNJTrees {
 		return PAUPNJRunnerSSH.class;
 	}
 	/*.................................................................................................................*/
-	public String getProgramLocation(){
-		return "SSH Server";
+	 public String getProgramLocation(){
+		 if (runner!=null)
+			 return runner.getProgramLocation();
+		 return "SSH Server";
 	}
 	/*.................................................................................................................*/
 

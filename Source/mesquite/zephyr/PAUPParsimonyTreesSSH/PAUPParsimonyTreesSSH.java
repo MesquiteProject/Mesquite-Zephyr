@@ -48,8 +48,10 @@ public class PAUPParsimonyTreesSSH extends PAUPParsimonyTrees  {
 		return PAUPParsimonyRunnerSSH.class;
 	}
 	/*.................................................................................................................*/
-	public String getProgramLocation(){
-		return "SSH Server";
+	 public String getProgramLocation(){
+		 if (runner!=null)
+			 return runner.getProgramLocation();
+		 return "SSH Server";
 	}
 	/*.................................................................................................................*/
 

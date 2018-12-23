@@ -49,6 +49,8 @@ public class PAUPDistanceTreesSSH extends PAUPDistanceTrees {
 
 	/*.................................................................................................................*/
 	 public String getProgramLocation(){
+		 if (runner!=null)
+			 return runner.getProgramLocation();
 		 return "SSH Server";
 	}
 

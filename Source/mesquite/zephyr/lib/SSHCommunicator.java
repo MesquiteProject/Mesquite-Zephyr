@@ -16,7 +16,9 @@ import com.jcraft.jsch.*;
 
 public  class SSHCommunicator extends RemoteCommunicator {
 
-
+//TODO: implement kill process: https://stackoverflow.com/questions/22476506/kill-process-before-disconnecting
+	
+	
 	//	protected String remoteWorkingDirectoryPath = "";
 	protected String remoteWorkingDirectoryName = "";
 	protected String remoteServerDirectoryPath = "";

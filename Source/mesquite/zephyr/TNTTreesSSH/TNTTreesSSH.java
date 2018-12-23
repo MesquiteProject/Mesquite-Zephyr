@@ -48,8 +48,10 @@ public class TNTTreesSSH extends TNTTrees {
 		return TNTRunnerSSH.class;
 	}
 	/*.................................................................................................................*/
-	public String getProgramLocation(){
-		return "SSH Server";
+	 public String getProgramLocation(){
+		 if (runner!=null)
+			 return runner.getProgramLocation();
+		 return "SSH Server";
 	}
 	/*.................................................................................................................*/
 
