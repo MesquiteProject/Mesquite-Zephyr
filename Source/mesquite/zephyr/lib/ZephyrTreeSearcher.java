@@ -99,7 +99,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (observedStates != null){
 			CharacterData data = observedStates.getParentData();
 			if (data != null)
-				sb.append( "<b>" + getName() + "</b> using the matrix " + data.getName() +"<br>");
+				sb.append( "<b>" + getNameForHTML() + "</b> using the matrix " + data.getName() +"<br>");
 		}
 		String s = runner.getHTMLDescriptionOfStatus();
 		if (StringUtil.notEmpty(s))
@@ -242,13 +242,32 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		return "If "+ getProgramName() + " is installed, will save a copy of a character matrix and script "+ getProgramName() + " to conduct one or more searches, and harvest the resulting trees, including their scores.";
 	}
 	public String getName() {
-		String name =  getProgramName() + " Trees";
+		String name =   getProgramName() + " Trees";
 		if (StringUtil.notEmpty(getMethodNameForTreeBlock()))
 			name += " ("+ getMethodNameForMenu() +")";
 		if (StringUtil.notEmpty(getProgramLocation()))
 			name += " ["+ getProgramLocation() +"]";
 		return name;
 	}
+	
+	public String getColorForProgramLocationHTMLText() {
+		return "#3d7040";
+	}
+	
+	public String getNameForHTML() {
+		String name =  getProgramName() + " Trees";
+		if (StringUtil.notEmpty(getMethodNameForTreeBlock()))
+			name += " ("+ getMethodNameForMenu() +")";
+		if (StringUtil.notEmpty(getProgramLocation())) {
+			String color = getColorForProgramLocationHTMLText();
+			if (StringUtil.notEmpty(color))
+				name += " <font color="+color+">["+ getProgramLocation() +"]<font color=black>";
+			else
+				name += " ["+ getProgramLocation() +"]";
+		}
+		return name;
+	}
+	
 	public String getNameForMenuItem() {
 		return getName()+ "..."; 
 	}

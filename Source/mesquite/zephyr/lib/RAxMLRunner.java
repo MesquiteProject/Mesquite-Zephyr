@@ -1013,15 +1013,15 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (success) {
 			if (!beanWritten)
 				if (bootstrapOrJackknife())
-					postBean("successful, bootstrap");
+					postBean("successful, bootstrap | "+externalProcRunner.getDefaultProgramLocation());
 				else 
-					postBean("successful, ML tree");
+					postBean("successful, ML tree | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
 			return t;
 		}
 		reportStdError();
 		if (!beanWritten)
-			postBean("failed, retrieveTreeBlock");
+			postBean("failed, retrieveTreeBlock | "+externalProcRunner.getDefaultProgramLocation());
 		beanWritten = true;
 		return null;
 	}	

@@ -755,7 +755,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 				return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 			} else {
 				if (!beanWritten)
-					postBean("unsuccessful [1]");
+					postBean("unsuccessful [1] | "+externalProcRunner.getDefaultProgramLocation());
 				beanWritten=true;
 			}
 		}
@@ -815,12 +815,12 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		if (!success) {
 			logln("Execution of TNT unsuccessful [2]");
 			if (!beanWritten)
-				postBean("unsuccessful [2]");
+				postBean("unsuccessful [2] | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
 		} else {
 			numTreesFound = treeList.getNumberOfTrees();
 			if (!beanWritten)
-				postBean("successful");
+				postBean("successful | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
 		}
 

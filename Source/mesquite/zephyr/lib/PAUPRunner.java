@@ -355,7 +355,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			} else
 				reportStdError();
 			if (!beanWritten)
-				postBean("unsuccessful [1]");
+				postBean("unsuccessful [1] | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
 		}
 		desuppressProjectPanelReset();
@@ -383,7 +383,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			logln("PAUP tree file not found");
 			reportStdError();
 			if (!beanWritten)
-				postBean("failed - no tree file found");
+				postBean("failed - no tree file found | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
 			return null;
 		}
@@ -450,14 +450,14 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		externalProcRunner.finalCleanup();
 		if (success) { 
 			if (!beanWritten)
-				postBean("successful");
+				postBean("successful | "+externalProcRunner.getDefaultProgramLocation());
 			numTreesFound = treeList.getNumberOfTrees();
 			beanWritten=true;
 			return t;
 		} else {
 			reportStdError();
 			if (!beanWritten)
-				postBean("failed");
+				postBean("failed | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
 			return null;
 		}

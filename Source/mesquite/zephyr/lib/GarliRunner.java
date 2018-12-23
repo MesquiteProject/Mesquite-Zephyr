@@ -1100,12 +1100,12 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			data.decrementEditInhibition();
 		if (success) {
 			if (!beanWritten)
-				postBean("successful");
+				postBean("successful | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten = true;
 			return t;
 		}
 		if (!beanWritten)
-			postBean("failed, retrieveTreeBlock");
+			postBean("failed, retrieveTreeBlock | "+externalProcRunner.getDefaultProgramLocation());
 		beanWritten=true;
 		return null;
 	}
