@@ -623,8 +623,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	}
 
 
-	public void reconnectToRequester(MesquiteCommand command){
-		continueMonitoring(command);
+	public void reconnectToRequester(MesquiteCommand command, MesquiteBoolean runSucceeded){
+		continueMonitoring(command,  runSucceeded);
 	}
 
 	public String getProgramName() {

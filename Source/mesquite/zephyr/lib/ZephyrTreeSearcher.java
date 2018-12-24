@@ -141,6 +141,11 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		}
 		super.fileCloseRequested();
 	}
+	/*.................................................................................................................*/
+	public boolean successfulReconnect(){
+		return runSucceeded.getValue();
+	}
+	MesquiteBoolean runSucceeded = new MesquiteBoolean(true);
 	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
 	public void reconnectToRequester(MesquiteCommand command){
 		if (runner ==null)
@@ -150,7 +155,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		appendSearchDetails();
 		if (taxaID !=null)
 			taxa = getProject().getTaxa(taxaID);
-		runner.reconnectToRequester(command);
+		runner.reconnectToRequester(command,runSucceeded);
 	}
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 

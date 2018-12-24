@@ -547,6 +547,8 @@ class TreeBlockMonitorThread extends FillerThread {
 			MesquiteCommand command = new MesquiteCommand("treesReady", taxaIDString, ownerModule);
 			command.setSupplementalLogger(ownerModule.getLogger());
 			reconnectable.reconnectToRequester(command);
+			if (!reconnectable.successfulReconnect())
+				ownerModule.stopInference();
 		}
 		threadGoodbye();
 	}

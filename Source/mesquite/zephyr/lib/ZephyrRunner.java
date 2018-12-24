@@ -261,7 +261,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract boolean doMajRuleConsensusOfResults();
 	public abstract boolean singleTreeFromResampling();
 
-	public abstract void reconnectToRequester(MesquiteCommand command);
+	public abstract void reconnectToRequester(MesquiteCommand command, MesquiteBoolean runSucceeded);
 	public abstract String getProgramName();
 	public abstract boolean queryOptions();
 
@@ -655,8 +655,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 
 		// the process runs
-		if (success)
+		if (success) {
 			success = externalProcRunner.monitorExecution(progIndicator);
+		}
 		else {
 			if (!beanWritten)
 				postBean("failed, externalProcRunner.startExecution | "+externalProcRunner.getDefaultProgramLocation());
@@ -688,7 +689,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 
 	/*.................................................................................................................*/
-	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
+	public Tree continueMonitoring(MesquiteCommand callBackCommand, MesquiteBoolean runSucceeded) {
 
 		if (isVerbose()) 
 			logln("Monitoring " + getProgramName() + " run begun.");
@@ -709,6 +710,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (inferer != null)
 			((TreeInferer)inferer).bringIntermediatesWindowToFront();*/
 		boolean success = externalProcRunner.monitorExecution(progIndicator);
+		if (runSucceeded!=null)
+			runSucceeded.setValue(success);
 
 		if (progIndicator!=null)
 			progIndicator.goAway();
@@ -716,7 +719,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		//			getProject().decrementProjectWindowSuppression();
 		if (data != null)
 			data.decrementEditInhibition();
-		if (!isDoomed())
+		if (!isDoomed() && success)
 			if (callBackCommand != null)
 				callBackCommand.doItMainThread(null,  null,  this);
 

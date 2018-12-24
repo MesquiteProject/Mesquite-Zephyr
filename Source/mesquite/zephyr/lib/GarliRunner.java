@@ -220,8 +220,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		return "bootstrap".equalsIgnoreCase(searchName);
 	}
 
-	public void reconnectToRequester(MesquiteCommand command) {
-		continueMonitoring(command);
+	public void reconnectToRequester(MesquiteCommand command, MesquiteBoolean runSucceeded) {
+		continueMonitoring(command,  runSucceeded);
 	}
 	/*.................................................................................................................*/
 

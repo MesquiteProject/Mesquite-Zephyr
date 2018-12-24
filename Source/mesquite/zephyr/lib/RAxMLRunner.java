@@ -144,8 +144,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		return "bootstrap".equalsIgnoreCase(searchName);
 	}
 
-	public void reconnectToRequester(MesquiteCommand command){
-		continueMonitoring(command);
+	public void reconnectToRequester(MesquiteCommand command, MesquiteBoolean runSucceeded){
+		continueMonitoring(command,  runSucceeded);
 	}
 	
 	public void setConstraintTreeType (int useConstraintTree) {

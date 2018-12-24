@@ -19,6 +19,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 //TODO: implement kill process: https://stackoverflow.com/questions/22476506/kill-process-before-disconnecting
 	
 	
+
 	//	protected String remoteWorkingDirectoryPath = "";
 	protected String remoteWorkingDirectoryName = "";
 	protected String remoteServerDirectoryPath = "";
@@ -88,12 +89,6 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	}
 	public String getRemoteWorkingDirectoryName() {
 		return remoteWorkingDirectoryName;
-	}
-	/*.................................................................................................................*
-	public Snapshot getSnapshot(MesquiteFile file) { 
-		Snapshot temp = new Snapshot();
-		temp.addLine("setUserName " + ParseUtil.tokenize(getUserName()));
-		return temp;
 	}
 
 	
@@ -261,6 +256,8 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			return !sftpATTRS.isDir() && !sftpATTRS.isLink();
 
 		}  catch (Exception e) {
+			if (AuthorizationFailure(e)) {
+			}
 			if (warn) {
 				ownerModule.logln("Could not determine if file exists on remote server.  File: " + remoteFileName + ", Message: " + e.getMessage());
 				e.printStackTrace();
@@ -450,6 +447,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		if (e!=null && e instanceof JSchException && "Auth fail".equalsIgnoreCase(e.getMessage())) {
 			ownerModule.discreetAlert("Authentication failure.  Make sure you are using the correct username and password for the SSH server, and that you have appropriate access to the SSH server.");
 			forgetPassword();
+			setAuthorizationFailure(true);
 			return true;
 		}
 		return false;
@@ -471,7 +469,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 		}  catch (Exception e) {
 			if (AuthorizationFailure(e)) {
-				ownerModule.logln("\n*********\nERROR: Could not create remote working directory (\""+getRemoteWorkingDirectoryName()+"\"); Authorization Failure!!!\n*********");
+				ownerModule.logln("\n*********\nERROR: Could not create remote working directory (\""+getRemoteWorkingDirectoryName()+"\"); Authorization Failure!\n*********");
 			} else{
 				ownerModule.logln("\n*********\nERROR: Could not create remote working directory (\""+getRemoteWorkingDirectoryName()+"\")\n*********");
 				ownerModule.logln("Error message: "+e.getMessage());
@@ -543,9 +541,13 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 			channel.disconnect();
 			session.disconnect();
+			setAuthorizationFailure(false);
 			return true;
 		} catch(Exception e){
-			ownerModule.logln("Could not download files from remote server: " + e.getMessage());
+			if (AuthorizationFailure(e)) {
+				ownerModule.logln("\n*********\nERROR: Could not download files from remote server. Authorization Failure!\n*********");
+			} else
+				ownerModule.logln("Could not download files from remote server: " + e.getMessage());
 		//	ownerModule.logln("File: " + e.getMessage());
 
 			e.printStackTrace();
@@ -556,6 +558,11 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 	public boolean downloadResults(Object location, String rootDir, boolean onlyNewOrModified) {
 		return downloadFilesToLocalWorkingDirectory(onlyNewOrModified);
+	}
+
+	public boolean reAuthorize() {
+		setAuthorizationFailure(false);
+		return checkUsernamePassword(false, true);
 	}
 
 	/*.................................................................................................................*/

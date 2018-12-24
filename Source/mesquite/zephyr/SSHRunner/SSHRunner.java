@@ -558,8 +558,9 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	}
 
 	public boolean monitorExecution(ProgressIndicator progIndicator){
-		if (communicator!=null)
+		if (communicator!=null) {
 			return communicator.monitorAndCleanUpShell(null, progIndicator);
+		}
 		return false;
 	}
 

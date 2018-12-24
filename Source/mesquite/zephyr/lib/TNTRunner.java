@@ -343,8 +343,8 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		loadPreferences();
 	}
 
-	public void reconnectToRequester(MesquiteCommand command){
-		continueMonitoring(command);
+	public void reconnectToRequester(MesquiteCommand command, MesquiteBoolean runSucceeded){
+		continueMonitoring(command,  runSucceeded);
 	}
 
 	/*.................................................................................................................*/

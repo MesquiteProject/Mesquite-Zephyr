@@ -144,8 +144,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		else
 			return super.doCommand(commandName, arguments, checker);
 	}	
-	public void reconnectToRequester(MesquiteCommand command){
-		continueMonitoring(command);
+	public void reconnectToRequester(MesquiteCommand command, MesquiteBoolean runSucceeded){
+		continueMonitoring(command,  runSucceeded);
 	}
 
 
