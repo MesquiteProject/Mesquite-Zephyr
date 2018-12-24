@@ -122,7 +122,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
-		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		temp.addLine("setSearchStyle "+ searchStyleName(searchStyle));  // this needs to be second so that search style isn't reset in starting the runner
 
 		return temp;

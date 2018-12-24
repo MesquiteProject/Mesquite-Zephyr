@@ -79,10 +79,11 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	public void setHost(String host) {
 		this.host = host;
 	}
-	public String getUsername() {
+	public String getUserName() {
+		String s = sshServerProfile.getUsername();
 		return sshServerProfile.getUsername();
 	}
-	public void setUsername(String username) {
+	public void setUserName(String username) {
 		sshServerProfile.setUsername(username);
 	}
 	public String getRemoteWorkingDirectoryName() {
@@ -91,7 +92,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	/*.................................................................................................................*
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
-		temp.addLine("setRemoteDirectoryPath " + ParseUtil.tokenize(getRemoteWorkingDirectoryPath()));
+		temp.addLine("setUserName " + ParseUtil.tokenize(getUserName()));
 		return temp;
 	}
 
@@ -113,6 +114,11 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			setRemoteServerDirectoryPath(directory);
 			
 			return sshServerProfile;
+		} else if (checker.compare(this.getClass(), "Sets the username", "[username]", commandName, "setUserName")) {
+			Parser parser = new Parser();
+			String name = parser.getFirstToken(arguments);
+			setUserName(name);
+			return null;
 		} 
 		return null;
 	}	

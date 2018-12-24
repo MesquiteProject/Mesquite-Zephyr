@@ -170,8 +170,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			temp.addLine("setOutputFilePaths " + files);
 		}
 		if (communicator != null){
-			temp.addLine("reviveCommunicator ");
-			temp.addLine("reviveCommunicator "+ ParseUtil.tokenize(communicator.getRemoteWorkingDirectoryPath()));
+			temp.addLine("reviveCommunicator "+ ParseUtil.tokenize(communicator.getRemoteWorkingDirectoryPath())+ " " + ParseUtil.tokenize(communicator.getUserName()));
 			temp.addLine("tell It");
 			temp.incorporate(communicator.getSnapshot(file), true);
 			temp.addLine("endTell");
@@ -188,11 +187,11 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			return sshServerProfile;
 		} else if (checker.compare(this.getClass(), "Revives the communicator", "[file path]", commandName, "reviveCommunicator")) {
 			logln("Reviving SSH Communicator");
-			if (!prepareCommunicator(true))
-				return null;
 			String path = parser.getFirstToken(arguments);
+			String username = parser.getNextToken();
+			if (!prepareCommunicator(true, username))
+				return null;
 			if (StringUtil.notEmpty(path)) {
-				parser.setString(path);
 				String separator = sshServerProfile.getDirectorySeparator();
 				String name = Parser.getLastItem(path, separator, null, true);
 				String directory = Parser.getAllButLastItem(path, separator, null, true);
@@ -400,7 +399,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 
 		localScriptFilePath = localRootDir + scriptFileName;
 
-		if (!prepareCommunicator(false))
+		if (!prepareCommunicator(false, null))
 			return false;
 		if (scriptBased) {
 			String shellScript = getShellScript(programCommand, communicator.getRemoteWorkingDirectoryPath(), args);
@@ -494,7 +493,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	}
 	/*.................................................................................................................*/
 	/*.................................................................................................................*/
-	private boolean prepareCommunicator(boolean hasBeenReconnected) {
+	private boolean prepareCommunicator(boolean hasBeenReconnected, String userName) {
 		communicator = new SSHCommunicator(this,xmlPrefsString, outputFilePaths);
 		if (communicator==null) 
 			return false;
@@ -516,7 +515,8 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			communicator.setSshServerProfileName(sshServerProfile.getName());
 			communicator.setRemoteServerDirectoryPath(sshServerProfile.getTempFileDirectory());
 			communicator.setHost(sshServerProfile.getHost());
-			//communicator.setUsername(sshServerProfile.getUsername());
+			if (StringUtil.notEmpty(userName))
+				communicator.setUserName(userName);
 		}
 		if (communicator.checkUsernamePassword(false))
 			if (!hasBeenReconnected && !communicator.checkForUniqueRemoteWorkingDirectoryName(getExecutableName())) {
