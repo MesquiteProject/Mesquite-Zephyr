@@ -61,7 +61,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public void setReadyForReconnectionSave(boolean readyForReconnectionSave){
 		this.readyForReconnectionSave = readyForReconnectionSave;
 		if (readyForReconnectionSave && isReconnectable())
-			logln("\n[Run sufficiently established so that file can be saved, closed, and then reconnected.]");
+			logln("\n[Run sufficiently established so that file can be saved, closed, reopened, and then reconnected.]");
 	}
 	public boolean getReadyForReconnectionSave(){
 		return readyForReconnectionSave;
