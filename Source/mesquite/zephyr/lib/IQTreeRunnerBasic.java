@@ -57,10 +57,9 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		return -1;
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
-		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
 	/*.................................................................................................................*/

@@ -65,10 +65,9 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 		return externalProcRunner.getStdOut();
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
-		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		return temp;
 	}
 	/*.................................................................................................................*/
