@@ -111,7 +111,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
-		
+		temp.addLine("setSearchStyle "+ searchStyleName(doBootstrap));  // this needs to be second so that search style isn't reset in starting the runner
+
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -124,10 +125,25 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
+		} else if (checker.compare(this.getClass(), "sets the searchStyle ", "[searchStyle]", commandName, "setSearchStyle")) {
+			doBootstrap = getDoBootstrapFromName(parser.getFirstToken(arguments));
+			return null;
+			
 		}
 		 else
 			return super.doCommand(commandName, arguments, checker);
 	}	
+	/*.................................................................................................................*/
+	public String searchStyleName(boolean doBootstrap) {
+		if (doBootstrap)
+			return "bootstrap";
+		return "regular";
+	}
+	/*.................................................................................................................*/
+	public boolean getDoBootstrapFromName(String searchName) {
+		return "bootstrap".equalsIgnoreCase(searchName);
+	}
+
 	public void reconnectToRequester(MesquiteCommand command){
 		continueMonitoring(command);
 	}

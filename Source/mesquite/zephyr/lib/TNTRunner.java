@@ -41,11 +41,11 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 	boolean preferencesSet = false;
 	boolean convertGapsToMissing = true;
 	boolean isProtein = false;
-	static int REGULARSEARCH=0;
-	static int BOOTSTRAPSEARCH=1;
-	static int JACKKNIFESEARCH=2;
-	static int SYMSEARCH=3;
-	static int POISSONSEARCH=4;
+	final static int REGULARSEARCH=0;
+	final static int BOOTSTRAPSEARCH=1;
+	final static int JACKKNIFESEARCH=2;
+	final static int SYMSEARCH=3;
+	final static int POISSONSEARCH=4;
 	int searchStyle = REGULARSEARCH;
 	boolean resamplingAllConsensusTrees=false;  //if true, will pull in each of the consensus trees (one from each rep) from a resampling run
 
@@ -95,6 +95,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
+		temp.addLine("setSearchStyle "+ searchStyleName(searchStyle));  // this needs to be second so that search style isn't reset in starting the runner
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -107,9 +108,48 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
+		} else if (checker.compare(this.getClass(), "sets the searchStyle ", "[searchStyle]", commandName, "setSearchStyle")) {
+			searchStyle = getSearchStyleFromName(parser.getFirstToken(arguments));
+			return null;
+			
 		} else
 			return super.doCommand(commandName, arguments, checker);
 	}	
+	
+
+	/*.................................................................................................................*/
+	public String searchStyleName(int searchStyle) {
+		switch (searchStyle) {
+		case REGULARSEARCH:
+			return "regular";
+		case BOOTSTRAPSEARCH:
+			return "bootstrap";
+		case JACKKNIFESEARCH:
+			return "jackknife";
+		case SYMSEARCH:
+			return "symsearch";
+		case POISSONSEARCH:
+			return "poisson";
+		default:
+			return"";
+		}
+	}
+	/*.................................................................................................................*/
+	public int getSearchStyleFromName(String searchName) {
+		if (StringUtil.blank(searchName))
+				return REGULARSEARCH;
+		if (searchName.equalsIgnoreCase("bootstrap"))
+			return BOOTSTRAPSEARCH;
+		if (searchName.equalsIgnoreCase("jackknife"))
+			return JACKKNIFESEARCH;
+		if (searchName.equalsIgnoreCase("symsearch"))
+			return SYMSEARCH;
+		if (searchName.equalsIgnoreCase("poisson"))
+			return POISSONSEARCH;
+		if (searchName.equalsIgnoreCase("regular"))
+			return REGULARSEARCH;			
+		return REGULARSEARCH;
+	}
 
 	public boolean getPreferencesSet() {
 		return preferencesSet;

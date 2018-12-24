@@ -123,6 +123,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
+		temp.addLine("setSearchStyle "+ searchStyleName(searchStyle));  // this needs to be second so that search style isn't reset in starting the runner
 
 		return temp;
 	}
@@ -136,6 +137,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
+		} else if (checker.compare(this.getClass(), "sets the searchStyle ", "[searchStyle]", commandName, "setSearchStyle")) {
+			searchStyle = getSearchStyleFromName(parser.getFirstToken(arguments));
+			return null;
+			
 		}
 		else
 			return super.doCommand(commandName, arguments, checker);
@@ -195,6 +200,31 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		preferencesSet = true;
 		return buffer.toString();
+	}
+	/*.................................................................................................................*/
+	public String searchStyleName(int searchStyle) {
+		switch (searchStyle) {
+		case STANDARDBOOTSTRAP:
+			return "standardBootstrap";
+		case ULTRAFASTBOOTSTRAP:
+			return "ultrafastBootstrap";
+		case STANDARDSEARCH:
+			return "standardSearch";
+		default:
+			return"";
+		}
+	}
+	/*.................................................................................................................*/
+	public int getSearchStyleFromName(String searchName) {
+		if (StringUtil.blank(searchName))
+				return STANDARDSEARCH;
+		if (searchName.equalsIgnoreCase("standardBootstrap"))
+			return STANDARDBOOTSTRAP;
+		if (searchName.equalsIgnoreCase("ultrafastBootstrap"))
+			return ULTRAFASTBOOTSTRAP;
+		if (searchName.equalsIgnoreCase("standardSearch"))
+			return STANDARDSEARCH;			
+		return STANDARDSEARCH;
 	}
 
 	/*.................................................................................................................*/

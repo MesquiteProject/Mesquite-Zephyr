@@ -455,6 +455,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public String getSearchDetails(){
 		return searchDetails.toString();
 	}
+	
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();

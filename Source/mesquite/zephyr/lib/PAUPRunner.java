@@ -43,9 +43,9 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	//	boolean writeOnlySelectedTaxa = false;
 	PAUPCommander paupCommander = this;
 	protected ExtensibleDialog dialog;
-	protected static int REGULARSEARCH=0;
-	protected static int BOOTSTRAPSEARCH=1;
-	protected static int JACKKNIFESEARCH=2;
+	protected final static int REGULARSEARCH=0;
+	protected final static int BOOTSTRAPSEARCH=1;
+	protected final static int JACKKNIFESEARCH=2;
 	protected int searchStyle = REGULARSEARCH;
 
 	protected static int HEURISTICSEARCH=0;
@@ -98,6 +98,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
+		temp.addLine("setSearchStyle "+ searchStyleName(searchStyle));  // this needs to be second so that search style isn't reset in starting the runner
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -144,9 +145,38 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
+		} else if (checker.compare(this.getClass(), "sets the searchStyle ", "[searchStyle]", commandName, "setSearchStyle")) {
+			searchStyle = getSearchStyleFromName(parser.getFirstToken(arguments));
+			return null;
+			
 		} else
 			return super.doCommand(commandName, arguments, checker);
 	}	
+	/*.................................................................................................................*/
+	public String searchStyleName(int searchStyle) {
+		switch (searchStyle) {
+		case JACKKNIFESEARCH:
+			return "jackknife";
+		case BOOTSTRAPSEARCH:
+			return "bootstrap";
+		case REGULARSEARCH:
+			return "regularSearch";
+		default:
+			return"";
+		}
+	}
+	/*.................................................................................................................*/
+	public int getSearchStyleFromName(String searchName) {
+		if (StringUtil.blank(searchName))
+				return REGULARSEARCH;
+		if (searchName.equalsIgnoreCase("bootstrap"))
+			return BOOTSTRAPSEARCH;
+		if (searchName.equalsIgnoreCase("jackknife"))
+			return JACKKNIFESEARCH;
+		if (searchName.equalsIgnoreCase("regularSearch"))
+			return REGULARSEARCH;			
+		return REGULARSEARCH;
+	}
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
