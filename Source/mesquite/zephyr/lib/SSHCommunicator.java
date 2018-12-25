@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Vector;
 import mesquite.externalCommunication.lib.*;
+import java.net.*;
 
 
 import com.jcraft.jsch.*;
@@ -237,10 +238,25 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		}
 	}
 
+	public  boolean connectionAvailable (boolean warn) {
+		try {
+			Session session=createSession();
+			session.connect();
+			session.disconnect();
+			return true;
+		}  catch (Exception e) {
+			if (ConnectionFailure(e)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public  boolean remoteFileExists (String remoteFileName, boolean warn) {
 		try {
 			Session session=createSession();
 			session.connect();
+			setConnectionFailure(false);
 
 			ChannelSftp channel=(ChannelSftp)session.openChannel("sftp");
 			channel.connect();
@@ -253,12 +269,13 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 			channel.disconnect();
 			session.disconnect();
+
 			return !sftpATTRS.isDir() && !sftpATTRS.isLink();
 
 		}  catch (Exception e) {
 			if (AuthorizationFailure(e)) {
-			}
-			if (warn) {
+			} else if (ConnectionFailure(e)) {
+			} else if (warn) {
 				ownerModule.logln("Could not determine if file exists on remote server.  File: " + remoteFileName + ", Message: " + e.getMessage());
 				e.printStackTrace();
 			}
@@ -443,6 +460,16 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 	}
 
+	private boolean ConnectionFailure(Exception e) {
+		if (e!=null && e instanceof JSchException && e.getMessage().contains("java.net.ConnectException")) {
+			ownerModule.discreetAlert("Connection failure: " + e.getMessage()+ ". Please check to see you are appropriately connected to contact the server.");
+			setConnectionFailure(true);
+			return true;
+		} else
+			setConnectionFailure(false);
+		return false;
+	}
+
 	private boolean AuthorizationFailure(Exception e) {
 		if (e!=null && e instanceof JSchException && "Auth fail".equalsIgnoreCase(e.getMessage())) {
 			ownerModule.discreetAlert("Authentication failure.  Make sure you are using the correct username and password for the SSH server, and that you have appropriate access to the SSH server.");
@@ -507,7 +534,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		return "";
 	}
 
-	public  boolean downloadFilesToLocalWorkingDirectory (boolean onlyNewOrModified) {
+	public  boolean downloadFilesToLocalWorkingDirectory (boolean onlyNewOrModified, boolean warn) {
 		try{
 			Session session=createSession();
 			if (session==null)
@@ -542,22 +569,23 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			channel.disconnect();
 			session.disconnect();
 			setAuthorizationFailure(false);
+			setConnectionFailure(false);
 			return true;
 		} catch(Exception e){
-			if (AuthorizationFailure(e)) {
-				ownerModule.logln("\n*********\nERROR: Could not download files from remote server. Authorization Failure!\n*********");
-			} else
-				ownerModule.logln("Could not download files from remote server: " + e.getMessage());
-		//	ownerModule.logln("File: " + e.getMessage());
-
-			e.printStackTrace();
+			if (warn) {
+				if (AuthorizationFailure(e)) {
+					ownerModule.logln("\n*********\nERROR: Could not download files from remote server. Authorization Failure!\n*********");
+				} else
+					ownerModule.logln("Could not download files from remote server: " + e.getMessage());
+				e.printStackTrace();
+			}
 			return false;
 		}
 
 	}
 
 	public boolean downloadResults(Object location, String rootDir, boolean onlyNewOrModified) {
-		return downloadFilesToLocalWorkingDirectory(onlyNewOrModified);
+		return downloadFilesToLocalWorkingDirectory(onlyNewOrModified, false);
 	}
 
 	public boolean reAuthorize() {
@@ -571,9 +599,9 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	}
 
 	/*.................................................................................................................*/
-	public boolean downloadWorkingResults(Object location, String rootDir, boolean onlyNewOrModified) {
+	public boolean downloadWorkingResults(Object location, String rootDir, boolean onlyNewOrModified,boolean warn) {
 		if (checkUsernamePassword(false)) {
-			return downloadFilesToLocalWorkingDirectory(onlyNewOrModified);
+			return downloadFilesToLocalWorkingDirectory(onlyNewOrModified, warn);
 		}
 		return false;
 	}

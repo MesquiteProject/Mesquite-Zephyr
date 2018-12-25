@@ -644,7 +644,7 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 	}
 
 	/*.................................................................................................................*/
-	public boolean downloadWorkingResults(Object location, String rootDir, boolean onlyNewOrModified) {
+	public boolean downloadWorkingResults(Object location, String rootDir, boolean onlyNewOrModified, boolean warn) {
 		if (checkUsernamePassword(false)) {
 			String jobURL = (String)location;
 			HttpClient httpclient = getHttpClient();
@@ -701,7 +701,7 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 	/*.................................................................................................................*/
 	public void processOutputFiles(Object location){
 		if (rootDir!=null) {
-			downloadWorkingResults(location, rootDir, true);
+			downloadWorkingResults(location, rootDir, true, false);  //TODO: only warn if few warnings
 			if (outputFileProcessor!=null && outputFilePaths!=null && lastModified !=null) {
 				String[] paths = outputFileProcessor.modifyOutputPaths(outputFilePaths);
 				for (int i=0; i<paths.length && i<lastModified.length; i++) {

@@ -32,6 +32,7 @@ public abstract class RemoteCommunicator  {
 	protected UsernamePasswordKeeper usernamePasswordKeeper;
 	protected boolean hasBeenReconnected = false;
 	protected boolean authorizationFailure = false;
+	protected boolean connectionFailure = false;
 
 
 	public RemoteCommunicator () {
@@ -99,6 +100,13 @@ public abstract class RemoteCommunicator  {
 	}
 	public void setAuthorizationFailure(boolean authorizationFailure) {
 		this.authorizationFailure = authorizationFailure;
+	}
+
+	public boolean isConnectionFailure() {
+		return connectionFailure;
+	}
+	public void setConnectionFailure(boolean connectionFailure) {
+		this.connectionFailure = connectionFailure;
 	}
 
 
@@ -252,11 +260,19 @@ public abstract class RemoteCommunicator  {
 		}
 		return true;
 	}
-
+	int consecutiveDownloadFailures = 0;
+	static int maxDownloadFailuresToWarnAbout = 3;
 	/*.................................................................................................................*/
 	public void processOutputFiles(Object location){
 		if (rootDir!=null && !isAuthorizationFailure()) {
-			downloadWorkingResults(location, rootDir, true);
+			boolean downloaded = downloadWorkingResults(location, rootDir, true, consecutiveDownloadFailures>maxDownloadFailuresToWarnAbout);
+			if (!downloaded) {
+				consecutiveDownloadFailures++;
+				if (consecutiveDownloadFailures>maxDownloadFailuresToWarnAbout)
+					ownerModule.logln("\n*********\nWARNING: There appears to be a problem communicating with the server. You may wish to check your Internet connection.\n*********");
+			}
+			else
+				consecutiveDownloadFailures=0;  // have success, reset
 			if (outputFileProcessor!=null && outputFilePaths!=null && lastModified !=null && !isAuthorizationFailure()) {
 				String[] paths = outputFileProcessor.modifyOutputPaths(outputFilePaths);
 				for (int i=0; i<paths.length && i<lastModified.length; i++) {
@@ -280,11 +296,12 @@ public abstract class RemoteCommunicator  {
 
 	}
 	public String getJobStatus(Object location, boolean warn) { return "";}
-	public boolean downloadWorkingResults(Object location, String rootDir, boolean onlyNewOrModified) { return true;}
+	public boolean downloadWorkingResults(Object location, String rootDir, boolean onlyNewOrModified, boolean warn) { return true;}
 	public boolean downloadResults(Object location, String rootDir, boolean onlyNewOrModified) { return true;}
 	public void deleteJob(Object location) {}
 	public String getServiceName() { return "";}
 	protected boolean submittedReportedToUser = false;
+	public  boolean connectionAvailable (boolean warn) {return true;}
 
 	/*.................................................................................................................*/
 	public boolean monitorAndCleanUpShell(Object location, ProgressIndicator progIndicator){
@@ -306,7 +323,7 @@ public abstract class RemoteCommunicator  {
 		int pollInterval = minPollIntervalSeconds;
 		boolean onceThrough = false;
 		
-		while (((!jobCompleted(location) || !onceThrough) && stillGoing && !aborted)|| isAuthorizationFailure()){
+		while (((!jobCompleted(location) || !onceThrough) && stillGoing && !aborted)|| isAuthorizationFailure() || isConnectionFailure()){
 			if (isAuthorizationFailure())
 				if (!reAuthorize()) {
 					setAborted(true);
@@ -356,12 +373,13 @@ public abstract class RemoteCommunicator  {
 			status=newStatus;
 			if (status.equalsIgnoreCase(submitted))
 				submittedReportedToUser = true;
-			if (submittedReportedToUser || hasBeenReconnected){  // job is running
-				processOutputFiles(location);
-			}
+			if (!isConnectionFailure())
+				if (submittedReportedToUser || hasBeenReconnected){  // job is running
+					processOutputFiles(location);
+				}
 			onceThrough = true;
 		}
-		if (!isAuthorizationFailure()) {
+		if (!isAuthorizationFailure() && !isConnectionFailure()) {
 			boolean done = jobCompleted(location);
 			if (done && (submittedReportedToUser || hasBeenReconnected))
 				ownerModule.logln(getServiceName()+" job completed. (" + StringUtil.getDateTime() + " or earlier)");
