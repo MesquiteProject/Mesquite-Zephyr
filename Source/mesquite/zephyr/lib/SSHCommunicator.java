@@ -25,6 +25,8 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	protected ProgressIndicator progressIndicator;
 	protected String sshServerProfileName = "";
 	protected SSHServerProfile sshServerProfile;
+	String runDetailsForHelp = "";
+	
 
 
 	public SSHCommunicator (MesquiteModule mb, String xmlPrefsString,String[] outputFilePaths) {
@@ -71,6 +73,16 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 	public void setOutputFilePaths(String[] outputFilePaths) {
 		this.outputFilePaths = outputFilePaths;
+	}
+
+	/*.................................................................................................................*/
+	public String getRunDetailsForHelp() {
+		return runDetailsForHelp;
+	}
+
+	/*.................................................................................................................*/
+	public void setRunDetailsForHelp(String runDetailsForHelp) {
+		this.runDetailsForHelp = runDetailsForHelp;
 	}
 
 	public String getHost() {
@@ -149,7 +161,9 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			session.disconnect();
 
 		}  catch (Exception e) {
-			if (connected) {
+			if (ConnectionOrAuthorizationFailure(e)) {
+				return false;
+			} else if (connected) {
 				remoteWorkingDirectoryName = proposedName;
 			}
 			else {
@@ -268,7 +282,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			return !sftpATTRS.isDir() && !sftpATTRS.isLink();
 
 		}  catch (Exception e) {
-			if (!AuthorizationFailure(e) && !ConnectionFailure(e) && warn) {
+			if (!ConnectionOrAuthorizationFailure(e) && warn && !ShellScriptUtil.runningFileName.equalsIgnoreCase(remoteFileName)) {
 				ownerModule.logln("Could not determine if file exists on remote server.  File: " + remoteFileName + ", Message: " + e.getMessage());
 				e.printStackTrace();
 			}
@@ -290,8 +304,10 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			return !sftpATTRS.isDir() && !sftpATTRS.isLink();
 
 		}  catch (Exception e) {
-			ownerModule.logln("Could not determine if file exists on remote server.  File: " + remoteFileName + ", Message: " + e.getMessage());
-			e.printStackTrace();
+			if (!ConnectionOrAuthorizationFailure(e) && !ShellScriptUtil.runningFileName.equalsIgnoreCase(remoteFileName)) {
+				ownerModule.logln("Could not determine if file exists on remote server.  File: " + remoteFileName + ", Message: " + e.getMessage());
+				e.printStackTrace();
+			}
 			return false;
 		}
 	}
@@ -455,7 +471,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 	private boolean ConnectionFailure(Exception e) {
 		if (e!=null && e instanceof JSchException && e.getMessage().contains("java.net.ConnectException")) {
-			ownerModule.discreetAlert("Connection failure: " + e.getMessage()+ ". Please check to see you are appropriately connected to contact the server.");
+			ownerModule.discreetAlert("\n*********\nConnection failure: " + e.getMessage()+ ". Please check to see you are appropriately connected to contact the server.\n*********");
 			setConnectionFailure(true);
 			return true;
 		} else
@@ -465,13 +481,33 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 	private boolean AuthorizationFailure(Exception e) {
 		if (e!=null && e instanceof JSchException && "Auth fail".equalsIgnoreCase(e.getMessage())) {
-			ownerModule.discreetAlert("Authentication failure.  Make sure you are using the correct username and password for the SSH server, and that you have appropriate access to the SSH server.");
+			ownerModule.discreetAlert("\n*********\nAuthentication failure.  Make sure you are using the correct username and password for the SSH server, and that you have appropriate access to the SSH server.\n*********");
 			forgetPassword();
 			setAuthorizationFailure(true);
 			return true;
 		}
 		return false;
 	}
+	
+	private boolean ConnectionOrAuthorizationFailure(Exception e) {
+		if (e!=null && e instanceof JSchException) {
+			if ("Auth fail".equalsIgnoreCase(e.getMessage())) {
+				ownerModule.discreetAlert("\n*********\nAuthentication failure.  Make sure you are using the correct username and password for the SSH server, and that you have appropriate access to the SSH server.\n*********");
+				forgetPassword();
+				setAuthorizationFailure(true);
+				return true;
+			} 
+			if (e.getMessage().contains("java.net.ConnectException")) {
+				ownerModule.discreetAlert("\n*********\nConnection failure: " + e.getMessage()+ ". Please check to see you are appropriately connected to contact the server.\n*********");
+				setConnectionFailure(true);
+				return true;
+			} else
+				setConnectionFailure(false);
+		}
+		return false;
+	}
+	
+	
 
 	public  boolean createRemoteWorkingDirectory() {
 		try {
@@ -488,7 +524,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			return true;
 
 		}  catch (Exception e) {
-			if (AuthorizationFailure(e)) {
+			if (ConnectionOrAuthorizationFailure(e)) {
 				ownerModule.logln("\n*********\nERROR: Could not create remote working directory (\""+getRemoteWorkingDirectoryName()+"\"); Authorization Failure!\n*********");
 			} else{
 				ownerModule.logln("\n*********\nERROR: Could not create remote working directory (\""+getRemoteWorkingDirectoryName()+"\")\n*********");
@@ -566,7 +602,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			return true;
 		} catch(Exception e){
 			if (warn) {
-				if (AuthorizationFailure(e)) {
+				if (ConnectionOrAuthorizationFailure(e)) {
 					ownerModule.logln("\n*********\nERROR: Could not download files from remote server. Authorization Failure!\n*********");
 				} else
 					ownerModule.logln("Could not download files from remote server: " + e.getMessage());

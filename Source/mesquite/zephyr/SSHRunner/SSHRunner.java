@@ -511,6 +511,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		communicator.setWatcher(this);
 		communicator.setRootDir(localRootDir);
 		communicator.setProgressIndicator(progressIndicator);
+		communicator.setRunDetailsForHelp(processRequester.getRunDetailsForHelp());
 		if (sshServerProfile!=null) {
 			communicator.setSshServerProfileName(sshServerProfile.getName());
 			communicator.setRemoteServerDirectoryPath(sshServerProfile.getTempFileDirectory());

@@ -191,6 +191,10 @@ public abstract class RemoteCommunicator  {
 		return "";
 	}
 	/*.................................................................................................................*/
+	public String getRunDetailsForHelp() {
+		return "";
+	}
+	/*.................................................................................................................*/
 	public boolean showNeedToRegisterNote() {
 		return false;
 	}
@@ -212,6 +216,9 @@ public abstract class RemoteCommunicator  {
 			String help = "";
 			if (showNeedToRegisterNote())
 				help = "You need an account on the "+getSystemName()+getSystemTypeName() + " system to use this service.  To register, go to " + getRegistrationURL();
+			else {
+				help = getRunDetailsForHelp();
+			}
 			if (giveWarningAboutPreviousFailure)
 				new UserNamePasswordDialog(ownerModule.containerOfModule(), "Try again to sign in to "+getSystemName(), help, getRegistrationURL(), getRegistrationHint(), "Username", "Password", answer, usernameString, passwordString);
 			else

@@ -187,6 +187,16 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean allowStdErrRedirect() {
 		return false;
 	}
+	/*.................................................................................................................*/
+	public String getRunDetailsForHelp() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("Analysis being conducted by " + getExecutableName()+"<br>");
+		if (StringUtil.notEmpty(searchStartedDetails))
+			sb.append("Analysis started " + searchStartedDetails +"<br>");
+		if (data!=null)
+			sb.append("Matrix: " + data.getName());
+		return sb.toString();
+	}
 
 	/*.................................................................................................................*/
 	public String getProgramURL() {
@@ -308,6 +318,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			searchDetails.append("Analysis started " + getDateAndTime()+ "\n");
 			if (StringUtil.notEmpty(externalProcRunner.getDirectoryPath()))
 				searchDetails.append("Results stored in folder: " + externalProcRunner.getDirectoryPath()+ "\n");
+			searchStartedDetails = getDateAndTime();
 		}
 	}
 	/*.................................................................................................................*/
@@ -450,6 +461,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	/*.................................................................................................................*/
 	protected StringBuffer searchDetails = new StringBuffer();
+	protected String searchStartedDetails = "";
 	protected StringBuffer extraSearchDetails = new StringBuffer();
 	protected StringBuffer addendumToTreeBlockName = new StringBuffer();
 	public String getSearchDetails(){
@@ -462,6 +474,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (data != null)
 			temp.addLine("recoverData #" + data.getAssignedIDNumber());
 		temp.addLine("recoverSearchDetails " + ParseUtil.tokenize(searchDetails.toString()));
+		temp.addLine("recoverSearchStartedDetails " + ParseUtil.tokenize(searchStartedDetails));
 		temp.addLine("recoverExtraSearchDetails " + ParseUtil.tokenize(extraSearchDetails.toString()));
 		temp.addLine("recoverAddendumToTreeBlockName " + ParseUtil.tokenize(addendumToTreeBlockName.toString()));
 
@@ -472,6 +485,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (checker.compare(this.getClass(), "Recovers search details from previous run", "[search details]", commandName, "recoverSearchDetails")) {
 			searchDetails.setLength(0);
 			searchDetails.append(parser.getFirstToken(arguments));
+		}
+		else if (checker.compare(this.getClass(), "Recovers time the search started details from previous run", "[search started details]", commandName, "recoverSearchStartedDetails")) {
+			searchStartedDetails=parser.getFirstToken(arguments);
 		}
 		else if (checker.compare(this.getClass(), "Recovers data object when search monitoring resumes", "[matrix id]", commandName, "recoverData")) {
 			data =  (CategoricalData)getProject().getCharacterMatrixByReference((MesquiteFile)null, parser.getFirstToken(arguments), false);
@@ -604,13 +620,16 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		sb.append("Analysis started " + getDateAndTime()+ "\n");
 		sb.append("User on originating (local) computer: " + MesquiteTrunk.getUserName()+ "\n");
 		sb.append("------------------------------------------\n");
-		sb.append("Taxa: " + taxa.getName() + "\n");
-		sb.append("Matrix: " + data.getName() + "\n");
-		sb.append("Number of taxa analyzed: ");
-		if (selectedTaxaOnly) {
-			sb.append(data.numSelectedTaxa()+" (selected taxa only)\n");
-		} else
-			sb.append(data.getNumTaxa());
+		if (taxa!=null)
+			sb.append("Taxa: " + taxa.getName() + "\n");
+		if (data!=null) {
+			sb.append("Matrix: " + data.getName() + "\n");
+			sb.append("Number of taxa analyzed: ");
+			if (selectedTaxaOnly) {
+				sb.append(data.numSelectedTaxa()+" (selected taxa only)\n");
+			} else
+				sb.append(data.getNumTaxa());
+		}
 
 		return sb.toString();
 	}

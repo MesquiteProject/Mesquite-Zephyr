@@ -52,5 +52,7 @@ public interface ExternalProcessRequester {
 	
 	public boolean removeCommandSameCommandLineAsProgramCommand();
 
+	public String getRunDetailsForHelp() ;
+
 
 }
