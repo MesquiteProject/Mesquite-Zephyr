@@ -47,7 +47,7 @@ public class SSHServerProfile implements Listable, Explainable, UsernamePassword
 
 	public String RAxMLpath = "";
 	
-	private static String password = "";  // for temporary storage
+	private String password = "";  // for temporary storage
 	
 	public String path;
 

@@ -568,8 +568,10 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		return null;
 	}
 	public boolean stopExecution(){
-		communicator.deleteJob(null);
-		communicator.setAborted(true);
+		if (communicator!=null) {
+			communicator.deleteJob(null);
+			communicator.setAborted(true);
+		}
 		return true;
 	}
 	public String getPreflightFile(String preflightLogFileName){

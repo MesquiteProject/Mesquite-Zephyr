@@ -14,7 +14,7 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 	public boolean scriptBased = false;
 	public boolean addExitCommand = true;
 	protected boolean visibleTerminal = false;
-	protected static String scriptFileName = "Script.bat";
+	protected static final String scriptFileName = "Script.bat";
 	protected String localScriptFilePath = "";
 
 	/*.................................................................................................................*/

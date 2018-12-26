@@ -18,14 +18,12 @@ import com.jcraft.jsch.*;
 public  class SSHCommunicator extends RemoteCommunicator {
 
 //TODO: implement kill process: https://stackoverflow.com/questions/22476506/kill-process-before-disconnecting
-	
-	
 
 	//	protected String remoteWorkingDirectoryPath = "";
 	protected String remoteWorkingDirectoryName = "";
 	protected String remoteServerDirectoryPath = "";
 	protected ProgressIndicator progressIndicator;
-	protected static String sshServerProfileName = "";
+	protected String sshServerProfileName = "";
 	protected SSHServerProfile sshServerProfile;
 
 
@@ -41,13 +39,13 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	public Session createSession() {
 		try {
 			java.util.Properties config = new java.util.Properties(); 
-			config.put("StrictHostKeyChecking", "no"); //TODO: change this
+			config.put("StrictHostKeyChecking", "no"); //TODO: have options
 			JSch jsch = new JSch();
 			Session session=jsch.getSession(sshServerProfile.getUsername(), host, 22);
 			session.setPassword(sshServerProfile.getPassword());
 			session.setConfig(config);
-			//	if (verbose)
-			//		ownerModule.logln("Successfully created session to " + host);
+			if (MesquiteTrunk.debugMode)
+				ownerModule.logln("Successfully created session to " + host);
 
 			return session;
 		} catch (Exception e) {
@@ -64,7 +62,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		setUsernamePasswordKeeper(this.sshServerProfile);
 	}
 
-	public static String getSshServerProfileName() {
+	public String getSshServerProfileName() {
 		return sshServerProfileName;
 	}
 	public void setSshServerProfileName(String sshServerProfileName) {
@@ -264,18 +262,13 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 			SftpATTRS sftpATTRS = channel.stat(remoteFileName);
 			
-			boolean isDirectory = sftpATTRS.isDir();
-			boolean isLink = sftpATTRS.isLink();
-
 			channel.disconnect();
 			session.disconnect();
 
 			return !sftpATTRS.isDir() && !sftpATTRS.isLink();
 
 		}  catch (Exception e) {
-			if (AuthorizationFailure(e)) {
-			} else if (ConnectionFailure(e)) {
-			} else if (warn) {
+			if (!AuthorizationFailure(e) && !ConnectionFailure(e) && warn) {
 				ownerModule.logln("Could not determine if file exists on remote server.  File: " + remoteFileName + ", Message: " + e.getMessage());
 				e.printStackTrace();
 			}

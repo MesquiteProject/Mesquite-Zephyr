@@ -11,7 +11,6 @@ import mesquite.zephyr.lib.*;
 
 public class SSHUtility extends UtilitiesAssistant {
 
-	SSHCommunicator communicator;
 	MesquiteString xmlPrefs= new MesquiteString();
 	String xmlPrefsString = null;
 	StringBuffer extraPreferences;
