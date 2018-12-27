@@ -133,7 +133,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	/** Notifies all employees that a file is about to be closed.*/
 	public void fileCloseRequested () {
 		if (!MesquiteThread.isScripting()){
-			if (!isReconnectable()){
+			if (!isReconnectable() || !runner.getReadyForReconnectionSave()){
 				if (taxa != null)
 					taxa.setDirty(true);
 			}

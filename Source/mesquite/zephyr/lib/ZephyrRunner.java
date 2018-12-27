@@ -109,6 +109,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public String getLogText() {
 		return "Runner Text: "+ getName();
 	}
+	
+	public boolean getReadyForReconnectionSave() {
+		return  externalProcRunner!=null && externalProcRunner.getReadyForReconnectionSave();
+	}
 
 	public String getFileCloseNotification(boolean fileIsDirty){
 		boolean farEnoughAlongToReconnect = (externalProcRunner!=null && externalProcRunner.getReadyForReconnectionSave());
