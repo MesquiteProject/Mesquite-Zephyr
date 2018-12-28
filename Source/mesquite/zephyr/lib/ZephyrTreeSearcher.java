@@ -11,6 +11,7 @@ package mesquite.zephyr.lib;
 
 import java.util.*;
 
+import mesquite.categ.lib.CategoricalData;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -23,7 +24,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	protected TreeSource treeRecoveryTask;
 	protected Tree latestTree = null;
 	protected Taxa taxa;
-	protected long treesInferred;
+	protected long treeBlockID;
 	protected MatrixSourceCoord matrixSourceTask;
 	protected MCharactersDistribution observedStates;
 	protected int rerootNode = 0;
@@ -55,6 +56,13 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	public String getMessageIfUserAbortRequested () {
 		if (runner!=null)
 			return runner.getMessageIfUserAbortRequested();
+		return null;
+	}
+
+	/*.................................................................................................................*/
+	public  CategoricalData getData(){
+		if (runner!=null)
+			return runner.getData();
 		return null;
 	}
 
@@ -91,7 +99,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (observedStates != null){
 			CharacterData data = observedStates.getParentData();
 			if (data != null)
-				sb.append( "<b>" + getName() + "</b> using the matrix " + data.getName() +"<br>");
+				sb.append( "<b>" + getNameForHTML() + "</b> using the matrix " + data.getName() +"<br>");
 		}
 		String s = runner.getHTMLDescriptionOfStatus();
 		if (StringUtil.notEmpty(s))
@@ -125,7 +133,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	/** Notifies all employees that a file is about to be closed.*/
 	public void fileCloseRequested () {
 		if (!MesquiteThread.isScripting()){
-			if (!isReconnectable()){
+			if (!isReconnectable() || !runner.getReadyForReconnectionSave()){
 				if (taxa != null)
 					taxa.setDirty(true);
 			}
@@ -133,6 +141,11 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		}
 		super.fileCloseRequested();
 	}
+	/*.................................................................................................................*/
+	public boolean successfulReconnect(){
+		return runSucceeded.getValue();
+	}
+	MesquiteBoolean runSucceeded = new MesquiteBoolean(true);
 	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
 	public void reconnectToRequester(MesquiteCommand command){
 		if (runner ==null)
@@ -142,7 +155,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		appendSearchDetails();
 		if (taxaID !=null)
 			taxa = getProject().getTaxa(taxaID);
-		runner.reconnectToRequester(command);
+		runner.reconnectToRequester(command,runSucceeded);
 	}
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
@@ -159,9 +172,12 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (checker.compare(this.getClass(), "Sets the runner", "[module]", commandName, "getRunner")) {
 			return runner;
 		}
-		else if (checker.compare(this.getClass(), "Sets the runner", "[module]", commandName, "getMatrixSource")) {
+		else if (checker.compare(this.getClass(), "Gets the matrix source", "[module]", commandName, "getMatrixSource")) {
 			if (matrixSourceTask!=null && observedStates ==null) {
-				observedStates = matrixSourceTask.getCurrentMatrix(taxa);
+				if (getData()!=null)
+					observedStates = getData().getMCharactersDistribution();   //WAYNECHECK: if we have just reconnected, we can't use the matrixSource to get the current matrix - we need to get the matrix that was recorded on save (but is that necessarily stored???)
+				else
+					observedStates = matrixSourceTask.getCurrentMatrix(taxa);
 			}
 			return matrixSourceTask;
 		}
@@ -174,8 +190,9 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 
 
-	public String getExtraTreeWindowCommands (boolean finalTree){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, true)+ eachTreeCommands();
+	public String getExtraTreeWindowCommands (boolean finalTree, long treeBlockID){
+		this.treeBlockID = treeBlockID;
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treeBlockID, true)+ eachTreeCommands();
 	}
 
 
@@ -230,18 +247,34 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		return "If "+ getProgramName() + " is installed, will save a copy of a character matrix and script "+ getProgramName() + " to conduct one or more searches, and harvest the resulting trees, including their scores.";
 	}
 	public String getName() {
+		String name =   getProgramName() + " Trees";
+		if (StringUtil.notEmpty(getMethodNameForTreeBlock()))
+			name += " ("+ getMethodNameForMenu() +")";
 		if (StringUtil.notEmpty(getProgramLocation()))
-			return getProgramName() + " Trees ["+ getProgramLocation() +"]";
-		else {
-			return getProgramName() + " Trees";
-		}
+			name += " ["+ getProgramLocation() +"]";
+		return name;
 	}
-	public String getNameForMenuItem() {
-		if (StringUtil.notEmpty(getProgramLocation()))
-			return getProgramName() + " Trees ["+ getProgramLocation() +"]...";
-		else {
-			return getProgramName() + " Trees..."; 
+	
+	public String getColorForProgramLocationHTMLText() {
+		return "#3d7040";
+	}
+	
+	public String getNameForHTML() {
+		String name =  getProgramName() + " Trees";
+		if (StringUtil.notEmpty(getMethodNameForTreeBlock()))
+			name += " ("+ getMethodNameForMenu() +")";
+		if (StringUtil.notEmpty(getProgramLocation())) {
+			String color = getColorForProgramLocationHTMLText();
+			if (StringUtil.notEmpty(color))
+				name += " <font color="+color+">["+ getProgramLocation() +"]<font color=black>";
+			else
+				name += " ["+ getProgramLocation() +"]";
 		}
+		return name;
+	}
+	
+	public String getNameForMenuItem() {
+		return getName()+ "..."; 
 	}
 
 	/*.................................................................................................................*/
@@ -301,18 +334,22 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 					return null;
 				bestScore = finalScores.getValue();
 			}
-			treesInferred = trees.getID();
+			treeBlockID = trees.getID();
 		}
 		return trees;
 	}
 
+	/*.................................................................................................................*/
+	public String getMethodNameForMenu() {
+		return "";
+	}
 	/*.................................................................................................................*/
 	public String getMethodNameForTreeBlock() {
 		return "";
 	}
 	/*.................................................................................................................*/
 	public String getTreeBlockName(boolean completedRun){
-		String s = getProgramName() + getMethodNameForTreeBlock() ;
+		String s = getProgramName() + " " + getMethodNameForTreeBlock() ;
 		if (runner != null){
 			if (runner.bootstrapOrJackknife()) {
 				if (runner.singleTreeFromResampling()) //this means we have read in all of the bootstrap trees
@@ -384,7 +421,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (trees!=null)
 			treeList.addElements(trees, false);
 		trees.dispose();
-		treesInferred = treeList.getID();
+		treeBlockID = treeList.getID();
 
 	}
 

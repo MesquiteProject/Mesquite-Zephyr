@@ -284,9 +284,10 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		}
 		return s;
 	}
-	int numTreesFound=0;
 	/*.................................................................................................................*/
 		public void appendAdditionalSearchDetails() {
+			if (StringUtil.notEmpty(paupCommands))
+				appendToSearchDetails("Pre-search commands: " + paupCommands);
 			appendToSearchDetails("Search details: \n");
 			if (bootstrapOrJackknife()){
 				appendToSearchDetails("   "+getResamplingKindName() +"\n");

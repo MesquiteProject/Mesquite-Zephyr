@@ -123,6 +123,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
+		temp.addLine("setSearchStyle "+ searchStyleName(searchStyle));  // this needs to be second so that search style isn't reset in starting the runner
 
 		return temp;
 	}
@@ -136,12 +137,16 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
+		} else if (checker.compare(this.getClass(), "sets the searchStyle ", "[searchStyle]", commandName, "setSearchStyle")) {
+			searchStyle = getSearchStyleFromName(parser.getFirstToken(arguments));
+			return null;
+			
 		}
 		else
 			return super.doCommand(commandName, arguments, checker);
 	}	
-	public void reconnectToRequester(MesquiteCommand command){
-		continueMonitoring(command);
+	public void reconnectToRequester(MesquiteCommand command, MesquiteBoolean runSucceeded){
+		continueMonitoring(command,  runSucceeded);
 	}
 
 
@@ -195,6 +200,31 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		preferencesSet = true;
 		return buffer.toString();
+	}
+	/*.................................................................................................................*/
+	public String searchStyleName(int searchStyle) {
+		switch (searchStyle) {
+		case STANDARDBOOTSTRAP:
+			return "standardBootstrap";
+		case ULTRAFASTBOOTSTRAP:
+			return "ultrafastBootstrap";
+		case STANDARDSEARCH:
+			return "standardSearch";
+		default:
+			return"";
+		}
+	}
+	/*.................................................................................................................*/
+	public int getSearchStyleFromName(String searchName) {
+		if (StringUtil.blank(searchName))
+				return STANDARDSEARCH;
+		if (searchName.equalsIgnoreCase("standardBootstrap"))
+			return STANDARDBOOTSTRAP;
+		if (searchName.equalsIgnoreCase("ultrafastBootstrap"))
+			return ULTRAFASTBOOTSTRAP;
+		if (searchName.equalsIgnoreCase("standardSearch"))
+			return STANDARDSEARCH;			
+		return STANDARDSEARCH;
 	}
 
 	/*.................................................................................................................*/
@@ -742,12 +772,18 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
  
 		//	if (preFlightSuccessful(preflightCommand)) {
 		//	}
+		
+		if (StringUtil.blank(programCommand)) {
+			MesquiteMessage.discreetNotifyUser("Path to IQ-TREE not specified!");
+			return null;
+		}
+		
 
 		if (updateWindow)
 			parametersChanged(); //just a way to ping the coordinator to update the window
 
 		//setting up the arrays of input file names and contents
-		int numInputFiles = 3;
+		int numInputFiles = 4;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -764,6 +800,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		//fileNames[2] = translationFileName;
 		fileContents[2] = constraintTree;
 		fileNames[2] = constraintTreeFileName;
+		fileContents[3] = getRunInformation();
+		fileNames[3] = runInformationFileName;
+		int runInformationFileNumber = 3;
 
 		switch (searchStyle) {
 		case STANDARDSEARCH: 
@@ -783,7 +822,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		summaryFilePosition=0;
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
 
 		MesquiteFile.deleteDirectory(tempDir);
 		if (!isDoomed()){
@@ -1205,15 +1244,15 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		if (success) {
 			if (!beanWritten)
 				if (bootstrapOrJackknife())
-					postBean("successful, bootstrap");
+					postBean("successful, bootstrap | "+externalProcRunner.getDefaultProgramLocation());
 				else 
-					postBean("successful, ML tree");
+					postBean("successful, ML tree | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
 			return t;
 		}
 		reportStdError();
 		if (!beanWritten)
-			postBean("failed, retrieveTreeBlock");
+			postBean("failed, retrieveTreeBlock | "+externalProcRunner.getDefaultProgramLocation());
 		beanWritten = true;
 		return null;
 	}	
@@ -1312,6 +1351,14 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 								logln("    Average time per replicate:  " +  StringUtil.secondsToHHMMSS((int)timePerRep));
 								logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
 							}
+						} else {  // at least report the number of reps
+							logln("");
+							if (searchStyle==STANDARDBOOTSTRAP) 
+								logln(getExecutableName()+" bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
+							else if (searchStyle==ULTRAFASTBOOTSTRAP) 
+								logln(getExecutableName()+" ultrafast bootstrap run " + numRunsCompleted + " of " + numRuns+" completed");
+							else 
+								logln(getExecutableName()+" search replicate " + numRunsCompleted + " of " + numRuns+" completed");
 						}
 					}
 

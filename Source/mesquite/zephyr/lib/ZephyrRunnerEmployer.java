@@ -1,8 +1,12 @@
 package mesquite.zephyr.lib;
 
+import mesquite.categ.lib.CategoricalData;
+
 public interface ZephyrRunnerEmployer {
 	
 	/*.................................................................................................................*/
+	 public CategoricalData getData();
+		/*.................................................................................................................*/
 	 public String getRunnerModuleName();
 	/*.................................................................................................................*/
 	 public Class getRunnerClass();

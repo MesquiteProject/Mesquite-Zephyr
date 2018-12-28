@@ -111,7 +111,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
-		
+		temp.addLine("setSearchStyle "+ searchStyleName(doBootstrap));  // this needs to be second so that search style isn't reset in starting the runner
+
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -124,12 +125,27 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
+		} else if (checker.compare(this.getClass(), "sets the searchStyle ", "[searchStyle]", commandName, "setSearchStyle")) {
+			doBootstrap = getDoBootstrapFromName(parser.getFirstToken(arguments));
+			return null;
+			
 		}
 		 else
 			return super.doCommand(commandName, arguments, checker);
 	}	
-	public void reconnectToRequester(MesquiteCommand command){
-		continueMonitoring(command);
+	/*.................................................................................................................*/
+	public String searchStyleName(boolean doBootstrap) {
+		if (doBootstrap)
+			return "bootstrap";
+		return "regular";
+	}
+	/*.................................................................................................................*/
+	public boolean getDoBootstrapFromName(String searchName) {
+		return "bootstrap".equalsIgnoreCase(searchName);
+	}
+
+	public void reconnectToRequester(MesquiteCommand command, MesquiteBoolean runSucceeded){
+		continueMonitoring(command,  runSucceeded);
 	}
 	
 	public void setConstraintTreeType (int useConstraintTree) {
@@ -207,6 +223,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				if (numRuns>1)
 					appendToSearchDetails("s");
 			}
+	}
+	/*.................................................................................................................*/
+	public int getProgramNumber() {
+		return -1;
 	}
 
 	/*.................................................................................................................*/
@@ -385,8 +405,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public void checkEnabled(boolean doBoot) {
 		onlyBestBox.setEnabled(!doBoot);
 		numRunsField.getTextField().setEnabled(!doBoot);
-		bootStrapRepsField.getTextField().setEnabled(doBoot);
-		seedField.getTextField().setEnabled(doBoot);
+		if (bootStrapRepsField!=null)
+			bootStrapRepsField.getTextField().setEnabled(doBoot);
+		if (seedField!=null)
+			seedField.getTextField().setEnabled(doBoot);
 	}
 	/* ................................................................................................................. */
 	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */
@@ -487,7 +509,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	private Tree readRAxMLTreeFile(TreeVector trees, String treeFilePath, String treeName, MesquiteBoolean success, boolean lastTree) {
 		Tree t =null;
 		if (lastTree) {
+			logln("Zephyr obtaining trees from: " + treeFilePath);  //Debugg.println OK? DAVIDCHECK:
 			String s = MesquiteFile.getFileLastContents(treeFilePath);
+			if (StringUtil.blank(s))
+				logln("-- File not recovered; no trees found");
 			t =  ZephyrUtil.readPhylipTree(s,taxa,false, namer);
 
 			if (t!=null) {
@@ -686,6 +711,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			}
 			}
 		}
+		
+		
 		setRootNameForDirectoryInProcRunner();
 		//now establish the commands for invoking RAxML
 		
@@ -699,12 +726,19 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		//	if (preFlightSuccessful(preflightCommand)) {
 		//	}
+
+		if (StringUtil.blank(programCommand)) {
+			MesquiteMessage.discreetNotifyUser("Path to RAxML not specified!");
+			return null;
+		}
+
+
 		
 		if (updateWindow)
 			parametersChanged(); //just a way to ping the coordinator to update the window
 
 		//setting up the arrays of input file names and contents
-		int numInputFiles = 4;
+		int numInputFiles = 5;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -719,6 +753,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		fileNames[2] = translationFileName;
 		fileContents[3] = constraintTree;
 		fileNames[3] = constraintTreeFileName;
+		fileContents[4] = getRunInformation();
+		fileNames[4] = runInformationFileName;
+		int runInformationFileNumber = 4;
 
 		numRunsCompleted = 0;
 		completedRuns = new boolean[numRuns];
@@ -726,7 +763,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		summaryFilePosition=0;
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
 
 		MesquiteFile.deleteDirectory(tempDir);
 		if (!isDoomed()){
@@ -992,15 +1029,15 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (success) {
 			if (!beanWritten)
 				if (bootstrapOrJackknife())
-					postBean("successful, bootstrap");
+					postBean("successful, bootstrap | "+externalProcRunner.getDefaultProgramLocation());
 				else 
-					postBean("successful, ML tree");
+					postBean("successful, ML tree | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
 			return t;
 		}
 		reportStdError();
 		if (!beanWritten)
-			postBean("failed, retrieveTreeBlock");
+			postBean("failed, retrieveTreeBlock | "+externalProcRunner.getDefaultProgramLocation());
 		beanWritten = true;
 		return null;
 	}	

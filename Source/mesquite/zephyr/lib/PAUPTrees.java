@@ -16,7 +16,7 @@ import java.util.Random;
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.duties.TreeSource;
-import mesquite.zephyr.PAUPLikelihoodRunner.PAUPLikelihoodRunner;
+import mesquite.zephyr.PAUPLikelihoodRunnerSSH.PAUPLikelihoodRunnerSSH;
 import mesquite.zephyr.lib.*;
 
 public abstract class PAUPTrees extends ZephyrTreeSearcher  {
@@ -50,8 +50,9 @@ public abstract class PAUPTrees extends ZephyrTreeSearcher  {
 		return !bootstrap && finalTree;
 	}
 
-	public String getExtraTreeWindowCommands (boolean finalTree){
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treesInferred, showBranchLengthsProportional(runner.bootstrapOrJackknife(),finalTree))+ eachTreeCommands();
+	public String getExtraTreeWindowCommands (boolean finalTree, long treeBlockID){
+		this.treeBlockID = treeBlockID;
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treeBlockID, showBranchLengthsProportional(runner.bootstrapOrJackknife(),finalTree))+ eachTreeCommands();
 	}
 
 	

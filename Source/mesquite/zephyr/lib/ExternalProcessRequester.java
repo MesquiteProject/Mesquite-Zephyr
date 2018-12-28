@@ -24,6 +24,8 @@ public interface ExternalProcessRequester {
 	
 	public String getProgramName();
 	
+	public int getProgramNumber();
+	
 	public boolean getDirectProcessConnectionAllowed();
 	
 	public boolean requiresLinuxTerminalCommands();
@@ -44,5 +46,13 @@ public interface ExternalProcessRequester {
 	
 	public boolean allowStdErrRedirect();
 
+	public String getPrefixForProgramCommand();
 	
+	public String getSuffixForProgramCommand();
+	
+	public boolean removeCommandSameCommandLineAsProgramCommand();
+
+	public String getRunDetailsForHelp() ;
+
+
 }

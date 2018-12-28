@@ -15,6 +15,7 @@ import java.awt.event.*;
 import java.util.*;
 
 import mesquite.categ.lib.*;
+import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -42,9 +43,9 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	//	boolean writeOnlySelectedTaxa = false;
 	PAUPCommander paupCommander = this;
 	protected ExtensibleDialog dialog;
-	protected static int REGULARSEARCH=0;
-	protected static int BOOTSTRAPSEARCH=1;
-	protected static int JACKKNIFESEARCH=2;
+	protected final static int REGULARSEARCH=0;
+	protected final static int BOOTSTRAPSEARCH=1;
+	protected final static int JACKKNIFESEARCH=2;
 	protected int searchStyle = REGULARSEARCH;
 
 	protected static int HEURISTICSEARCH=0;
@@ -75,6 +76,10 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 		return true;
 	}
+	/*.................................................................................................................*/
+	public int getProgramNumber() {
+		return -1;
+	}
 
 	public String getLogText() {
 		return externalProcRunner.getStdOut();
@@ -84,14 +89,6 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	}
 
 
-	/*.................................................................................................................*/
-	public String getExternalProcessRunnerModuleName(){
-		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
-	}
-	/*.................................................................................................................*/
-	public Class getExternalProcessRunnerClass(){
-		return LocalScriptRunner.class;
-	}
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 		MesquiteFile.suppressReadWriteLogging=!verbose;
@@ -101,6 +98,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
+		temp.addLine("setSearchStyle "+ searchStyleName(searchStyle));  // this needs to be second so that search style isn't reset in starting the runner
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -147,9 +145,38 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
+		} else if (checker.compare(this.getClass(), "sets the searchStyle ", "[searchStyle]", commandName, "setSearchStyle")) {
+			searchStyle = getSearchStyleFromName(parser.getFirstToken(arguments));
+			return null;
+			
 		} else
 			return super.doCommand(commandName, arguments, checker);
 	}	
+	/*.................................................................................................................*/
+	public String searchStyleName(int searchStyle) {
+		switch (searchStyle) {
+		case JACKKNIFESEARCH:
+			return "jackknife";
+		case BOOTSTRAPSEARCH:
+			return "bootstrap";
+		case REGULARSEARCH:
+			return "regularSearch";
+		default:
+			return"";
+		}
+	}
+	/*.................................................................................................................*/
+	public int getSearchStyleFromName(String searchName) {
+		if (StringUtil.blank(searchName))
+				return REGULARSEARCH;
+		if (searchName.equalsIgnoreCase("bootstrap"))
+			return BOOTSTRAPSEARCH;
+		if (searchName.equalsIgnoreCase("jackknife"))
+			return JACKKNIFESEARCH;
+		if (searchName.equalsIgnoreCase("regularSearch"))
+			return REGULARSEARCH;			
+		return REGULARSEARCH;
+	}
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
@@ -326,9 +353,13 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		String programCommand = externalProcRunner.getExecutableCommand();
 		//+ " " + arguments + StringUtil.lineEnding();  
 
+		if (StringUtil.blank(programCommand)) {
+			MesquiteMessage.discreetNotifyUser("Path to PAUP* not specified!");
+			return null;
+		}
 
 
-		int numInputFiles = 2;
+		int numInputFiles = 3;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -339,10 +370,13 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		fileNames[0] = dataFileName;
 		fileContents[1] = commands;
 		fileNames[1] = commandFileName;
+		fileContents[2] = getRunInformation();
+		fileNames[2] = runInformationFileName;
+		int runInformationFileNumber = 2;
 
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName());
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
 
 		if (!isDoomed()){
 			if (success){
@@ -351,7 +385,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			} else
 				reportStdError();
 			if (!beanWritten)
-				postBean("unsuccessful [1]");
+				postBean("unsuccessful [1] | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
 		}
 		desuppressProjectPanelReset();
@@ -379,7 +413,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			logln("PAUP tree file not found");
 			reportStdError();
 			if (!beanWritten)
-				postBean("failed - no tree file found");
+				postBean("failed - no tree file found | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
 			return null;
 		}
@@ -446,14 +480,14 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		externalProcRunner.finalCleanup();
 		if (success) { 
 			if (!beanWritten)
-				postBean("successful");
+				postBean("successful | "+externalProcRunner.getDefaultProgramLocation());
 			numTreesFound = treeList.getNumberOfTrees();
 			beanWritten=true;
 			return t;
 		} else {
 			reportStdError();
 			if (!beanWritten)
-				postBean("failed");
+				postBean("failed | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
 			return null;
 		}
@@ -589,8 +623,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	}
 
 
-	public void reconnectToRequester(MesquiteCommand command){
-		continueMonitoring(command);
+	public void reconnectToRequester(MesquiteCommand command, MesquiteBoolean runSucceeded){
+		continueMonitoring(command,  runSucceeded);
 	}
 
 	public String getProgramName() {
@@ -736,6 +770,28 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	public void runFinished(String message) {
 		// TODO Auto-generated method stub
 
+	}
+
+	/*.................................................................................................................*/
+	public String getMethodNameForMenu() {
+		return "";
+	}
+	/*.................................................................................................................*/
+	public String getMethodNameForTreeBlock() {
+		return "";
+	}
+	/*.................................................................................................................*/
+
+	public String getName() {
+		String name =  getProgramName() + " Trees";
+		if (StringUtil.notEmpty(getMethodNameForTreeBlock()))
+			name += " ("+ getMethodNameForMenu() +")";
+		return name;
+	}
+	/*.................................................................................................................*/
+
+	public String getNameForMenuItem() {
+		return getName()+ "..."; 
 	}
 
 

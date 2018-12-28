@@ -23,6 +23,7 @@ import mesquite.lib.duties.TreeInferer;
 public abstract class ZephyrRunner extends MesquiteModule implements ExternalProcessRequester, OutputFilePathModifier{
 
 	protected TreeInferer treeInferer = null;
+	public static String runInformationFileName = "runInformation.txt";
 
 	String[] logFileNames;
 	protected ExternalProcessRunner externalProcRunner;
@@ -85,6 +86,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean stopExecution(){
 		return externalProcRunner.stopExecution();
 	}
+	/*.................................................................................................................*/
+	public  CategoricalData getData(){
+		return data;
+	}
+
 	public String getMessageIfUserAbortRequested () {
 		if (externalProcRunner!=null)
 			return externalProcRunner.getMessageIfUserAbortRequested();
@@ -103,10 +109,21 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public String getLogText() {
 		return "Runner Text: "+ getName();
 	}
+	
+	public boolean getReadyForReconnectionSave() {
+		return  externalProcRunner!=null && externalProcRunner.getReadyForReconnectionSave();
+	}
 
 	public String getFileCloseNotification(boolean fileIsDirty){
-		if (!isReconnectable())
+		boolean farEnoughAlongToReconnect = (externalProcRunner!=null && externalProcRunner.getReadyForReconnectionSave());
+			
+		if (!isReconnectable()) {
 			return ("There is a run of "+ getProgramName() + " underway.  If you close the file now, the search will be stopped and you will be NOT able to reconnect to it through Mesquite later. (If you want reconnectability in future runs, use the \"Script Based\" option.)");
+		}
+		else if (!farEnoughAlongToReconnect)
+			return ("There is a run of "+ getProgramName() + " underway.  If you save the file now, the search will not "
+					+ "be successful and you will be NOT able to reconnect to it through Mesquite later, as the process has not proceeded far enough to be reconnectible.  If you wish it to be reconnectible,"
+					+ "then press cancel, and try again a bit later.");
 		else if (fileIsDirty)
 			return ("There is a run of "+ getProgramName() + " underway.  If you save the file now, you will be able to reconnect to it by reopening this file, as long as you haven't moved the file or those files involved in the "+ getProgramName() 
 			+ " search. \n" + getMessageIfCloseFileRequested());
@@ -175,6 +192,16 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean allowStdErrRedirect() {
 		return false;
 	}
+	/*.................................................................................................................*/
+	public String getRunDetailsForHelp() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("Analysis being conducted by " + getExecutableName()+"<br>");
+		if (StringUtil.notEmpty(searchStartedDetails))
+			sb.append("Analysis started " + searchStartedDetails +"<br>");
+		if (data!=null)
+			sb.append("Matrix: " + data.getName());
+		return sb.toString();
+	}
 
 	/*.................................................................................................................*/
 	public String getProgramURL() {
@@ -190,7 +217,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	public void storeRunnerPreferences() {
 		if (externalProcRunner!=null)
-			externalProcRunner.storePreferences();
+			externalProcRunner.storeRunnerPreferences();
 		storePreferences();
 		if (treeInferer!=null)
 			treeInferer.storePreferences();
@@ -249,7 +276,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract boolean doMajRuleConsensusOfResults();
 	public abstract boolean singleTreeFromResampling();
 
-	public abstract void reconnectToRequester(MesquiteCommand command);
+	public abstract void reconnectToRequester(MesquiteCommand command, MesquiteBoolean runSucceeded);
 	public abstract String getProgramName();
 	public abstract boolean queryOptions();
 
@@ -283,7 +310,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	/*.................................................................................................................*/
 	public String getProgramLocation() {
-		return externalProcRunner.getProgramLocation();
+		if (externalProcRunner!=null)
+			return externalProcRunner.getProgramLocation();
+		return externalProcRunner.getDefaultProgramLocation();
 	}
 	/*.................................................................................................................*/
 	public void setSearchDetails() {  // for annotation to tree block.  designed to be composed after the tree search started.  
@@ -294,6 +323,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			searchDetails.append("Analysis started " + getDateAndTime()+ "\n");
 			if (StringUtil.notEmpty(externalProcRunner.getDirectoryPath()))
 				searchDetails.append("Results stored in folder: " + externalProcRunner.getDirectoryPath()+ "\n");
+			searchStartedDetails = getDateAndTime();
 		}
 	}
 	/*.................................................................................................................*/
@@ -436,17 +466,20 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	/*.................................................................................................................*/
 	protected StringBuffer searchDetails = new StringBuffer();
+	protected String searchStartedDetails = "";
 	protected StringBuffer extraSearchDetails = new StringBuffer();
 	protected StringBuffer addendumToTreeBlockName = new StringBuffer();
 	public String getSearchDetails(){
 		return searchDetails.toString();
 	}
+	
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
 		if (data != null)
 			temp.addLine("recoverData #" + data.getAssignedIDNumber());
 		temp.addLine("recoverSearchDetails " + ParseUtil.tokenize(searchDetails.toString()));
+		temp.addLine("recoverSearchStartedDetails " + ParseUtil.tokenize(searchStartedDetails));
 		temp.addLine("recoverExtraSearchDetails " + ParseUtil.tokenize(extraSearchDetails.toString()));
 		temp.addLine("recoverAddendumToTreeBlockName " + ParseUtil.tokenize(addendumToTreeBlockName.toString()));
 
@@ -457,6 +490,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (checker.compare(this.getClass(), "Recovers search details from previous run", "[search details]", commandName, "recoverSearchDetails")) {
 			searchDetails.setLength(0);
 			searchDetails.append(parser.getFirstToken(arguments));
+		}
+		else if (checker.compare(this.getClass(), "Recovers time the search started details from previous run", "[search started details]", commandName, "recoverSearchStartedDetails")) {
+			searchStartedDetails=parser.getFirstToken(arguments);
 		}
 		else if (checker.compare(this.getClass(), "Recovers data object when search monitoring resumes", "[matrix id]", commandName, "recoverData")) {
 			data =  (CategoricalData)getProject().getCharacterMatrixByReference((MesquiteFile)null, parser.getFirstToken(arguments), false);
@@ -566,32 +602,67 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return false;
 	}
 
+	public String getPrefixForProgramCommand() {
+		return "";
+	}
+	public String getSuffixForProgramCommand() {
+		return "";
+	}
+	public boolean removeCommandSameCommandLineAsProgramCommand() {
+		return false;
+	}
 	/*.................................................................................................................*/
 	public boolean useDiscreetAlert() {
 		return useDiscreetAlert;
 	}
 	/*.................................................................................................................*/
-	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle) {
-		runInProgress=true;
+	/*.................................................................................................................*/
+//TODO: generalize to all programs (e.g., not in TNTRunner)
+	public String getRunInformation() {
+		StringBuffer sb = new StringBuffer(1000);
+		sb.append("Trees acquired from " + getProgramName() + " using Mesquite's Zephyr package. \n");
+		sb.append(getProgramName() + " run on " + getProgramLocation() +" \n");
+		sb.append("Analysis started " + getDateAndTime()+ "\n");
+		sb.append("User on originating (local) computer: " + MesquiteTrunk.getUserName()+ "\n");
+		sb.append("------------------------------------------\n");
+		if (taxa!=null)
+			sb.append("Taxa: " + taxa.getName() + "\n");
+		if (data!=null) {
+			sb.append("Matrix: " + data.getName() + "\n");
+			sb.append("Number of taxa analyzed: ");
+			if (selectedTaxaOnly) {
+				sb.append(data.numSelectedTaxa()+" (selected taxa only)\n");
+			} else
+				sb.append(data.getNumTaxa());
+		}
 
+		return sb.toString();
+	}
+	/*.................................................................................................................*/
+	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle, int runInfoFileNumber) {
+		runInProgress=true;
+		
 		/*  ============ SETTING UP THE RUN ============  */
-		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, fileContents, fileNames);
+		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, fileContents, fileNames, runInfoFileNumber);
 		if (!success){
 			// give message about failure
 			if (!beanWritten)
-				postBean("failed, externalProcRunner.setInputFiles");
+				postBean("failed, externalProcRunner.setInputFiles | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten = true;
 			return false;
 		}
-		
 		logFileNames = getLogFileNames();
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
+
+		logln("Analysis on: " + externalProcRunner.getProgramLocation());
+
 
 		if (!MesquiteThread.pleaseSuppressProgressIndicatorsCurrentThread())
 			progIndicator = new ProgressIndicator(getProject(),progTitle, getProgramName() + " Search", 0, true);
 		if (progIndicator!=null){
 			progIndicator.start();
 		}
+		externalProcRunner.setProgressIndicator(progIndicator);
 		setSearchDetails();
 		appendToSearchDetails(getExtraSearchDetails().toString());
 		if (constrainedSearch) 
@@ -603,15 +674,17 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		timer.fullReset();
 
 		// starting the process
+		
 		success = externalProcRunner.startExecution();
 
 
 		// the process runs
-		if (success)
+		if (success) {
 			success = externalProcRunner.monitorExecution(progIndicator);
+		}
 		else {
 			if (!beanWritten)
-				postBean("failed, externalProcRunner.startExecution");
+				postBean("failed, externalProcRunner.startExecution | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
 			if (useDiscreetAlert())
 				MesquiteMessage.discreetNotifyUser("The "+getProgramName()+" run encountered problems. ");  // better error message!
@@ -640,7 +713,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 
 	/*.................................................................................................................*/
-	public Tree continueMonitoring(MesquiteCommand callBackCommand) {
+	public Tree continueMonitoring(MesquiteCommand callBackCommand, MesquiteBoolean runSucceeded) {
 
 		if (isVerbose()) 
 			logln("Monitoring " + getProgramName() + " run begun.");
@@ -661,6 +734,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (inferer != null)
 			((TreeInferer)inferer).bringIntermediatesWindowToFront();*/
 		boolean success = externalProcRunner.monitorExecution(progIndicator);
+		if (runSucceeded!=null)
+			runSucceeded.setValue(success);
 
 		if (progIndicator!=null)
 			progIndicator.goAway();
@@ -668,7 +743,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		//			getProject().decrementProjectWindowSuppression();
 		if (data != null)
 			data.decrementEditInhibition();
-		if (!isDoomed())
+		if (!isDoomed() && success)
 			if (callBackCommand != null)
 				callBackCommand.doItMainThread(null,  null,  this);
 

@@ -20,6 +20,7 @@ import javax.swing.event.*;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
+import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -163,6 +164,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	public Snapshot getSnapshot(MesquiteFile file) {
 		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
+		temp.addLine("setSearchStyle "+ searchStyleName(doBootstrap));  // this needs to be second so that search style isn't reset in starting the runner
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -200,17 +202,36 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
+		} else if (checker.compare(this.getClass(), "sets the searchStyle ", "[searchStyle]", commandName, "setSearchStyle")) {
+			doBootstrap = getDoBootstrapFromName(parser.getFirstToken(arguments));
+			return null;
+			
 		} else
 			return super.doCommand(commandName, arguments, checker);
 	}
+	/*.................................................................................................................*/
+	public String searchStyleName(boolean doBootstrap) {
+		if (doBootstrap)
+			return "bootstrap";
+		return "regular";
+	}
+	/*.................................................................................................................*/
+	public boolean getDoBootstrapFromName(String searchName) {
+		return "bootstrap".equalsIgnoreCase(searchName);
+	}
 
-	public void reconnectToRequester(MesquiteCommand command) {
-		continueMonitoring(command);
+	public void reconnectToRequester(MesquiteCommand command, MesquiteBoolean runSucceeded) {
+		continueMonitoring(command,  runSucceeded);
 	}
 	/*.................................................................................................................*/
 
 	public void appendToConfigFileGeneral(StringBuffer config) {
 	}
+	/*.................................................................................................................*/
+	public int getProgramNumber() {
+		return -1;
+	}
+
 	/*.................................................................................................................*/
 
 	public String getGARLIConfigurationFile(CharacterData data) {
@@ -585,8 +606,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	}
 
 	/*.................................................................................................................*/
-	public void addRunnerOptions(ExtensibleDialog dialog) {
-		externalProcRunner.addItemsToDialogPanel(dialog);
+	public boolean addRunnerOptions(ExtensibleDialog dialog) {
+		return externalProcRunner.addItemsToDialogPanel(dialog);
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
@@ -957,7 +978,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 
 		// setting up the arrays of input file names and contents
-		int numInputFiles = 3;
+		int numInputFiles = 4;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i = 0; i < numInputFiles; i++) {
@@ -972,8 +993,17 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 		fileContents[CONFIGFILENUMBER] = config;
 		fileNames[CONFIGFILENUMBER] = configFileName;
+		fileContents[3] = getRunInformation();
+		fileNames[3] = runInformationFileName;
+		int runInformationFileNumber = 3;
 
 		String GARLIcommand = externalProcRunner.getExecutableCommand();
+
+		if (StringUtil.blank(GARLIcommand)) {
+			MesquiteMessage.discreetNotifyUser("Path to GARLI not specified!");
+			return null;
+		}
+
 		Object arguments = getProgramArguments(dataFileName, configFileName, false);
 		completedRuns = new boolean[numRuns];
 		for (int i=0; i<numRuns; i++) completedRuns[i]=false;
@@ -982,7 +1012,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		if (updateWindow)
 			parametersChanged(); //just a way to ping the coordinator to update the window
 		
-		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName());
+		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName(), runInformationFileNumber);
 
 		if (!isDoomed()){
 			if (success) {
@@ -1085,12 +1115,12 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			data.decrementEditInhibition();
 		if (success) {
 			if (!beanWritten)
-				postBean("successful");
+				postBean("successful | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten = true;
 			return t;
 		}
 		if (!beanWritten)
-			postBean("failed, retrieveTreeBlock");
+			postBean("failed, retrieveTreeBlock | "+externalProcRunner.getDefaultProgramLocation());
 		beanWritten=true;
 		return null;
 	}

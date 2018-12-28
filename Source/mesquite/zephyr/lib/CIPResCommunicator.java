@@ -17,24 +17,19 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
-import mesquite.zephyr.lib.CipresJobFile;
 import mesquite.externalCommunication.lib.*;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
 
-public class CIPResCommunicator extends RESTCommunicator {
-	static final int defaultMinPollIntervalSeconds = 30;
-	public static final String CIPResRESTURL = "https://cipresrest.sdsc.edu/cipresrest/v1";
-	protected int minPollIntervalSeconds =defaultMinPollIntervalSeconds;
+public class CIPResCommunicator extends RESTCommunicator implements UsernamePasswordKeeper, XMLPreferencesProcessor {
 
-	String rootDir;
-	long[] lastModified;
-	CipresJobFile[] previousCipresJobFiles;
+	public static final String CIPResRESTURL = "https://cipresrest.sdsc.edu/cipresrest/v1";
+
 	double runLimit=0.5;
 
-
-
+	static String CIPResPassword ="";
+	protected String username = "";
 
 	static boolean preferencesProcessed=false;
 
@@ -43,38 +38,40 @@ public class CIPResCommunicator extends RESTCommunicator {
 
 	public CIPResCommunicator (MesquiteModule mb, String xmlPrefsString,String[] outputFilePaths) {
 		super(mb, xmlPrefsString, outputFilePaths);
+		if (xmlPrefsString != null)
+			XMLUtil.readXMLPreferences(mb, this, xmlPrefsString);
+		super.setUsernamePasswordKeeper(this);
 	}
+	
+
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String flavor, String content) {
+		if ("userName".equalsIgnoreCase(tag))
+			username = StringUtil.cleanXMLEscapeCharacters(content);
 		 if ("jobNumber".equalsIgnoreCase(tag))
 			jobNumber = MesquiteInteger.fromString(content);
-		 super.processSingleXMLPreference(tag, flavor, content);
+		//super.processSingleXMLPreference(tag, flavor, content);
+	}
+	/*.................................................................................................................*/
+	public void processSingleXMLPreference (String tag, String content) {
+		if ("userName".equalsIgnoreCase(tag))
+			username = StringUtil.cleanXMLEscapeCharacters(content);
+		 if ("jobNumber".equalsIgnoreCase(tag))
+			jobNumber = MesquiteInteger.fromString(content);
+		//super.processSingleXMLPreference(tag, content);
 	}
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "jobNumber", jobNumber);  
-		return super.preparePreferencesForXML()+buffer.toString();
-	}
-	/*.................................................................................................................*/
-	public String getRootDir() {
-		return rootDir;
-	}
-	public void setRootDir(String rootDir) {
-		this.rootDir = rootDir;
+		StringUtil.appendXMLTag(buffer, 2, "username", username);  
+		return buffer.toString();
 	}
 	public double getRunLimit() {
 		return runLimit;
 	}
 	public void setRunLimit(double runLimit) {
 		this.runLimit = runLimit;
-	}
-	/*.................................................................................................................*/
-	public void setOutputProcessor(OutputFileProcessor outputFileProcessor){
-		this.outputFileProcessor = outputFileProcessor;
-	}
-	public void setWatcher(ShellScriptWatcher watcher){
-		this.watcher = watcher;
 	}
 
 	/*.................................................................................................................*/
@@ -86,8 +83,48 @@ public class CIPResCommunicator extends RESTCommunicator {
 		return CIPResRESTURL;
 	}
 	/*.................................................................................................................*/
+	public String getPassword(){
+		if (useAPITestUser()) {
+			return getAPITestPassword();
+		} else 
+			return CIPResPassword;
+	}
+
+	/*.................................................................................................................*/
+	public void setPassword(String newPassword){
+		if (!useAPITestUser()) {
+			CIPResPassword = newPassword;
+		}
+	}
+	/*.................................................................................................................*/
+	public String getUsername(){
+		if (useAPITestUser()) {
+			return getAPITestUserName();
+		} else 
+			return username;
+	}
+	/*.................................................................................................................*/
+	public void setUsername(String newName){
+		if (!useAPITestUser()) 
+			username=newName;
+	}
+
+	/*.................................................................................................................*
+	public void setPasswordToCIPResPassword() {
+		password = CIPResPassword;
+	}
+
+	/*.................................................................................................................*/
 	public String getAPIURL() {
 		return "";
+	}
+	/*.................................................................................................................*/
+	public String getRegistrationHint() {
+		return "Touch on the web link icon on the left to register for this service.";
+	}
+	/*.................................................................................................................*/
+	public boolean showNeedToRegisterNote() {
+		return true;
 	}
 
 	/*.................................................................................................................*/
@@ -120,7 +157,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 		if (StringUtil.notEmpty(message)) {
 			if ("Authentication Error".equalsIgnoreCase(displayMessage)) {
 				if (resetPassword)
-					password = "";
+					CIPResPassword = "";
 				ownerModule.logln("\n\n******************");
 				ownerModule.logln(noteToUser);
 				ownerModule.logln(message);
@@ -313,10 +350,10 @@ public class CIPResCommunicator extends RESTCommunicator {
 		if (element!=null) {
 			minPollIntervalSeconds = MesquiteInteger.fromString(element.getText());
 			if (!MesquiteInteger.isCombinable(minPollIntervalSeconds) || minPollIntervalSeconds<=0)
-				minPollIntervalSeconds = defaultMinPollIntervalSeconds;
+				minPollIntervalSeconds = getDefaultMinPollIntervalSeconds();
 		}
 		if (!queryFrequencyReported) {
-			ownerModule.logln("   Mesquite will query CIPRes about the status every " + minPollIntervalSeconds + " seconds\n");
+			ownerModule.logln("   Mesquite will query "+getServiceName()+" about the status every " + minPollIntervalSeconds + " seconds\n");
 			queryFrequencyReported = true;
 		}
 
@@ -330,8 +367,9 @@ public class CIPResCommunicator extends RESTCommunicator {
 
 	/*.................................................................................................................*/
 	/** Reports job status in the log. */
-	public void reportJobStatus(String jobURL) {
+	public void reportJobStatus(Object location) {
 		if (checkUsernamePassword(false)) {
+			String jobURL = (String)location;
 			HttpClient httpclient = getHttpClient();
 			Document cipresResponseDoc = cipresQuery(httpclient, jobURL, "jobstatus");
 			if (cipresResponseDoc!=null) {
@@ -341,7 +379,8 @@ public class CIPResCommunicator extends RESTCommunicator {
 	}
 
 	/*.................................................................................................................*/
-	public String getJobStatus (HttpClient httpclient, String jobURL){
+	public String getJobStatus (HttpClient httpclient, Object location){
+		String jobURL = (String)location;
 		Document cipresResponseDoc = cipresQuery(httpclient, jobURL, "jobstatus");
 		if (cipresResponseDoc!=null) {
 			return jobStatusFromResponse(cipresResponseDoc);
@@ -351,25 +390,39 @@ public class CIPResCommunicator extends RESTCommunicator {
 
 
 	/*.................................................................................................................*/
-	public String getJobStatus(String jobURL) {
+	public String getJobStatus(Object location, boolean warn) {
 		if (checkUsernamePassword(false)) {
+			String jobURL = (String)location;
 			HttpClient httpclient = getHttpClient();
 			return getJobStatus(httpclient, jobURL);
 		}
-		return "Status not available";
+		if (warn)
+			return "Status not available";
+		return "";
+	}
+	/*.................................................................................................................*/
+	public String getJobStatus(Object location) {
+		return getJobStatus(location, true);
 
 	}
 	/*.................................................................................................................*/
-	public boolean jobCompleted(String jobURL) {
+	public String getServiceName() {
+		return "CIPRes";
+	}
+
+	/*.................................................................................................................*/
+	public boolean jobCompleted(Object location) {
 		if (checkUsernamePassword(false)) {
+			String jobURL = (String)location;
 			HttpClient httpclient = getHttpClient();
 			return JOBCOMPLETED.equalsIgnoreCase(getJobStatus(httpclient, jobURL));
 		}
 		return false;
 	}
 	/*.................................................................................................................*/
-	public boolean jobSubmitted(String jobURL) {
+	public boolean jobSubmitted(Object location) {
 		if (checkUsernamePassword(false)) {
+			String jobURL = (String)location;
 			HttpClient httpclient = getHttpClient();
 			return JOBSUBMITTED.equalsIgnoreCase(getJobStatus(httpclient, jobURL));
 		}
@@ -419,29 +472,11 @@ public class CIPResCommunicator extends RESTCommunicator {
 		}
 		return "Working directory not available";
 	}
-	/*.................................................................................................................*/
-	boolean fileNewOrModified (CipresJobFile[] previousJobFiles, CipresJobFile[] jobFiles, int fileNumber) {
-		if (previousJobFiles!=null && jobFiles!=null && fileNumber<jobFiles.length) {
-			String fileName = jobFiles[fileNumber].getFileName();
-			if (StringUtil.notEmpty(fileName)){
-				for (int i=0; i<previousJobFiles.length; i++) {
-					if (fileName.equalsIgnoreCase(previousJobFiles[i].getFileName())) {  // we've found the file
-						String lastMod = jobFiles[fileNumber].getLastModified();
-						if (StringUtil.notEmpty(lastMod))
-							return !lastMod.equals(previousJobFiles[i].getLastModified());  // return true if the strings don't match
-						else
-							return true;
-					}
-				}
-			}
-		}
-		return true;
-	}
 
 	/*.................................................................................................................*/
 	/** This processes information about the files contained in either the results or working directory of a job. 
 	 * */
-	public CipresJobFile[] processFilesDocument(Document cipresResponseDoc) {
+	public RemoteJobFile[] processFilesDocument(Document cipresResponseDoc) {
 		Element jobfiles = cipresResponseDoc.getRootElement().element("jobfiles");
 		if (jobfiles==null)
 			return null;
@@ -452,13 +487,13 @@ public class CIPResCommunicator extends RESTCommunicator {
 			count++;
 		}
 		if (count==0) return null;
-		CipresJobFile[] cipresJobFile = new CipresJobFile[count];
+		RemoteJobFile[] cipresJobFile = new RemoteJobFile[count];
 		count=0;
 		for (Iterator iter = tools.iterator(); iter.hasNext();) {
 			Element nextJob = (Element) iter.next();
 			if (nextJob!=null) {
 				if (cipresJobFile[count]==null)
-					cipresJobFile[count] = new CipresJobFile();
+					cipresJobFile[count] = new RemoteJobFile();
 				Element jobFileElement= nextJob.element("downloadUri");
 				String fileInfo = null;
 				if (jobFileElement!=null) {
@@ -518,15 +553,15 @@ public class CIPResCommunicator extends RESTCommunicator {
 		if (StringUtil.notEmpty(resultsUri)) {
 			Document cipresResponseDoc = cipresQuery(httpclient, resultsUri, "results");
 			if (cipresResponseDoc!=null) {
-				CipresJobFile[] cipresJobFiles = processFilesDocument(cipresResponseDoc);
+				RemoteJobFile[] cipresJobFiles = processFilesDocument(cipresResponseDoc);
 				if (cipresJobFiles==null || cipresJobFiles.length==0) {
 					return false;
 				}
 				for (int job=0; job<cipresJobFiles.length; job++) {
-					if (fileName.equalsIgnoreCase(cipresJobFiles[job].getFileName()) && (!onlyNewOrModified || fileNewOrModified(previousCipresJobFiles, cipresJobFiles, job)))
+					if (fileName.equalsIgnoreCase(cipresJobFiles[job].getFileName()) && (!onlyNewOrModified || fileNewOrModified(previousRemoteJobFiles, cipresJobFiles, job)))
 						cipresDownload(httpclient, cipresJobFiles[job].getDownloadURL(), rootDir + cipresJobFiles[job].getFileName());
 				}
-				previousCipresJobFiles = cipresJobFiles.clone();
+				previousRemoteJobFiles = cipresJobFiles.clone();
 				return true;
 			}
 		}
@@ -539,16 +574,16 @@ public class CIPResCommunicator extends RESTCommunicator {
 		if (StringUtil.notEmpty(resultsUri)) {
 			Document cipresResponseDoc = cipresQuery(httpclient, resultsUri, "results");
 			if (cipresResponseDoc!=null) {
-				CipresJobFile[] cipresJobFiles = processFilesDocument(cipresResponseDoc);
+				RemoteJobFile[] cipresJobFiles = processFilesDocument(cipresResponseDoc);
 				if (cipresJobFiles==null || cipresJobFiles.length==0) {
 					ownerModule.logln(cipresResponseDoc.toString());
 					return false;
 				}
 				for (int job=0; job<cipresJobFiles.length; job++) {
-					if (!onlyNewOrModified || fileNewOrModified(previousCipresJobFiles, cipresJobFiles, job))
+					if (!onlyNewOrModified || fileNewOrModified(previousRemoteJobFiles, cipresJobFiles, job))
 						cipresDownload(httpclient, cipresJobFiles[job].getDownloadURL(), rootDir + cipresJobFiles[job].getFileName());
 				}
-				previousCipresJobFiles = cipresJobFiles.clone();
+				previousRemoteJobFiles = cipresJobFiles.clone();
 				return true;
 
 			}
@@ -556,8 +591,9 @@ public class CIPResCommunicator extends RESTCommunicator {
 		return false;
 	}
 	/*.................................................................................................................*/
-	public boolean downloadResults(String jobURL, String rootDir, boolean onlyNewOrModified) {
+	public boolean downloadResults(Object location, String rootDir, boolean onlyNewOrModified) {
 		if (checkUsernamePassword(false)) {
+			String jobURL = (String)location;
 			HttpClient httpclient = getHttpClient();
 			return downloadResults(httpclient, jobURL, rootDir, onlyNewOrModified);
 		}
@@ -572,15 +608,15 @@ public class CIPResCommunicator extends RESTCommunicator {
 		if (StringUtil.notEmpty(workingUri)) {
 			Document cipresResponseDoc = cipresQuery(httpclient, workingUri, "workingdir");
 			if (cipresResponseDoc!=null) {
-				CipresJobFile[] cipresJobFiles = processFilesDocument(cipresResponseDoc);
+				RemoteJobFile[] cipresJobFiles = processFilesDocument(cipresResponseDoc);
 				if (cipresJobFiles==null || cipresJobFiles.length==0) {
 					return false;
 				}				
 				for (int job=0; job<cipresJobFiles.length; job++) {
-					if (fileName.equalsIgnoreCase(cipresJobFiles[job].getFileName()) && (!onlyNewOrModified || fileNewOrModified(previousCipresJobFiles, cipresJobFiles, job)))
+					if (fileName.equalsIgnoreCase(cipresJobFiles[job].getFileName()) && (!onlyNewOrModified || fileNewOrModified(previousRemoteJobFiles, cipresJobFiles, job)))
 						cipresDownload(httpclient, cipresJobFiles[job].getDownloadURL(), rootDir + cipresJobFiles[job].getFileName());
 				}
-				previousCipresJobFiles = cipresJobFiles.clone();
+				previousRemoteJobFiles = cipresJobFiles.clone();
 				return true;
 			}
 		}
@@ -592,15 +628,15 @@ public class CIPResCommunicator extends RESTCommunicator {
 		if (StringUtil.notEmpty(resultsUri)) {
 			Document cipresResponseDoc = cipresQuery(httpclient, resultsUri, "workingdir");
 			if (cipresResponseDoc!=null) {
-				CipresJobFile[] cipresJobFiles = processFilesDocument(cipresResponseDoc);
+				RemoteJobFile[] cipresJobFiles = processFilesDocument(cipresResponseDoc);
 				if (cipresJobFiles==null || cipresJobFiles.length==0) {
 					return false;
 				}
 				for (int job=0; job<cipresJobFiles.length; job++) {
-					if (!onlyNewOrModified || fileNewOrModified(previousCipresJobFiles, cipresJobFiles, job))
+					if (!onlyNewOrModified || fileNewOrModified(previousRemoteJobFiles, cipresJobFiles, job))
 						cipresDownload(httpclient, cipresJobFiles[job].getDownloadURL(), rootDir + cipresJobFiles[job].getFileName());
 				}
-				previousCipresJobFiles = cipresJobFiles.clone();
+				previousRemoteJobFiles = cipresJobFiles.clone();
 				return true;
 			}
 		}
@@ -608,8 +644,9 @@ public class CIPResCommunicator extends RESTCommunicator {
 	}
 
 	/*.................................................................................................................*/
-	public boolean downloadWorkingResults(String jobURL, String rootDir, boolean onlyNewOrModified) {
+	public boolean downloadWorkingResults(Object location, String rootDir, boolean onlyNewOrModified, boolean warn) {
 		if (checkUsernamePassword(false)) {
+			String jobURL = (String)location;
 			HttpClient httpclient = getHttpClient();
 			return downloadWorkingResults(httpclient, jobURL, rootDir, onlyNewOrModified);
 		}
@@ -623,7 +660,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 		if (StringUtil.notEmpty(resultsUri)) {
 			Document cipresResponseDoc = cipresQuery(httpclient, resultsUri, "results");
 			if (cipresResponseDoc!=null) {
-				CipresJobFile[] cipresJobFiles = processFilesDocument(cipresResponseDoc);
+				RemoteJobFile[] cipresJobFiles = processFilesDocument(cipresResponseDoc);
 				if (MesquiteTrunk.debugMode)
 					for (int job=0; job<cipresJobFiles.length; job++) {
 						ownerModule.logln("fileName: " + cipresJobFiles[job].getFileName());
@@ -631,7 +668,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 						ownerModule.logln("     downloadTitle: " + cipresJobFiles[job].getDownloadTitle());
 						ownerModule.logln("     length: " + cipresJobFiles[job].getLength());
 					}
-				previousCipresJobFiles = cipresJobFiles.clone();
+				previousRemoteJobFiles = cipresJobFiles.clone();
 
 			}
 		}
@@ -662,9 +699,9 @@ public class CIPResCommunicator extends RESTCommunicator {
 		return false;
 	}
 	/*.................................................................................................................*/
-	public void processOutputFiles(String jobURL){
+	public void processOutputFiles(Object location){
 		if (rootDir!=null) {
-			downloadWorkingResults(jobURL, rootDir, true);
+			downloadWorkingResults(location, rootDir, true, false);  //TODO: only warn if few warnings
 			if (outputFileProcessor!=null && outputFilePaths!=null && lastModified !=null) {
 				String[] paths = outputFileProcessor.modifyOutputPaths(outputFilePaths);
 				for (int i=0; i<paths.length && i<lastModified.length; i++) {
@@ -679,7 +716,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 		}
 	}
 	/*.................................................................................................................*/
-	public boolean monitorAndCleanUpShell(String jobURL, ProgressIndicator progIndicator){
+	public boolean monitorAndCleanUpShell2(Object location, ProgressIndicator progIndicator){
 		boolean stillGoing = true;
 
 		if (!checkUsernamePassword(true)) {
@@ -693,14 +730,14 @@ public class CIPResCommunicator extends RESTCommunicator {
 			LongArray.deassignArray(lastModified);
 		}
 		String status = "";
-		MesquiteTimer cipresTimer = new MesquiteTimer();
-		cipresTimer.start();
+		MesquiteTimer timer = new MesquiteTimer();
+		timer.start();
 		int interval = 0;
 		int pollInterval = minPollIntervalSeconds;
 		boolean submittedReportedToUser = false;
 		
-		while (!jobCompleted(jobURL) && stillGoing && !aborted){
-			double loopTime = cipresTimer.timeSinceLastInSeconds();  // checking to see how long it has been since the last one
+		while (!jobCompleted(location) && stillGoing && !aborted){
+			double loopTime = timer.timeSinceLastInSeconds();  // checking to see how long it has been since the last one
 			if (loopTime>minPollIntervalSeconds) {
 				pollInterval = minPollIntervalSeconds - ((int)loopTime-minPollIntervalSeconds);
 				if (pollInterval<0) pollInterval=0;
@@ -709,7 +746,7 @@ public class CIPResCommunicator extends RESTCommunicator {
 				pollInterval = minPollIntervalSeconds;
 			if(!StringUtil.blank(status)) {
 				if (!status.equalsIgnoreCase("SUBMITTED") || !submittedReportedToUser) 
-					ownerModule.logln("CIPRes Job Status: " + status + "  (" + StringUtil.getDateTime() + ")");
+					ownerModule.logln(getServiceName()+" Job Status: " + status + "  (" + StringUtil.getDateTime() + ")");
 				if (status.equalsIgnoreCase("SUBMITTED"))
 					submittedReportedToUser = true;
 			}
@@ -724,26 +761,26 @@ public class CIPResCommunicator extends RESTCommunicator {
 				}
 			}
 			catch (InterruptedException e){
-				MesquiteMessage.notifyProgrammer("InterruptedException in CIPRes monitoring");
+				MesquiteMessage.notifyProgrammer("InterruptedException in "+getServiceName()+" monitoring");
 				return false;
 			}
 
 			stillGoing = watcher == null || watcher.continueShellProcess(null);
-			String newStatus = getJobStatus(jobURL); 
+			String newStatus = getJobStatus(location); 
 			if (newStatus!=null && !newStatus.equalsIgnoreCase(status)) {
-				ownerModule.logln("CIPRes Job Status: " + newStatus + "  (" + StringUtil.getDateTime() + ")");
+				ownerModule.logln(getServiceName()+" Job Status: " + newStatus + "  (" + StringUtil.getDateTime() + ")");
 			} else
 				ownerModule.log(".");
 			status=newStatus;
 			if (newStatus!=null && newStatus.equalsIgnoreCase("SUBMITTED")){  // job is running
-				processOutputFiles(jobURL);
+				processOutputFiles(location);
 			}
 		}
-		ownerModule.logln("CIPRes job completed. (" + StringUtil.getDateTime() + " or earlier)");
+		ownerModule.logln("\n"+getServiceName()+" job completed. (" + StringUtil.getDateTime() + " or earlier)");
 		if (outputFileProcessor!=null) {
 			if (rootDir!=null) {
-				ownerModule.logln("About to download results from CIPRes (this may take some time).");
-				if (downloadResults(jobURL, rootDir, false))
+				ownerModule.logln("About to download results from "+getServiceName()+" (this may take some time).");
+				if (downloadResults(location, rootDir, false))
 						outputFileProcessor.processCompletedOutputFiles(outputFilePaths);
 				else
 					return false;
@@ -861,8 +898,9 @@ public class CIPResCommunicator extends RESTCommunicator {
 	}
 
 	/*.................................................................................................................*/
-	public void deleteJob(String jobURL) {  // TODO:  check to see if the Zephyr run is ongoing, and warn user if so.
+	public void deleteJob(Object location) {  // TODO:  check to see if the Zephyr run is ongoing, and warn user if so.
 		if (checkUsernamePassword(false)) {
+			String jobURL = (String)location;
 			HttpClient httpclient = getHttpClient();
 			deleteJob(httpclient, jobURL);
 		}
@@ -902,7 +940,6 @@ public class CIPResCommunicator extends RESTCommunicator {
 		return "CIPRes";
 
 	}
-
 
 }
 

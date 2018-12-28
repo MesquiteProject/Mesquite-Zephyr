@@ -14,9 +14,14 @@ import mesquite.lib.duties.*;
 
 public abstract class ExternalProcessRunner extends MesquiteModule {
 	String executableName;
+	int executableNumber;
 	String rootNameForDirectory;
 	TreeInferer treeInferrer;
 	boolean aborted = false;
+	protected ProgressIndicator progressIndicator;
+	protected String localRootDir = null;  // local directory for storing files on local machine
+	protected boolean readyForReconnectionSave = false;
+
 
 	public Class getDutyClass() {
 		return ExternalProcessRunner.class;
@@ -24,15 +29,25 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public String getDutyName() {
 		return "External Process Runner";
 	}
+	public static String getDefaultProgramLocation() {
+		return "";
+	}
 
 	public String[] getDefaultModule() {
 		return new String[] {""};
+	}
+	
+	public int getMaxCores() {
+		return MesquiteInteger.infinite;
 	}
 	
 	public String getMessageIfUserAbortRequested () {
 		return "";
 	}
 
+	public void storeRunnerPreferences() {
+		super.storePreferences();
+	}
 	public String getMessageIfCloseFileRequested () {
 		return "";
 	}
@@ -43,12 +58,29 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		this.aborted = aborted;
 	}
 
+	public void setReadyForReconnectionSave(boolean readyForReconnectionSave){
+		this.readyForReconnectionSave = readyForReconnectionSave;
+		if (readyForReconnectionSave && isReconnectable())
+			logln("\n[Run sufficiently established so that file can be saved, closed, reopened, and then reconnected.]");
+	}
+	public boolean getReadyForReconnectionSave(){
+		return readyForReconnectionSave;
+	}
+
 	public String getExecutableName() {
 		return executableName;
 	}
 	
 	public void setExecutableName(String executableName) {
 		this.executableName = executableName;
+	}
+	
+	public int getExecutableNumber() {
+		return executableNumber;
+	}
+	
+	public void setExecutableNumber(int executableNumber) {
+		this.executableNumber = executableNumber;
 	}
 	
 	public String getRootNameForDirectory() {
@@ -70,6 +102,9 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public  boolean canCalculateTimeRemaining(int repsCompleted){
 		return true;
 	}
+	public void setProgressIndicator(ProgressIndicator progressIndicator) {
+		this.progressIndicator= progressIndicator;
+	}
 
 	public String getInputFilePath(int i){ 
 		return null;
@@ -79,6 +114,12 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public void setAdditionalShellScriptCommands(String additionalShellScriptCommands) {
 		this.additionalShellScriptCommands = additionalShellScriptCommands;
 	}
+	/*.................................................................................................................*/
+	public boolean setRootDir() {
+		if (localRootDir==null) 
+			localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		return localRootDir!=null; 
+	}
 
 	/*.................................................................................................................*/
 	public String getDirectoryPath(){  
@@ -87,20 +128,21 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 
 	public abstract boolean isWindows();
 	public abstract boolean isLinux();
+	public abstract boolean isMacOSX();
 
 
 	// setting the requester, to whom this runner will communicate about the run
 	public abstract void setProcessRequester(ExternalProcessRequester processRequester);
 
 	// given the opportunity to fill in options for user
-	public abstract void addItemsToDialogPanel(ExtensibleDialog dialog);
+	public abstract boolean addItemsToDialogPanel(ExtensibleDialog dialog);
 	public  void addNoteToBottomOfDialog(ExtensibleDialog dialog){
 	}
 	public abstract boolean optionsChosen();
 
 	// the actual data & scripts.  
 	public abstract boolean setPreflightInputFiles(String script);
-	public abstract boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames);  //assumes for now that all input files are in the same directory
+	public abstract boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames, int runInfoFileNumber);  //assumes for now that all input files are in the same directory
 	public abstract void setOutputFileNamesToWatch(String[] fileNames);
 	public abstract void setOutputFileNameToWatch(int index, String fileName);
 	public abstract String getOutputFilePath(String fileName);
@@ -125,5 +167,6 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public void resetLastModified(int i){
 	}
 
+	
 	//results can be harvested by getOutputFile	
 }
