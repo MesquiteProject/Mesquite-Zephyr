@@ -33,7 +33,7 @@
 			<install>
 				<location>mesquite</location>
 				<file>zephyr</file>
-				<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/3.0/Zephyr.3.0.zip</url>
+				<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/v3.0/Zephyr.3.0.zip</url>
 				<treatment>unzip</treatment>
 				<updateVersion>007</updateVersion>
 			</install>
