@@ -61,6 +61,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected static final int SKELETAL = 2;
 	protected int useConstraintTree = NOCONSTRAINT;
 	protected int SOWHConstraintTree = MONOPHYLY;
+	protected boolean bootstrapBranchLengths = false;
 
 
 	long summaryFilePosition =0;
@@ -76,7 +77,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected javax.swing.JLabel commandLabel;
 	protected SingleLineTextArea commandField;
 	protected IntegerField numRunsField, bootStrapRepsField;
-	protected Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox, nobfgsCheckBox;
+	protected Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox, nobfgsCheckBox,bootstrapBranchLengthsCheckBox;
 	RadioButtons constraintButtons;
 	RadioButtons threadingRadioButtons;
 	//	int count=0;
@@ -176,6 +177,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
 		if ("nobfgs".equalsIgnoreCase(tag))
 			nobfgs = MesquiteBoolean.fromTrueFalseString(content);
+		if ("bootstrapBranchLengths".equalsIgnoreCase(tag))
+			bootstrapBranchLengths = MesquiteBoolean.fromTrueFalseString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
 			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
 
@@ -191,6 +194,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
 		StringUtil.appendXMLTag(buffer, 2, "nobfgs", nobfgs);  
+		StringUtil.appendXMLTag(buffer, 2, "bootstrapBranchLengths", bootstrapBranchLengths);  
 		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
 
 		preferencesSet = true;
@@ -317,6 +321,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			doBootstrapCheckbox.addItemListener(this);
 			bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 1, MesquiteInteger.infinite);
 			seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
+			bootstrapBranchLengthsCheckBox = dialog.addCheckBox("save branch lengths in bootstrap trees", bootstrapBranchLengths);
 			dialog.addHorizontalLine(1);
 		}
 		else 
@@ -387,6 +392,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 					doBootstrap=false;
 				onlyBest = onlyBestBox.getState();
 				nobfgs = nobfgsCheckBox.getState();
+				bootstrapBranchLengths = bootstrapBranchLengthsCheckBox.getState();
 
 				if (getConstrainedSearchAllowed()) {
 					useConstraintTree = constraintButtons.getValue();
@@ -407,6 +413,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		numRunsField.getTextField().setEnabled(!doBoot);
 		if (bootStrapRepsField!=null)
 			bootStrapRepsField.getTextField().setEnabled(doBoot);
+		if (bootstrapBranchLengthsCheckBox!=null)
+			bootstrapBranchLengthsCheckBox.setEnabled(doBoot);
 		if (seedField!=null)
 			seedField.getTextField().setEnabled(doBoot);
 	}

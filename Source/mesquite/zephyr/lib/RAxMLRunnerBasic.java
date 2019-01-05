@@ -273,6 +273,8 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 				localArguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
 			else
 				localArguments += " -# 1 -b " + LOCbootstrapSeed;   // just do one rep
+			if (bootstrapBranchLengths)
+				localArguments += " -k "; 
 		}
 		else {
 			if (LOCnobfgs)
