@@ -35,7 +35,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	boolean onlyBest = true;
 
-	protected	int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
+	protected	int randomIntSeed = (int)System.currentTimeMillis();  
+	protected long  randseed = -1;
 
 	protected static final int noPartition = 0;
 	protected static final int partitionByCharacterGroups = 1;
@@ -87,7 +88,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 
 
-	protected long  randseed = -1;
 	static String constraintfile = "none";
 
 	protected  SingleLineTextField substitutionModelField, otherOptionsField;

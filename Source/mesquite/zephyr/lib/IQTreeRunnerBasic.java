@@ -225,6 +225,8 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 				else
 					localArguments += " -bo 100 ";
 			}
+			localArguments += " -seed " + LOCbootstrapSeed;
+
 		}
 
 
@@ -233,8 +235,6 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 		if (useConstraintTree)
 			localArguments += " -g constraintTree.tre "; 
-
-		localArguments += " -seed " + LOCbootstrapSeed;
 
 		if (LOCPartitionScheme!=noPartition) {
 			if (LOCPartitionLinkage==qPartitionLinkage)
