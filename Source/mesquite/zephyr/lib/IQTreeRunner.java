@@ -622,7 +622,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			if (searchStyle==STANDARDBOOTSTRAP)
 				finalValues = new double[getBootstrapreps()];
 			else
-				finalValues = new double[numRuns];
+				finalValues = new double[numSearchRuns];
 			DoubleArray.deassignArray(finalValues);
 			finalValue = MesquiteDouble.unassigned;
 		}
