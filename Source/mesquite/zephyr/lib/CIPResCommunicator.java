@@ -277,7 +277,7 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 		String URL = getRESTURL() + "/job/" + StringUtil.encodeForURL(username);
 		HttpPost httppost = new HttpPost(URL);
 		httppost.addHeader("cipres-appkey", CIPRESkey); 
-
+		
 		//some of this from http://stackoverflow.com/questions/18964288/upload-a-file-through-an-http-form-via-multipartentitybuilder-with-a-progress
 		HttpEntity cipresEntity = builder.build();
 
