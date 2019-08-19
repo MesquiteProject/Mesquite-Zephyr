@@ -128,7 +128,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
 		super.appendAdditionalSearchDetails();
-		MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(),getSetsFileName(), false);
+		MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(),getSetsFileName(), false, numPartsInStartingPartition);
 		if (arguments!=null && !arguments.isBlank()){
 			appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString());
 		}
@@ -289,7 +289,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 	String arguments;
 	/*.................................................................................................................*/
-	public Object getProgramArguments(String dataFileName, String setsFileName, boolean isPreflight) {
+	public Object getProgramArguments(String dataFileName, String setsFileName, boolean isPreflight, int numParts) {
 		MesquiteString arguments = new MesquiteString();
 
 		if (!isPreflight) {

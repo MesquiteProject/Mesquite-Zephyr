@@ -37,7 +37,7 @@ public class IQTreeTreesCIPRes extends IQTreeTrees {
 	 
 	/*.................................................................................................................*/
 	 public boolean loadModule(){
-		 return false;
+		 return true;
 	}
 
 

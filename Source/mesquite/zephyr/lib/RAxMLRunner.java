@@ -627,6 +627,12 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public boolean multipleModelFileAllowed() {
 		return true;
 	}
+	
+	protected static final int DATAFILENUMBER = 0;
+	protected static final int MULTIMODELFILENUMBER = 1;
+	protected static final int CONSTRAINTFILENUMBER = 3;
+	
+
 	/*.................................................................................................................*/
 	public synchronized Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		finalValues=null;
@@ -753,14 +759,14 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			fileContents[i]="";
 			fileNames[i]="";
 		}
-		fileContents[0] = MesquiteFile.getFileContentsAsString(dataFilePath);
-		fileNames[0] = dataFileName;
-		fileContents[1] = multipleModelFileContents;
-		fileNames[1] = multipleModelFileName;
+		fileContents[DATAFILENUMBER] = MesquiteFile.getFileContentsAsString(dataFilePath);
+		fileNames[DATAFILENUMBER] = dataFileName;
+		fileContents[MULTIMODELFILENUMBER] = multipleModelFileContents;
+		fileNames[MULTIMODELFILENUMBER] = multipleModelFileName;
 		fileContents[2] = translationTable;
 		fileNames[2] = translationFileName;
-		fileContents[3] = constraintTree;
-		fileNames[3] = constraintTreeFileName;
+		fileContents[CONSTRAINTFILENUMBER] = constraintTree;
+		fileNames[CONSTRAINTFILENUMBER] = constraintTreeFileName;
 		fileContents[4] = getRunInformation();
 		fileNames[4] = runInformationFileName;
 		int runInformationFileNumber = 4;
