@@ -63,6 +63,10 @@ public class RAxMLRunnerLocal extends RAxMLRunnerBasic  {
 		return false;
 	}
 
+	/*.................................................................................................................*/
+	public int getMaxCores(){
+		return Runtime.getRuntime().availableProcessors();
+	}
 
 	public void runFailed(String message) {
 		// TODO Auto-generated method stub

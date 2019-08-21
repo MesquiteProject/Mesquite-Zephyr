@@ -191,7 +191,7 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 	}
 	/*.................................................................................................................*/
 	public int getMaxCores(){
-		return 2;
+		return MesquiteInteger.infinite;
 	}
 	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
