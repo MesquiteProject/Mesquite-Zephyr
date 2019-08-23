@@ -42,6 +42,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		try {
 			java.util.Properties config = new java.util.Properties(); 
 			config.put("StrictHostKeyChecking", "no"); //TODO: have options
+			config.put( "PreferredAuthentications", "publickey,keyboard-interactive,password");
 			JSch jsch = new JSch();
 			Session session=jsch.getSession(sshServerProfile.getUsername(), host, 22);
 			session.setPassword(sshServerProfile.getPassword());
