@@ -248,7 +248,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 			}
 		}
 
-		addArgument(builder, sb, "vparam.specify_runtype_",  "1");  
+		addArgument(builder, sb, "vparam.specify_runtype_",  "2");  
 		addArgument(builder, sb, "vparam.specify_numparts_",  ""+LOCnumParts); 
 
 		 if (useConstraintTree)
