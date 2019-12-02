@@ -21,6 +21,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	protected ProgressIndicator progressIndicator;
 	protected String localRootDir = null;  // local directory for storing files on local machine
 	protected boolean readyForReconnectionSave = false;
+	protected boolean onlySetUpRun = false;
 
 
 	public Class getDutyClass() {
@@ -36,7 +37,13 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public String[] getDefaultModule() {
 		return new String[] {""};
 	}
-	
+	public boolean isOnlySetUpRun() {
+		return onlySetUpRun;
+	}
+	public void setOnlySetUpRun(boolean onlySetUpRun) {
+		this.onlySetUpRun = onlySetUpRun;
+	}
+
 	public int getMaxCores() {
 		return MesquiteInteger.infinite;
 	}

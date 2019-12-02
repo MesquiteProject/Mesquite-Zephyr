@@ -54,6 +54,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean updateWindow = false;
 	protected boolean bootstrapAllowed = true;
 	protected boolean beanWritten = false;
+	protected boolean onlySetUpRun = false;
 	boolean verbose=true;
 
 	protected Tree constraint = null;
@@ -682,7 +683,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (success) {
 			success = externalProcRunner.monitorExecution(progIndicator);
 		}
-		else {
+		else if (!onlySetUpRun) {
 			if (!beanWritten)
 				postBean("failed, externalProcRunner.startExecution | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
