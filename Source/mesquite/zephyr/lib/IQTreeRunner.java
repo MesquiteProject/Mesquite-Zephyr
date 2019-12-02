@@ -327,8 +327,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		tabbedPanel.addPanel(getExecutableName()+" Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
 		addRunnerOptions(dialog);
-		if (treeInferer!=null) 
+		if (treeInferer!=null) {
 			treeInferer.addItemsToDialogPanel(dialog);
+		}
+		Checkbox onlySetUpRunBox = dialog.addCheckBox("set up files but do not start inference", onlySetUpRun);
 		externalProcRunner.addNoteToBottomOfDialog(dialog);
 
 		if (bootstrapAllowed) {
@@ -451,11 +453,16 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				processRunnerOptions();
 				storeRunnerPreferences();
 				acceptableOptions = true;
+				onlySetUpRun = onlySetUpRunBox.getState();
+				externalProcRunner.setOnlySetUpRun(onlySetUpRun);
 			}
+				
 		}
 		dialog.dispose();
 		return (acceptableOptions);
 	}
+	/*.................................................................................................................*/
+
 	public void checkEnabled(int searchStyle) {
 		onlyBestBox.setEnabled(searchStyle==STANDARDSEARCH);
 		numSearchRunsField.getTextField().setEnabled(searchStyle==STANDARDSEARCH);
@@ -547,6 +554,11 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		} else if (searchStyleButtons.isAButton(e.getItemSelectable())) {
 			checkEnabled (searchStyleButtons.getValue());
+			int bootreps = bootStrapRepsField.getValue();
+			if (searchStyle==ULTRAFASTBOOTSTRAP && bootreps<minUFBootstrapReps) {
+				bootStrapRepsField.setValue(minUFBootstrapReps);
+			}
+
 		}
 	}
 

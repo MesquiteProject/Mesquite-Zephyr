@@ -159,7 +159,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 	}
 	/*.................................................................................................................*/
 	public int minimumNumBootstrapReplicates() {
-		return 1000;
+		return 1;
 	}
 
 	/*.................................................................................................................*/
@@ -234,13 +234,14 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 		} else {
 			if (LOCsearchStyle==ULTRAFASTBOOTSTRAP) {
 				addArgument(builder, sb, "vparam.bootstrap_type_",  "bb");
-				addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
+				//Debugg.println: addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
 				if (LOCbootstrapreps>0)
 					addArgument(builder, sb, "vparam.num_bootreps_",  ""+LOCbootstrapreps);
 				else
 					addArgument(builder, sb, "vparam.num_bootreps_",  "1000");
 			} else {
 				addArgument(builder, sb, "vparam.bootstrap_type_",  "bc");
+				//Debugg.println: addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
 				if (LOCbootstrapreps>0)
 					addArgument(builder, sb, "vparam.num_bootreps_",  ""+LOCbootstrapreps);
 				else

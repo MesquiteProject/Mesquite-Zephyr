@@ -103,7 +103,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.4-1.6.7";
+		return "1.6.4-1.6.12";
 	}
 
 	/*.................................................................................................................*/
@@ -174,7 +174,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		else	if (e.getActionCommand().equalsIgnoreCase("clearCommand")) {
 			commandField.setText("");
 			commandLabel.setText("");
-		}
+		} 
 	}
 	/*.................................................................................................................*/
 	public void setProgramSeed(long seed){
