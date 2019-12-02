@@ -15,6 +15,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import cgrb.eta.remote.api.ETAConnection;
 import mesquite.categ.lib.CategoricalData;
@@ -419,8 +420,21 @@ public class ZephyrUtil {
 
 		if (StringUtil.notEmpty(typeSetString) || StringUtil.notEmpty(wtSetString)|| StringUtil.notEmpty(inclusionSetString)) {
 			sb.append("\nBEGIN assumptions;\n");
-			if (StringUtil.notEmpty(typeSetString))
+			if (StringUtil.notEmpty(typeSetString)){
+				Vector modelsUsed = new Vector();
+				for (int ic = 0; ic<typeSet.getNumChars(); ic++){ //checking to see if stepmatrices etc. are being used, and if so, include them
+					CharacterModel cm = typeSet.getModel(ic);
+					if (!cm.isBuiltIn() && modelsUsed.indexOf(cm)<0){
+						modelsUsed.addElement(cm);
+						String s = "\t"+ cm.getNEXUSCommand() + " ";  
+						s += StringUtil.tokenize(cm.getName()) + " (" ;  
+						s += StringUtil.tokenize(cm.getNEXUSClassName()) + ") = " + StringUtil.lineEnding();
+						s += "\t\t"+ cm.getNexusSpecification()+";" + StringUtil.lineEnding(); 
+						sb.append(s);
+					}
+				}
 				sb.append(typeSetString);
+			}
 			if (StringUtil.notEmpty(wtSetString))
 				sb.append(wtSetString);
 			if (StringUtil.notEmpty(inclusionSetString))
