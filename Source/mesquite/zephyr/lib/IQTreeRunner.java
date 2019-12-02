@@ -555,7 +555,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		} else if (searchStyleButtons.isAButton(e.getItemSelectable())) {
 			checkEnabled (searchStyleButtons.getValue());
 			int bootreps = bootStrapRepsField.getValue();
-			if (searchStyle==ULTRAFASTBOOTSTRAP && bootreps<minUFBootstrapReps) {
+			int searchStyleLocal = searchStyleButtons.getValue();
+
+			if (searchStyleLocal==ULTRAFASTBOOTSTRAP && bootreps<minUFBootstrapReps) {
 				bootStrapRepsField.setValue(minUFBootstrapReps);
 			}
 
