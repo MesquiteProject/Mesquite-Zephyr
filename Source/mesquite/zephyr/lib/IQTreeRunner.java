@@ -330,7 +330,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		if (treeInferer!=null) {
 			treeInferer.addItemsToDialogPanel(dialog);
 		}
-		Checkbox onlySetUpRunBox = dialog.addCheckBox("set up files but do not start inference", onlySetUpRun);
+		//Checkbox onlySetUpRunBox = dialog.addCheckBox("set up files but do not start inference", onlySetUpRun);
 		externalProcRunner.addNoteToBottomOfDialog(dialog);
 
 		if (bootstrapAllowed) {
@@ -453,7 +453,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				processRunnerOptions();
 				storeRunnerPreferences();
 				acceptableOptions = true;
-				onlySetUpRun = onlySetUpRunBox.getState();
+//				onlySetUpRun = onlySetUpRunBox.getState();
 				externalProcRunner.setOnlySetUpRun(onlySetUpRun);
 			}
 				
