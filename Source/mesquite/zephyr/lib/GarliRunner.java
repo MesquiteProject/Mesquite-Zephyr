@@ -103,6 +103,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	protected static final int NEGATIVECONSTRAINT = 2;
 	protected int useConstraintTree = NOCONSTRAINT;
 	protected int SOWHConstraintTree = POSITIVECONSTRAINT;
+	protected static String CONSTRAINTTREEFILENAME =  "constraint.txt";
 
 	Tree constraint = null;
 
@@ -989,7 +990,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		fileNames[DATAFILENUMBER] = dataFileName;
 		if (isConstrainedSearch() && StringUtil.notEmpty(constraintTree)) {
 			fileContents[CONSTRAINTFILENUMBER] = constraintTree;
-			fileNames[CONSTRAINTFILENUMBER] = "constraintTree";
+			fileNames[CONSTRAINTFILENUMBER] = CONSTRAINTTREEFILENAME;
 		}
 		fileContents[CONFIGFILENUMBER] = config;
 		fileNames[CONFIGFILENUMBER] = configFileName;

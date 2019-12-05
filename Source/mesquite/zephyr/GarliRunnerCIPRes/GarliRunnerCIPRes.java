@@ -70,6 +70,7 @@ public class GarliRunnerCIPRes extends GarliRunner {
 			log="Waiting for log file from CIPRes...";
 		return log;
 	}
+	String inputFilesInRunnerObject = "";
 
 	/*.................................................................................................................*/
 	public void prepareRunnerObject(Object obj){
@@ -78,9 +79,19 @@ public class GarliRunnerCIPRes extends GarliRunner {
 			final File file = new File(externalProcRunner.getInputFilePath(DATAFILENUMBER));
 			FileBody fb = new FileBody(file);
 			builder.addPart("input.infile_", fb);  
+			inputFilesInRunnerObject+= "input.infile_ transmitted\n";
 			final File file2 = new File(externalProcRunner.getInputFilePath(CONFIGFILENUMBER));
 			FileBody fb2 = new FileBody(file2);
 			builder.addPart("input.upload_conffile_", fb2);  
+			inputFilesInRunnerObject+= "input.upload_conffile_ transmitted\n";
+			if (useConstraintTree==POSITIVECONSTRAINT || useConstraintTree==NEGATIVECONSTRAINT) {
+				final File constraintFile = new File(externalProcRunner.getInputFilePath(CONSTRAINTFILENUMBER));
+				if (constraintFile!=null && constraintFile.exists()) {
+					FileBody fb3 = new FileBody(constraintFile);
+						builder.addPart("input.constraintfile_control_", fb3);  
+						inputFilesInRunnerObject+= " input.input.constraintfile_control_ constraint tree transmitted\n";
+				}
+			}
 		}
 	}
 
@@ -115,7 +126,7 @@ public class GarliRunnerCIPRes extends GarliRunner {
 			if (useConstraintTree==0)
 				config.append("\nconstraintfile = none");
 			else
-				config.append("\nconstraintfile = constraintTree"); // important to be user-editable
+				config.append("\nconstraintfile = " + CONSTRAINTTREEFILENAME); // important to be user-editable
 
 			config.append("\nstreefname = random");
 
