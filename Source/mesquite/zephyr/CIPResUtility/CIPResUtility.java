@@ -68,7 +68,7 @@ public class CIPResUtility extends UtilitiesAssistant {
 			String jobURL = MesquiteString.queryShortString(containerOfModule(), "Download Job Files", "Job URL", "");
 			String dir = MesquiteFile.chooseDirectory("Choose directory to save the files:");
 			if (StringUtil.notEmpty(dir))
-				communicator.downloadResults(jobURL, dir, false);
+				communicator.downloadResults(jobURL, dir+MesquiteFile.fileSeparator, false);
 		}
 		else if (checker.compare(this.getClass(), "List CIPRes Tools", null, commandName, "listCIPResTools")) {
 			communicator.listCipresTools();
