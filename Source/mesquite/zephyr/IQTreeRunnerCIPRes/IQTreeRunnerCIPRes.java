@@ -173,13 +173,13 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 			final File file = new File(externalProcRunner.getInputFilePath(DATAFILENUMBER));
 			FileBody fb = new FileBody(file);
 			builder.addPart("input.infile_", fb);  
-			inputFilesInRunnerObject+= "Additional arguments:\n  input.infile_ = " +file.getPath()+"\n";
+			inputFilesInRunnerObject+= "input.infile_ transmitted\n";
 			if (useConstraintTree) {
 				final File constraintFile = new File(externalProcRunner.getInputFilePath(CONSTRAINTFILENUMBER));
 				if (constraintFile!=null && constraintFile.exists()) {
 					FileBody fb2 = new FileBody(constraintFile);
 					builder.addPart("input.constraint_file_", fb2);  
-					inputFilesInRunnerObject+= "  input.constraint_file_ = " +constraintFile.getPath()+"\n";
+					inputFilesInRunnerObject+= " input.constraint_ constraint tree transmitted\n";
 
 				}
 			}
@@ -189,7 +189,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 				if (modelFile!=null && modelFile.exists()) {
 					FileBody fb2 = new FileBody(modelFile);
 					builder.addPart("input.partition_file_", fb2);  
-					inputFilesInRunnerObject+= "  input.partition_file_ = " +modelFile.getPath()+"\n";
+					inputFilesInRunnerObject+= "  input.partition_file_ partition file transmitted\n";
 				}
 			}
 			if (isVerbose() && StringUtil.notEmpty(inputFilesInRunnerObject))
@@ -234,7 +234,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 		} else {
 			if (LOCsearchStyle==ULTRAFASTBOOTSTRAP) {
 				addArgument(builder, sb, "vparam.bootstrap_type_",  "bb");
-				//Debugg.println: addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
+				// addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
 				if (LOCbootstrapreps>0)
 					addArgument(builder, sb, "vparam.num_bootreps_",  ""+LOCbootstrapreps);
 				else
@@ -338,7 +338,6 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 	
 		if (!isPreflight && isVerbose())
 				logln(getExecutableName() + " arguments: \n" + sb.toString() + "\n");
-
 		return arguments; 
 
 	}
