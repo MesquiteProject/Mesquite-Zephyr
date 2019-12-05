@@ -161,14 +161,16 @@
       New Features<br />
     </strong></p>
     <ul>
-      <li>Ability to request that RAxML saves branch lengths  in bootstrap trees </li>
       <li>IQ-TREE on CIPres support added.</li>
+      <li>Ability to request that RAxML saves branch lengths  in bootstrap trees </li>
+      <li>Ability to request that RAxML uses no partition or uses codon positions for partition (previously, it always used a partition if present). Build 140.</li>
       <li>Step matrices now transferred to PAUP for PAUP parsimony analyses.</li>
     </ul>
     <p><strong><br />
       Bug fixes <br />
     </strong></p>
     <ul>
+      <li>Constrained searches were not working in CIPRes. They have been fixed in build 139 for GARLI.</li>
       <li>Searching for ML tree in IQ-TREE with multiple search replicates in which one asked to save trees from each replicate failed to record the scores of trees in replicates after the first. Fixed in build 135.</li>
       <li>If the folder in which one was to save temporary Zephyr analysis files was locked, and Zephyr asked in which folder files should be saved, and if the user asked to delete the files at the end of a run, then the chosen folder and all of its files (including files having nothing to do with the Zephyr run) were deleted. Fixed in build 926 of Mesquite.</li>
       <li>Simplified files for TNT analyses if original file has complex character names; some TNT runs would stop because of irrelevant CNAME commands with odd character names that had been included by Mesquite.</li>

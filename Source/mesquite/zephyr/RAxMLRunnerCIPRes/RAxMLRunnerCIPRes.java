@@ -101,7 +101,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "8.0.0 and 8.1.4";
+		return "8.0.0 through 8.2.10";
 	}
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
