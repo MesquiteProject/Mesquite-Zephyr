@@ -149,7 +149,7 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 
 	/*.................................................................................................................*/
 
-	public void reportError(Document doc, String noteToUser, boolean resetPassword) {
+	public void reportError(String xmlFile, Document doc, String noteToUser, boolean resetPassword) {
 		if (doc==null)
 			return;
 		String displayMessage = doc.getRootElement().elementText("displayMessage");
@@ -175,7 +175,10 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 						String error = nextEntry.elementText("error");
 						ownerModule.logln("  " + param + ": " + error);
 					}
-
+				ownerModule.logln("\n******************\n");
+			}
+			if (MesquiteTrunk.debugMode) {
+				ownerModule.logln(xmlFile);
 				ownerModule.logln("\n******************\n");
 			}
 		}
@@ -206,8 +209,8 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 				}
 				if (cipresResponseDoc==null) {
 					Document errorDoc = loadXMLFile(sb.toString());
-					if (errorDoc!=null)
-						reportError(errorDoc, "Error in communicating with CIPRes",  true);
+					if (errorDoc!=null) 
+						reportError(sb.toString(), errorDoc, "Error in communicating with CIPRes",  true);
 				}
 				EntityUtils.consume(response.getEntity());
 				return cipresResponseDoc;
@@ -307,7 +310,7 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 					success=true;
 			} else {
 				cipresResponseDoc = loadXMLFile(sb.toString());
-				reportError(cipresResponseDoc, "Error with CIPRes run", true);
+				reportError(sb.toString(), cipresResponseDoc, "Error with CIPRes run", true);
 			}
 			EntityUtils.consume(response.getEntity());
 			return success;
