@@ -47,6 +47,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
+	protected static final int noPartition = 0;
+	protected static final int partitionByCharacterGroups = 1;
+	protected static final int partitionByCodonPosition = 2;
+	protected int partitionScheme = partitionByCharacterGroups;
+
 	protected int currentRun=0;
 	protected boolean[] completedRuns=null;
 	protected int previousCurrentRun=0;

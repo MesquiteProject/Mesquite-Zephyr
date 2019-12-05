@@ -52,15 +52,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	boolean linkModels = false;
 	boolean subsetSpecificRates = false;
 
-	static final int noPartition = 0;
-	static final int partitionByCharacterGroups = 1;
-	static final int partitionByCodonPosition = 2;
 	static final String codpos1Subset = "1st Position";
 	static final String codpos2Subset = "2nd Position";
 	static final String codpos3Subset = "3rd Position";
 	static final String nonCodingSubset = "Non-coding";
 
-	int partitionScheme = partitionByCharacterGroups;
 	int currentPartitionSubset = 0;
 
 	protected long randseed = -1;

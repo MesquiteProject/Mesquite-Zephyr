@@ -173,6 +173,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			bootstrapreps = MesquiteInteger.fromString(content);
 			if (bootstrapreps<1) bootstrapreps=1;
 		}
+		if ("partitionScheme".equalsIgnoreCase(tag))
+			partitionScheme = MesquiteInteger.fromString(content);
 		if ("onlyBest".equalsIgnoreCase(tag))
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
 		if ("nobfgs".equalsIgnoreCase(tag))
@@ -192,6 +194,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
+		StringUtil.appendXMLTag(buffer, 2, "partitionScheme", partitionScheme);  
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
 		StringUtil.appendXMLTag(buffer, 2, "nobfgs", nobfgs);  
 		StringUtil.appendXMLTag(buffer, 2, "bootstrapBranchLengths", bootstrapBranchLengths);  
@@ -266,6 +269,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				return i;
 		return 0;
 	}
+	protected RadioButtons charPartitionButtons = null;
 
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
@@ -337,6 +341,26 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			tabbedPanel.addPanel("Character Models & Constraints", true);
 		else
 			tabbedPanel.addPanel("Character Models", true);
+		if (!data.hasCharacterGroups()) {
+			if (partitionScheme == partitionByCharacterGroups)
+				partitionScheme = noPartition;
+		}
+		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
+			if (partitionScheme == partitionByCodonPosition)
+				partitionScheme = noPartition;
+		}
+		if (data instanceof ProteinData)
+			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups" }, partitionScheme);
+		else
+			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
+	//	charPartitionButtons.addItemListener(this);
+		if (!data.hasCharacterGroups()) {
+			charPartitionButtons.setEnabled(1, false);
+		}
+		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
+			charPartitionButtons.setEnabled(2, false);
+		}
+		dialog.addHorizontalLine(1);
 		dnaModelField = dialog.addTextField("DNA Model:", dnaModel, 20);
 		proteinModelField = dialog.addTextField("Protein Model:", proteinModel, 20);
 		proteinModelMatrixChoice = dialog.addPopUpMenu("Protein Transition Matrix Model", getProteinModelMatrixOptions(), getProteinModelMatrixNumber(proteinModelMatrix));
@@ -378,6 +402,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (buttonPressed.getValue()==0)  {
 			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
 			if (externalProcRunner.optionsChosen() && infererOK) {
+				partitionScheme = charPartitionButtons.getValue();
 				dnaModel = dnaModelField.getText();
 				proteinModel = proteinModelField.getText();
 				String name = proteinModelMatrixChoice.getSelectedItem();
@@ -673,8 +698,15 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		setFileNames();
 
 		String multipleModelFileContents = "";
-		if (multipleModelFileAllowed())
-			multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
+		if (partitionScheme == partitionByCharacterGroups) {
+			if (multipleModelFileAllowed())
+				multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false);
+		}
+		else if (partitionScheme == partitionByCodonPosition) {
+			multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, true);
+		}
+	//	if (multipleModelFileAllowed())
+	//		multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
 		//Debugg.println: David: could there be a choice for partByCodPos?  I'd like that
 		//Debugg.println("multipleModelFileContents " + multipleModelFileContents);
 		

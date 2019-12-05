@@ -38,10 +38,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected	int randomIntSeed = (int)System.currentTimeMillis();  
 	protected long  randseed = -1;
 
-	protected static final int noPartition = 0;
-	protected static final int partitionByCharacterGroups = 1;
-	protected static final int partitionByCodonPosition = 2;
-	protected int partitionScheme = partitionByCharacterGroups;
 	protected int currentPartitionSubset = 0;
 	protected 	Choice modelOptionChoice;
 
@@ -88,7 +84,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 
 
-	static String constraintfile = "none";
+	//static String constraintfile = "none";
 
 	protected  SingleLineTextField substitutionModelField, otherOptionsField;
 
@@ -653,7 +649,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 
 	//protected String multipleModelFileName;
-	protected String constraintTreeFileName="constraintTree.tre";
+	protected String constraintTreeFileName="constraintfile.tre";
 
 	/*.................................................................................................................*/
 	public void setFileNames () {
