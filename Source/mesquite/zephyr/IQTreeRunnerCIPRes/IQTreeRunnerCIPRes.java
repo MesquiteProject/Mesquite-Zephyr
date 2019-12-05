@@ -253,7 +253,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 		addArgument(builder, sb, "vparam.specify_numparts_",  ""+LOCnumParts); 
 
 		 if (useConstraintTree)
-				addArgument(builder, sb, "input.constraint_file_",  "constraintTree.tre");
+				addArgument(builder, sb, "input.constraint_file_",  CONSTRAINTTREEFILENAME);
 		 
 			addArgument(builder, sb, "vparam.specify_seed_",  ""+LOCbootstrapSeed);
 			//addArgument(builder, sb, "vparam.partition_type_",  "-q");

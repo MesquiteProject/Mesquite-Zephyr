@@ -67,6 +67,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected static String otherOptions = "";
 	protected boolean useConstraintTree = false;
 	protected static int minUFBootstrapReps=1000;
+	protected static String CONSTRAINTTREEFILENAME =  "constraintTree.tre";
 
 	protected static final int STANDARDBOOTSTRAP = 0;
 	protected static final int ULTRAFASTBOOTSTRAP = 1;
@@ -259,7 +260,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.4-1.6.10";
+		return "1.6.4-1.6.10, 2.0rc1";
 	}
 	public abstract void addRunnerOptions(ExtensibleDialog dialog);
 	public abstract void processRunnerOptions();
@@ -649,7 +650,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 
 	//protected String multipleModelFileName;
-	protected String constraintTreeFileName="constraintfile.tre";
 
 	/*.................................................................................................................*/
 	public void setFileNames () {
@@ -822,7 +822,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		//fileContents[2] = translationTable;
 		//fileNames[2] = translationFileName;
 		fileContents[CONSTRAINTFILENUMBER] = constraintTree;
-		fileNames[CONSTRAINTFILENUMBER] = constraintTreeFileName;
+		fileNames[CONSTRAINTFILENUMBER] = CONSTRAINTTREEFILENAME;
 		fileContents[3] = getRunInformation();
 		fileNames[3] = runInformationFileName;
 		int runInformationFileNumber = 3;

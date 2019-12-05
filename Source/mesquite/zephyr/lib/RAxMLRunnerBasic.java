@@ -264,9 +264,9 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 		if (!StringUtil.blank(LOCotherOptions)) 
 			localArguments += " " + LOCotherOptions;
 		if (useConstraintTree == SKELETAL)
-			localArguments += " -r constraintTree.tre "; 
+			localArguments += " -r " + CONSTRAINTTREEFILENAME + " "; 
 		else if (useConstraintTree == MONOPHYLY)
-			localArguments += " -g constraintTree.tre "; 
+			localArguments += " -g " + CONSTRAINTTREEFILENAME + " "; 
 
 		if (LOCdoBootstrap) {
 			if (LOCbootstrapreps>0)

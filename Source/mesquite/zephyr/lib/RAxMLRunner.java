@@ -62,6 +62,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected int useConstraintTree = NOCONSTRAINT;
 	protected int SOWHConstraintTree = MONOPHYLY;
 	protected boolean bootstrapBranchLengths = false;
+	protected static String CONSTRAINTTREEFILENAME =  "constraintTree.tre";
 
 
 	long summaryFilePosition =0;
@@ -608,7 +609,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 
 	protected String multipleModelFileName;
-	protected String constraintTreeFileName="constraintTree.tre";
 
 	/*.................................................................................................................*/
 	public void setFileNames () {
@@ -798,7 +798,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		fileContents[2] = translationTable;
 		fileNames[2] = translationFileName;
 		fileContents[CONSTRAINTFILENUMBER] = constraintTree;
-		fileNames[CONSTRAINTFILENUMBER] = constraintTreeFileName;
+		fileNames[CONSTRAINTFILENUMBER] = CONSTRAINTTREEFILENAME;
 		fileContents[4] = getRunInformation();
 		fileNames[4] = runInformationFileName;
 		int runInformationFileNumber = 4;
