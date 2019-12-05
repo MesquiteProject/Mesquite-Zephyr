@@ -42,7 +42,7 @@
     <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->Features &amp; Bugs<!-- InstanceEndEditable --></div></td>
     <td width="2%">&nbsp;</td>
     <td width="14%">Version 3.0+<br />
-      8 May 2019<br /></td>
+      4 December 2019<br /></td>
   </tr>
 </table>
 
@@ -170,8 +170,9 @@
     </strong></p>
     <ul>
       <li>Searching for ML tree in IQ-TREE with multiple search replicates in which one asked to save trees from each replicate failed to record the scores of trees in replicates after the first. Fixed in build 135.</li>
-      <li>Simplified files for TNT analyses if original file has complex character names.</li>
-      <li>Corrected IQTree Score saving</li>
+      <li>If the folder in which one was to save temporary Zephyr analysis files was locked, and Zephyr asked in which folder files should be saved, and if the user asked to delete the files at the end of a run, then the chosen folder and all of its files (including files having nothing to do with the Zephyr run) were deleted. Fixed in build 926 of Mesquite.</li>
+      <li>Simplified files for TNT analyses if original file has complex character names; some TNT runs would stop because of irrelevant CNAME commands with odd character names that had been included by Mesquite.</li>
+      <li>Several small bugs</li>
     </ul>
     <p></p>
     <p><br />
