@@ -234,26 +234,26 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 		} else {
 			if (LOCsearchStyle==ULTRAFASTBOOTSTRAP) {
 				addArgument(builder, sb, "vparam.bootstrap_type_",  "bb");
-				// addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
 				if (LOCbootstrapreps>0)
 					addArgument(builder, sb, "vparam.num_bootreps_",  ""+LOCbootstrapreps);
 				else
 					addArgument(builder, sb, "vparam.num_bootreps_",  "1000");
+				//addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
 			} else {
 				addArgument(builder, sb, "vparam.bootstrap_type_",  "bc");
-				//Debugg.println: addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
 				if (LOCbootstrapreps>0)
 					addArgument(builder, sb, "vparam.num_bootreps_",  ""+LOCbootstrapreps);
 				else
 					addArgument(builder, sb, "vparam.num_bootreps_",  "1000");
+				//addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
 			}
 		}
 
 		addArgument(builder, sb, "vparam.specify_runtype_",  "2");  
 		addArgument(builder, sb, "vparam.specify_numparts_",  ""+LOCnumParts); 
 
-		 if (useConstraintTree)
-				addArgument(builder, sb, "input.constraint_file_",  CONSTRAINTTREEFILENAME);
+		// if (useConstraintTree)
+		//		addArgument(builder, sb, "input.constraint_file_",  CONSTRAINTTREEFILENAME);
 		 
 			addArgument(builder, sb, "vparam.specify_seed_",  ""+LOCbootstrapSeed);
 			//addArgument(builder, sb, "vparam.partition_type_",  "-q");
@@ -265,7 +265,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 					addArgument(builder, sb, "vparam.partition_type_",  "-spp");
 			 else if (LOCPartitionLinkage==spPartitionLinkage)
 					addArgument(builder, sb, "vparam.partition_type_",  "-sp");
-			//addArgument(builder, sb, "input.partition_file_",  setsFileName);
+		//	addArgument(builder, sb, "input.partition_file_",  setsFileName);
 		 }
 
 		 if (StringUtil.notEmpty(LOCSubstitutionModel))
