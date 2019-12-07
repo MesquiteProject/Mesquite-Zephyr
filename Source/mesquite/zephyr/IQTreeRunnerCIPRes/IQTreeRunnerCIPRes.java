@@ -93,7 +93,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.4";
+		return "1.6.4-1.6.10";
 	}
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
