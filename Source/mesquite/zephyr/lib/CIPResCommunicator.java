@@ -273,6 +273,7 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 
 
 	/*.................................................................................................................*/
+	/*.................................................................................................................*/
 	/** The core method that initiates a job on CIPRes. */
 	public boolean postJob(HttpClient httpclient, MultipartEntityBuilder builder, MesquiteString jobURL){
 		if (builder==null)
@@ -282,7 +283,16 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 		httppost.addHeader("cipres-appkey", CIPRESkey); 
 		
 		//some of this from http://stackoverflow.com/questions/18964288/upload-a-file-through-an-http-form-via-multipartentitybuilder-with-a-progress
-		HttpEntity cipresEntity = builder.build();
+		HttpEntity cipresEntity = builder.build();	
+		
+		try {
+			String entityFileName = rootDir + "cipresEntity.txt";
+			File fstream = new File(entityFileName);
+			FileOutputStream fos = new FileOutputStream(fstream);
+			cipresEntity.writeTo(fos);
+		} catch (Exception e) {
+			// catch exceptions
+		}
 
 		httppost.setEntity(cipresEntity);
 
