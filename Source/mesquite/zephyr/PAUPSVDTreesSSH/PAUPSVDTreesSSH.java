@@ -23,7 +23,7 @@ import mesquite.zephyr.lib.*;
 public class PAUPSVDTreesSSH extends PAUPSVDTrees {
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 	/*.................................................................................................................*/

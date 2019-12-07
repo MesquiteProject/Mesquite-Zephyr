@@ -22,7 +22,7 @@ public class PAUPParsimonyTreesSSH extends PAUPParsimonyTrees  {
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 

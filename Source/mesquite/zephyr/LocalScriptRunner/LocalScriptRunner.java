@@ -408,7 +408,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			if (MesquiteTrunk.isLinux()&&requiresLinuxTerminalCommands())
 				shellScript.append(getLinuxBashScriptPostCommand());
 			shellScript.append(ShellScriptUtil.getRemoveCommand(runningFilePath));
-			//shellScript.append("badCommand2 "+StringUtil.lineEnding()); //Debugg.println
+			//shellScript.append("badCommand2 "+StringUtil.lineEnding()); 
 			if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailableAndUseful())
 				shellScript.append("\n" + ShellScriptUtil.getExitCommand() + "\n");
 			scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";

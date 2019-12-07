@@ -24,7 +24,7 @@ public class PAUPNJTreesSSH extends PAUPNJTrees {
 	
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 

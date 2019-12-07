@@ -104,7 +104,7 @@ public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 

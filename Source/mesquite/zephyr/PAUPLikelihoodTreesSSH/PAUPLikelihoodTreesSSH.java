@@ -23,7 +23,7 @@ public class PAUPLikelihoodTreesSSH extends PAUPTrees implements LikelihoodAnaly
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 	/*.................................................................................................................*/
