@@ -238,14 +238,14 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 					addArgument(builder, sb, "vparam.num_bootreps_",  ""+LOCbootstrapreps);
 				else
 					addArgument(builder, sb, "vparam.num_bootreps_",  "1000");
-				//addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
+				addArgument(builder, sb, "vparam.write_boottrees1_",  "1");
 			} else {
 				addArgument(builder, sb, "vparam.bootstrap_type_",  "bc");
 				if (LOCbootstrapreps>0)
 					addArgument(builder, sb, "vparam.num_bootreps_",  ""+LOCbootstrapreps);
 				else
 					addArgument(builder, sb, "vparam.num_bootreps_",  "1000");
-				//addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
+				addArgument(builder, sb, "vparam.write_boottrees1_",  "1");
 			}
 		}
 
