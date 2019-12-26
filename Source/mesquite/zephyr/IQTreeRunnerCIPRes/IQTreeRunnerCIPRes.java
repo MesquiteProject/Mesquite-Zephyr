@@ -374,7 +374,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 
