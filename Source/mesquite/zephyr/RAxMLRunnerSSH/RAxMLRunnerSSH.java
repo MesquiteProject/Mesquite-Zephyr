@@ -57,6 +57,13 @@ public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
 			return externalProcRunner.getMaxCores();
 		return MesquiteInteger.infinite ;
 	}
+	public void checkFields() {
+		int max = getMaxCores();
+		if (MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
+			MesquiteMessage.notifyUser("Number of processors used cannot exceed "+max +", as that is the maximum specified in the SSH Server Profile");			
+			numProcessorsField.setValue(max);
+		}
+	}
 
 	/*.................................................................................................................*/
 	public  String queryOptionsDialogTitle() {
@@ -97,7 +104,7 @@ public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 

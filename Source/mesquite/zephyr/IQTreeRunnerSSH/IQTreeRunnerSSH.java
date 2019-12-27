@@ -78,7 +78,7 @@ public class IQTreeRunnerSSH extends IQTreeRunnerBasic  {
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 

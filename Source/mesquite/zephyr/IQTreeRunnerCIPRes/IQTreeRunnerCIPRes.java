@@ -93,7 +93,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.4";
+		return "1.6.4-1.6.10";
 	}
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
@@ -143,7 +143,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 
 			MultipartEntityBuilder arguments = MultipartEntityBuilder.create();
 			StringBuffer sb = new StringBuffer();
-			getArguments(arguments, sb, "[fileName]", "[setsBlockFileName]", substitutionModelField.getText(), otherOptionsField.getText(), searchStyleButtons.getValue(), bootStrapRepsField.getValue(), bootstrapSeed, numSearchRunsField.getValue(), numUFBootRunsField.getValue(), charPartitionButtons.getValue(), partitionLinkageChoice.getSelectedIndex(), outgroupTaxSetString, null,  false);
+			getArguments(arguments, sb, "[fileName]", "[setsBlockFileName]", substitutionModelField.getText(), otherOptionsField.getText(), searchStyleButtons.getValue(), bootStrapRepsField.getValue(), bootstrapSeed, numSearchRunsField.getValue(), numUFBootRunsField.getValue(), charPartitionButtons.getValue(), partitionLinkageChoice.getSelectedIndex(), outgroupTaxSetString, null, numPartsInStartingPartition, false);
 			String command = externalProcRunner.getExecutableCommand() + arguments.toString();
 			commandLabel.setText("This command will be used by CIPRes to run IQ-TREE:");
 			commandField.setText(command);
@@ -157,7 +157,45 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 	public int minimumNumSearchReplicates() {
 		return 1;
 	}
+	/*.................................................................................................................*/
+	public int minimumNumBootstrapReplicates() {
+		return 1;
+	}
 
+	/*.................................................................................................................*/
+
+	
+	String inputFilesInRunnerObject = "";
+
+	public void prepareRunnerObject(Object obj){
+		if (obj instanceof MultipartEntityBuilder) {
+			MultipartEntityBuilder builder = (MultipartEntityBuilder)obj;
+			final File file = new File(externalProcRunner.getInputFilePath(DATAFILENUMBER));
+			FileBody fb = new FileBody(file);
+			builder.addPart("input.infile_", fb);  
+			inputFilesInRunnerObject+= "input.infile_ transmitted\n";
+			if (useConstraintTree) {
+				final File constraintFile = new File(externalProcRunner.getInputFilePath(CONSTRAINTFILENUMBER));
+				if (constraintFile!=null && constraintFile.exists()) {
+					FileBody fb2 = new FileBody(constraintFile);
+					builder.addPart("input.constraint_file_", fb2);  
+					inputFilesInRunnerObject+= " input.constraint_ constraint tree transmitted\n";
+
+				}
+			}
+			String modelFilePath = externalProcRunner.getInputFilePath(PARTITIONFILENUMBER);
+			if (StringUtil.notEmpty(modelFilePath)) {
+				final File modelFile = new File(modelFilePath);
+				if (modelFile!=null && modelFile.exists()) {
+					FileBody fb2 = new FileBody(modelFile);
+					builder.addPart("input.partition_file_", fb2);  
+					inputFilesInRunnerObject+= "  input.partition_file_ partition file transmitted\n";
+				}
+			}
+			if (isVerbose() && StringUtil.notEmpty(inputFilesInRunnerObject))
+				logln(inputFilesInRunnerObject);		
+		}
+	}
 
 	/*.................................................................................................................*/
 	void addArgument(MultipartEntityBuilder builder, StringBuffer sb, String param, String value) {
@@ -175,7 +213,9 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 			int LOCnumUFBootRuns, 
 			int LOCPartitionScheme,
 			int LOCPartitionLinkage,
-			String LOCoutgroupTaxSetString, String LOCMultipleModelFile, 
+			String LOCoutgroupTaxSetString, 
+			String LOCMultipleModelFile, 
+			int LOCnumParts,
 			boolean preflight){
 
 		if (builder==null)
@@ -187,35 +227,36 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 			arguments += " -s " + fileName + " -n file.out "; 
 		*/
 
-		addArgument(builder, sb, "input.file_", fileName); 
+		//addArgument(builder, sb, "input.infile_", fileName); 
 
 		if (LOCsearchStyle==STANDARDSEARCH) {
 			// number of reps
 		} else {
 			if (LOCsearchStyle==ULTRAFASTBOOTSTRAP) {
-				addArgument(builder, sb, "vparam.bootstrap_type_",  "b");
-				addArgument(builder, sb, "vparam.write_boottrees1_ ",  "1");
+				addArgument(builder, sb, "vparam.bootstrap_type_",  "bb");
 				if (LOCbootstrapreps>0)
-					addArgument(builder, sb, "vparam.vparam.num_bootreps_",  ""+LOCbootstrapreps);
+					addArgument(builder, sb, "vparam.num_bootreps_",  ""+LOCbootstrapreps);
 				else
-					addArgument(builder, sb, "vparam.vparam.num_bootreps_",  "1000");
+					addArgument(builder, sb, "vparam.num_bootreps_",  "1000");
+				addArgument(builder, sb, "vparam.write_boottrees1_",  "1");
 			} else {
 				addArgument(builder, sb, "vparam.bootstrap_type_",  "bc");
 				if (LOCbootstrapreps>0)
-					addArgument(builder, sb, "vparam.vparam.num_bootreps_",  ""+LOCbootstrapreps);
+					addArgument(builder, sb, "vparam.num_bootreps_",  ""+LOCbootstrapreps);
 				else
-					addArgument(builder, sb, "vparam.vparam.num_bootreps_",  "100");
+					addArgument(builder, sb, "vparam.num_bootreps_",  "1000");
+				addArgument(builder, sb, "vparam.write_boottrees1_",  "1");
 			}
 		}
 
-		 if (StringUtil.notEmpty(LOCSubstitutionModel))
-				addArgument(builder, sb, "vparam.specify_model_",  LOCSubstitutionModel);  // TODO: WILL NOT WORK if specific model specified
+		addArgument(builder, sb, "vparam.specify_runtype_",  "2");  
+		addArgument(builder, sb, "vparam.specify_numparts_",  ""+LOCnumParts); 
 
-		 if (useConstraintTree)
-				addArgument(builder, sb, "input.constraint_file_",  "constraintTree.tre");
+		// if (useConstraintTree)
+		//		addArgument(builder, sb, "input.constraint_file_",  CONSTRAINTTREEFILENAME);
 		 
 			addArgument(builder, sb, "vparam.specify_seed_",  ""+LOCbootstrapSeed);
-			addArgument(builder, sb, "vparam.partition_type_",  "-q");
+			//addArgument(builder, sb, "vparam.partition_type_",  "-q");
 		 
 		 if (LOCPartitionScheme!=noPartition) {
 			 if (LOCPartitionLinkage==qPartitionLinkage)
@@ -224,8 +265,12 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 					addArgument(builder, sb, "vparam.partition_type_",  "-spp");
 			 else if (LOCPartitionLinkage==spPartitionLinkage)
 					addArgument(builder, sb, "vparam.partition_type_",  "-sp");
-				addArgument(builder, sb, "input.partition_file_",  setsFileName);
+		//	addArgument(builder, sb, "input.partition_file_",  setsFileName);
 		 }
+
+		 if (StringUtil.notEmpty(LOCSubstitutionModel))
+				addArgument(builder, sb, "vparam.specify_model_",  LOCSubstitutionModel);  // TODO: WILL NOT WORK if specific model specified
+
 
 		addArgument(builder, sb, "vparam.specify_prefix_",  getOutputFilePrefix());
 
@@ -280,26 +325,26 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 	String arguments;
 
 	/*.................................................................................................................*/
-	public Object getProgramArguments(String dataFileName, String setsFileName, boolean isPreflight) {
+	public Object getProgramArguments(String dataFileName, String setsFileName, boolean isPreflight, int numParts) {
 		MultipartEntityBuilder arguments = MultipartEntityBuilder.create();
 		StringBuffer sb = new StringBuffer();
 
+		numPartsInStartingPartition= numParts;
 		if (!isPreflight) {
-			getArguments(arguments, sb, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, null, false);
+			getArguments(arguments, sb, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, null, numParts, false);
 		} else {
-			getArguments(arguments, sb, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, null, true);
+			getArguments(arguments, sb, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, null, numParts, true);
 		}
 	
 		if (!isPreflight && isVerbose())
 				logln(getExecutableName() + " arguments: \n" + sb.toString() + "\n");
-
 		return arguments; 
 
 	}
 
 
 	public String getExecutableName() {
-		return "IQTREE_XSEDE";
+		return "IQTREE_XSEDE_1_01_01";
 	}
 
 
@@ -329,7 +374,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 
@@ -345,7 +390,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 
 	/*.................................................................................................................*/
 	 public boolean loadModule(){
-		 return false;
+		 return true;
 	}
 
 

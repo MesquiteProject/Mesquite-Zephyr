@@ -61,6 +61,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected static final int SKELETAL = 2;
 	protected int useConstraintTree = NOCONSTRAINT;
 	protected int SOWHConstraintTree = MONOPHYLY;
+	protected boolean bootstrapBranchLengths = false;
+	protected static String CONSTRAINTTREEFILENAME =  "constraintTree.tre";
 
 
 	long summaryFilePosition =0;
@@ -76,7 +78,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected javax.swing.JLabel commandLabel;
 	protected SingleLineTextArea commandField;
 	protected IntegerField numRunsField, bootStrapRepsField;
-	protected Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox, nobfgsCheckBox;
+	protected Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox, nobfgsCheckBox,bootstrapBranchLengthsCheckBox;
 	RadioButtons constraintButtons;
 	RadioButtons threadingRadioButtons;
 	//	int count=0;
@@ -172,10 +174,14 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			bootstrapreps = MesquiteInteger.fromString(content);
 			if (bootstrapreps<1) bootstrapreps=1;
 		}
+		if ("partitionScheme".equalsIgnoreCase(tag))
+			partitionScheme = MesquiteInteger.fromString(content);
 		if ("onlyBest".equalsIgnoreCase(tag))
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
 		if ("nobfgs".equalsIgnoreCase(tag))
 			nobfgs = MesquiteBoolean.fromTrueFalseString(content);
+		if ("bootstrapBranchLengths".equalsIgnoreCase(tag))
+			bootstrapBranchLengths = MesquiteBoolean.fromTrueFalseString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
 			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
 
@@ -189,8 +195,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
+		StringUtil.appendXMLTag(buffer, 2, "partitionScheme", partitionScheme);  
 		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
 		StringUtil.appendXMLTag(buffer, 2, "nobfgs", nobfgs);  
+		StringUtil.appendXMLTag(buffer, 2, "bootstrapBranchLengths", bootstrapBranchLengths);  
 		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
 
 		preferencesSet = true;
@@ -262,6 +270,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				return i;
 		return 0;
 	}
+	protected RadioButtons charPartitionButtons = null;
 
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
@@ -317,6 +326,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			doBootstrapCheckbox.addItemListener(this);
 			bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 1, MesquiteInteger.infinite);
 			seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
+			bootstrapBranchLengthsCheckBox = dialog.addCheckBox("save branch lengths in bootstrap trees", bootstrapBranchLengths);
 			dialog.addHorizontalLine(1);
 		}
 		else 
@@ -332,6 +342,26 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			tabbedPanel.addPanel("Character Models & Constraints", true);
 		else
 			tabbedPanel.addPanel("Character Models", true);
+		if (!data.hasCharacterGroups()) {
+			if (partitionScheme == partitionByCharacterGroups)
+				partitionScheme = noPartition;
+		}
+		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
+			if (partitionScheme == partitionByCodonPosition)
+				partitionScheme = noPartition;
+		}
+		if (data instanceof ProteinData)
+			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups" }, partitionScheme);
+		else
+			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
+	//	charPartitionButtons.addItemListener(this);
+		if (!data.hasCharacterGroups()) {
+			charPartitionButtons.setEnabled(1, false);
+		}
+		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
+			charPartitionButtons.setEnabled(2, false);
+		}
+		dialog.addHorizontalLine(1);
 		dnaModelField = dialog.addTextField("DNA Model:", dnaModel, 20);
 		proteinModelField = dialog.addTextField("Protein Model:", proteinModel, 20);
 		proteinModelMatrixChoice = dialog.addPopUpMenu("Protein Transition Matrix Model", getProteinModelMatrixOptions(), getProteinModelMatrixNumber(proteinModelMatrix));
@@ -373,6 +403,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (buttonPressed.getValue()==0)  {
 			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
 			if (externalProcRunner.optionsChosen() && infererOK) {
+				partitionScheme = charPartitionButtons.getValue();
 				dnaModel = dnaModelField.getText();
 				proteinModel = proteinModelField.getText();
 				String name = proteinModelMatrixChoice.getSelectedItem();
@@ -387,6 +418,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 					doBootstrap=false;
 				onlyBest = onlyBestBox.getState();
 				nobfgs = nobfgsCheckBox.getState();
+				bootstrapBranchLengths = bootstrapBranchLengthsCheckBox.getState();
 
 				if (getConstrainedSearchAllowed()) {
 					useConstraintTree = constraintButtons.getValue();
@@ -407,6 +439,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		numRunsField.getTextField().setEnabled(!doBoot);
 		if (bootStrapRepsField!=null)
 			bootStrapRepsField.getTextField().setEnabled(doBoot);
+		if (bootstrapBranchLengthsCheckBox!=null)
+			bootstrapBranchLengthsCheckBox.setEnabled(doBoot);
 		if (seedField!=null)
 			seedField.getTextField().setEnabled(doBoot);
 	}
@@ -575,7 +609,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 
 	protected String multipleModelFileName;
-	protected String constraintTreeFileName="constraintTree.tre";
 
 	/*.................................................................................................................*/
 	public void setFileNames () {
@@ -619,6 +652,12 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public boolean multipleModelFileAllowed() {
 		return true;
 	}
+	
+	protected static final int DATAFILENUMBER = 0;
+	protected static final int MULTIMODELFILENUMBER = 1;
+	protected static final int CONSTRAINTFILENUMBER = 3;
+	
+
 	/*.................................................................................................................*/
 	public synchronized Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		finalValues=null;
@@ -659,8 +698,15 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		setFileNames();
 
 		String multipleModelFileContents = "";
-		if (multipleModelFileAllowed())
-			multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
+		if (partitionScheme == partitionByCharacterGroups) {
+			if (multipleModelFileAllowed())
+				multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false);
+		}
+		else if (partitionScheme == partitionByCodonPosition) {
+			multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, true);
+		}
+	//	if (multipleModelFileAllowed())
+	//		multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
 		//Debugg.println: David: could there be a choice for partByCodPos?  I'd like that
 		//Debugg.println("multipleModelFileContents " + multipleModelFileContents);
 		
@@ -745,14 +791,14 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			fileContents[i]="";
 			fileNames[i]="";
 		}
-		fileContents[0] = MesquiteFile.getFileContentsAsString(dataFilePath);
-		fileNames[0] = dataFileName;
-		fileContents[1] = multipleModelFileContents;
-		fileNames[1] = multipleModelFileName;
+		fileContents[DATAFILENUMBER] = MesquiteFile.getFileContentsAsString(dataFilePath);
+		fileNames[DATAFILENUMBER] = dataFileName;
+		fileContents[MULTIMODELFILENUMBER] = multipleModelFileContents;
+		fileNames[MULTIMODELFILENUMBER] = multipleModelFileName;
 		fileContents[2] = translationTable;
 		fileNames[2] = translationFileName;
-		fileContents[3] = constraintTree;
-		fileNames[3] = constraintTreeFileName;
+		fileContents[CONSTRAINTFILENUMBER] = constraintTree;
+		fileNames[CONSTRAINTFILENUMBER] = CONSTRAINTTREEFILENAME;
 		fileContents[4] = getRunInformation();
 		fileNames[4] = runInformationFileName;
 		int runInformationFileNumber = 4;

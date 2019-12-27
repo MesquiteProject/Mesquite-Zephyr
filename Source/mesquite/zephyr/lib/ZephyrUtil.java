@@ -15,6 +15,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import cgrb.eta.remote.api.ETAConnection;
 import mesquite.categ.lib.CategoricalData;
@@ -82,6 +83,7 @@ public class ZephyrUtil {
 		MesquiteFile file = new MesquiteFile();
 		file.writeTaxaWithAllMissing = false;
 		file.writeExcludedCharacters = false;
+		file.writeCharLabels = false;
 		if (exporter!=null) {
 			exporter.writeOnlySelectedTaxa = selectedTaxaOnly;
 			if (module instanceof ZephyrFilePreparer)
@@ -265,7 +267,7 @@ public class ZephyrUtil {
 		return -1;
 	}
 	/*.................................................................................................................*/
-	public static String getStandardPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters, boolean includeAsterisk){
+	public static String getStandardPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters, boolean includeAsterisk, MesquiteInteger numParts){
 		String standardPartitionSection = "";
 		String standardPartition = "";
 		String partitionCommand = "";
@@ -299,6 +301,8 @@ public class ZephyrUtil {
 				partitionCommand += ", ";
 			partitionCommand += " part" + parts.length + ": unassigned" ;
 		}
+		if (numParts!=null) 
+			numParts.setValue(numCharSets);
 		if (!StringUtil.blank(standardPartition)) {
 			standardPartitionSection +=standardPartition;
 			standardPartitionSection += "\n\tcharpartition ";
@@ -309,10 +313,10 @@ public class ZephyrUtil {
 		return standardPartitionSection;
 	}
 	/*.................................................................................................................*/
-	public static String getCodPosPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters, boolean includeAsterisk){
+	public static String getCodPosPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters, boolean includeAsterisk, MesquiteInteger numParts){
 		//codon positions if nucleotide
 		String codPosPartitionSection = "";
-		int numberCharSets = 0;
+		int numCharSets = 0;
 		String charSetCommands = "";
 		String partitionCommand = "";
 		CodonPositionsSet codSet = (CodonPositionsSet)data.getCurrentSpecsSet(CodonPositionsSet.class);
@@ -327,7 +331,7 @@ public class ZephyrUtil {
 					charSetName = StringUtil.tokenize("nonCoding");
 				else 
 					charSetName = StringUtil.tokenize("codonPos" + iw);			
-				numberCharSets++;
+				numCharSets++;
 				charSetCommands += "\n\tcharset " + charSetName + " = " +  locs + ";";
 				if (!StringUtil.blank(partitionCommand))
 					partitionCommand += ", ";
@@ -335,6 +339,8 @@ public class ZephyrUtil {
 			}
 		}
 		//	String codPos = ((DNAData)data).getCodonsAsNexusCharSets(numberCharSets, charSetList); // equivalent to list
+		if (numParts!=null) 
+			numParts.setValue(numCharSets);
 		if (!StringUtil.blank(charSetCommands)) {
 			codPosPartitionSection +=charSetCommands;
 			codPosPartitionSection += "\n\tcharpartition ";
@@ -414,8 +420,21 @@ public class ZephyrUtil {
 
 		if (StringUtil.notEmpty(typeSetString) || StringUtil.notEmpty(wtSetString)|| StringUtil.notEmpty(inclusionSetString)) {
 			sb.append("\nBEGIN assumptions;\n");
-			if (StringUtil.notEmpty(typeSetString))
+			if (StringUtil.notEmpty(typeSetString)){
+				Vector modelsUsed = new Vector();
+				for (int ic = 0; ic<typeSet.getNumChars(); ic++){ //checking to see if stepmatrices etc. are being used, and if so, include them
+					CharacterModel cm = typeSet.getModel(ic);
+					if (!cm.isBuiltIn() && modelsUsed.indexOf(cm)<0){
+						modelsUsed.addElement(cm);
+						String s = "\t"+ cm.getNEXUSCommand() + " ";  
+						s += StringUtil.tokenize(cm.getName()) + " (" ;  
+						s += StringUtil.tokenize(cm.getNEXUSClassName()) + ") = " + StringUtil.lineEnding();
+						s += "\t\t"+ cm.getNexusSpecification()+";" + StringUtil.lineEnding(); 
+						sb.append(s);
+					}
+				}
 				sb.append(typeSetString);
+			}
 			if (StringUtil.notEmpty(wtSetString))
 				sb.append(wtSetString);
 			if (StringUtil.notEmpty(inclusionSetString))
@@ -426,14 +445,14 @@ public class ZephyrUtil {
 	}
 	/*.................................................................................................................*/
 
-	public static  String getNEXUSSetsBlock(CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters, boolean includeAsterisk){
+	public static  String getNEXUSSetsBlock(CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters, boolean includeAsterisk, MesquiteInteger numParts){
 		StringBuffer sb = new StringBuffer();
 
 		String partitions = "";
 		if (useCodPosIfAvailable && data instanceof DNAData && ((DNAData)data).someCoding())
-			partitions = getCodPosPartitionNEXUSCommands(data, writeExcludedCharacters, includeAsterisk);
+			partitions = getCodPosPartitionNEXUSCommands(data, writeExcludedCharacters, includeAsterisk, numParts);
 		else
-			partitions = getStandardPartitionNEXUSCommands(data, writeExcludedCharacters, includeAsterisk);
+			partitions = getStandardPartitionNEXUSCommands(data, writeExcludedCharacters, includeAsterisk, numParts);
 
 		if (StringUtil.notEmpty(partitions)) {
 			sb.append("\nBEGIN sets;\n");
@@ -461,7 +480,7 @@ public class ZephyrUtil {
 			NexusBlock.suppressNEXUSIDS = true;
 			data.getMatrixManager().writeCharactersBlock(data, null, f, null);
 			if (writeSetsBlock) {
-				String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, writeExcludedCharacters, true);
+				String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, writeExcludedCharacters, true, null);
 				if (StringUtil.notEmpty(setsBlock))
 					f.writeLine(setsBlock + StringUtil.lineEnding());
 			}
@@ -480,12 +499,12 @@ public class ZephyrUtil {
 	}
 
 	/*.................................................................................................................*/
-	public static boolean writeNEXUSSetsBlock(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters, boolean includeAsterisk) {
+	public static boolean writeNEXUSSetsBlock(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters, boolean includeAsterisk, MesquiteInteger numParts) {
 		if (path != null) {
 			MesquiteFile f = MesquiteFile.newFile(dir, fileName);
 			f.openWriting(true);
 			f.writeLine("#NEXUS" + StringUtil.lineEnding());
-			String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, writeExcludedCharacters, includeAsterisk);
+			String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, writeExcludedCharacters, includeAsterisk, numParts);
 			if (StringUtil.notEmpty(setsBlock))
 				f.writeLine(setsBlock + StringUtil.lineEnding());
 

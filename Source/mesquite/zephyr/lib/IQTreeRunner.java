@@ -35,12 +35,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	boolean onlyBest = true;
 
-	protected	int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
+	protected	int randomIntSeed = (int)System.currentTimeMillis();  
+	protected long  randseed = -1;
 
-	protected static final int noPartition = 0;
-	protected static final int partitionByCharacterGroups = 1;
-	protected static final int partitionByCodonPosition = 2;
-	protected int partitionScheme = partitionByCharacterGroups;
 	protected int currentPartitionSubset = 0;
 	protected 	Choice modelOptionChoice;
 
@@ -70,6 +67,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected static String otherOptions = "";
 	protected boolean useConstraintTree = false;
 	protected static int minUFBootstrapReps=1000;
+	protected static String CONSTRAINTTREEFILENAME =  "constraintTree.tre";
 
 	protected static final int STANDARDBOOTSTRAP = 0;
 	protected static final int ULTRAFASTBOOTSTRAP = 1;
@@ -87,8 +85,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 
 
-	protected long  randseed = -1;
-	static String constraintfile = "none";
+	//static String constraintfile = "none";
 
 	protected  SingleLineTextField substitutionModelField, otherOptionsField;
 
@@ -263,12 +260,16 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.4";
+		return "1.6.4-1.6.10, 2.0rc1";
 	}
 	public abstract void addRunnerOptions(ExtensibleDialog dialog);
 	public abstract void processRunnerOptions();
 	/*.................................................................................................................*/
 	public int minimumNumSearchReplicates() {
+		return 1;
+	}
+	/*.................................................................................................................*/
+	public int minimumNumBootstrapReplicates() {
 		return 1;
 	}
 	public String getConstraintTreeName() {
@@ -323,8 +324,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		tabbedPanel.addPanel(getExecutableName()+" Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
 		addRunnerOptions(dialog);
-		if (treeInferer!=null) 
+		if (treeInferer!=null) {
 			treeInferer.addItemsToDialogPanel(dialog);
+		}
+		//Checkbox onlySetUpRunBox = dialog.addCheckBox("set up files but do not start inference", onlySetUpRun);
 		externalProcRunner.addNoteToBottomOfDialog(dialog);
 
 		if (bootstrapAllowed) {
@@ -333,7 +336,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			dialog.addHorizontalLine(1);
 			dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
 			searchStyleButtons.addItemListener(this);
-			bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 1, MesquiteInteger.infinite);
+			if (bootstrapreps< minimumNumBootstrapReplicates())
+				bootstrapreps = minimumNumBootstrapReplicates();
+			bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, minimumNumBootstrapReplicates(), MesquiteInteger.infinite);
 			numUFBootRunsField = dialog.addIntegerField("Number of Runs for Ultrafast Bootstrap", numUFBootRuns, 8, 1, MesquiteInteger.infinite);
 			seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
 			dialog.addHorizontalLine(1);
@@ -445,11 +450,16 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				processRunnerOptions();
 				storeRunnerPreferences();
 				acceptableOptions = true;
+//				onlySetUpRun = onlySetUpRunBox.getState();
+				externalProcRunner.setOnlySetUpRun(onlySetUpRun);
 			}
+				
 		}
 		dialog.dispose();
 		return (acceptableOptions);
 	}
+	/*.................................................................................................................*/
+
 	public void checkEnabled(int searchStyle) {
 		onlyBestBox.setEnabled(searchStyle==STANDARDSEARCH);
 		numSearchRunsField.getTextField().setEnabled(searchStyle==STANDARDSEARCH);
@@ -541,6 +551,13 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		} else if (searchStyleButtons.isAButton(e.getItemSelectable())) {
 			checkEnabled (searchStyleButtons.getValue());
+			int bootreps = bootStrapRepsField.getValue();
+			int searchStyleLocal = searchStyleButtons.getValue();
+
+			if (searchStyleLocal==ULTRAFASTBOOTSTRAP && bootreps<minUFBootstrapReps) {
+				bootStrapRepsField.setValue(minUFBootstrapReps);
+			}
+
 		}
 	}
 
@@ -622,7 +639,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			if (searchStyle==STANDARDBOOTSTRAP)
 				finalValues = new double[getBootstrapreps()];
 			else
-				finalValues = new double[numRuns];
+				finalValues = new double[numSearchRuns];
 			DoubleArray.deassignArray(finalValues);
 			finalValue = MesquiteDouble.unassigned;
 		}
@@ -633,7 +650,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 
 	//protected String multipleModelFileName;
-	protected String constraintTreeFileName="constraintTree.tre";
 
 	/*.................................................................................................................*/
 	public void setFileNames () {
@@ -652,8 +668,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 
 	/*.................................................................................................................*/
-	public abstract Object getProgramArguments(String dataFileName, String setsFileName, boolean isPreflight);
+	public abstract Object getProgramArguments(String dataFileName, String setsFileName, boolean isPreflight, int numParts);
 
+	protected int numPartsInStartingPartition = -1;
 
 	//String arguments;
 	/*.................................................................................................................*/
@@ -673,6 +690,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		this.constrainedSearch = constrainedSearch;
 	}
 
+	protected static final int DATAFILENUMBER = 0;
+	protected static final int PARTITIONFILENUMBER = 1;
+	protected static final int CONSTRAINTFILENUMBER = 2;
 
 	/*.................................................................................................................*/
 	public synchronized Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
@@ -700,11 +720,14 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, false, false, false, false);
 
 		String setsFilePath = tempDir + setsFileName;
+		MesquiteInteger numParts = new MesquiteInteger(1);
 
-		if (partitionScheme == partitionByCharacterGroups)
-			ZephyrUtil.writeNEXUSSetsBlock(taxa, tempDir, setsFileName, setsFilePath, data,  false,  false, false);
-		else if (partitionScheme == partitionByCodonPosition)
-			ZephyrUtil.writeNEXUSSetsBlock(taxa, tempDir, setsFileName, setsFilePath, data,  true,  false, false);
+		if (partitionScheme == partitionByCharacterGroups) {
+			ZephyrUtil.writeNEXUSSetsBlock(taxa, tempDir, setsFileName, setsFilePath, data,  false,  false, false, numParts);
+		}
+		else if (partitionScheme == partitionByCodonPosition) {
+			ZephyrUtil.writeNEXUSSetsBlock(taxa, tempDir, setsFileName, setsFilePath, data,  true,  false, false, numParts);
+		}
 
 
 		/*
@@ -763,8 +786,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		//now establish the commands for invoking IQ-TREE
 
 
-		Object arguments = getProgramArguments(dataFileName, setsFileName, false);
-		Object preflightArguments = getProgramArguments(dataFileName, setsFileName, true);
+		Object arguments = getProgramArguments(dataFileName, setsFileName, false, numParts.getValue());
+		Object preflightArguments = getProgramArguments(dataFileName, setsFileName, true,numParts.getValue());
 
 		//	String preflightCommand = externalProcRunner.getExecutableCommand()+" --flag-check " + ((MesquiteString)preflightArguments).getValue();
 		String programCommand = externalProcRunner.getExecutableCommand();
@@ -790,16 +813,16 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			fileContents[i]="";
 			fileNames[i]="";
 		}
-		fileContents[0] = MesquiteFile.getFileContentsAsString(dataFilePath);
-		fileNames[0] = dataFileName;
+		fileContents[DATAFILENUMBER] = MesquiteFile.getFileContentsAsString(dataFilePath);
+		fileNames[DATAFILENUMBER] = dataFileName;
 		if (partitionScheme != noPartition) {
-			fileContents[1] = MesquiteFile.getFileContentsAsString(setsFilePath);
-			fileNames[1] = setsFileName;
+			fileContents[PARTITIONFILENUMBER] = MesquiteFile.getFileContentsAsString(setsFilePath);
+			fileNames[PARTITIONFILENUMBER] = setsFileName;
 		}
 		//fileContents[2] = translationTable;
 		//fileNames[2] = translationFileName;
-		fileContents[2] = constraintTree;
-		fileNames[2] = constraintTreeFileName;
+		fileContents[CONSTRAINTFILENUMBER] = constraintTree;
+		fileNames[CONSTRAINTFILENUMBER] = CONSTRAINTTREEFILENAME;
 		fileContents[3] = getRunInformation();
 		fileNames[3] = runInformationFileName;
 		int runInformationFileNumber = 3;

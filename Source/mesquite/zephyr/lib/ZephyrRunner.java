@@ -47,6 +47,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
+	protected static final int noPartition = 0;
+	protected static final int partitionByCharacterGroups = 1;
+	protected static final int partitionByCodonPosition = 2;
+	protected int partitionScheme = partitionByCharacterGroups;
+
 	protected int currentRun=0;
 	protected boolean[] completedRuns=null;
 	protected int previousCurrentRun=0;
@@ -54,6 +59,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean updateWindow = false;
 	protected boolean bootstrapAllowed = true;
 	protected boolean beanWritten = false;
+	protected boolean onlySetUpRun = false;
 	boolean verbose=true;
 
 	protected Tree constraint = null;
@@ -682,7 +688,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (success) {
 			success = externalProcRunner.monitorExecution(progIndicator);
 		}
-		else {
+		else if (!onlySetUpRun) {
 			if (!beanWritten)
 				postBean("failed, externalProcRunner.startExecution | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;

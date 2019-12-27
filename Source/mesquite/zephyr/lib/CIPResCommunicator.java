@@ -149,7 +149,7 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 
 	/*.................................................................................................................*/
 
-	public void reportError(Document doc, String noteToUser, boolean resetPassword) {
+	public void reportError(String xmlFile, Document doc, String noteToUser, boolean resetPassword) {
 		if (doc==null)
 			return;
 		String displayMessage = doc.getRootElement().elementText("displayMessage");
@@ -175,7 +175,10 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 						String error = nextEntry.elementText("error");
 						ownerModule.logln("  " + param + ": " + error);
 					}
-
+				ownerModule.logln("\n******************\n");
+			}
+			if (MesquiteTrunk.debugMode) {
+				ownerModule.logln(xmlFile);
 				ownerModule.logln("\n******************\n");
 			}
 		}
@@ -206,8 +209,8 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 				}
 				if (cipresResponseDoc==null) {
 					Document errorDoc = loadXMLFile(sb.toString());
-					if (errorDoc!=null)
-						reportError(errorDoc, "Error in communicating with CIPRes",  true);
+					if (errorDoc!=null) 
+						reportError(sb.toString(), errorDoc, "Error in communicating with CIPRes",  true);
 				}
 				EntityUtils.consume(response.getEntity());
 				return cipresResponseDoc;
@@ -270,6 +273,7 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 
 
 	/*.................................................................................................................*/
+	/*.................................................................................................................*/
 	/** The core method that initiates a job on CIPRes. */
 	public boolean postJob(HttpClient httpclient, MultipartEntityBuilder builder, MesquiteString jobURL){
 		if (builder==null)
@@ -277,9 +281,18 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 		String URL = getRESTURL() + "/job/" + StringUtil.encodeForURL(username);
 		HttpPost httppost = new HttpPost(URL);
 		httppost.addHeader("cipres-appkey", CIPRESkey); 
-
+		
 		//some of this from http://stackoverflow.com/questions/18964288/upload-a-file-through-an-http-form-via-multipartentitybuilder-with-a-progress
-		HttpEntity cipresEntity = builder.build();
+		HttpEntity cipresEntity = builder.build();	
+		
+		try {
+			String entityFileName = rootDir + "cipresEntity.txt";
+			File fstream = new File(entityFileName);
+			FileOutputStream fos = new FileOutputStream(fstream);
+			cipresEntity.writeTo(fos);
+		} catch (Exception e) {
+			// catch exceptions
+		}
 
 		httppost.setEntity(cipresEntity);
 
@@ -307,7 +320,7 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 					success=true;
 			} else {
 				cipresResponseDoc = loadXMLFile(sb.toString());
-				reportError(cipresResponseDoc, "Error with CIPRes run", true);
+				reportError(sb.toString(), cipresResponseDoc, "Error with CIPRes run", true);
 			}
 			EntityUtils.consume(response.getEntity());
 			return success;

@@ -7,38 +7,33 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.IQTreeTreesCIPRes;
+package mesquite.zephyr.IQTreeTreesSSHqsub;
 
-import java.util.*;
-
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.IQTreeRunnerCIPRes.IQTreeRunnerCIPRes;
+import mesquite.zephyr.IQTreeRunnerSSHqsub.IQTreeRunnerSSHqsub;
 import mesquite.zephyr.lib.*;
 
 
-public class IQTreeTreesCIPRes extends IQTreeTrees {
+public class IQTreeTreesSSHqsub extends IQTreeTrees {
 
-	
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.IQTreeRunnerCIPRes.IQTreeRunnerCIPRes";
+		return "#mesquite.zephyr.IQTreeRunnerSSHqsub.IQTreeRunnerSSHqsub";
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return IQTreeRunnerCIPRes.class;
+		return IQTreeRunnerSSHqsub.class;
 	}
 
 	/*.................................................................................................................*/
 	 public String getProgramLocation(){
-		 return "CIPRes";
+		 if (runner!=null)
+			 return runner.getProgramLocation();
+		 return "SSH Server QSub";
 	}
-	 
-	/*.................................................................................................................*/
-	 public boolean loadModule(){
-		 return true;
-	}
+		/*.................................................................................................................*/
+		public boolean loadModule(){
+			return false;
+		}
 
 
 }

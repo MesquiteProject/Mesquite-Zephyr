@@ -101,7 +101,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){

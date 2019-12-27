@@ -101,7 +101,7 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "8.0.0 and 8.1.4";
+		return "8.0.0 through 8.2.10";
 	}
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
@@ -180,10 +180,6 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 
-	static final int DATAFILENUMBER = 0;
-	static final int MULTIMODELFILENUMBER = 1;
-	static final int CONSTRAINTFILENUMBER = 3;
-	
 	String inputFilesInRunnerObject = "";
 
 	public void prepareRunnerObject(Object obj){
@@ -229,7 +225,18 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 			sb.append("\n  " + param + " = " + value);
 	}
 	/*.................................................................................................................*/
-	void getArguments(MultipartEntityBuilder builder, StringBuffer sb, String fileName, String LOCproteinModel, String LOCproteinModelMatrix, String LOCdnaModel, String LOCotherOptions, int LOCbootstrapreps, int LOCbootstrapSeed, int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean LOCnobfgs, boolean preflight){
+	void getArguments(MultipartEntityBuilder builder, StringBuffer sb, 
+			String fileName, 
+			String LOCproteinModel, 
+			String LOCproteinModelMatrix, 
+			String LOCdnaModel, 
+			String LOCotherOptions, 
+			int LOCbootstrapreps, 
+			int LOCbootstrapSeed, 
+			int LOCnumRuns, 
+			String LOCoutgroupTaxSetString, 
+			String LOCMultipleModelFile, 
+			boolean LOCnobfgs, boolean preflight){
 		if (builder==null)
 			return;
 	/*	
@@ -291,6 +298,8 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 				addArgument(builder, sb, "vparam.seed_value_",""+LOCbootstrapSeed);
 			//	addArgument(builder, sb, "vparam.bootstrap_",""+LOCbootstrapreps);
 			//	addArgument(builder, sb, "vparam.mulparambootstrap_seed_",""+LOCbootstrapSeed);
+				if (bootstrapBranchLengths)
+					addArgument(builder, sb, "vparam.printbrlength_","1");
 			} else
 				logln("TOO FEW BOOTSTRAP REPS.  CIPRes requires multiple bootstrap replicates.");
 			

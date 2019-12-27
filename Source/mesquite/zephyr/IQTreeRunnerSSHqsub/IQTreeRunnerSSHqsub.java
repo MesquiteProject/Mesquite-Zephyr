@@ -7,76 +7,62 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
  */
 
-package mesquite.zephyr.RAxMLRunnerLocal;
+package mesquite.zephyr.IQTreeRunnerSSHqsub;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
-
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.lib.system.SystemUtil;
-import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
-import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.RAxMLTreesLocal.*;
+import mesquite.zephyr.SSHqsubRunner.SSHqsubRunner;
+import mesquite.zephyr.IQTreeRunnerSSH.IQTreeRunnerSSH;
 import mesquite.zephyr.lib.*;
-import mesquite.io.lib.*;
 
 
-public class RAxMLRunnerLocal extends RAxMLRunnerBasic  {
+public class IQTreeRunnerSSHqsub extends IQTreeRunnerSSH  {
 
+
+	/*.................................................................................................................*/
+	public int getProgramNumber() {
+		return SSHServerProfile.IQTREE;
+	}
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
-		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
+		return "#mesquite.zephyr.SSHqsubRunner.SSHqsubRunner";
 	}
+
+	public Class getDutyClass() {
+		return IQTreeRunnerSSHqsub.class;
+	}
+
 	/*.................................................................................................................*/
 	public Class getExternalProcessRunnerClass(){
-		return LocalScriptRunner.class;
+		return SSHqsubRunner.class;
 	}
-	public Class getDutyClass() {
-		return RAxMLRunnerLocal.class;
-	}
+
+
 	/*.................................................................................................................*/
-	public String getTestedProgramVersions(){
-		return "8.0.0–8.2.11";
+	public  String queryOptionsDialogTitle() {
+		return "IQ-TREE Options on SSH qsub Server";
 	}
+
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
 	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
 	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
 	public int getVersionOfFirstRelease(){
-		return -100;  
+		return NEXTRELEASE;  
 	}
 
 	public String getName() {
-		return "RAxML Likelihood (Local)";
+		return "IQ-TREE Likelihood (SSH qsub Server)";
 	}
+
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return false;
+		return true;
 	}
 
-	/*.................................................................................................................*/
-	public int getMaxCores(){
-		return Runtime.getRuntime().availableProcessors();
-	}
 
-	public void runFailed(String message) {
-		// TODO Auto-generated method stub
 
-	}
 
-	public void runFinished(String message) {
-		// TODO Auto-generated method stub
 
-	}
 
 
 

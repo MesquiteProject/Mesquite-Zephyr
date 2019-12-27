@@ -41,8 +41,8 @@
     <td width="51%"><img src="images/zephyrBannerNarrow.jpg" width="628" height="110" /></td>
     <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->CIPRes Analyses<!-- InstanceEndEditable --></div></td>
     <td width="2%">&nbsp;</td>
-    <td width="14%">Version 3.0<br />
-      27 December 2018<br /></td>
+    <td width="14%">Version 3.1<br />
+      26 December 2019<br /></td>
   </tr>
 </table>
 
@@ -150,14 +150,14 @@
     
     <h1 id="toc0"><a name="CIPRes Analyses"></a>CIPRes Analyses</h1>
  <br />
-<a class="wiki_link_ext" href="http://phylo.org" rel="nofollow">CIPRes</a> (CyberInfrastructure for Phylogenetic Research) provides access to phylogenetic inference programs running on a fast computer. Zephyr provides a means to request that CIPRes conducts RAxML and GARLI runs remotely.<br />
+<a class="wiki_link_ext" href="http://phylo.org" rel="nofollow">CIPRes</a> (CyberInfrastructure for Phylogenetic Research) provides access to phylogenetic inference programs running on a fast computer. Zephyr provides a means to request that CIPRes conducts RAxML, IQ-TREE, and GARLI runs remotely.<br />
 <br />
 In order to use CIPRes, you will need an account on their REST server. You can register for an account here: <a class="wiki_link_ext" href="https://www.phylo.org/restusers/register.action" rel="nofollow">https://www.phylo.org/restusers/register.action</a><br />
 <br />
-To infer phylogenetic trees on CIPRes, choose Analyses&gt;Tree Inference&gt;Likelihood Tree Inference&gt;<strong>GARLI Likelihood [CIPRes]</strong> or <strong>RAxML [CIPRes]</strong>. (You can also use CIPRes in the context of a <a class="wiki_link" href="SOWHintroduction.html">SOWH test</a>.) More details about about these analyses are provided on the <a class="wiki_link" href="GARLIOverview.html">GARLI</a> and <a class="wiki_link" href="RAxMLOverview.html">RAxML</a> pages.<br />
+To infer phylogenetic trees on CIPRes, choose Analyses&gt;Tree Inference&gt;Likelihood Tree Inference&gt;<strong>GARLI Likelihood [CIPRes]</strong> or<strong> IQ-TREE Likelihood [CIPRes]</strong> or <strong>RAxML [CIPRes]</strong>. (You can also use CIPRes in the context of a <a class="wiki_link" href="SOWHintroduction.html">SOWH test</a>.) More details about about these analyses are provided on the <a class="wiki_link" href="GARLIOverview.html">GARLI</a>, <a href="IQTREEOverview.html">IQ-TREE</a>, and <a class="wiki_link" href="RAxMLOverview.html">RAxML</a> pages.<br />
 <br />
 <h2 id="toc1"><a name="CIPRes Analyses-Reconnecting to CIPRes analyses"></a>Reconnecting to CIPRes analyses</h2>
- If you begin a GARLI or RAxML search on CIPRes, the Mesquite's log window will give information about the status of the analysis. If you save your file in Mesquite while the run is happening, and then quit Mesquite, when you next open the file in Mesquite Zephyr will attempt to reconnect with CIPRes again, and read in any available results.<br />
+ If you begin a  search on CIPRes, the Mesquite's log window will give information about the status of the analysis. If you save your file in Mesquite while the run is happening, and then quit Mesquite, when you next open the file in Mesquite Zephyr will attempt to reconnect with CIPRes again, and read in any available results.<br />
 <br />
 <h2 id="toc2"><a name="CIPRes Analyses-Signing in to CIPRes"></a>Signing in to CIPRes</h2>
  Before Mesquite can communicate to CIPRes, you will need to enter your CIPRes REST services username and password. Mesquite will query you whenever it needs the information, which will be once in each run of Mesquite (unless you specifically request to sign in again). The next time you start up Mesquite you will need to re-enter your information.<br />

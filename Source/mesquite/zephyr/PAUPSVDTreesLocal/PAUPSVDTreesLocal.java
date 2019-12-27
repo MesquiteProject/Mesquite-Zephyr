@@ -18,7 +18,7 @@ import mesquite.zephyr.lib.*;
 public class PAUPSVDTreesLocal extends PAUPSVDTrees {
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 
 	/*.................................................................................................................*/

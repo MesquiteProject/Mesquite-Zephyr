@@ -103,7 +103,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.4-1.6.7";
+		return "1.6.4-1.6.12, 2.0rc1";
 	}
 
 	/*.................................................................................................................*/
@@ -128,7 +128,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
 		super.appendAdditionalSearchDetails();
-		MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(),getSetsFileName(), false);
+		MesquiteString arguments = (MesquiteString)getProgramArguments(getDataFileName(),getSetsFileName(), false, numPartsInStartingPartition);
 		if (arguments!=null && !arguments.isBlank()){
 			appendToSearchDetails("\n" + getProgramName() + " command options: " + arguments.toString());
 		}
@@ -174,7 +174,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		else	if (e.getActionCommand().equalsIgnoreCase("clearCommand")) {
 			commandField.setText("");
 			commandLabel.setText("");
-		}
+		} 
 	}
 	/*.................................................................................................................*/
 	public void setProgramSeed(long seed){
@@ -225,6 +225,8 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 				else
 					localArguments += " -bo 100 ";
 			}
+			localArguments += " -seed " + LOCbootstrapSeed;
+
 		}
 
 
@@ -233,8 +235,6 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 		if (useConstraintTree)
 			localArguments += " -g constraintTree.tre "; 
-
-		localArguments += " -seed " + LOCbootstrapSeed;
 
 		if (LOCPartitionScheme!=noPartition) {
 			if (LOCPartitionLinkage==qPartitionLinkage)
@@ -289,7 +289,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 	String arguments;
 	/*.................................................................................................................*/
-	public Object getProgramArguments(String dataFileName, String setsFileName, boolean isPreflight) {
+	public Object getProgramArguments(String dataFileName, String setsFileName, boolean isPreflight, int numParts) {
 		MesquiteString arguments = new MesquiteString();
 
 		if (!isPreflight) {
