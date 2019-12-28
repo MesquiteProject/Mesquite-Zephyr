@@ -219,7 +219,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			return sftpATTRS.getMtimeString();
 
 		}  catch (Exception e) {
-			ownerModule.logln("Could not determine last modified date of file on remote server: " + e.getMessage());
+			ownerModule.logln("Could not determine last modified date of file \"" + remoteFileName +"\" on remote server: " + e.getMessage());
 			e.printStackTrace();
 			return "";
 		}
@@ -416,6 +416,19 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		if (localFilePaths==null || remoteFileNames==null)
 			return false;
 		try{
+			String serverName =getSshServerProfileName();
+			if (StringUtil.notEmpty(serverName))
+				ownerModule.logln("About to send files to SSH server " + serverName);
+			else 
+				ownerModule.logln("About to send files to SSH server");
+			//if (verbose) {
+				ownerModule.logln("Files to send:");
+				for (int i=0; i<remoteFileNames.length; i++) {
+					ownerModule.logln("   "+remoteFileNames[i]);
+				}
+			//}
+			MesquiteTimer timer = new MesquiteTimer();
+			timer.start();
 			Session session=createSession();
 			if (session==null)
 				return false;  // TODO: feedback
@@ -431,8 +444,10 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 			channel.disconnect();
 			session.disconnect();
-			if (verbose)
-				ownerModule.logln("Successfully sent files to working directory");
+			if (StringUtil.notEmpty(serverName))
+				ownerModule.logln("Successfully sent files to SSH server " + serverName + " (" + timer.timeSinceLastInSeconds()+" seconds)");
+			else 
+				ownerModule.logln("Successfully sent files to SSH server ("+ timer.timeSinceLastInSeconds()+" seconds)");
 			return true;
 		} catch(Exception e){
 			ownerModule.logln("Could not SFTP files to working directory: " + e.getMessage());
