@@ -290,7 +290,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 		return true;
 	}
 
-	public  boolean remoteFileExists (String remoteFileName, boolean warn) {
+	public  boolean remoteFileExists (String remoteFileName, boolean warn, boolean alwaysReturnTrueIfConnectionException) {
 		try {
 			Session session=createSession();
 			session.connect();
@@ -317,6 +317,8 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 				ownerModule.logln("Could not determine if file exists on remote server.  File: " + remoteFileName + ", Message: " + e.getMessage());
 				e.printStackTrace();
 			}
+			if (alwaysReturnTrueIfConnectionException && ConnectionOrAuthorizationFailure(e))
+				return true;
 			return false;
 		}
 	}
@@ -396,7 +398,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 					ownerModule.logln(new String(tmp, 0, i));
 				}
 
-				if (channel.isClosed() && (!waitForRunning || !remoteFileExists(ShellScriptUtil.runningFileName, false))) {
+				if (channel.isClosed() && (!waitForRunning || !remoteFileExists(ShellScriptUtil.runningFileName, false, true))) {
 					success=channel.getExitStatus()==0;
 					if (!success || verbose)
 						ownerModule.logln("exit-status: "+channel.getExitStatus());
@@ -431,7 +433,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 
 			monitorAndCleanUpShell(null,progressIndicator);
 
-			if ((!waitForRunning || !remoteFileExists(ShellScriptUtil.runningFileName, false))) {
+			if ((!waitForRunning || !remoteFileExists(ShellScriptUtil.runningFileName, false, true))) {
 				break;
 			} 
 
@@ -543,7 +545,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 				setAuthorizationFailure(true);
 				return true;
 			} 
-			if (e.getMessage().contains("java.net.ConnectException")) {
+			if (e.getMessage().contains("java.net.ConnectException") || e.getMessage().contains("java.net.SocketException")) {
 				ownerModule.discreetAlert("\n*********\nConnection failure: " + e.getMessage()+ ". Please check to see you are appropriately connected to contact the server.\n*********");
 				setConnectionFailure(true);
 				return true;
@@ -606,11 +608,11 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 	}
 
 	public  boolean jobCompleted (Object location) {
-		return !remoteFileExists(ShellScriptUtil.runningFileName, false);
+		return !remoteFileExists(ShellScriptUtil.runningFileName, false, true);
 	}
 
 	public String getJobStatus(Object location, boolean warn) {
-		if (remoteFileExists(ShellScriptUtil.runningFileName, false)) 
+		if (remoteFileExists(ShellScriptUtil.runningFileName, false, true)) 
 			return submitted;
 		if (warn)
 			return "Job completed or not found.";
@@ -643,7 +645,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 			for (int i=0; i<remoteFiles.size(); i++) {
 				ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry)remoteFiles.elementAt(i);
 				fileName = entry.getFilename();
-				if (remoteFileExists(channel,fileName)) {
+				if (remoteFileExists(channel,fileName) && !fileOnDownloadProhibitedList(fileName)) {
 					remoteJobFiles[i] = new RemoteJobFile();
 					remoteJobFiles[i].setLastModified(lastModified(fileName));
 					remoteJobFiles[i].setFileName(fileName);
@@ -652,9 +654,9 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 			for (int i=0; i<remoteFiles.size(); i++) {
 				ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry)remoteFiles.elementAt(i);
 				fileName = entry.getFilename();
-				if (!ShellScriptUtil.runningFileName.equalsIgnoreCase(fileName) && remoteFileExists(channel,fileName)) {
-					if (!onlyNewOrModified || fileNewOrModified(previousRemoteJobFiles, remoteJobFiles, i))
-						if (!fileOnDownloadProhibitedList(fileName))
+				if (!fileOnDownloadProhibitedList(fileName))
+					if (!ShellScriptUtil.runningFileName.equalsIgnoreCase(fileName) && remoteFileExists(channel,fileName)) {
+						if (!onlyNewOrModified || fileNewOrModified(previousRemoteJobFiles, remoteJobFiles, i))
 							channel.get(fileName, rootDir+fileName);
 				}
 			}
