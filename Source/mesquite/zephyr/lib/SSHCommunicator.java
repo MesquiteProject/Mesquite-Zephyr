@@ -166,7 +166,10 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 
 			ChannelSftp channel=(ChannelSftp)session.openChannel("sftp");
 			channel.connect();
-			channel.cd(getRemoteWorkingDirectoryPath());		
+			String remoteDir = getRemoteWorkingDirectoryPath();
+			ownerModule.logln("Checking for remote working directory: " + remoteDir);
+			channel.cd(remoteDir);		
+			ownerModule.logln("[Directory found]\n");
 			connected=true;
 			boolean isDirectory = true;
 			boolean isLink = false;
@@ -229,11 +232,13 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 
 
 	public  String lastModified (String remoteFileName) {
+		Session session=null;
+		ChannelSftp channel = null;
 		try {
-			Session session=createSession();
+			session=createSession();
 			session.connect();
 
-			ChannelSftp channel=(ChannelSftp)session.openChannel("sftp");
+			channel=(ChannelSftp)session.openChannel("sftp");
 			channel.connect();
 			channel.cd(getRemoteWorkingDirectoryPath());
 
@@ -244,8 +249,12 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 			return sftpATTRS.getMtimeString();
 
 		}  catch (Exception e) {
-			ownerModule.logln("Could not determine last modified date of file \"" + remoteFileName +"\" on remote server: " + e.getMessage());
+			ownerModule.logln("\nCould not determine last modified date of file \"" + remoteFileName +"\" on remote server: " + e.getMessage());
 			e.printStackTrace();
+			if (channel !=null && channel.isConnected())
+				channel.disconnect();
+			if (session !=null && session.isConnected())
+				session.disconnect();
 			return "";
 		}
 	}
@@ -291,12 +300,14 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 	}
 
 	public  boolean remoteFileExists (String remoteFileName, boolean warn, boolean alwaysReturnTrueIfConnectionException) {
+		Session session=null;
+		ChannelSftp channel = null;
 		try {
-			Session session=createSession();
+			session=createSession();
 			session.connect();
 			setConnectionFailure(false);
 
-			ChannelSftp channel=(ChannelSftp)session.openChannel("sftp");
+			channel=(ChannelSftp)session.openChannel("sftp");
 			channel.connect();
 			String remotePath = getRemoteWorkingDirectoryPath();
 			if (verbose) {
@@ -319,6 +330,10 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 			}
 			if (alwaysReturnTrueIfConnectionException && ConnectionOrAuthorizationFailure(e))
 				return true;
+			if (channel !=null && channel.isConnected())
+				channel.disconnect();
+			if (session !=null && session.isConnected())
+				session.disconnect();
 			return false;
 		}
 	}
@@ -634,12 +649,14 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 	
 	public  boolean downloadFilesToLocalWorkingDirectory (boolean onlyNewOrModified, boolean warn) {
 		String fileName="";
+		Session session=null;
+		ChannelSftp channel = null;
 		try{
-			Session session=createSession();
+			session=createSession();
 			if (session==null)
 				return false;  // TODO: feedback
 			session.connect();
-			ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
+			channel = (ChannelSftp) session.openChannel("sftp");
 			channel.connect();
 
 			channel.cd(getRemoteWorkingDirectoryPath());
@@ -679,6 +696,10 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 					ownerModule.logln("Could not download file (\"" + fileName + "\") at directory location \"" + rootDir + "\" from remote server: " + e.getMessage() + ".");
 				e.printStackTrace();
 			}
+			if (channel !=null && channel.isConnected())
+				channel.disconnect();
+			if (session !=null && session.isConnected())
+				session.disconnect();
 			return false;
 		}
 
