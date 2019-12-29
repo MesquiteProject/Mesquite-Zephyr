@@ -134,7 +134,9 @@ public abstract class RemoteCommunicator  {
 	public String getPassword(){
 		if (useAPITestUser()) {
 			return getAPITestPassword();
-		} else 
+		} else if (usernamePasswordKeeper==null)
+			return null;
+		else
 			return usernamePasswordKeeper.getPassword();
 	}
 	/*.................................................................................................................*/

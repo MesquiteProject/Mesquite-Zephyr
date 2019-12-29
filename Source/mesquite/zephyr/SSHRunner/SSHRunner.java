@@ -184,6 +184,12 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		if (checker.compare(this.getClass(), "Sets the sshServerProfile", "[file path]", commandName, "setServerProfileName")) {
 			String sshServerProfileName = parser.getFirstToken(arguments);
 			sshServerProfile = sshServerProfileManager.getSSHServerProfile(sshServerProfileName);
+			if (sshServerProfile==null) {
+				logln("***********************************");
+				logln(" WARNING  ");
+				logln("SSH Server Profile \"" + sshServerProfileName + "\" could not be found");
+				logln("***********************************");
+			}
 			return sshServerProfile;
 		} else if (checker.compare(this.getClass(), "Revives the communicator", "[file path]", commandName, "reviveCommunicator")) {
 			logln("Reviving SSH Communicator");
@@ -536,6 +542,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		if (communicator.checkUsernamePassword(false)) {
 			if (communicator.createRemoteWorkingDirectory()) {
 				communicator.transferFilesToServer(inputFilePaths, inputFileNames);
+				communicator.setFilesToNotDownload(inputFileNames);
 				if (MesquiteFile.fileExists(localScriptFilePath)) {
 					communicator.transferFileToServer(localScriptFilePath, scriptFileName);
 					communicator.setRemoteFileToExecutable(scriptFileName);

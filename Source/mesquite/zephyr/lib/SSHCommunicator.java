@@ -15,9 +15,9 @@ import java.net.*;
 import com.jcraft.jsch.*;
 
 
-public  class SSHCommunicator extends RemoteCommunicator {
+public  class SSHCommunicator extends RemoteCommunicator implements Commandable {
 
-//TODO: implement kill process: https://stackoverflow.com/questions/22476506/kill-process-before-disconnecting
+	//TODO: implement kill process: https://stackoverflow.com/questions/22476506/kill-process-before-disconnecting
 
 	//	protected String remoteWorkingDirectoryPath = "";
 	protected String remoteWorkingDirectoryName = "";
@@ -26,7 +26,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	protected String sshServerProfileName = "";
 	protected SSHServerProfile sshServerProfile;
 	String runDetailsForHelp = "";
-	
+
 
 
 	public SSHCommunicator (MesquiteModule mb, String xmlPrefsString,String[] outputFilePaths) {
@@ -36,6 +36,15 @@ public  class SSHCommunicator extends RemoteCommunicator {
 	}
 	public void setProgressIndicator(ProgressIndicator progressIndicator) {
 		this.progressIndicator= progressIndicator;
+	}
+	/*.................................................................................................................*/
+	public Snapshot getSnapshot(MesquiteFile file) { 
+		Snapshot temp = new Snapshot();
+		String s = "setDoNotDownload ";
+		for (int i=0; i<filesToNotDownload.length; i++)
+			s+=ParseUtil.tokenize(filesToNotDownload[i])+ " ";
+		temp.addLine(s);
+		return temp;
 	}
 
 	public Session createSession() {
@@ -93,6 +102,8 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		this.host = host;
 	}
 	public String getUserName() {
+		if (sshServerProfile==null)
+			return null;
 		String s = sshServerProfile.getUsername();
 		return sshServerProfile.getUsername();
 	}
@@ -103,8 +114,8 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		return remoteWorkingDirectoryName;
 	}
 
-	
-	
+
+
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
 		if (checker.compare(this.getClass(), "Sets the remote working directory path", "[file path]", commandName, "setRemoteDirectoryPath")) {
@@ -116,21 +127,35 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			String directory = Parser.getAllButLastItem(path, separator, null, true);
 			if (!StringUtil.endsWithIgnoreCase(directory, separator))
 				directory += separator;
-			
+
 			setRemoteWorkingDirectoryName(name);
 			setRemoteServerDirectoryPath(directory);
-			
+
 			return sshServerProfile;
 		} else if (checker.compare(this.getClass(), "Sets the username", "[username]", commandName, "setUserName")) {
 			Parser parser = new Parser();
 			String name = parser.getFirstToken(arguments);
 			setUserName(name);
 			return null;
+
+		} else if (checker.compare(this.getClass(), "Sets the files to not download", "[list of files]", commandName, "setDoNotDownload")) {
+			Parser parser = new Parser(arguments);
+			int numFiles= parser.getNumberOfTokens();
+			filesToNotDownload = new String[numFiles];
+			String name =parser.getFirstToken();
+			int count=0;
+			while (StringUtil.notEmpty(name)) {
+				if (count<filesToNotDownload.length)
+					filesToNotDownload[count] = name;
+				count++;
+				name = parser.getNextToken();
+			}
+			return filesToNotDownload;
 		} 
 		return null;
 	}	
 
-	
+
 
 	public  boolean checkForUniqueRemoteWorkingDirectoryName (String executableName) {
 		boolean connected = false;
@@ -157,7 +182,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 			remoteWorkingDirectoryName = proposedName;
 
-			
+
 			channel.disconnect();
 			session.disconnect();
 
@@ -174,7 +199,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		}
 		return true;
 	}
-/*
+	/*
 	public void checkForUniqueRemoteWorkingDirectoryName(String executableName) {
 		int i = 1;
 		String proposedName = executableName +"-" + StringUtil.getDateDayOnly()+ ".1";
@@ -184,7 +209,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		}
 		remoteWorkingDirectoryName = proposedName;
 	}
-*/
+	 */
 	public void setRemoteWorkingDirectoryName(String workingDirectoryName) {
 		this.remoteWorkingDirectoryName = workingDirectoryName;
 	}
@@ -234,7 +259,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			channel.cd(getRemoteWorkingDirectoryPath());
 
 			SftpATTRS sftpATTRS = channel.stat(remoteDirectoryName);
-			
+
 			boolean isDirectory = sftpATTRS.isDir();
 			boolean isLink = sftpATTRS.isLink();
 
@@ -273,10 +298,15 @@ public  class SSHCommunicator extends RemoteCommunicator {
 
 			ChannelSftp channel=(ChannelSftp)session.openChannel("sftp");
 			channel.connect();
-			channel.cd(getRemoteWorkingDirectoryPath());
+			String remotePath = getRemoteWorkingDirectoryPath();
+			if (verbose) {
+				ownerModule.logln("\nremote working directory path: " + remotePath);
+				ownerModule.logln("remote file name: " + remoteFileName);
+			}
+			channel.cd(remotePath);
 
 			SftpATTRS sftpATTRS = channel.stat(remoteFileName);
-			
+
 			channel.disconnect();
 			session.disconnect();
 
@@ -327,12 +357,12 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			Session session=createSession();
 			session.connect();
 			ChannelExec channel=(ChannelExec)session.openChannel("exec");
-	/*		boolean visibleTerminal = true;
+			/*		boolean visibleTerminal = true;
 			if (visibleTerminal) {
 				channel.setPty(true);
 				channel.setPtyType("bash");
 			}
-			*/
+			 */
 			String concatenated = "";
 			for (int i=0; i<commands.length; i++)
 				if (StringUtil.notEmpty(commands[i]))
@@ -418,14 +448,14 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		try{
 			String serverName =getSshServerProfileName();
 			if (StringUtil.notEmpty(serverName))
-				ownerModule.logln("About to send files to SSH server " + serverName);
+				ownerModule.logln("About to send files to remote server " + serverName);
 			else 
-				ownerModule.logln("About to send files to SSH server");
+				ownerModule.logln("About to send files to remote server");
 			//if (verbose) {
-				ownerModule.logln("Files to send:");
-				for (int i=0; i<remoteFileNames.length; i++) {
-					ownerModule.logln("   "+remoteFileNames[i]);
-				}
+			ownerModule.logln("Files to send:");
+			for (int i=0; i<remoteFileNames.length; i++) {
+				ownerModule.logln("   "+remoteFileNames[i]);
+			}
 			//}
 			MesquiteTimer timer = new MesquiteTimer();
 			timer.start();
@@ -445,9 +475,9 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			channel.disconnect();
 			session.disconnect();
 			if (StringUtil.notEmpty(serverName))
-				ownerModule.logln("Successfully sent files to SSH server " + serverName + " (" + timer.timeSinceLastInSeconds()+" seconds)");
+				ownerModule.logln("Successfully sent files to remote server " + serverName + " (" + timer.timeSinceLastInSeconds()+" seconds)");
 			else 
-				ownerModule.logln("Successfully sent files to SSH server ("+ timer.timeSinceLastInSeconds()+" seconds)");
+				ownerModule.logln("Successfully sent files to remote server ("+ timer.timeSinceLastInSeconds()+" seconds)");
 			return true;
 		} catch(Exception e){
 			ownerModule.logln("Could not SFTP files to working directory: " + e.getMessage());
@@ -504,7 +534,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		}
 		return false;
 	}
-	
+
 	private boolean ConnectionOrAuthorizationFailure(Exception e) {
 		if (e!=null && e instanceof JSchException) {
 			if ("Auth fail".equalsIgnoreCase(e.getMessage())) {
@@ -522,8 +552,8 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		}
 		return false;
 	}
-	
-	
+
+
 
 	public  boolean createRemoteWorkingDirectory() {
 		try {
@@ -551,7 +581,15 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		}
 	}
 
+	String[] filesToNotDownload;
 
+	public void setFilesToNotDownload(String[] remoteFileNames) {
+		filesToNotDownload = new String[remoteFileNames.length];
+		for (int i=0; i<filesToNotDownload.length; i++)
+			filesToNotDownload[i] = remoteFileNames[i];
+	}
+	
+	
 	public boolean transferFilesToServer(String[] localFilePaths, String[] remoteFileNames) {
 		return sendFilesToWorkingDirectory (localFilePaths, remoteFileNames);
 	}
@@ -579,7 +617,17 @@ public  class SSHCommunicator extends RemoteCommunicator {
 		return "";
 	}
 
+	public  boolean fileOnDownloadProhibitedList (String fileName) {
+		if (filesToNotDownload==null || fileName==null)
+			return false;
+		for (int i=0;i<filesToNotDownload.length; i++)
+			if (fileName.equalsIgnoreCase(filesToNotDownload[i]))
+				return true;
+		return false;
+	}
+	
 	public  boolean downloadFilesToLocalWorkingDirectory (boolean onlyNewOrModified, boolean warn) {
+		String fileName="";
 		try{
 			Session session=createSession();
 			if (session==null)
@@ -594,7 +642,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			RemoteJobFile[] remoteJobFiles = new RemoteJobFile[remoteFiles.size()];  // now acquire the last modified dates
 			for (int i=0; i<remoteFiles.size(); i++) {
 				ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry)remoteFiles.elementAt(i);
-				String fileName = entry.getFilename();
+				fileName = entry.getFilename();
 				if (remoteFileExists(channel,fileName)) {
 					remoteJobFiles[i] = new RemoteJobFile();
 					remoteJobFiles[i].setLastModified(lastModified(fileName));
@@ -603,10 +651,11 @@ public  class SSHCommunicator extends RemoteCommunicator {
 			}
 			for (int i=0; i<remoteFiles.size(); i++) {
 				ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry)remoteFiles.elementAt(i);
-				String fileName = entry.getFilename();
+				fileName = entry.getFilename();
 				if (!ShellScriptUtil.runningFileName.equalsIgnoreCase(fileName) && remoteFileExists(channel,fileName)) {
 					if (!onlyNewOrModified || fileNewOrModified(previousRemoteJobFiles, remoteJobFiles, i))
-						channel.get(fileName, rootDir+fileName);
+						if (!fileOnDownloadProhibitedList(fileName))
+							channel.get(fileName, rootDir+fileName);
 				}
 			}
 			previousRemoteJobFiles = remoteJobFiles.clone();
@@ -621,7 +670,7 @@ public  class SSHCommunicator extends RemoteCommunicator {
 				if (ConnectionOrAuthorizationFailure(e)) {
 					ownerModule.logln("\n*********\nERROR: Could not download files from remote server. Authorization Failure!\n*********");
 				} else
-					ownerModule.logln("Could not download files from remote server: " + e.getMessage());
+					ownerModule.logln("Could not download file (\"" + fileName + "\") at directory location \"" + rootDir + "\" from remote server: " + e.getMessage() + ".");
 				e.printStackTrace();
 			}
 			return false;
