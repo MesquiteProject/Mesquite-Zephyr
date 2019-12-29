@@ -545,6 +545,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 				communicator.setFilesToNotDownload(inputFileNames);
 				if (MesquiteFile.fileExists(localScriptFilePath)) {
 					communicator.transferFileToServer(localScriptFilePath, scriptFileName);
+					communicator.addToFilesToNotDownload(scriptFileName);
 					communicator.setRemoteFileToExecutable(scriptFileName);
 				}
 				successfulStart = true;

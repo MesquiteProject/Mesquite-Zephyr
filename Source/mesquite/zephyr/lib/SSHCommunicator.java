@@ -591,6 +591,10 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 			filesToNotDownload[i] = remoteFileNames[i];
 	}
 	
+	public void addToFilesToNotDownload(String remoteFileName) {
+		filesToNotDownload = StringArray.concatenate(filesToNotDownload, new String[] {remoteFileName});
+	}
+	
 	
 	public boolean transferFilesToServer(String[] localFilePaths, String[] remoteFileNames) {
 		return sendFilesToWorkingDirectory (localFilePaths, remoteFileNames);
