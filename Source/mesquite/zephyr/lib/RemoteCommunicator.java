@@ -15,6 +15,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 
 public abstract class RemoteCommunicator  {
 	protected int minPollIntervalSeconds =getDefaultMinPollIntervalSeconds();
+	protected int pollInterval = minPollIntervalSeconds;
 
 	protected String host="";
 	protected String xmlPrefsString = null;
@@ -60,6 +61,14 @@ public abstract class RemoteCommunicator  {
 	public int getDefaultMinPollIntervalSeconds(){
 		return 30;
 	}
+	public int getPollInterval() {
+		return pollInterval;
+	}
+
+	public void setPollInterval(int pollInterval) {
+		this.pollInterval = pollInterval;
+	}
+
 	public boolean hasBeenReconnected() {
 		return hasBeenReconnected;
 	}
@@ -329,7 +338,7 @@ public abstract class RemoteCommunicator  {
 		timer.start();
 		int interval = 0;
 		minPollIntervalSeconds = 5;
-		int pollInterval = minPollIntervalSeconds;
+		int sleepTimeForThisLoop = getPollInterval();
 		boolean onceThrough = false;
 		
 		while (((!jobCompleted(location) || !onceThrough) && stillGoing && !aborted)|| isAuthorizationFailure() || isConnectionFailure()){
@@ -341,12 +350,13 @@ public abstract class RemoteCommunicator  {
 					return false;
 				}
 			double loopTime = timer.timeSinceLastInSeconds();  // checking to see how long it has been since the last one
-			if (loopTime>minPollIntervalSeconds) {
-				pollInterval = minPollIntervalSeconds - ((int)loopTime-minPollIntervalSeconds);
-				if (pollInterval<0) pollInterval=0;
+			if (loopTime>getPollInterval()) {  //  loop time is longer than the required, 
+					//which means we can decrease the amount to sleep by the excess
+				sleepTimeForThisLoop = getPollInterval() - ((int)loopTime-getPollInterval());  //
+				if (sleepTimeForThisLoop<0) sleepTimeForThisLoop=0;
 			}
 			else 
-				pollInterval = minPollIntervalSeconds;
+				sleepTimeForThisLoop = getPollInterval();
 			if(!StringUtil.blank(status)) {
 				if (!status.equalsIgnoreCase(submitted) || !submittedReportedToUser) 
 					if (hasBeenReconnected())
@@ -359,7 +369,7 @@ public abstract class RemoteCommunicator  {
 
 			//processOutputFiles(location);
 			try {
-				for (int i=0; i<pollInterval; i++) {
+				for (int i=0; i<sleepTimeForThisLoop; i++) {
 					if (progIndicator!=null)
 						progIndicator.spin();
 					Thread.sleep(1000);

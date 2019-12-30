@@ -47,7 +47,15 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 		return temp;
 	}
 
-	public Session createSession() {
+	int sessionsCreated =0;
+	MesquiteTimer sshTimer;;
+	
+	public Session createSession(String methodName) {
+		if (sshTimer==null) {
+			sshTimer = new MesquiteTimer();
+			sshTimer.start();
+		}
+
 		try {
 			java.util.Properties config = new java.util.Properties(); 
 			config.put("StrictHostKeyChecking", "no"); //TODO: have options
@@ -56,9 +64,12 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 			Session session=jsch.getSession(sshServerProfile.getUsername(), host, 22);
 			session.setPassword(sshServerProfile.getPassword());
 			session.setConfig(config);
-			if (MesquiteTrunk.debugMode)
+			sessionsCreated++;
+			if (MesquiteTrunk.debugMode) {
 				ownerModule.logln("Successfully created session to " + host);
-
+				ownerModule.logln("    "+sessionsCreated +  " sessions created [" + methodName+"]");
+			}
+		//	Debugg.println(""+sessionsCreated +  " sessions created [" + methodName+"] " + sshTimer.timeSinceVeryStartInSeconds());
 			return session;
 		} catch (Exception e) {
 			ownerModule.logln("WARNING: could not create Session: " + e.getMessage());
@@ -161,7 +172,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 		boolean connected = false;
 		String proposedName="";
 		try {
-			Session session=createSession();
+			Session session=createSession("checkForUniqueRemoteWorkingDirectoryName");
 			session.connect();
 
 			ChannelSftp channel=(ChannelSftp)session.openChannel("sftp");
@@ -235,7 +246,8 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 		Session session=null;
 		ChannelSftp channel = null;
 		try {
-			session=createSession();
+		//	Debugg.println("    Attempt to check lastModified of "+ remoteFileName);
+			session=createSession("lastModified");
 			session.connect();
 
 			channel=(ChannelSftp)session.openChannel("sftp");
@@ -260,7 +272,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 	}
 	public  boolean remoteDirectoryExists (String remoteDirectoryName, boolean warn) {
 		try {
-			Session session=createSession();
+			Session session=createSession("remoteDirectoryExists");
 			session.connect();
 
 			ChannelSftp channel=(ChannelSftp)session.openChannel("sftp");
@@ -287,7 +299,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 
 	public  boolean connectionAvailable (boolean warn) {
 		try {
-			Session session=createSession();
+			Session session=createSession("connectionAvailable");
 			session.connect();
 			session.disconnect();
 			return true;
@@ -303,7 +315,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 		Session session=null;
 		ChannelSftp channel = null;
 		try {
-			session=createSession();
+			session=createSession("remoteFileExists");
 			session.connect();
 			setConnectionFailure(false);
 
@@ -371,7 +383,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 			if (cdIntoWorking)
 				commands = StringArray.addToStart(commands, "cd " + getRemoteWorkingDirectoryPath());
 			submittedReportedToUser = false;
-			Session session=createSession();
+			Session session=createSession("sendCommands");
 			session.connect();
 			ChannelExec channel=(ChannelExec)session.openChannel("exec");
 			/*		boolean visibleTerminal = true;
@@ -476,7 +488,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 			//}
 			MesquiteTimer timer = new MesquiteTimer();
 			timer.start();
-			Session session=createSession();
+			Session session=createSession("sendFilesToWorkingDirectory");
 			if (session==null)
 				return false;  // TODO: feedback
 			session.connect();
@@ -508,7 +520,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 		if (remoteFileName==null)
 			return false;
 		try{
-			Session session=createSession();
+			Session session=createSession("addEmptyFileToWorkingDirectory");
 			if (session==null)
 				return false;  // TODO: feedback
 			session.connect();
@@ -574,7 +586,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 
 	public  boolean createRemoteWorkingDirectory() {
 		try {
-			Session session=createSession();
+			Session session=createSession("createRemoteWorkingDirectory");
 			session.connect();
 
 			ChannelSftp channel=(ChannelSftp)session.openChannel("sftp");
@@ -652,7 +664,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 		Session session=null;
 		ChannelSftp channel = null;
 		try{
-			session=createSession();
+			session=createSession("downloadFilesToLocalWorkingDirectory");
 			if (session==null)
 				return false;  // TODO: feedback
 			session.connect();

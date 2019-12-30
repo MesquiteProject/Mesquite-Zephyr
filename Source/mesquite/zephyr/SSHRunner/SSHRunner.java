@@ -506,6 +506,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		communicator.setHasBeenReconnected(hasBeenReconnected);
 		if (sshServerProfile!=null) {
 			communicator.setSSHServerProfile(sshServerProfile);
+			communicator.setPollInterval(sshServerProfile.getPollingInterval());
 			if (!sshServerProfile.getName().equals(communicator.getSshServerProfileName())) // we've changed to a different 
 					communicator.forgetPassword();
 			//else
