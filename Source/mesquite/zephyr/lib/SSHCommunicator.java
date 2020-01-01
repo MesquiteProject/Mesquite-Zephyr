@@ -483,7 +483,8 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 			//if (verbose) {
 			ownerModule.logln("Files to send:");
 			for (int i=0; i<remoteFileNames.length; i++) {
-				ownerModule.logln("   "+remoteFileNames[i]);
+				if (StringUtil.notEmpty(localFilePaths[i]) && StringUtil.notEmpty(remoteFileNames[i]))
+					ownerModule.logln("   "+remoteFileNames[i]);
 			}
 			//}
 			MesquiteTimer timer = new MesquiteTimer();
