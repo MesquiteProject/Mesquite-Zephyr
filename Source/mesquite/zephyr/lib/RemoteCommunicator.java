@@ -316,6 +316,7 @@ public abstract class RemoteCommunicator  {
 	public String getJobStatus(Object location, boolean warn) { return "";}
 	public boolean downloadWorkingResults(Object location, String rootDir, boolean onlyNewOrModified, boolean warn) { return true;}
 	public boolean downloadResults(Object location, String rootDir, boolean onlyNewOrModified) { return true;}
+	public void stopJob(Object location) {}
 	public void deleteJob(Object location) {}
 	public String getServiceName() { return "";}
 	protected boolean submittedReportedToUser = false;

@@ -82,12 +82,6 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	}
 
 
-	public String getMessageIfUserAbortRequested () {
-		return "Do you wish to stop the analysis conducted via SSH?  No intermediate trees will be saved if you do.";
-	}
-	public String getMessageIfCloseFileRequested () {  
-		return "If Mesquite closes this file, it will not stop the run on the server.  To stop the run on the server, press the \"Stop\" link in the analysis window before closing.";  
-	}
 
 	public  boolean canCalculateTimeRemaining(int repsCompleted){
 		if (communicator!=null)
@@ -578,9 +572,23 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	public String checkStatus(){
 		return null;
 	}
+	
+	public String getMessageIfUserAbortRequested () {
+		if (scriptBased)
+			return " Mesquite will stop its monitoring of the analysis, but it will not be able to directly stop the other program on the remote server.  To stop the other program, you will need to "
+					+ "log into the remote server and stop the program on it.";
+		return "";
+	}
+	public String getMessageIfCloseFileRequested () { 
+		if (scriptBased)
+			return "If Mesquite closes this file, it will not stop the run on the server.  To stop the other program on the remote server, you will need to "
+			+ "log into the remote server and stop the program on it.";
+		return "";
+	}
+
 	public boolean stopExecution(){
 		if (communicator!=null) {
-			communicator.deleteJob(null);
+			communicator.stopJob(null);
 			communicator.setAborted(true);
 		}
 		return true;

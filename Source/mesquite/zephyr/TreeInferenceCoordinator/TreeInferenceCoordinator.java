@@ -252,8 +252,8 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 				if (handler != null) {
 					int response = 1;
 					logln("User request to stop tree inference");
+					String message = handler.getMessageIfUserAbortRequested();
 					if (handler.canStoreLatestTree()){
-						String message = handler.getMessageIfUserAbortRequested();
 						response = AlertDialog.queryLongMessage(containerOfModule(), "Save tree?", "Save the current tree in the inference?", message, "Save", "Don't Save", "Cancel", 2, "");
 						if (response==0)
 							handler.storeLatestTree();
@@ -261,7 +261,7 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 							handler.setUserAborted();
 							handler.stopInference();
 						}
-					} else if (AlertDialog.query(this, "Abort analysis", "Do you want to abort analysis? Preliminary trees will not be saved.", "OK", "Cancel")) {
+					} else if (AlertDialog.query(this, "Abort analysis", "Do you want to abort analysis? Preliminary trees will not be saved. "+message, "OK", "Cancel")) {
 							handler.setUserAborted();
 							handler.stopInference();
 					}

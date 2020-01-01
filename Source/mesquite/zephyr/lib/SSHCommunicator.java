@@ -740,7 +740,13 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 		return false;
 	}
 
+	/*.................................................................................................................*/
+	public void stopJob(Object location) {
+		// NOT YET IMPLEMENTED
+	}
+	/*.................................................................................................................*/
 	public void deleteJob(Object location) {
+		// NOT YET IMPLEMENTED
 	}
 	/*.................................................................................................................*
 	public void setPasswordToSSHProfilePassword(){
