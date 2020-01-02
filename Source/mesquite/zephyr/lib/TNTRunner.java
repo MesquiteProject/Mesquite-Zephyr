@@ -802,6 +802,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		desuppressProjectPanelReset();
 		if (data == null)
 			data.decrementEditInhibition();
+		externalProcRunner.setLeaveAnalysisDirectoryIntact(true);  // we don't want to delete the directory here
 		externalProcRunner.finalCleanup();
 		return null;
 	}	

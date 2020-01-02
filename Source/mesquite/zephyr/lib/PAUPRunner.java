@@ -391,6 +391,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		desuppressProjectPanelReset();
 		if (data != null)
 			data.decrementEditInhibition();
+		externalProcRunner.setLeaveAnalysisDirectoryIntact(true);  // we don't want to delete the directory here
 		externalProcRunner.finalCleanup();
 		return null;
 	}	
