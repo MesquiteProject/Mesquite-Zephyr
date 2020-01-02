@@ -1165,6 +1165,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 				}
 				else ((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
+				reportNewTreeAvailable();
 			}
 		}
 

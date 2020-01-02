@@ -1327,6 +1327,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 				}
 				else ((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
+				reportNewTreeAvailable();
 			}
 		}
 

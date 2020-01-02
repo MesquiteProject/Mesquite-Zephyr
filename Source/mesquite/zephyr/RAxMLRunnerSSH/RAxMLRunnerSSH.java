@@ -44,6 +44,12 @@ public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
 	public String getTestedProgramVersions(){
 		return "8.2.10";
 	}
+	
+	/*.................................................................................................................*/
+	public void reportNewTreeAvailable(){
+		log("[New tree acquired]");
+ 	}
+
 
 	public String getLogText() {
 		String log= externalProcRunner.getStdOut();

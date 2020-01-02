@@ -60,7 +60,7 @@ public abstract class IQTreeTrees extends ZephyrTreeSearcher implements Likeliho
 		CommandRecord cr = MesquiteThread.getCurrentCommandRecord();  		
 		MesquiteThread.setCurrentCommandRecord(new CommandRecord(true));
 		latestTree = null;
-
+		
 		String s = MesquiteFile.getFileLastDarkLine(path);
 		TaxonNamer namer = runner.getTaxonNamer();
 		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);    

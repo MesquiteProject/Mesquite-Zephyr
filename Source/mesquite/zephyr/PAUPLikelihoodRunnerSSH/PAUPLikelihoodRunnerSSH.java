@@ -34,6 +34,10 @@ public class PAUPLikelihoodRunnerSSH extends PAUPLikelihoodRunner {
 	public Class getExternalProcessRunnerClass(){
 		return SSHRunner.class;
 	}
+	/*.................................................................................................................*/
+	public void reportNewTreeAvailable(){
+		log("[New tree acquired]");
+ 	}
 
 	/*.................................................................................................................*/
 

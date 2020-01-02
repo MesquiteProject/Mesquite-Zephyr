@@ -172,6 +172,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return "";
 	}
 
+	/*.................................................................................................................*/
+	public void reportNewTreeAvailable(){
+ 	}
+	/*.................................................................................................................*/
 
 	public boolean localScriptRunsRequireTerminalWindow(){
 		return false;

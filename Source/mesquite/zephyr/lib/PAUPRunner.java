@@ -529,6 +529,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 				} else
 					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
+				reportNewTreeAvailable();
+
 			}
 		}
 /*		if (fileNum == OUT_BESTTREEFILE && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[OUT_BESTTREEFILE]) && !bootstrapOrJackknife()) {

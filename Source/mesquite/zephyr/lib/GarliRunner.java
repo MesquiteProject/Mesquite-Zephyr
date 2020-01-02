@@ -1176,6 +1176,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 				} else
 					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
+				reportNewTreeAvailable();
+
 			}
 		}
 

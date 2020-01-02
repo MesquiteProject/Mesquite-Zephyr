@@ -58,6 +58,10 @@ public class IQTreeRunnerSSH extends IQTreeRunnerBasic  {
 		return SSHRunner.class;
 	}
 
+	/*.................................................................................................................*/
+	public void reportNewTreeAvailable(){
+		log("[New tree acquired]");
+ 	}
 
 	/*.................................................................................................................*/
 	public  String queryOptionsDialogTitle() {
