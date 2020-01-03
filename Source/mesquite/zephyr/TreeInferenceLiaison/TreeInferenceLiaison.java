@@ -53,6 +53,15 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			 return inferenceTask.getMessageIfCloseFileRequested();
 		return null;
 	}
+	/*.................................................................................................................*/
+	public String getExtraLinks() {
+		//return "(<a href = \"extra-harvest-" + this.getID() + "\">Harvest Results</a>) ";
+		return "";
+	}
+	/*.................................................................................................................*/
+	public void dealWithExtraLink(String command) {
+		//logln("User request to harvest trees");
+	}
 
 	/*.................................................................................................................*/
 	public String getHTMLDescriptionOfStatus(int numLines){
