@@ -101,7 +101,7 @@ public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
 	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
 	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
 	public int getVersionOfFirstRelease(){
-		return -2500;  
+		return -3000;  
 	}
 
 	public String getName() {

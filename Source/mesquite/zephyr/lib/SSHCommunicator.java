@@ -69,7 +69,6 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 				ownerModule.logln("Successfully created session to " + host);
 				ownerModule.logln("    "+sessionsCreated +  " sessions created [" + methodName+"]");
 			}
-		//	Debugg.println(""+sessionsCreated +  " sessions created [" + methodName+"] " + sshTimer.timeSinceVeryStartInSeconds());
 			return session;
 		} catch (Exception e) {
 			ownerModule.logln("WARNING: could not create Session: " + e.getMessage());
@@ -246,7 +245,6 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 		Session session=null;
 		ChannelSftp channel = null;
 		try {
-		//	Debugg.println("    Attempt to check lastModified of "+ remoteFileName);
 			session=createSession("lastModified");
 			session.connect();
 
