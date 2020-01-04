@@ -39,10 +39,10 @@
     <table width="100%" border="0" cellpadding="4">
   <tr>
     <td width="51%"><img src="images/zephyrBannerNarrow.jpg" width="628" height="110" /></td>
-    <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->Features &amp; Bugs<!-- InstanceEndEditable --></div></td>
+    <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->Features &amp; Bug History<!-- InstanceEndEditable --></div></td>
     <td width="2%">&nbsp;</td>
-    <td width="14%">Version 3.1<br />
-      26 December 2019<br /></td>
+    <td width="14%">Version 3.11<br />
+      3 January 2020<br /></td>
   </tr>
 </table>
 
@@ -112,6 +112,7 @@
   <div class="CollapsiblePanelContent" style="display: block">
   		<table width="100%" border="0" cellpadding="1">
   			<tr><td><a href="javascript:pageLink('gettinghelp.html');">Getting Help</a></td></tr>
+  			<tr><td><a href="javascript:pageLink('troubleshooting.html');">Troubleshooting</a></td></tr>
   			<tr><td><a href="javascript:pageLink('releasedates.html');">Release Dates</a></td></tr>
   			<tr><td><a href="javascript:pageLink('features.html');">Feature & Bug History</a></td></tr>
   			<tr><td><a href="javascript:pageLink('future.html');">Future Directions</a></td></tr>
@@ -156,19 +157,14 @@
     <p><br />
     </p>
     <hr />
-    <h3 id="toc7"><a name="Version 3.11" id="Version 3.11"></a>Next Version</h3>
-    <p><strong><br />
-      New Features<br />
-    </strong></p>
-    <ul>
-      <li>None</li>
-    </ul>
+    <h3 id="toc7"><a name="Version 3.11" id="Version 3.11"></a>Version 3.11    </h3>
     <p><strong><br />
       Bug fixes <br />
     </strong></p>
     <ul>
-      <li>Many improvements to SSH communication, allowing for better behavior when dealing with large files, poor internet connections, etc.  Better feedback to user.<br />
-    </li>
+      <li>Many improvements to SSH communication, allowing for better behavior when dealing with large files, poor internet connections, etc.  Better feedback to user.</li>
+      <li>If you started a local Zephyr run  and requested that the analysis directory be deleted after the analysis is done, saved the file, closed it, and reopened it, the analysis directory would be inappropriately deleted before the analysis was completed. <br />
+      </li>
     </ul>
     <hr />
     <h3 id="toc6"><a name="Version 3.1" id="Version 3.1"></a>Version 3.1 </h3>
