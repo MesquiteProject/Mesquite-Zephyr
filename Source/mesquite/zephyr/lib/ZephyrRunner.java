@@ -121,7 +121,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public void processUserClickingOnTextCommandLink(String command) {
 		if ("harvest".equalsIgnoreCase(command)) {
-			if (AlertDialog.query(containerOfModule(), "Harvest Trees?", "Are you sure you want to harvest the trees?  This should only be done if the run is complete; if this run is NOT complete, this will prevent Mesquite from harvesting the final trees.", "Harvest", "Cancel")) {
+			if (AlertDialog.query(containerOfModule(), "Harvest Trees?", "Are you sure you want to harvest the trees?  This should only be done if the run is complete; if this run is NOT complete, harvesting the trees now will prevent Mesquite from harvesting the final trees.", "Harvest", "Cancel")) {
 				logln("User request to harvest trees");
 				((LocalScriptRunner)externalProcRunner).deleteRunningFile();
 			}
