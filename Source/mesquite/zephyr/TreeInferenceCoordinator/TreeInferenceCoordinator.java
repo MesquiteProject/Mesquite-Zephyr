@@ -89,6 +89,14 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 		return null;
 	}
 	/*.................................................................................................................*/
+	String getExtraLinks(TreeInferenceHandler e) {
+		return e.getExtraLinks();
+	}
+	/*.................................................................................................................*/
+	String getNameForStopLink(TreeInferenceHandler e) {
+		return "Stop";
+	}
+	/*.................................................................................................................*/
 	int whichInferenceInLog = 0;
 	String getStatusHTML(int numLinesPerHandler){
 		String body="";
@@ -102,7 +110,8 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 			String logTest = "";
 			for (int i = 0; i<handlers.size(); i++) {
 				TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(i);
-				body +=  " (<a href = \"kill-" + e.getID() + "\">Stop</a>) " + e.getHTMLDescriptionOfStatus(numLinesPerHandler) + "<p><hr size=\"3\" noshade=\"noshade\" />";
+				body +=  " (<a href = \"kill-" + e.getID() + "\">"+getNameForStopLink(e)+"</a>) " + getExtraLinks(e)+ e.getHTMLDescriptionOfStatus(numLinesPerHandler) 
+				+"<p><hr size=\"3\" noshade=\"noshade\" />";
 				if (i==whichInferenceInLog) {
 					extraPanelText.append("Log from " + e.getInferenceName() + "\n===================\n"); 
 					String lt = e.getLogText();
@@ -252,8 +261,8 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 				if (handler != null) {
 					int response = 1;
 					logln("User request to stop tree inference");
+					String message = handler.getMessageIfUserAbortRequested();
 					if (handler.canStoreLatestTree()){
-						String message = handler.getMessageIfUserAbortRequested();
 						response = AlertDialog.queryLongMessage(containerOfModule(), "Save tree?", "Save the current tree in the inference?", message, "Save", "Don't Save", "Cancel", 2, "");
 						if (response==0)
 							handler.storeLatestTree();
@@ -261,14 +270,28 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 							handler.setUserAborted();
 							handler.stopInference();
 						}
-					} else if (AlertDialog.query(this, "Abort analysis", "Do you want to abort analysis? Preliminary trees will not be saved.", "OK", "Cancel")) {
+					} else if (AlertDialog.query(this, "Abort analysis", "Do you want to abort analysis? Preliminary trees will not be saved. "+message, "OK", "Cancel")) {
 							handler.setUserAborted();
 							handler.stopInference();
 					}
 
 					return null;
 				}
+			} else if (token != null && token.startsWith("extra")){
+				Parser parser = new Parser();
+				parser.setWhitespaceString("-");
+				String idS = token.substring(6, token.length());
+				parser.setString(idS);
+				String command = parser.getFirstToken();
+				String idString = parser.getNextToken();
+				int id = MesquiteInteger.fromString(idString);
+				TreeInferenceHandler handler = findHandlerByID(id);
+				if (handler != null) {
+					handler.dealWithExtraLink(command);
+					return null;
+				}
 			}
+
 		}
 		else
 			return  super.doCommand(commandName, arguments, checker);

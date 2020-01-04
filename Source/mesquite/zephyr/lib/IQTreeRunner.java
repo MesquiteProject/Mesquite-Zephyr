@@ -860,6 +860,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		desuppressProjectPanelReset();
 		if (data != null)
 			data.decrementEditInhibition();
+		externalProcRunner.setLeaveAnalysisDirectoryIntact(true);  // we don't want to delete the directory here
 		externalProcRunner.finalCleanup();
 		cleanupAfterSearch();
 		return null;
@@ -1327,6 +1328,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 				}
 				else ((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
+				reportNewTreeAvailable();
 			}
 		}
 
@@ -1357,15 +1359,15 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 							double timePerRep = timer.timeSinceVeryStartInSeconds()/numRunsCompleted;   //this is time per rep
 							int timeLeft = 0;
 							if (searchStyle==STANDARDBOOTSTRAP) {
-								logln(getExecutableName()+" bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
+								logln("\n"+getExecutableName()+" bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
 								timeLeft = (int)((bootstrapreps- numRunsCompleted) * timePerRep);
 							}
 							else if (searchStyle==ULTRAFASTBOOTSTRAP) {
-								logln(getExecutableName()+" ultrafast bootstrap run " + numRunsCompleted + " of " + numRuns+" completed");
+								logln("\n"+getExecutableName()+" ultrafast bootstrap run " + numRunsCompleted + " of " + numRuns+" completed");
 								timeLeft = (int)((numRuns- numRunsCompleted) * timePerRep);
 							}
 							else {
-								logln(getExecutableName()+" search replicate " + numRunsCompleted + " of " + numRuns+" completed");
+								logln("\n"+getExecutableName()+" search replicate " + numRunsCompleted + " of " + numRuns+" completed");
 								timeLeft = (int)((numRuns- numRunsCompleted) * timePerRep);
 							}
 							double timeSoFar = timer.timeSinceVeryStartInSeconds();
@@ -1377,11 +1379,11 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 						} else {  // at least report the number of reps
 							logln("");
 							if (searchStyle==STANDARDBOOTSTRAP) 
-								logln(getExecutableName()+" bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
+								logln("\n"+getExecutableName()+" bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
 							else if (searchStyle==ULTRAFASTBOOTSTRAP) 
-								logln(getExecutableName()+" ultrafast bootstrap run " + numRunsCompleted + " of " + numRuns+" completed");
+								logln("\n"+getExecutableName()+" ultrafast bootstrap run " + numRunsCompleted + " of " + numRuns+" completed");
 							else 
-								logln(getExecutableName()+" search replicate " + numRunsCompleted + " of " + numRuns+" completed");
+								logln("\n"+getExecutableName()+" search replicate " + numRunsCompleted + " of " + numRuns+" completed");
 						}
 					}
 

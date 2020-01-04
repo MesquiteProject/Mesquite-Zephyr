@@ -4,11 +4,11 @@
 		<version>1</version>
 		<notice><!--Zephyr notice of update -->
 			<forBuildNumberEqualOrLess>926</forBuildNumberEqualOrLess> <!-- this refers to Mesquite build, e.g. for compatibility -->
-			<noticeNumber>8</noticeNumber>
+			<noticeNumber>9</noticeNumber>
 			<messageType>alert</messageType>
 			<identity>Zephyr</identity>
-			<updateVersion>008</updateVersion>
-			<packageName>Zephyr version 3.1</packageName>
+			<updateVersion>009</updateVersion>
+			<packageName>Zephyr version 3.11</packageName>
 			<message>
 			<![CDATA[<img src="http://zephyr.mesquiteproject.org/splash.jpg"><p>
 			In order to install Zephyr, you need to first update to Mesquite version 3.61.  
@@ -18,11 +18,11 @@
 		</notice>
 		<notice><!--Zephyr install -->
 			<forBuildNumberEqualOrGreater>927</forBuildNumberEqualOrGreater> <!-- this refers to Mesquite build, e.g. for compatibility -->
-			<noticeNumber>8</noticeNumber>
+			<noticeNumber>9</noticeNumber>
 			<messageType>update</messageType>
 			<identity>Zephyr</identity>
-			<updateVersion>008</updateVersion>
-			<packageName>Zephyr version 3.1</packageName>
+			<updateVersion>009</updateVersion>
+			<packageName>Zephyr version 3.11</packageName>
 			<beforeMessage>This may take a while to download; please wait until a message appears saying it's finished.</beforeMessage>
 			<explanation>
 			<![CDATA[<img src="http://zephyr.mesquiteproject.org/splash.jpg"><p>
@@ -36,9 +36,9 @@
 				<install>
 					<location>mesquite</location>
 					<file>zephyr</file>
-					<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/v3.1/Zephyr.3.1.zip</url>
+					<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/v3.11/Zephyr.3.11.zip</url>
 					<treatment>unzip</treatment>
-					<updateVersion>008</updateVersion>
+					<updateVersion>009</updateVersion>
 				</install>
 		</notice>
 		

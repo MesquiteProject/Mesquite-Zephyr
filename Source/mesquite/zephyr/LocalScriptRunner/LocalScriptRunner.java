@@ -22,6 +22,7 @@ import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
 public class LocalScriptRunner extends ScriptRunner implements ActionListener, ItemListener, OutputFileProcessor, ShellScriptWatcher {
+
 	ExternalProcessManager externalRunner;
 	ShellScriptRunner scriptRunner;
 
@@ -36,7 +37,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 
 	StringBuffer extraPreferences;
 	boolean deleteAnalysisDirectory = false;
-	boolean leaveAnalysisDirectoryIntact = false;
 
 	/*.================================================================..*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {

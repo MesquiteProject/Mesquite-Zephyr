@@ -812,7 +812,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
 
 		MesquiteFile.deleteDirectory(tempDir);
-		if (!isDoomed()){
+		if (!isDoomed()){  // not Doomed - i.e., file/modulee not being closed
 
 			if (success){  //David: abort here
 				desuppressProjectPanelReset();
@@ -824,7 +824,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		desuppressProjectPanelReset();
 		if (data != null)
 			data.decrementEditInhibition();
-		externalProcRunner.finalCleanup();
+		externalProcRunner.setLeaveAnalysisDirectoryIntact(true);  // we don't want to delete the directory here
+		externalProcRunner.finalCleanup();  
 		cleanupAfterSearch();
 		return null;
 
@@ -1165,6 +1166,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 				}
 				else ((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
+				reportNewTreeAvailable();
 			}
 		}
 

@@ -802,6 +802,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		desuppressProjectPanelReset();
 		if (data == null)
 			data.decrementEditInhibition();
+		externalProcRunner.setLeaveAnalysisDirectoryIntact(true);  // we don't want to delete the directory here
 		externalProcRunner.finalCleanup();
 		return null;
 	}	
@@ -943,6 +944,8 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 
 				}
 				else ((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
+				reportNewTreeAvailable();
+
 			}
 		} 	
 		else	if (fileNum==1 && outputFilePaths.length>1 && !StringUtil.blank(outputFilePaths[1]) && !bootstrapOrJackknife()) {   // log file

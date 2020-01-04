@@ -82,12 +82,6 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	}
 
 
-	public String getMessageIfUserAbortRequested () {
-		return "Do you wish to stop the analysis conducted via SSH?  No intermediate trees will be saved if you do.";
-	}
-	public String getMessageIfCloseFileRequested () {  
-		return "If Mesquite closes this file, it will not stop the run on the server.  To stop the run on the server, press the \"Stop\" link in the analysis window before closing.";  
-	}
 
 	public  boolean canCalculateTimeRemaining(int repsCompleted){
 		if (communicator!=null)
@@ -184,6 +178,12 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		if (checker.compare(this.getClass(), "Sets the sshServerProfile", "[file path]", commandName, "setServerProfileName")) {
 			String sshServerProfileName = parser.getFirstToken(arguments);
 			sshServerProfile = sshServerProfileManager.getSSHServerProfile(sshServerProfileName);
+			if (sshServerProfile==null) {
+				logln("***********************************");
+				logln(" WARNING  ");
+				logln("SSH Server Profile \"" + sshServerProfileName + "\" could not be found");
+				logln("***********************************");
+			}
 			return sshServerProfile;
 		} else if (checker.compare(this.getClass(), "Revives the communicator", "[file path]", commandName, "reviveCommunicator")) {
 			logln("Reviving SSH Communicator");
@@ -500,6 +500,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		communicator.setHasBeenReconnected(hasBeenReconnected);
 		if (sshServerProfile!=null) {
 			communicator.setSSHServerProfile(sshServerProfile);
+			communicator.setPollInterval(sshServerProfile.getPollingInterval());
 			if (!sshServerProfile.getName().equals(communicator.getSshServerProfileName())) // we've changed to a different 
 					communicator.forgetPassword();
 			//else
@@ -536,8 +537,10 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		if (communicator.checkUsernamePassword(false)) {
 			if (communicator.createRemoteWorkingDirectory()) {
 				communicator.transferFilesToServer(inputFilePaths, inputFileNames);
+				communicator.setFilesToNotDownload(inputFileNames);
 				if (MesquiteFile.fileExists(localScriptFilePath)) {
 					communicator.transferFileToServer(localScriptFilePath, scriptFileName);
+					communicator.addToFilesToNotDownload(scriptFileName);
 					communicator.setRemoteFileToExecutable(scriptFileName);
 				}
 				successfulStart = true;
@@ -549,6 +552,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			forgetPassword = false;
 			if (scriptBased) {
 				communicator.addEmptyFileToWorkingDirectory(ShellScriptUtil.runningFileName);
+				communicator.addToFilesToNotDownload(ShellScriptUtil.runningFileName);
 				return communicator.sendCommands(new String[] {getExecuteScriptCommand("./"+scriptFileName, visibleTerminal)},true, true, true);  // this works on Linux or Mac
 				//	return communicator.sendCommands(new String[] {getExecuteScriptCommand(getRemoteScriptPath(), visibleTerminal)},true, true, true);  // this works on Mac
 			}
@@ -568,9 +572,23 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	public String checkStatus(){
 		return null;
 	}
+	
+	public String getMessageIfUserAbortRequested () {
+		if (scriptBased)
+			return " Mesquite will stop its monitoring of the analysis, but it will not be able to directly stop the other program on the remote server.  To stop the other program, you will need to "
+					+ "log into the remote server and stop the program on it.";
+		return "";
+	}
+	public String getMessageIfCloseFileRequested () { 
+		if (scriptBased)
+			return "If Mesquite closes this file, it will not stop the run on the server.  To stop the other program on the remote server, you will need to "
+			+ "log into the remote server and stop the program on it.";
+		return "";
+	}
+
 	public boolean stopExecution(){
 		if (communicator!=null) {
-			communicator.deleteJob(null);
+			communicator.stopJob(null);
 			communicator.setAborted(true);
 		}
 		return true;

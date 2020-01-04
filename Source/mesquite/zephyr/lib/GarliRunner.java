@@ -1021,6 +1021,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		desuppressProjectPanelReset();
 		if (data != null)
 			data.decrementEditInhibition();
+		externalProcRunner.setLeaveAnalysisDirectoryIntact(true);  // we don't want to delete the directory here
 		externalProcRunner.finalCleanup();
 		return null;
 	}
@@ -1176,6 +1177,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 				} else
 					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
+				reportNewTreeAvailable();
+
 			}
 		}
 

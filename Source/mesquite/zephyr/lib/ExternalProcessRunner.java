@@ -22,6 +22,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	protected String localRootDir = null;  // local directory for storing files on local machine
 	protected boolean readyForReconnectionSave = false;
 	protected boolean onlySetUpRun = false;
+	protected boolean leaveAnalysisDirectoryIntact = false;
 
 
 	public Class getDutyClass() {
@@ -33,6 +34,13 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public static String getDefaultProgramLocation() {
 		return "";
 	}
+	public boolean getLeaveAnalysisDirectoryIntact() {
+		return leaveAnalysisDirectoryIntact;
+	}
+	public void setLeaveAnalysisDirectoryIntact(boolean leaveAnalysisDirectoryIntact) {
+		this.leaveAnalysisDirectoryIntact = leaveAnalysisDirectoryIntact;
+	}
+
 
 	public String[] getDefaultModule() {
 		return new String[] {""};

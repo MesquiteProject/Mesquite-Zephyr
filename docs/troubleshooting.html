@@ -41,8 +41,8 @@
     <td width="51%"><img src="images/zephyrBannerNarrow.jpg" width="628" height="110" /></td>
     <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->Troubleshooting<!-- InstanceEndEditable --></div></td>
     <td width="2%">&nbsp;</td>
-    <td width="14%">Version 3.1<br />
-      26 December 2019<br /></td>
+    <td width="14%">Version 3.11<br />
+      3 January 2020<br /></td>
   </tr>
 </table>
 
@@ -112,6 +112,7 @@
   <div class="CollapsiblePanelContent" style="display: block">
   		<table width="100%" border="0" cellpadding="1">
   			<tr><td><a href="javascript:pageLink('gettinghelp.html');">Getting Help</a></td></tr>
+  			<tr><td><a href="javascript:pageLink('troubleshooting.html');">Troubleshooting</a></td></tr>
   			<tr><td><a href="javascript:pageLink('releasedates.html');">Release Dates</a></td></tr>
   			<tr><td><a href="javascript:pageLink('features.html');">Feature & Bug History</a></td></tr>
   			<tr><td><a href="javascript:pageLink('future.html');">Future Directions</a></td></tr>
@@ -147,7 +148,28 @@
   <div id="mainContent">
     
 <!-- InstanceBeginEditable name="content" -->
-<p>&nbsp;</p>
+<h1 id="toc0">Troubleshooting</h1>
+<br />
+<table width="100%" border="1">
+  <tbody>
+    <tr>
+      <td width="44%"><strong>Issue</strong></td>
+      <td width="56%"><strong>Solution</strong></td>
+    </tr>
+    <tr>
+      <td>A local analysis seems to be completed (based upon Mesquite's log, or the Task Manager/Activity Monitor), but the Inference in Progress panel has not gone away and the final trees have not been harvested.</td>
+      <td>Look in the analysis folder, which by default will be in the same folder as data file and will have a name something like &quot;RAxML-2020.01.03-Run.3&quot;. If there is a file named &quot;running&quot; in that folder, then deleting the &quot;running&quot; file will be the signal to Mesquite to harvest the results.</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="toc">Known Bugs</h1>
+<ul>
+  <li>If you have a Zephyr run going, and you choose File&gt;Revert to Saved, there are contexts in which Mesquite should warn the user (e.g., that you will or won't be able to reconnect to that run), but it doesn't give any warning</li>
+</ul>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>

@@ -391,6 +391,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		desuppressProjectPanelReset();
 		if (data != null)
 			data.decrementEditInhibition();
+		externalProcRunner.setLeaveAnalysisDirectoryIntact(true);  // we don't want to delete the directory here
 		externalProcRunner.finalCleanup();
 		return null;
 	}	
@@ -529,6 +530,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);
 				} else
 					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
+				reportNewTreeAvailable();
+
 			}
 		}
 /*		if (fileNum == OUT_BESTTREEFILE && outputFilePaths.length > 1 && !StringUtil.blank(outputFilePaths[OUT_BESTTREEFILE]) && !bootstrapOrJackknife()) {
