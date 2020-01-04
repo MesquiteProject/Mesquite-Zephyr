@@ -43,9 +43,11 @@ public abstract class TreeInferenceHandler extends MesquiteModule  {
 	/*.................................................................................................................*/
 	public abstract boolean stopInference();
 	/*.................................................................................................................*/
-	public abstract String getExtraLinks();
+	public abstract String getTitleOfTextCommandLink();
 	/*.................................................................................................................*/
-	public abstract void dealWithExtraLink(String command);
+	public abstract String getCommandOfTextCommandLink();
+	/*.................................................................................................................*/
+	public abstract void processUserClickingOnTextCommandLink(String command);
 	/*.................................................................................................................*/
 	public abstract boolean storeLatestTree();
 	/*.................................................................................................................*/

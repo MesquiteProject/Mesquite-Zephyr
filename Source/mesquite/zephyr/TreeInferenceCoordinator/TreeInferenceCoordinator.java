@@ -90,7 +90,10 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 	}
 	/*.................................................................................................................*/
 	String getExtraLinks(TreeInferenceHandler e) {
-		return e.getExtraLinks();
+		if (StringUtil.blank(e.getCommandOfTextCommandLink()) || StringUtil.blank(e.getTitleOfTextCommandLink()))
+			return "";
+		String extraLinks = "(<a href = \"extra-" + e.getCommandOfTextCommandLink() + "-"+e.getID() + "\">" +e.getTitleOfTextCommandLink() + "</a>) ";
+		return extraLinks;
 	}
 	/*.................................................................................................................*/
 	String getNameForStopLink(TreeInferenceHandler e) {
@@ -287,7 +290,7 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 				int id = MesquiteInteger.fromString(idString);
 				TreeInferenceHandler handler = findHandlerByID(id);
 				if (handler != null) {
-					handler.dealWithExtraLink(command);
+					handler.processUserClickingOnTextCommandLink(command);
 					return null;
 				}
 			}

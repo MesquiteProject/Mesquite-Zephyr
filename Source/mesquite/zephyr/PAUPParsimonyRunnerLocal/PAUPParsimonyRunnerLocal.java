@@ -40,5 +40,9 @@ public class PAUPParsimonyRunnerLocal extends PAUPParsimonyRunnerBasic {
 		return getProgramName() + " Trees (Parsimony) [Local] Runner";
 	}
 
+	/*.................................................................................................................*/
+	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
+		return true;
+	}
 
 }

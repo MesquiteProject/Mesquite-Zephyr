@@ -11,9 +11,7 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 
 	protected String runningFilePath = "";
 	protected ExternalProcessRequester processRequester;
-	public boolean scriptBased = false;
 	public boolean addExitCommand = true;
-	protected boolean visibleTerminal = false;
 	protected static final String scriptFileName = "Script.bat";
 	protected String localScriptFilePath = "";
 
@@ -83,13 +81,6 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 		return "";
 	}
 	
-	public boolean isScriptBased() {
-		return scriptBased;
-	}
-
-	public void setScriptBased(boolean scriptBased) {
-		this.scriptBased = scriptBased;
-	}
 
 
 	public boolean requiresLinuxTerminalCommands(){

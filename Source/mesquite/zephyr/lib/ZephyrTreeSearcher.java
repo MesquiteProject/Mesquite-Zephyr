@@ -58,6 +58,24 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			return runner.getMessageIfUserAbortRequested();
 		return null;
 	}
+	/*.................................................................................................................*/
+	public String getTitleOfTextCommandLink() {
+		if (runner!=null)
+			return runner.getTitleOfTextCommandLink();
+		return "";
+	}
+	/*.................................................................................................................*/
+	public String getCommandOfTextCommandLink() {
+		if (runner!=null)
+			return runner.getCommandOfTextCommandLink();
+		return "";
+	}
+/*.................................................................................................................*/
+	public void processUserClickingOnTextCommandLink(String command) {
+		if (runner!=null)
+			runner.processUserClickingOnTextCommandLink(command);
+	}
+
 
 	/*.................................................................................................................*/
 	public  CategoricalData getData(){

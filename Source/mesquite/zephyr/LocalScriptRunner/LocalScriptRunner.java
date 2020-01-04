@@ -328,7 +328,13 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		return localRootDir;
 	}
 
-	
+	/*.................................................................................................................*/
+	public void deleteRunningFile(){  
+		if (scriptRunner!=null)
+			scriptRunner.deleteRunningFile();
+	}
+
+
 	/*.................................................................................................................*
 	public String getShellScript(String programCommand, String args) {
 		runningFilePath = rootDir + "running";//+ MesquiteFile.massageStringToFilePathSafe(unique);

@@ -19,6 +19,7 @@ import mesquite.lib.*;
 import mesquite.lib.characters.CharacterData;
 import mesquite.lib.characters.MCharactersDistribution;
 import mesquite.lib.duties.TreeInferer;
+import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 
 public abstract class ZephyrRunner extends MesquiteModule implements ExternalProcessRequester, OutputFilePathModifier{
 
@@ -63,6 +64,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	boolean verbose=true;
 
 	protected Tree constraint = null;
+	
+	boolean hasBeenReconnected = false;
+	protected boolean scriptBasedNoTerminal = false;
 
 
 	protected String outgroupTaxSetString = "";
@@ -92,6 +96,39 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean stopExecution(){
 		return externalProcRunner.stopExecution();
 	}
+	
+
+	/*.................................................................................................................*/
+	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
+		return false;
+	}
+	/*.................................................................................................................*/
+	public boolean needsHarvestLink() { //Debugg.println: does this also need to check if MacOS?
+		return isReconnected() && isScriptBasedNoTerminal() && mayHaveProblemsWithDeletingRunningOnReconnect();
+	}
+	/*.................................................................................................................*/
+	public String getTitleOfTextCommandLink() {
+		if (needsHarvestLink())
+			return "Harvest";
+		return "";
+	}
+	/*.................................................................................................................*/
+	public String getCommandOfTextCommandLink() {
+		if (needsHarvestLink())
+			return "harvest";
+		return "";
+	}
+	/*.................................................................................................................*/
+	public void processUserClickingOnTextCommandLink(String command) {
+		if ("harvest".equalsIgnoreCase(command)) {
+			if (AlertDialog.query(containerOfModule(), "Harvest Trees?", "Are you sure you want to harvest the trees?  This should only be done if the run is complete; if this run is NOT complete, this will prevent Mesquite from harvesting the final trees.", "Harvest", "Cancel")) {
+				logln("User request to harvest trees");
+				((LocalScriptRunner)externalProcRunner).deleteRunningFile();
+			}
+		}
+
+	}
+
 	/*.................................................................................................................*/
 	public  CategoricalData getData(){
 		return data;
@@ -492,7 +529,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		temp.addLine("recoverSearchStartedDetails " + ParseUtil.tokenize(searchStartedDetails));
 		temp.addLine("recoverExtraSearchDetails " + ParseUtil.tokenize(extraSearchDetails.toString()));
 		temp.addLine("recoverAddendumToTreeBlockName " + ParseUtil.tokenize(addendumToTreeBlockName.toString()));
-
+		if (externalProcRunner!=null)
+			if (externalProcRunner.isScriptBased() && !externalProcRunner.isVisibleTerminal())
+				temp.addLine("scriptBasedNoTerminal");
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -501,8 +540,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			searchDetails.setLength(0);
 			searchDetails.append(parser.getFirstToken(arguments));
 		}
+		else if (checker.compare(this.getClass(), "Specifies that is scriptBased with no terminal window", "[]", commandName, "scriptBasedNoTerminal")) {
+			setScriptBasedNoTerminal(true);
+		}
 		else if (checker.compare(this.getClass(), "Recovers time the search started details from previous run", "[search started details]", commandName, "recoverSearchStartedDetails")) {
 			searchStartedDetails=parser.getFirstToken(arguments);
+			setHasBeenReconnected(true);
 		}
 		else if (checker.compare(this.getClass(), "Recovers data object when search monitoring resumes", "[matrix id]", commandName, "recoverData")) {
 			data =  (CategoricalData)getProject().getCharacterMatrixByReference((MesquiteFile)null, parser.getFirstToken(arguments), false);
@@ -519,6 +562,21 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 		return null;
 	}	
+	public boolean isReconnected() {
+		return hasBeenReconnected;
+	}
+	public void setHasBeenReconnected(boolean hasBeenReconnected) {
+		this.hasBeenReconnected = hasBeenReconnected;
+	}
+
+	public boolean isScriptBasedNoTerminal() {
+		return scriptBasedNoTerminal;
+	}
+	public void setScriptBasedNoTerminal(boolean scriptBasedNoTerminal) {
+		this.scriptBasedNoTerminal = scriptBasedNoTerminal;
+	}
+
+
 	/*.................................................................................................................*/
 	protected boolean doQueryOptions() {
 		return !optionsHaveBeenSet;

@@ -40,6 +40,10 @@ public class PAUPLikelihoodRunnerLocal extends PAUPLikelihoodRunner {
 	public String getName() {
 		return getProgramName() + " Trees (Likelihood) [Local] Runner";
 	}
+	/*.................................................................................................................*/
+	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
+		return true;
+	}
 
 
 }
