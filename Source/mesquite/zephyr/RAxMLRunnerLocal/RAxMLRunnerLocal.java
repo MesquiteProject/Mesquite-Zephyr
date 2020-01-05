@@ -44,10 +44,6 @@ public class RAxMLRunnerLocal extends RAxMLRunnerBasic  {
 		return RAxMLRunnerLocal.class;
 	}
 	/*.................................................................................................................*/
-	public String getTestedProgramVersions(){
-		return "8.0.0–8.2.11";
-	}
-	/*.................................................................................................................*/
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
 		return true;
 	}
