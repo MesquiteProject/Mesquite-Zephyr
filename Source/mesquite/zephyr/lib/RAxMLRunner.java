@@ -414,11 +414,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 					doBootstrap = doBootstrapCheckbox.getState();
 					randomIntSeed = seedField.getValue();
 					bootstrapreps = bootStrapRepsField.getValue();
+					bootstrapBranchLengths = bootstrapBranchLengthsCheckBox.getState();
 				} else
 					doBootstrap=false;
 				onlyBest = onlyBestBox.getState();
 				nobfgs = nobfgsCheckBox.getState();
-				bootstrapBranchLengths = bootstrapBranchLengthsCheckBox.getState();
 
 				if (getConstrainedSearchAllowed()) {
 					useConstraintTree = constraintButtons.getValue();

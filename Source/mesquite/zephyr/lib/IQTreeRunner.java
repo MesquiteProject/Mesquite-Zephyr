@@ -425,11 +425,11 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				substitutionModel = substitutionModelField.getText();
 				partitionLinkage = partitionLinkageChoice.getSelectedIndex();
 				numSearchRuns = numSearchRunsField.getValue();
-				numUFBootRuns = numUFBootRunsField.getValue();
 				if (bootstrapAllowed) {
 					searchStyle = searchStyleButtons.getValue();
 					randomIntSeed = seedField.getValue();
 					bootstrapreps = bootStrapRepsField.getValue();
+					numUFBootRuns = numUFBootRunsField.getValue();
 					if (searchStyle==ULTRAFASTBOOTSTRAP && bootstrapreps<minUFBootstrapReps) {
 						bootstrapreps = minUFBootstrapReps;
 						MesquiteMessage.discreetNotifyUser("Minimum number of bootstrap replicates for ultrafast bootstrap is " + minUFBootstrapReps + ". Number of replicates reset to " + minUFBootstrapReps);
@@ -463,9 +463,12 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public void checkEnabled(int searchStyle) {
 		onlyBestBox.setEnabled(searchStyle==STANDARDSEARCH);
 		numSearchRunsField.getTextField().setEnabled(searchStyle==STANDARDSEARCH);
-		numUFBootRunsField.getTextField().setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
-		bootStrapRepsField.getTextField().setEnabled(searchStyle!=STANDARDSEARCH);
-		seedField.getTextField().setEnabled(searchStyle!=STANDARDSEARCH);
+		if (numUFBootRunsField!=null)
+			numUFBootRunsField.getTextField().setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
+		if (bootStrapRepsField!=null)
+			bootStrapRepsField.getTextField().setEnabled(searchStyle!=STANDARDSEARCH);
+		if (seedField!=null)
+			seedField.getTextField().setEnabled(searchStyle!=STANDARDSEARCH);
 	
 	}
 	/* ................................................................................................................. */
