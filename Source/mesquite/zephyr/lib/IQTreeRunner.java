@@ -461,8 +461,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	/*.................................................................................................................*/
 
 	public void checkEnabled(int searchStyle) {
-		onlyBestBox.setEnabled(searchStyle==STANDARDSEARCH);
-		numSearchRunsField.getTextField().setEnabled(searchStyle==STANDARDSEARCH);
+		onlyBestBox.setEnabled(searchStyle==STANDARDSEARCH || !bootstrapAllowed);
+		numSearchRunsField.getTextField().setEnabled(searchStyle==STANDARDSEARCH || !bootstrapAllowed);
 		if (numUFBootRunsField!=null)
 			numUFBootRunsField.getTextField().setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
 		if (bootStrapRepsField!=null)
