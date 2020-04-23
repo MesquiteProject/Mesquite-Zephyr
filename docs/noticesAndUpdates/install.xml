@@ -8,7 +8,7 @@
 			<messageType>alert</messageType>
 			<identity>Zephyr</identity>
 			<updateVersion>009</updateVersion>
-			<packageName>Zephyr version 3.11</packageName>
+			<packageName>Zephyr version 3.12</packageName>
 			<message>
 			<![CDATA[<img src="http://zephyr.mesquiteproject.org/splash.jpg"><p>
 			In order to install Zephyr, you need to first update to Mesquite version 3.61.  
