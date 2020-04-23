@@ -313,8 +313,13 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			scriptBased = scriptBasedCheckBox.getState();
 		return true;
 	}
+	/*.................................................................................................................*/
+	public static boolean isMacOSXCatalinaOrLater(){
+		return System.getProperty("os.name").startsWith("Mac OS X") && (MesquiteTrunk.getOSXVersion()>=15);
+	} 	
+
 	public boolean visibleTerminalOptionAllowed(){
-		return ShellScriptRunner.localScriptRunsCanDisplayTerminalWindow() && !processRequester.localScriptRunsRequireTerminalWindow();
+		return ShellScriptRunner.localScriptRunsCanDisplayTerminalWindow() && !processRequester.localScriptRunsRequireTerminalWindow() && !isMacOSXCatalinaOrLater();
 	}
 	public boolean getDirectProcessConnectionAllowed(){
 		return processRequester.getDirectProcessConnectionAllowed() && MesquiteTrunk.isJavaGreaterThanOrEqualTo(1.7);
