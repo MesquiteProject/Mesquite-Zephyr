@@ -948,20 +948,27 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 	private CharactersGroup makeGroup(String name, mesquite.lib.characters.CharacterData data, MesquiteFile file){
 		CharactersGroupVector groups = (CharactersGroupVector)data.getProject().getFileElement(CharactersGroupVector.class, 0);
-		CharactersGroup group = groups.findGroup(name);
-		if (group==null) {
-			group = new CharactersGroup();
-			group.setName(name);
-			group.addToFile(file, getProject(), null);
-			if (groups.indexOf(group)<0) 
-				groups.addElement(group, false);
+		String groupName = name;
+		int count = 1;
+		CharactersGroup group= groups.findGroup(groupName);  
+		while (group!=null) {  // group is not null; therefore this group name already exists.  Have to make a new one because of the way IQTree gives names different groups with the same name.
+										// first step is to find an available name
+			count++;
+			groupName = name + "_" + count;
+			group= groups.findGroup(groupName);  
 		}
+		group = new CharactersGroup();
+		group.setName(groupName);
+		group.addToFile(file, getProject(), null);
+		if (groups.indexOf(group)<0) 
+			groups.addElement(group, false);
+		
 		return group;
 	}
 
 	public  void processSpecSet (String command, String firstToken, Object obj, MesquiteInteger startCharT, boolean hasSpecificationTokens, Bits[] bitsArray, String[] charSetNames) {
 
-		String token = firstToken;
+		String token = firstToken;   // this will be the name of the first part
 		Object specification = null;
 		if (!(obj instanceof Bits))
 			specification = makeGroup(token, data, getProject().getHomeFile());
@@ -1075,6 +1082,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		String line = parser.getRawNextDarkLine();
 		Parser subparser = new Parser (line);
 		String token = subparser.getFirstToken();
+		String partitionName = "";
 		boolean setsBlockFound = false;
 		int countCharSets = -1;
 		parser.setLineEndString(";");
@@ -1100,7 +1108,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 						//fillCharSetBits(bitsArray[countCharSets], token);
 					}
 					if ("charpartition".equalsIgnoreCase(token)) {  // found the partition
-						token = subparser.getNextToken();  // name of partition (ignore).
+						partitionName = subparser.getNextToken();  // name of partition (ignore).
 						token = subparser.getNextToken();  // =
 						String remaining = subparser.getRemaining();  // the character list
 						Parser subsubparser = new Parser(remaining);
