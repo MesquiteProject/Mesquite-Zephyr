@@ -173,6 +173,8 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		appendSearchDetails();
 		if (taxaID !=null)
 			taxa = getProject().getTaxa(taxaID);
+		else if (getProject().getNumberTaxas() == 1)
+			taxa = getProject().getTaxa(0);
 		runner.reconnectToRequester(command,runSucceeded);
 	}
 	/*.................................................................................................................*/
