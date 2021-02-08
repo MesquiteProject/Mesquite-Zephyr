@@ -111,12 +111,21 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		String s = "";
 		if (getRunInProgress()) {
 			if (bootstrapOrJackknife()){
-				s+="Bootstrap analysis<br>";
-				s+="Bootstrap replicates completed: <b>";
-				if (numRunsCompleted>bootstrapreps)
-					s+=numSearchRuns +" of " + bootstrapreps;
-				else
-					s+=numRunsCompleted +" of " + bootstrapreps;
+				if (searchStyle==ULTRAFASTBOOTSTRAP) {
+					s+="UF Bootstrap analysis<br>";
+					if (numUFBootRuns>1) {   //TODO: detect number of current runs.
+						s+="UF Bootstrap runs completed: <b>";
+						s+=numRunsCompleted +" of " + numUFBootRuns;
+					}
+					
+				} else {
+					s+="Bootstrap analysis<br>";
+					s+="Bootstrap replicates completed: <b>";
+					if (numRunsCompleted>bootstrapreps)
+						s+=numSearchRuns +" of " + bootstrapreps;
+					else
+						s+=numRunsCompleted +" of " + bootstrapreps;
+				}
 			}
 			else {
 				s+="Search for ML Tree<br>";
