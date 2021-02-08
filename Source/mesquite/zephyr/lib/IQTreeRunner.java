@@ -707,6 +707,20 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		useConstraintTree = constrainedSearch;
 		this.constrainedSearch = constrainedSearch;
 	}
+	
+	/*.................................................................................................................*/
+	//TODO: generalize to all programs (e.g., not in TNTRunner)
+		public String getRunInformation(Object arguments) {
+			StringBuffer sb = new StringBuffer(1000);
+			sb.append("\n\nArguments passed to IQ-TREE: \n");
+			if (arguments instanceof MesquiteString)
+				sb.append(((MesquiteString)arguments).getValue());
+			else if (arguments instanceof String)
+				sb.append((String)arguments);
+
+			return getRunInformation()+ sb.toString();
+		}
+
 
 	protected static final int DATAFILENUMBER = 0;
 	protected static final int PARTITIONFILENUMBER = 1;
@@ -841,7 +855,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		//fileNames[2] = translationFileName;
 		fileContents[CONSTRAINTFILENUMBER] = constraintTree;
 		fileNames[CONSTRAINTFILENUMBER] = CONSTRAINTTREEFILENAME;
-		fileContents[3] = getRunInformation();
+		fileContents[3] = getRunInformation(arguments);
 		fileNames[3] = runInformationFileName;
 		int runInformationFileNumber = 3;
 
