@@ -547,7 +547,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			String s = MesquiteFile.getFileLastContents(treeFilePath);
 			if (StringUtil.blank(s))
 				logln("-- File not recovered; no trees found");
-			t =  ZephyrUtil.readPhylipTree(s,taxa,false, namer);
+			t =  ZephyrUtil.readPhylipTree(s,taxa,false,namer);
 
 			if (t!=null) {
 				if (success!=null)
@@ -566,7 +566,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			String s = parser.getRawNextDarkLine();
 
 			while (!StringUtil.blank(s)) {
-				t = ZephyrUtil.readPhylipTree(s,taxa,false, namer);
+				t = ZephyrUtil.readPhylipTree(s,taxa,false,namer);
 
 				if (t!=null) {
 					if (success!=null)

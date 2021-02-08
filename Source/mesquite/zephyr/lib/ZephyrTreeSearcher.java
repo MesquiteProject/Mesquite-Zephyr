@@ -210,7 +210,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 	public String getExtraTreeWindowCommands (boolean finalTree, long treeBlockID){
 		this.treeBlockID = treeBlockID;
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), treeBlockID, true)+ eachTreeCommands();
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(),treeBlockID, true)+ eachTreeCommands();
 	}
 
 

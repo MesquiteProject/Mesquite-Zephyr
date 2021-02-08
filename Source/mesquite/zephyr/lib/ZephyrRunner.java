@@ -97,6 +97,14 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return externalProcRunner.stopExecution();
 	}
 	
+	/*.................................................................................................................*/
+	public String getNameRefForAssocStrings() {
+		return null;
+	}
+	/*.................................................................................................................*/
+	public boolean showAssocStrings() {
+		return false;
+	}
 
 	/*.................................................................................................................*/
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {

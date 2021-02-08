@@ -74,6 +74,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected static final int STANDARDSEARCH = 2;
 	protected int searchStyle = STANDARDSEARCH;
 	protected RadioButtons searchStyleButtons = null;
+	
+	protected boolean doALRT = false;
+	protected int alrtReps=1000;
 
 
 	protected RadioButtons charPartitionButtons = null;
@@ -92,8 +95,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	IntegerField seedField;
 	protected javax.swing.JLabel commandLabel;
 	protected SingleLineTextArea commandField;
-	protected IntegerField numSearchRunsField,numUFBootRunsField, bootStrapRepsField;
-	protected Checkbox onlyBestBox, retainFilescheckBox, useConstraintTreeCheckbox, importBestPartitionSchemeCheckbox;
+	protected IntegerField numSearchRunsField,numUFBootRunsField, bootStrapRepsField, alrtRepsField;
+	protected Checkbox onlyBestBox, retainFilescheckBox, useConstraintTreeCheckbox, importBestPartitionSchemeCheckbox, alrtBox;
 	//	int count=0;
 
 	protected double finalValue = MesquiteDouble.unassigned;
@@ -169,8 +172,14 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			bootstrapreps = MesquiteInteger.fromString(content);
 			if (bootstrapreps<1) bootstrapreps=1;
 		}
+		if ("alrtReps".equalsIgnoreCase(tag)){
+			alrtReps = MesquiteInteger.fromString(content);
+			if (alrtReps<1) alrtReps=1;
+		}
 		if ("onlyBest".equalsIgnoreCase(tag))
 			onlyBest = MesquiteBoolean.fromTrueFalseString(content);
+		if ("doALRT".equalsIgnoreCase(tag))
+			doALRT = MesquiteBoolean.fromTrueFalseString(content);
 		if ("modelOption".equalsIgnoreCase(tag))
 			modelOption = MesquiteInteger.fromString(content);
 		if ("searchStyle".equalsIgnoreCase(tag))
@@ -191,6 +200,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		StringUtil.appendXMLTag(buffer, 2, "partitionScheme", partitionScheme);  
 		StringUtil.appendXMLTag(buffer, 2, "partitionLinkage", partitionLinkage);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
+		StringUtil.appendXMLTag(buffer, 2, "doALRT", doALRT);  
+		StringUtil.appendXMLTag(buffer, 2, "alrtReps", alrtReps);  
 		StringUtil.appendXMLTag(buffer, 2, "searchStyle", searchStyle);  
 		StringUtil.appendXMLTag(buffer, 2, "modelOption", modelOption);  
 		StringUtil.appendXMLTag(buffer, 2, "substitutionModel", substitutionModel);  
@@ -223,11 +234,27 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			return STANDARDSEARCH;			
 		return STANDARDSEARCH;
 	}
+	
+
+	/*.................................................................................................................*/
+	public String getNameRefForAssocStrings() {
+		if (searchStyle == ULTRAFASTBOOTSTRAP) {
+			if (doALRT) 
+				return "'"+IQTreeALRTUFBoot.getName()+"'";
+			else
+				return "'"+IQTreeUFBoot.getName()+"'";
+		}
+		return null;
+	}
+	/*.................................................................................................................*/
+	public boolean showAssocStrings() {
+		return true;
+	}
 
 	/*.................................................................................................................*/
 	public  String bootstrapOrJackknifeTreeListName() {
 		if (searchStyle==ULTRAFASTBOOTSTRAP)
-			return "UF Bootstrap Trees";
+			return "UF Bootstrap Tree";
 		else
 			return "Bootstrap Trees";
 	}
@@ -261,10 +288,12 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
 		} else if (searchStyle==ULTRAFASTBOOTSTRAP){
 			appendToSearchDetails("   Ultrafast bootstrap analysis\n");
-			appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates per run");
-			appendToSearchDetails("   "+numUFBootRuns + " run");
+			appendToSearchDetails("       "+bootstrapreps + " bootstrap replicates per run\n");
+			appendToSearchDetails("       "+numUFBootRuns + " run");
 			if (numUFBootRuns>1)
 				appendToSearchDetails("s");
+			if (doALRT)
+				appendToSearchDetails("\n       SH-aLRT run with " + alrtReps + " replicates");
 		} else {
 			appendToSearchDetails("   Search for maximum-likelihood tree\n");
 			appendToSearchDetails("   "+numSearchRuns + " search replicate");
@@ -355,6 +384,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				bootstrapreps = minimumNumBootstrapReplicates();
 			bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, minimumNumBootstrapReplicates(), MesquiteInteger.infinite);
 			numUFBootRunsField = dialog.addIntegerField("Number of Runs for Ultrafast Bootstrap", numUFBootRuns, 8, 1, MesquiteInteger.infinite);
+			alrtBox = dialog.addCheckBox("do SH-aLRT analysis", doALRT);
+			alrtRepsField = dialog.addIntegerField("Number of Reps for SH-aLRT", alrtReps, 8, 1, MesquiteInteger.infinite);
 			seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
 			dialog.addHorizontalLine(1);
 		}
@@ -445,6 +476,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 					randomIntSeed = seedField.getValue();
 					bootstrapreps = bootStrapRepsField.getValue();
 					numUFBootRuns = numUFBootRunsField.getValue();
+					doALRT = alrtBox.getState();
+					alrtReps = alrtRepsField.getValue();
 					if (searchStyle==ULTRAFASTBOOTSTRAP && bootstrapreps<minUFBootstrapReps) {
 						bootstrapreps = minUFBootstrapReps;
 						MesquiteMessage.discreetNotifyUser("Minimum number of bootstrap replicates for ultrafast bootstrap is " + minUFBootstrapReps + ". Number of replicates reset to " + minUFBootstrapReps);
@@ -478,6 +511,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public void checkEnabled(int searchStyle) {
 		onlyBestBox.setEnabled(searchStyle==STANDARDSEARCH || !bootstrapAllowed);
 		numSearchRunsField.getTextField().setEnabled(searchStyle==STANDARDSEARCH || !bootstrapAllowed);
+		if (alrtBox!=null)
+			alrtBox.setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
 		if (numUFBootRunsField!=null)
 			numUFBootRunsField.getTextField().setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
 		if (bootStrapRepsField!=null)
@@ -609,14 +644,31 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		return sb.toString();
 	}
 
+	public static final NameReference IQTreeALRTUFBoot = NameReference.getNameReference("IQ-TREE SH-aLRT/UF Boot"); 
+	public static final NameReference IQTreeUFBoot = NameReference.getNameReference("IQ-TREE UFBoot"); 
+	public static final NameReference IQTreeALRT = NameReference.getNameReference("IQ-TREE alrt"); 
+
+	/*.................................................................................................................*/
+	private NameReference[] getNameRefsForNodeLabels() {
+		if (searchStyle==ULTRAFASTBOOTSTRAP) {
+			 if (doALRT)
+				 return new NameReference[] {IQTreeALRTUFBoot};
+			 else
+				 return new NameReference[] {IQTreeUFBoot};
+			// return new NameReference[] {IQTreeALRT, IQTreeUFBoot};
+		} else
+			return null;
+	}
 	/*.................................................................................................................*/
 	private Tree readTreeFile(TreeVector trees, String treeFilePath, String treeName, MesquiteBoolean success, boolean lastTree) {
 		Tree t =null;
+		NameReference[] nameReferences = getNameRefsForNodeLabels();
 		if (lastTree) {
 			String s = MesquiteFile.getFileLastContents(treeFilePath);
 			t =  ZephyrUtil.readPhylipTree(s,taxa,false, namer);
 
 			if (t!=null) {
+				ZephyrUtil.reinterpretNodeLabels(t, t.getRoot(), nameReferences, true, 100.0);
 				if (success!=null)
 					success.setValue(true);
 				if (t instanceof AdjustableTree )
@@ -636,6 +688,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				t = ZephyrUtil.readPhylipTree(s,taxa,false, namer);
 
 				if (t!=null) {
+					ZephyrUtil.reinterpretNodeLabels(t, t.getRoot(), nameReferences, true, 100.0);
 					if (success!=null)
 						success.setValue(true);
 					if (t instanceof AdjustableTree )
@@ -914,7 +967,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		return searchStyle==STANDARDBOOTSTRAP || searchStyle==ULTRAFASTBOOTSTRAP;
 	}
 	public  boolean doMajRuleConsensusOfResults(){
-		return bootstrapOrJackknife();
+		return searchStyle==STANDARDBOOTSTRAP;
 	}
 
 	public boolean singleTreeFromResampling() {
@@ -1449,7 +1502,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		String schemeFileName;
 		if (bootstrapOrJackknife()) {
 			if (searchStyle==ULTRAFASTBOOTSTRAP) {
-				treeFileName = getOutputFilePrefix()+".ufboot";
+				treeFileName = getOutputFilePrefix()+".treefile";
 				summaryFileName = getOutputFilePrefix()+".runtrees";
 			}
 			else {
