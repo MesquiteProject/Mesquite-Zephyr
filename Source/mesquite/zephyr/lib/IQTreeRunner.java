@@ -225,6 +225,21 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 
 	/*.................................................................................................................*/
+	public  String bootstrapOrJackknifeTreeListName() {
+		if (searchStyle==ULTRAFASTBOOTSTRAP)
+			return "UF Bootstrap Trees";
+		else
+			return "Bootstrap Trees";
+	}
+
+	public String getResamplingKindName() {
+		if (searchStyle==ULTRAFASTBOOTSTRAP)
+			return "UF Bootstrap";
+		else
+			return "Bootstrap";
+	}
+
+	/*.................................................................................................................*/
 	public String getHTMLDescriptionOfStatus(){
 		String s = "";
 		if (getRunInProgress()) {
