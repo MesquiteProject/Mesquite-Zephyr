@@ -606,7 +606,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 				return false;
 		}
 		createdNewDataObject = matrix.getParentData()==null;
-		data = (CategoricalData)CharacterData.getData(this,  matrix, taxa);
+		CharacterData cData = CharacterData.getData(this,  matrix, taxa);
+		if (!CategoricalData.class.isInstance(cData))	{
+			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " requires categorical data.");
+			return false;
+		}
+		data = (CategoricalData)cData;
 		if (!(requiredClassOfData.isInstance(data))){
 			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " works only if given a full "+requiredClassOfData.getName()+" object");
 			return false;
