@@ -851,8 +851,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 	/*.................................................................................................................*/
 	public void checkEnabled(boolean doBoot) {
-		onlyBestBox.setEnabled(!doBoot);
-		bootStrapRepsField.getTextField().setEnabled(doBoot);
+		if (onlyBestBox!=null)
+			onlyBestBox.setEnabled(!doBoot);
+		if (bootStrapRepsField!=null)
+			bootStrapRepsField.getTextField().setEnabled(doBoot);
 	}
 
 	/*.................................................................................................................*/

@@ -83,7 +83,7 @@ public class ZephyrUtil {
 		MesquiteFile file = new MesquiteFile();
 		file.writeTaxaWithAllMissing = false;
 		file.writeExcludedCharacters = false;
-		file.writeCharLabels = false;
+		file.writeCharLabelInfo = false;
 		if (exporter!=null) {
 			exporter.writeOnlySelectedTaxa = selectedTaxaOnly;
 			if (module instanceof ZephyrFilePreparer)
@@ -116,6 +116,52 @@ public class ZephyrUtil {
 
 	/*.................................................................................................................*/
 	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, TaxonNamer namer) {
+		if (StringUtil.blank(line))
+			return null;
+		if (!validPhylipTree(line))
+			return null;
+		MesquiteTree t = new MesquiteTree(taxa);
+		t.setPermitTaxaBlockEnlargement(permitTaxaBlockEnlarge);
+		t.readTree(line, namer, null, "():;,[]\'"); //tree reading adjusted to use Newick punctuation rather than NEXUS
+		return t;
+	}
+	
+	/*.................................................................................................................*/
+	public static void reinterpretNodeLabels(Tree tree, int node, NameReference[] nameRefs, boolean asText, double divisor){
+		if (nameRefs==null)
+			return;
+		MesquiteTree t = null;
+		if (tree instanceof MesquiteTree)
+			t=(MesquiteTree)tree;
+		if (t==null)
+			return;
+		if (divisor==0.0) divisor=1.0;
+		if (t.nodeIsInternal(node)){
+			if (t.nodeHasLabel(node)){
+				String label = t.getNodeLabel(node);
+				if (asText) {
+					t.setAssociatedObject(nameRefs[0], node, label, true);
+				} else {
+					Parser parser = new Parser(label);
+					parser.setWhitespaceString(parser.getWhitespaceString()+"/");
+					double[] support = new double[nameRefs.length];
+					for (int i=0; i<nameRefs.length; i++) {
+						support[i] = MesquiteDouble.fromString(parser.getNextToken());
+						if (MesquiteDouble.isCombinable(support[i]))
+							t.setAssociatedDouble(nameRefs[i], node, support[i]/divisor, true);
+					}
+				}
+				t.setNodeLabel(null, node);
+			}
+			for (int daughter = t.firstDaughterOfNode(node); t.nodeExists(daughter); daughter = t.nextSisterOfNode(daughter)) {
+				reinterpretNodeLabels(t, daughter, nameRefs, asText, divisor);
+			}
+		}
+
+	}
+
+	/*.................................................................................................................*/
+	public static Tree convertNodeNamesToValues (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, TaxonNamer namer) {
 		if (StringUtil.blank(line))
 			return null;
 		if (!validPhylipTree(line))
@@ -682,13 +728,17 @@ public class ZephyrUtil {
 	
 	
 	public static String getStandardExtraTreeWindowCommands (boolean doMajRule, boolean isBootstrap, long treeBlockID, boolean branchLengthsProportional){
+		return getStandardExtraTreeWindowCommands(doMajRule, isBootstrap, false, null, treeBlockID, branchLengthsProportional);
+	}
+
+	public static String getStandardExtraTreeWindowCommands (boolean doMajRule, boolean isBootstrap, boolean nodeValuesAsText, String nodeValueNameRef, long treeBlockID, boolean branchLengthsProportional){
 		String commands = "";//"setSize 400 600;  ";
 		if (doMajRule){  //DAVIDCHECK:  Temporary tree window can't handle this doMajRule, so an error is given when file reread.
 			commands += "getOwnerModule; tell It; setTreeSource  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";  
 			commands += " setTreeBlockByID " + treeBlockID + ";";
 			commands += " toggleUseWeights off; endTell; setConsenser  #mesquite.consensus.MajRuleTree.MajRuleTree; endTell; endTell;";
 		}
-
+	
 		commands += "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
 		commands += "setTreeDrawer  #mesquite.trees.SquareLineTree.SquareLineTree; tell It; orientRight; showEdgeLines off; ";
 		
@@ -707,6 +757,10 @@ public class ZephyrUtil {
 
 		if (isBootstrap){
 			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; setDigits 0; writeAsPercentage on; toggleWhiteEdges off; setOffset 0  9; endTell; endTell; ";
+		}		
+		if (nodeValuesAsText){
+			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocStrings.DrawTreeAssocStrings; tell It; setOn on; toggleShow " + nodeValueNameRef+ "; setOffset 0  9; endTell; endTell; ";
+		
 		}		
 
 		return commands;

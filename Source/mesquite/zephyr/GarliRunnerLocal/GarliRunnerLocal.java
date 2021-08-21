@@ -48,6 +48,11 @@ public class GarliRunnerLocal extends GarliRunner {
 			return LocalScriptRunner.class;
 	 }
 
+		/*.................................................................................................................*/
+		public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
+			return true;
+		}
+
 	 /*.................................................................................................................*/
 	 public Object getProgramArguments(String dataFileName, String configFileName, boolean isPreflight) {
 
@@ -64,7 +69,6 @@ public class GarliRunnerLocal extends GarliRunner {
 		public String getLogText() {
 			return externalProcRunner.getStdOut();
 		}
-
 	/*.................................................................................................................*/
 	public void appendToConfigFileGeneral(StringBuffer config) {
 		if (config!=null) {

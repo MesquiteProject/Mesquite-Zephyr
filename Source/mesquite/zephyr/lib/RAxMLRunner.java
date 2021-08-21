@@ -239,7 +239,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "8.0.0 and 8.1.4";
+		return "8.0.0 - 8.2.12";
 	}
 	public abstract void addRunnerOptions(ExtensibleDialog dialog);
 	public abstract void processRunnerOptions();
@@ -414,11 +414,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 					doBootstrap = doBootstrapCheckbox.getState();
 					randomIntSeed = seedField.getValue();
 					bootstrapreps = bootStrapRepsField.getValue();
+					bootstrapBranchLengths = bootstrapBranchLengthsCheckBox.getState();
 				} else
 					doBootstrap=false;
 				onlyBest = onlyBestBox.getState();
 				nobfgs = nobfgsCheckBox.getState();
-				bootstrapBranchLengths = bootstrapBranchLengthsCheckBox.getState();
 
 				if (getConstrainedSearchAllowed()) {
 					useConstraintTree = constraintButtons.getValue();
@@ -547,7 +547,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			String s = MesquiteFile.getFileLastContents(treeFilePath);
 			if (StringUtil.blank(s))
 				logln("-- File not recovered; no trees found");
-			t =  ZephyrUtil.readPhylipTree(s,taxa,false, namer);
+			t =  ZephyrUtil.readPhylipTree(s,taxa,false,namer);
 
 			if (t!=null) {
 				if (success!=null)
@@ -566,7 +566,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			String s = parser.getRawNextDarkLine();
 
 			while (!StringUtil.blank(s)) {
-				t = ZephyrUtil.readPhylipTree(s,taxa,false, namer);
+				t = ZephyrUtil.readPhylipTree(s,taxa,false,namer);
 
 				if (t!=null) {
 					if (success!=null)

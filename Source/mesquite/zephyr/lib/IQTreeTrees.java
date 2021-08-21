@@ -25,7 +25,12 @@ public abstract class IQTreeTrees extends ZephyrTreeSearcher implements Likeliho
 		return commands;
 	}
 
-	
+	public String getExtraTreeWindowCommands (boolean finalTree, long treeBlockID){
+		this.treeBlockID = treeBlockID;
+		
+		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), runner.showAssocStrings(),runner.getNameRefForAssocStrings(), treeBlockID, !runner.bootstrapOrJackknife())+ eachTreeCommands();
+	}
+
 	/*.................................................................................................................*/
 	public abstract String getRunnerModuleName();
 	/*.................................................................................................................*/

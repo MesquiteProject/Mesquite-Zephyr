@@ -39,10 +39,11 @@
     <table width="100%" border="0" cellpadding="4">
   <tr>
     <td width="51%"><img src="images/zephyrBannerNarrow.jpg" width="628" height="110" /></td>
-    <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->Features &amp; Bug History<!-- InstanceEndEditable --></div></td>
+    <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->Features <br />
+      &amp; Bug History<!-- InstanceEndEditable --></div></td>
     <td width="2%">&nbsp;</td>
-    <td width="14%">Version 3.11<br />
-      3 January 2020<br /></td>
+    <td width="14%">Version 3.20<br />
+      August 2021<br /></td>
   </tr>
 </table>
 
@@ -156,6 +157,24 @@
 </p>
     <p><br />
     </p>
+    <hr />
+    <h3 id="toc8"><a name="Version 3.12" id="Version 3.12"></a>Version 3.20</h3>
+    <p><strong><br />
+New Features<br />
+    </strong></p>
+    <ul>
+      <li>Added the Harvest button to local script-based runs with no visible terminal that were reconnected after the file had been saved and reopened. The Harvest button allows the final results to be harvested by Mesquite.</li>
+    </ul>
+    <p><strong><br />
+      Bug fixes <br />
+    </strong></p>
+    <ul>
+      <li>SOWH test crashes fixed.</li>
+      <li>Fixed problem whereby protein matrices could not be run in PAUP* via Zephyr</li>
+      <li>As MacOS X 10.15 (Catalina) does not  allow a visible terminal in the context of Zephyr, that feature has been disabled.</li>
+      <li>Importing best partition schemes as determined by IQ-TREE failed if there were multiple parts that used the same model name (but with different parameter values). This was caused by IQ-TREE failure to distinguish between different parts that used the same model structure.  E.g., IQ-TREE might name three different parts all &quot;SYM+I+G4&quot;. Workaround added to Zephyr in build 155.  It now appends a number onto the end of such part names (e.g.,  &quot;SYM+I+G4_2&quot;,  &quot;SYM+I+G4_3&quot;, etc.)</li>
+      <li>General improvement of interactions with IQ-TREE, including addition of aLRT, better reporting during runs, etc.&nbsp; &nbsp;</li>
+    </ul>
     <hr />
     <h3 id="toc7"><a name="Version 3.11" id="Version 3.11"></a>Version 3.11    </h3>
     <p><strong><br />

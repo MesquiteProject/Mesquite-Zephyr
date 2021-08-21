@@ -23,6 +23,8 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	protected boolean readyForReconnectionSave = false;
 	protected boolean onlySetUpRun = false;
 	protected boolean leaveAnalysisDirectoryIntact = false;
+	public boolean scriptBased = false;
+	protected boolean visibleTerminal = false;
 
 
 	public Class getDutyClass() {
@@ -39,6 +41,16 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	}
 	public void setLeaveAnalysisDirectoryIntact(boolean leaveAnalysisDirectoryIntact) {
 		this.leaveAnalysisDirectoryIntact = leaveAnalysisDirectoryIntact;
+	}
+	public boolean isVisibleTerminal() {
+		return visibleTerminal;
+	}
+	public boolean isScriptBased() {
+		return scriptBased;
+	}
+
+	public void setScriptBased(boolean scriptBased) {
+		this.scriptBased = scriptBased;
 	}
 
 

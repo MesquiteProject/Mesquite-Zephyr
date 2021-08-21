@@ -43,6 +43,10 @@ public  class PAUPSVDRunnerLocal extends PAUPSVDRunner {
 	public String getName() {
 		return "PAUP Trees (SVD) [Local] Runner";
 	}
+	/*.................................................................................................................*/
+	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
+		return true;
+	}
 
 
 

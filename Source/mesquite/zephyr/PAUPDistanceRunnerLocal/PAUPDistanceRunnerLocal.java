@@ -41,6 +41,10 @@ public class PAUPDistanceRunnerLocal extends PAUPDistanceRunner {
 	public String getName() {
 		return "PAUP Trees (Distance) [Local] Runner";
 	}
+	/*.................................................................................................................*/
+	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
+		return true;
+	}
 
 
 
