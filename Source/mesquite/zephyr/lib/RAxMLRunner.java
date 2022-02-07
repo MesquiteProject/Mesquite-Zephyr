@@ -921,8 +921,17 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				parser.setAllowComments(false);
 				line = parser.getRawNextDarkLine();
 			}
-	
-			
+			if (MesquiteDouble.isCombinable(finalScore.getValue())){
+				MesquiteDouble s = new MesquiteDouble(-finalScore.getValue());
+				s.setName(IOUtil.RAXMLSCORENAME);
+				((Attachable)t).attachIfUniqueName(s);
+			}
+			if (MesquiteDouble.isCombinable(optimizedValue)){
+				MesquiteDouble s = new MesquiteDouble(-optimizedValue);
+				s.setName(IOUtil.RAXMLFINALSCORENAME);
+				((Attachable)t).attachIfUniqueName(s);
+			}
+
 		}
 		else if (numRuns>1) {
 			TreeVector tv = new TreeVector(taxa);
