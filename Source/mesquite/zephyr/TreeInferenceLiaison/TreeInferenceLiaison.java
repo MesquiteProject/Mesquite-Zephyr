@@ -103,6 +103,8 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		return s;
 	}
 	public boolean isReconnectable(){
+		if (inferenceTask == null)
+			return false;
 		return inferenceTask.isReconnectable();
 	}
 	/*.................................................................................................................*/
