@@ -11,24 +11,20 @@ package mesquite.zephyr.RAxMLTreesSSHNG;
 
 import java.util.*;
 
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.RAxMLRunnerLocalOld.RAxMLRunnerLocalOld;
-import mesquite.zephyr.RAxMLRunnerSSHOld.RAxMLRunnerSSHOld;
+import mesquite.zephyr.RAxMLRunnerSSHNG.RAxMLRunnerSSHNG;
 import mesquite.zephyr.lib.*;
 
 
-public class RAxMLTreesSSHNG extends RAxMLTrees {
+public class RAxMLTreesSSHNG extends RAxMLTreesNG {
 
 	
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.RAxMLRunnerSSH.RAxMLRunnerSSH";
+		return "#mesquite.zephyr.RAxMLRunnerSSHNG.RAxMLRunnerSSHNG";
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return RAxMLRunnerSSHOld.class;
+		return RAxMLRunnerSSHNG.class;
 	}
 
 	/*.................................................................................................................*/

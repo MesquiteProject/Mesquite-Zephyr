@@ -17,7 +17,7 @@ public class RAxMLTreesLocalOld extends RAxMLTrees {
 
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.RAxMLRunner.RAxMLRunnerLocal";
+		return "#mesquite.zephyr.RAxMLRunnerLocalOld.RAxMLRunnerLocalOld";
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {

@@ -30,7 +30,7 @@ import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
 
 
-public class RAxMLRunnerLocalNG extends RAxMLRunnerBasic  {
+public class RAxMLRunnerLocalNG extends RAxMLRunnerBasicNG  {
 
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
@@ -58,7 +58,7 @@ public class RAxMLRunnerLocalNG extends RAxMLRunnerBasic  {
 	}
 
 	public String getName() {
-		return "RAxML Likelihood (Local)";
+		return "RAxML-NG Likelihood (Local)";
 	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){

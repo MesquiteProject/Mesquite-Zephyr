@@ -30,7 +30,7 @@ import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
 
 
-public class RAxMLRunnerLocalOld extends RAxMLRunnerBasic  {
+public class RAxMLRunnerLocalOld extends RAxMLRunnerBasicOld  {
 
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){

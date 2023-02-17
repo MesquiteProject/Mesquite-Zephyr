@@ -20,7 +20,7 @@ import mesquite.zephyr.SSHRunner.SSHRunner;
 import mesquite.zephyr.lib.*;
 
 
-public class RAxMLRunnerSSHOld extends RAxMLRunnerBasic  {
+public class RAxMLRunnerSSHOld extends RAxMLRunnerBasicOld  {
 
 	/*.................................................................................................................*/
 	public int getProgramNumber() {
@@ -42,7 +42,7 @@ public class RAxMLRunnerSSHOld extends RAxMLRunnerBasic  {
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "8.2.10";
+		return "8.2.12";
 	}
 	
 	/*.................................................................................................................*/

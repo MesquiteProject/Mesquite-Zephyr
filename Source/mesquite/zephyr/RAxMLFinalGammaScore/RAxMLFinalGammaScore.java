@@ -13,7 +13,6 @@ package mesquite.zephyr.RAxMLFinalGammaScore;
 import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
-import mesquite.zephyr.RAxMLRunnerLocalOld.*;
 
 
 public class RAxMLFinalGammaScore extends NumberForTree {

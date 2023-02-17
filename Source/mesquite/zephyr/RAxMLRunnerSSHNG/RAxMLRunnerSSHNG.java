@@ -20,7 +20,7 @@ import mesquite.zephyr.SSHRunner.SSHRunner;
 import mesquite.zephyr.lib.*;
 
 
-public class RAxMLRunnerSSHNG extends RAxMLRunnerBasic  {
+public class RAxMLRunnerSSHNG extends RAxMLRunnerBasicNG  {
 
 	/*.................................................................................................................*/
 	public int getProgramNumber() {
@@ -42,7 +42,7 @@ public class RAxMLRunnerSSHNG extends RAxMLRunnerBasic  {
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "8.2.10";
+		return "1.1.0";
 	}
 	
 	/*.................................................................................................................*/
@@ -73,7 +73,7 @@ public class RAxMLRunnerSSHNG extends RAxMLRunnerBasic  {
 
 	/*.................................................................................................................*/
 	public  String queryOptionsDialogTitle() {
-		return "RAxML Options on SSH Server";
+		return "RAxML-NG Options on SSH Server";
 	}
 
 	/*.................................................................................................................*/
@@ -105,7 +105,7 @@ public class RAxMLRunnerSSHNG extends RAxMLRunnerBasic  {
 	}
 
 	public String getName() {
-		return "RAxML Likelihood (SSH Server)";
+		return "RAxML-NG Likelihood (SSH Server)";
 	}
 
 	/*.................................................................................................................*/
