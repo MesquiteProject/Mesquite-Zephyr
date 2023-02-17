@@ -33,7 +33,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	boolean onlyBest = true;
 
-	boolean RAxML814orLater = false;
+//	boolean RAxML814orLater = false;
 
 	protected	int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
 
@@ -387,12 +387,13 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		 */
 
 		tabbedPanel.addPanel("Other options", true);
-		nobfgsCheckBox = dialog.addCheckBox("no bfgs option", nobfgs);
+		if (!isRAxMLNG())
+			nobfgsCheckBox = dialog.addCheckBox("no bfgs option", nobfgs);
 		otherOptionsField = dialog.addTextField("Other RAxML options:", otherOptions, 40);
 
 
 		commandLabel = dialog.addLabel("");
-		commandField = dialog.addSingleLineTextArea("", 2);
+		commandField = dialog.addSingleLineTextArea("", 4);
 		dialog.addBlankLine();
 		Button showCommand = dialog.addAListenedButton("Compose Command",null, this);
 		showCommand.setActionCommand(composeProgramCommand);
@@ -427,7 +428,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				} else
 					doBootstrap=false;
 				onlyBest = onlyBestBox.getState();
-				nobfgs = nobfgsCheckBox.getState();
+				if (!isRAxMLNG())
+					nobfgs = nobfgsCheckBox.getState();
 
 				if (getConstrainedSearchAllowed()) {
 					useConstraintTree = constraintButtons.getValue();
@@ -641,6 +643,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	/*.................................................................................................................*/
 	public abstract Object getProgramArguments(String dataFileName, boolean isPreflight);
+
+	/*.................................................................................................................*/
+	public String getAdditionalArguments() {
+		return "";
+	}
 
 
 	//String arguments;

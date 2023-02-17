@@ -76,39 +76,6 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 			return super.doCommand(commandName, arguments, checker);
 	}	
 
-	/*.................................................................................................................*
-	public void processSingleXMLPreference (String tag, String content) {
-		if ("RAxML814orLater".equalsIgnoreCase(tag))
-			RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
-
-		if ("raxmlThreadingVersion".equalsIgnoreCase(tag))
-			threadingVersion = MesquiteInteger.fromString(content);
-
-		if ("numProcessors".equalsIgnoreCase(tag))
-			numProcessors = MesquiteInteger.fromString(content);
-
-		super.processSingleXMLPreference(tag, content);
-
-		preferencesSet = true;
-	}
-
-	/*.................................................................................................................*
-	public String preparePreferencesForXML () {
-		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "RAxML814orLater", RAxML814orLater);  
-		StringUtil.appendXMLTag(buffer, 2, "raxmlThreadingVersion", threadingVersion);  
-		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
-
-		buffer.append(super.preparePreferencesForXML());
-
-		preferencesSet = true;
-		return buffer.toString();
-	}
-
-	/*.................................................................................................................*
-	public String getTestedProgramVersions(){
-		return "8.0.0–8.2.12";
-	}
 
 	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
@@ -173,9 +140,12 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {
 
 			MesquiteString arguments = new MesquiteString();
-			getArguments(arguments, "[fileName]", proteinModelField.getText(), proteinModelMatrixChoice.getSelectedItem(), dnaModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, nobfgsCheckBox.getState(), false);
-			String command = externalProcRunner.getExecutableCommand() + arguments.getValue();
-			commandLabel.setText("This command will be used to run RAxML:");
+			boolean nobfgsValue = false;
+			if (nobfgsCheckBox!=null)
+				nobfgsValue =nobfgsCheckBox.getState();
+			getArguments(arguments, "[fileName]", proteinModelField.getText(), proteinModelMatrixChoice.getSelectedItem(), dnaModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, nobfgsValue, false);
+			String command = externalProcRunner.getExecutableCommand() + arguments.getValue() + getAdditionalArguments();
+			commandLabel.setText("This command will be used to run "+ getProgramName()+ ":");
 			commandField.setText(command);
 		}
 		else	if (e.getActionCommand().equalsIgnoreCase("clearCommand")) {
@@ -183,6 +153,7 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 			commandLabel.setText("");
 		}
 	}
+	/*.................................................................................................................*/
 	public void checkFields() {
 		int max = getMaxCores();
 		if (MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
@@ -212,24 +183,6 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 	protected void reportStdError() {
 		reportStdOutput("RUN UNSUCCESFUL");   //apparently local RAxML does not output problems to stderr, so need to grab stdout
 	}
-	/*.................................................................................................................*
-	public String[] getLogFileNames(){
-		String treeFileName;
-		String workingTreeFileName;
-		String logFileName;
-		if (bootstrapOrJackknife())
-			treeFileName = "RAxML_bootstrap.file.out";
-		else 
-			treeFileName = "RAxML_result.file.out";
-		logFileName = "RAxML_log.file.out";
-		workingTreeFileName= treeFileName;
-		if (!bootstrapOrJackknife() && numRuns>1) {
-			treeFileName+=".RUN.";
-			workingTreeFileName= treeFileName + currentRun;
-			logFileName+=".RUN.";
-		}
-		return new String[]{logFileName, treeFileName, "RAxML_info.file.out", workingTreeFileName};
-	}
 	/*.................................................................................................................*/
 	public String[] modifyOutputPaths(String[] outputFilePaths){
 		if (!bootstrapOrJackknife() && numRuns>1 ) {
@@ -244,38 +197,10 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 		}
 		return outputFilePaths;
 	}
-	/*.................................................................................................................*
-	public String getPreflightLogFileNames(){
-		return "RAxML_log.file.out";	
-	}
-
-
-	//*************************
-
 
 	/*.................................................................................................................*/
 	public boolean preFlightSuccessful(String preflightCommand){
 		return runPreflightCommand(preflightCommand);
-	}
-
-	//String arguments;
-	/*.................................................................................................................*
-	public Object getProgramArguments(String dataFileName, boolean isPreflight) {
-		MesquiteString arguments = new MesquiteString();
-
-		if (!isPreflight) {
-			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
-			if (isVerbose()) {
-				logln("RAxML arguments: \n" + arguments.getValue() + "\n");
-			}
-		} else {
-			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
-		}
-		if (threadingVersion==THREADING_PTHREADS) {
-			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ");   // have to ensure that there are at least two threads requested
-		}
-		return arguments; // + " | tee log.txt"; // + "> log.txt";
-
 	}
 
 

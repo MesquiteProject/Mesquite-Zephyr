@@ -184,29 +184,15 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		threadingVersion = threadingRadioButtons.getValue();
 		numProcessors = numProcessorsField.getValue(); //
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void setRAxMLSeed(long seed){
 		this.randseed = seed;
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public int getMaxCores(){
 		return MesquiteInteger.infinite;
 	}
-	/*.................................................................................................................*/
-	public  void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {
-
-			MesquiteString arguments = new MesquiteString();
-			getArguments(arguments, "[fileName]", proteinModelField.getText(), proteinModelMatrixChoice.getSelectedItem(), dnaModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, nobfgsCheckBox.getState(), false);
-			String command = externalProcRunner.getExecutableCommand() + arguments.getValue();
-			commandLabel.setText("This command will be used to run RAxML:");
-			commandField.setText(command);
-		}
-		else	if (e.getActionCommand().equalsIgnoreCase("clearCommand")) {
-			commandField.setText("");
-			commandLabel.setText("");
-		}
-	}
+	/*.................................................................................................................*
 	public void checkFields() {
 		int max = getMaxCores();
 		if (MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
@@ -215,7 +201,7 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		}
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void keyPressed(KeyEvent e) {
 	}
 
@@ -340,20 +326,28 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 
 	//String arguments;
 	/*.................................................................................................................*/
+	public String getAdditionalArguments() {
+		boolean thread = threadingVersion==THREADING_PTHREADS;
+		if (threadingRadioButtons!=null)
+			thread = threadingRadioButtons.getValue()==THREADING_PTHREADS;
+		if (thread) {
+			return " -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ";   // have to ensure that there are at least two threads requested
+		}
+		return "";
+	}
+	/*.................................................................................................................*/
 	public Object getProgramArguments(String dataFileName, boolean isPreflight) {
 		MesquiteString arguments = new MesquiteString();
 
 		if (!isPreflight) {
 			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
 			if (isVerbose()) {
-				logln("RAxML arguments: \n" + arguments.getValue() + "\n");
+				logln("RAxML arguments: \n" + arguments.getValue() + getAdditionalArguments()+"\n");
 			}
 		} else {
 			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
-		if (threadingVersion==THREADING_PTHREADS) {
-			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ");   // have to ensure that there are at least two threads requested
-		}
+		arguments.append(getAdditionalArguments());
 		return arguments; // + " | tee log.txt"; // + "> log.txt";
 
 	}
