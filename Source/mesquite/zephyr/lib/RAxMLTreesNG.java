@@ -65,7 +65,7 @@ public abstract class RAxMLTreesNG extends RAxMLTrees {
 		TaxonNamer namer = runner.getTaxonNamer();
 		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);    
 		if (latestTree instanceof AdjustableTree) {
-			String name = "RAxML Tree";
+			String name = "RAxML-NG Tree";
 			if (runner.showMultipleRuns())
 				name+= ", Run " + (runner.getCurrentRun()+1);
 			((AdjustableTree)latestTree).setName(name);

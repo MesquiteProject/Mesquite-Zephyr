@@ -64,6 +64,17 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		return externalProcRunner.getStdOut();
 	}
 
+
+	/*.................................................................................................................*/
+	public void setUpRunner() { 
+		dnaModel = "GTR+G+I";
+		proteinModel = "+G";
+	}
+	/*.................................................................................................................*/
+	public boolean isRAxMLNG() { 
+		return true;
+	}
+
 	/*.................................................................................................................*
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
@@ -85,8 +96,6 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
-		if ("RAxML814orLater".equalsIgnoreCase(tag))
-			RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
 
 		if ("raxmlThreadingVersion".equalsIgnoreCase(tag))
 			threadingVersion = MesquiteInteger.fromString(content);
@@ -102,7 +111,6 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "RAxML814orLater", RAxML814orLater);  
 		StringUtil.appendXMLTag(buffer, 2, "raxmlThreadingVersion", threadingVersion);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
 
@@ -306,15 +314,18 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		String logFileName;
 		if (bootstrapOrJackknife())
 			treeFileName = outputFilePrefix+".raxml.bootstraps";
-		else 
+		else if (onlyBest)
 			treeFileName = outputFilePrefix+".raxml.bestTree";
+		else
+			treeFileName = outputFilePrefix+".raxml.mlTrees";
 		logFileName = outputFilePrefix+".raxml.log";
 		workingTreeFileName= outputFilePrefix+".raxml.lastTree.TMP";
-		if (!bootstrapOrJackknife() && numRuns>1) {
+	/*	if (!bootstrapOrJackknife() && numRuns>1) {
 			treeFileName+=".RUN.";
 			workingTreeFileName= treeFileName + currentRun;
 			logFileName+=".RUN.";
 		}
+		*/
 		return new String[]{logFileName, treeFileName, logFileName, workingTreeFileName};
 	}
 	/*.................................................................................................................*/

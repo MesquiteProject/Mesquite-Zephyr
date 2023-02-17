@@ -51,8 +51,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected boolean nobfgs = false;
 	protected int bootstrapreps = 100;
 	protected int bootstrapSeed = Math.abs((int)System.currentTimeMillis());
-	protected static String dnaModel = "GTRGAMMAI";
-	protected static String proteinModel = "PROTGAMMA";
+	protected String dnaModel = "GTRGAMMAI";
+	protected String proteinModel = "PROTGAMMA";
 	protected static String proteinModelMatrix = "JTT";
 	protected static String otherOptions = "";
 	protected boolean doBootstrap = false;
@@ -105,8 +105,18 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			return sorry("Couldn't hire an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
+		setUpRunner();
 
 		return true;
+	}
+
+	/*.................................................................................................................*/
+	public void setUpRunner() { 
+	}
+
+	/*.................................................................................................................*/
+	public boolean isRAxMLNG() { 
+		return false;
 	}
 
 	/*.................................................................................................................*/
@@ -311,7 +321,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (StringUtil.notEmpty(extraLabel))
 			dialog.addLabel(extraLabel);
 
-		tabbedPanel.addPanel("RAxML Program Details", true);
+		tabbedPanel.addPanel(getProgramName() + " Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
 		addRunnerOptions(dialog);
 		if (treeInferer!=null) 
@@ -873,7 +883,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			t =readRAxMLTreeFile(treeList, treeFilePath, "RAxML Bootstrap Tree", readSuccess, false);
 			ZephyrUtil.adjustTree(t, outgroupSet);
 		}
-		else if (numRuns==1) {
+		else if (numRuns==1 || isRAxMLNG()) {
 			t =readRAxMLTreeFile(treeList, treeFilePath, "RAxMLTree", readSuccess, true);
 			ZephyrUtil.adjustTree(t, outgroupSet);
 			String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);
