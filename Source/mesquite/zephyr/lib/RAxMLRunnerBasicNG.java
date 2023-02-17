@@ -58,7 +58,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 
 
 	public String getExecutableName() {
-		return "RAxML";
+		return "RAxML-NG";
 	}
 
 	public String getLogText() {
@@ -383,7 +383,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	}
 
 	public String getProgramName() {
-		return "RAxML";
+		return "RAxML-NG";
 	}
 
 

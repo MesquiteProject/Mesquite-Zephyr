@@ -32,7 +32,7 @@ public abstract class RAxMLTreesNG extends RAxMLTrees {
 	public abstract Class getRunnerClass() ;
 	/*.................................................................................................................*/
 	public String getProgramName() {
-		return "RAxML";
+		return "RAxML-NG";
 	}
 
 	/*.................................................................................................................*/

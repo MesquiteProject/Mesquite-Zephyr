@@ -13,7 +13,7 @@ import mesquite.zephyr.RAxMLRunnerLocalNG.RAxMLRunnerLocalNG;
 import mesquite.zephyr.lib.*;
 
 
-public class RAxMLTreesLocalNG extends RAxMLTrees {
+public class RAxMLTreesLocalNG extends RAxMLTreesNG {
 
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {

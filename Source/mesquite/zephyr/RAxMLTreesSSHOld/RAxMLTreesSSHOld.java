@@ -15,7 +15,7 @@ import mesquite.zephyr.RAxMLRunnerSSHOld.RAxMLRunnerSSHOld;
 import mesquite.zephyr.lib.*;
 
 
-public class RAxMLTreesSSHOld extends RAxMLTrees {
+public class RAxMLTreesSSHOld extends RAxMLTreesOld {
 
 	
 	/*.................................................................................................................*/
