@@ -808,7 +808,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		fileNames[2] = translationFileName;
 		fileContents[CONSTRAINTFILENUMBER] = constraintTree;
 		fileNames[CONSTRAINTFILENUMBER] = CONSTRAINTTREEFILENAME;
-		fileContents[4] = getRunInformation();
+		fileContents[4] = getRunInformation(arguments);
 		fileNames[4] = runInformationFileName;
 		int runInformationFileNumber = 4;
 

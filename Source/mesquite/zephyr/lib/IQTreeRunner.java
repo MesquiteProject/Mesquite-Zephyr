@@ -761,18 +761,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		this.constrainedSearch = constrainedSearch;
 	}
 	
-	/*.................................................................................................................*/
-	//TODO: generalize to all programs (e.g., not in TNTRunner)
-		public String getRunInformation(Object arguments) {
-			StringBuffer sb = new StringBuffer(1000);
-			sb.append("\n\nArguments passed to IQ-TREE: \n");
-			if (arguments instanceof MesquiteString)
-				sb.append(((MesquiteString)arguments).getValue());
-			else if (arguments instanceof String)
-				sb.append((String)arguments);
-
-			return getRunInformation()+ sb.toString();
-		}
 
 
 	protected static final int DATAFILENUMBER = 0;

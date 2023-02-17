@@ -287,7 +287,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			//if (LOCnobfgs)
 			//	localArguments += " --no-bfgs ";
 			if (LOCnumRuns>1)
-				localArguments += " -tree pars{" + LOCnumRuns + "} ";
+				localArguments += " -tree pars{" + LOCnumRuns + "}, rand{"+ LOCnumRuns + "}";
 		//	if (RAxML814orLater)
 		//		localArguments += " --mesquite";
 		}

@@ -726,6 +726,17 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return sb.toString();
 	}
 	/*.................................................................................................................*/
+		public String getRunInformation(Object arguments) {
+			StringBuffer sb = new StringBuffer(1000);
+			sb.append("\n\nArguments passed to " + getProgramName() + ": \n");
+			if (arguments instanceof MesquiteString)
+				sb.append(((MesquiteString)arguments).getValue());
+			else if (arguments instanceof String)
+				sb.append((String)arguments);
+
+			return getRunInformation()+ sb.toString();
+		}
+	/*.................................................................................................................*/
 	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle, int runInfoFileNumber) {
 		runInProgress=true;
 		

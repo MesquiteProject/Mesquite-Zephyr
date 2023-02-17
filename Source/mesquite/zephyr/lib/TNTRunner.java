@@ -782,7 +782,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		fileNames[1] = commandsFileName;
 		fileContents[2] = translationTable;
 		fileNames[2] = translationFileName;
-		fileContents[3] = getRunInformation();
+		fileContents[3] = getRunInformation(arguments);
 		fileNames[3] = runInformationFileName;
 		int runInformationFileNumber = 3;
 
