@@ -42,7 +42,6 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 	protected static final int THREADING_PTHREADS = 1;
 	protected static final int THREADING_MPI = 2;
 	protected int threadingVersion = THREADING_OTHER;
-	protected int numProcessors = 2;
 	protected boolean RAxML814orLater = true;
 
 

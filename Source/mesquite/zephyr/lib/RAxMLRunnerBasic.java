@@ -38,15 +38,9 @@ outgroups
 
 public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListener  {
 
-	protected static final int THREADING_OTHER =0;
-	protected static final int THREADING_PTHREADS = 1;
-	protected static final int THREADING_MPI = 2;
-	protected int threadingVersion = THREADING_OTHER;
 	protected int numProcessors = 2;
 
-
 	protected boolean showIntermediateTrees = true;
-
 
 
 	protected SingleLineTextField MPISetupField;
@@ -82,7 +76,7 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 			return super.doCommand(commandName, arguments, checker);
 	}	
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("RAxML814orLater".equalsIgnoreCase(tag))
 			RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
@@ -98,7 +92,7 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 		preferencesSet = true;
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "RAxML814orLater", RAxML814orLater);  
@@ -111,7 +105,7 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 		return buffer.toString();
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String getTestedProgramVersions(){
 		return "8.0.0–8.2.12";
 	}
@@ -218,7 +212,7 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 	protected void reportStdError() {
 		reportStdOutput("RUN UNSUCCESFUL");   //apparently local RAxML does not output problems to stderr, so need to grab stdout
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String[] getLogFileNames(){
 		String treeFileName;
 		String workingTreeFileName;
@@ -250,7 +244,7 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 		}
 		return outputFilePaths;
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String getPreflightLogFileNames(){
 		return "RAxML_log.file.out";	
 	}
@@ -265,7 +259,7 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 	}
 
 	//String arguments;
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public Object getProgramArguments(String dataFileName, boolean isPreflight) {
 		MesquiteString arguments = new MesquiteString();
 

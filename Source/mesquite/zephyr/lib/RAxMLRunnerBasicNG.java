@@ -38,11 +38,8 @@ outgroups
 
 public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements KeyListener  {
 
-	protected static final int THREADING_OTHER =0;
-	protected static final int THREADING_PTHREADS = 1;
-	protected static final int THREADING_MPI = 2;
-	protected int threadingVersion = THREADING_OTHER;
-	protected int numProcessors = 2;
+	protected boolean autoNumProcessors=true;
+	protected Checkbox autoNumProcessorsCheckBox;
 
 	protected String outputFilePrefix="file";
 
@@ -96,9 +93,8 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
-
-		if ("raxmlThreadingVersion".equalsIgnoreCase(tag))
-			threadingVersion = MesquiteInteger.fromString(content);
+		if ("autoNumProcessors".equalsIgnoreCase(tag))
+			autoNumProcessors = MesquiteBoolean.fromTrueFalseString(content);
 
 		if ("numProcessors".equalsIgnoreCase(tag))
 			numProcessors = MesquiteInteger.fromString(content);
@@ -111,7 +107,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "raxmlThreadingVersion", threadingVersion);  
+		StringUtil.appendXMLTag(buffer, 2, "autoNumProcessors", autoNumProcessors);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
 
 		buffer.append(super.preparePreferencesForXML());
@@ -119,6 +115,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		preferencesSet = true;
 		return buffer.toString();
 	}
+
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
@@ -177,18 +174,25 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		dialog.addHorizontalLine(1);
-//		dialog.addLabel("RAxML parallelization style:");
-//		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);
-//		numProcessorsField = dialog.addIntegerField("Number of Processors", numProcessors, 8, 1, MesquiteInteger.infinite);
-//		numProcessorsField.addKeyListener(this);
+		autoNumProcessorsCheckBox = dialog.addCheckBox("Let " + getProgramName() + " choose number of processors", autoNumProcessors);
+		autoNumProcessorsCheckBox.addItemListener(this);
+		numProcessorsField = dialog.addIntegerField("Specify number of processors", numProcessors, 8, 1, MesquiteInteger.infinite);
 		dialog.addHorizontalLine(1);
 
-		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML-NG version(s): " + getTestedProgramVersions());
+		dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());
 	}
 	/*.................................................................................................................*/
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getItemSelectable() == autoNumProcessorsCheckBox){
+			numProcessorsField.getTextField().setEnabled(!autoNumProcessorsCheckBox.getState());
+		} else
+			super.itemStateChanged(e);
+	}
+
+	/*.................................................................................................................*/
 	public void processRunnerOptions() {
-//		threadingVersion = threadingRadioButtons.getValue();
-//		numProcessors = numProcessorsField.getValue(); //
+		autoNumProcessors = autoNumProcessorsCheckBox.getState();
+		numProcessors = numProcessorsField.getValue(); //
 	}
 	/*.................................................................................................................*/
 	public void setRAxMLSeed(long seed){
@@ -365,9 +369,9 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		} else {
 			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
-		if (threadingVersion==THREADING_PTHREADS) {
-			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ");   // have to ensure that there are at least two threads requested
-		}
+		if (!autoNumProcessors)
+			arguments.append(" --threads "+ MesquiteInteger.maximum(numProcessors, 2) + " ");   // have to ensure that there are at least two threads requested
+	
 		return arguments; // + " | tee log.txt"; // + "> log.txt";
 
 	}
