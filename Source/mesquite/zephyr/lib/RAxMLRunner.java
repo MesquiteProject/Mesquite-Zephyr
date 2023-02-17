@@ -880,11 +880,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		int count =0;
 		MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 		if (bootstrapOrJackknife()) {
-			t =readRAxMLTreeFile(treeList, treeFilePath, "RAxML Bootstrap Tree", readSuccess, false);
+			t =readRAxMLTreeFile(treeList, treeFilePath, getProgramName()+" Bootstrap Tree", readSuccess, false);
 			ZephyrUtil.adjustTree(t, outgroupSet);
 		}
 		else if (numRuns==1 || isRAxMLNG()) {
-			t =readRAxMLTreeFile(treeList, treeFilePath, "RAxMLTree", readSuccess, true);
+			t =readRAxMLTreeFile(treeList, treeFilePath, getProgramName()+"Tree", readSuccess, true);
 			ZephyrUtil.adjustTree(t, outgroupSet);
 			String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);
 			Parser parser = new Parser(summary);
