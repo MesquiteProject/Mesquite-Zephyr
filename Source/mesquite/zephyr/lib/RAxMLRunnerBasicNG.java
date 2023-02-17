@@ -43,7 +43,6 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	protected static final int THREADING_MPI = 2;
 	protected int threadingVersion = THREADING_OTHER;
 	protected int numProcessors = 2;
-	protected boolean RAxML814orLater = true;
 
 
 	protected boolean showIntermediateTrees = true;
@@ -53,7 +52,6 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	protected SingleLineTextField MPISetupField;
 	protected IntegerField numProcessorsField;
 	protected RadioButtons threadingRadioButtons;
-	protected Checkbox RAxML814orLaterCheckbox;
 
 
 
@@ -170,20 +168,18 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		dialog.addHorizontalLine(1);
-		dialog.addLabel("RAxML parallelization style:");
-		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);
-		numProcessorsField = dialog.addIntegerField("Number of Processors", numProcessors, 8, 1, MesquiteInteger.infinite);
-		numProcessorsField.addKeyListener(this);
+//		dialog.addLabel("RAxML parallelization style:");
+//		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);
+//		numProcessorsField = dialog.addIntegerField("Number of Processors", numProcessors, 8, 1, MesquiteInteger.infinite);
+//		numProcessorsField.addKeyListener(this);
 		dialog.addHorizontalLine(1);
 
-		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
-		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
+		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML-NG version(s): " + getTestedProgramVersions());
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
-		RAxML814orLater = RAxML814orLaterCheckbox.getState();
-		threadingVersion = threadingRadioButtons.getValue();
-		numProcessors = numProcessorsField.getValue(); //
+//		threadingVersion = threadingRadioButtons.getValue();
+//		numProcessors = numProcessorsField.getValue(); //
 	}
 	/*.................................................................................................................*/
 	public void setRAxMLSeed(long seed){
