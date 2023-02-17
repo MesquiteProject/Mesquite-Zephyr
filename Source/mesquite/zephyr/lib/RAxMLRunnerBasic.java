@@ -210,70 +210,10 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 	}
 
 	/*.................................................................................................................*/
-	public void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, String LOCproteinModelMatrix,
+	public abstract void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, String LOCproteinModelMatrix,
 			String LOCdnaModel, String LOCotherOptions, 
 			boolean LOCdoBootstrap, int LOCbootstrapreps, int LOCbootstrapSeed, 
-			int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean LOCnobfgs, boolean preflight){
-		if (arguments == null)
-			return;
-
-		String localArguments = "";
-
-		if (preflight)
-			localArguments += " -n preflight.out "; 
-		else
-			localArguments += " -s " + fileName + " -n file.out "; 
-
-
-		localArguments += " -m "; 
-		if (isProtein) {
-			if (StringUtil.blank(LOCproteinModel))
-				localArguments += "PROTGAMMAJTT";
-			else
-				localArguments += LOCproteinModel+LOCproteinModelMatrix;
-		}
-		else if (StringUtil.blank(LOCdnaModel))
-			localArguments += "GTRGAMMA";
-		else
-			localArguments += LOCdnaModel;
-
-		if (StringUtil.notEmpty(LOCMultipleModelFile))
-			localArguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
-
-		localArguments += " -p " + randomIntSeed;
-
-		if (!StringUtil.blank(LOCotherOptions)) 
-			localArguments += " " + LOCotherOptions;
-		if (useConstraintTree == SKELETAL)
-			localArguments += " -r " + CONSTRAINTTREEFILENAME + " "; 
-		else if (useConstraintTree == MONOPHYLY)
-			localArguments += " -g " + CONSTRAINTTREEFILENAME + " "; 
-
-		if (LOCdoBootstrap) {
-			if (LOCbootstrapreps>0)
-				localArguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
-			else
-				localArguments += " -# 1 -b " + LOCbootstrapSeed;   // just do one rep
-			if (bootstrapBranchLengths)
-				localArguments += " -k "; 
-		}
-		else {
-			if (LOCnobfgs)
-				localArguments += " --no-bfgs ";
-			if (LOCnumRuns>1)
-				localArguments += " -# " + LOCnumRuns;
-			if (RAxML814orLater)
-				localArguments += " --mesquite";
-		}
-
-		TaxaSelectionSet outgroupSet =null;
-		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
-			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(LOCoutgroupTaxSetString,TaxaSelectionSet.class);
-			if (outgroupSet!=null) 
-				localArguments += " -o " + outgroupSet.getStringList(",", namer, false);
-		}
-		arguments.setValue(localArguments);
-	}
+			int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean LOCnobfgs, boolean preflight);
 	/*.................................................................................................................*/
 	protected void reportStdError() {
 		reportStdOutput("RUN UNSUCCESFUL");   //apparently local RAxML does not output problems to stderr, so need to grab stdout

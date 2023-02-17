@@ -292,20 +292,16 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		//		localArguments += " --mesquite";
 		}
 
-		/*
+		
 		TaxaSelectionSet outgroupSet =null;
 		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
 			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(LOCoutgroupTaxSetString,TaxaSelectionSet.class);
 			if (outgroupSet!=null) 
-				localArguments += " -o " + outgroupSet.getStringList(",", namer, false);
+				localArguments += " --outgroup " + outgroupSet.getStringList(",", namer, false);
 		}
-		*/
+		
 	
 		arguments.setValue(localArguments);
-	}
-	/*.................................................................................................................*/
-	protected void reportStdError() {
-		reportStdOutput("RUN UNSUCCESFUL");   //apparently local RAxML does not output problems to stderr, so need to grab stdout
 	}
 	/*.................................................................................................................*/
 	public String[] getLogFileNames(){

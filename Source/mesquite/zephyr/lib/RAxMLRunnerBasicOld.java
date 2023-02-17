@@ -294,10 +294,6 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		arguments.setValue(localArguments);
 	}
 	/*.................................................................................................................*/
-	protected void reportStdError() {
-		reportStdOutput("RUN UNSUCCESFUL");   //apparently local RAxML does not output problems to stderr, so need to grab stdout
-	}
-	/*.................................................................................................................*/
 	public String[] getLogFileNames(){
 		String treeFileName;
 		String workingTreeFileName;
