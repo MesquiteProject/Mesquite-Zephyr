@@ -44,44 +44,16 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 	protected int threadingVersion = THREADING_OTHER;
 	protected boolean RAxML814orLater = true;
 
-
 	protected boolean showIntermediateTrees = true;
-
-
 
 	protected SingleLineTextField MPISetupField;
 	protected IntegerField numProcessorsField;
 	protected RadioButtons threadingRadioButtons;
 	protected Checkbox RAxML814orLaterCheckbox;
 
-
-
 	public String getExecutableName() {
 		return "RAxML";
 	}
-
-	public String getLogText() {
-		return externalProcRunner.getStdOut();
-	}
-
-	/*.................................................................................................................*
-	public Snapshot getSnapshot(MesquiteFile file) { 
-		Snapshot temp = super.getSnapshot(file);
-		return temp;
-	}
-	/*.................................................................................................................*/
-	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-		if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner", "[name of module]", commandName, "setExternalProcessRunner")) {
-			ExternalProcessRunner temp = (ExternalProcessRunner)replaceEmployee(ExternalProcessRunner.class, arguments, "External Process Runner", externalProcRunner);
-			if (temp != null) {
-				externalProcRunner = temp;
-				parametersChanged();
-			}
-			externalProcRunner.setProcessRequester(this);
-			return externalProcRunner;
-		} else
-			return super.doCommand(commandName, arguments, checker);
-	}	
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
@@ -183,34 +155,6 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		RAxML814orLater = RAxML814orLaterCheckbox.getState();
 		threadingVersion = threadingRadioButtons.getValue();
 		numProcessors = numProcessorsField.getValue(); //
-	}
-	/*.................................................................................................................*
-	public void setRAxMLSeed(long seed){
-		this.randseed = seed;
-	}
-	/*.................................................................................................................*
-	public int getMaxCores(){
-		return MesquiteInteger.infinite;
-	}
-	/*.................................................................................................................*
-	public void checkFields() {
-		int max = getMaxCores();
-		if (MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
-			MesquiteMessage.notifyUser("Number of processors used cannot exceed "+max +", as that is the maximum specified in the SSH Server Profile");			
-			numProcessorsField.setValue(max);
-		}
-	}
-
-	/*.................................................................................................................*
-	public void keyPressed(KeyEvent e) {
-	}
-
-	public void keyReleased(KeyEvent e) {
-		checkFields();
-	}
-
-	public void keyTyped(KeyEvent e) {
-		checkFields();
 	}
 
 	/*.................................................................................................................*/

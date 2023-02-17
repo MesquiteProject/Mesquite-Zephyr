@@ -57,10 +57,6 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		return "RAxML-NG";
 	}
 
-	public String getLogText() {
-		return externalProcRunner.getStdOut();
-	}
-
 
 	/*.................................................................................................................*/
 	public void setUpRunner() { 
@@ -71,25 +67,6 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	public boolean isRAxMLNG() { 
 		return true;
 	}
-
-	/*.................................................................................................................*
-	public Snapshot getSnapshot(MesquiteFile file) { 
-		Snapshot temp = super.getSnapshot(file);
-		return temp;
-	}
-	/*.................................................................................................................*/
-	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-		if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner", "[name of module]", commandName, "setExternalProcessRunner")) {
-			ExternalProcessRunner temp = (ExternalProcessRunner)replaceEmployee(ExternalProcessRunner.class, arguments, "External Process Runner", externalProcRunner);
-			if (temp != null) {
-				externalProcRunner = temp;
-				parametersChanged();
-			}
-			externalProcRunner.setProcessRequester(this);
-			return externalProcRunner;
-		} else
-			return super.doCommand(commandName, arguments, checker);
-	}	
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
@@ -194,34 +171,6 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		autoNumProcessors = autoNumProcessorsCheckBox.getState();
 		numProcessors = numProcessorsField.getValue(); //
 	}
-	/*.................................................................................................................*
-	public void setRAxMLSeed(long seed){
-		this.randseed = seed;
-	}
-	/*.................................................................................................................*
-	public int getMaxCores(){
-		return MesquiteInteger.infinite;
-	}
-	/*.................................................................................................................*
-	public void checkFields() {
-		int max = getMaxCores();
-		if (MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
-			MesquiteMessage.notifyUser("Number of processors used cannot exceed "+max +", as that is the maximum specified in the SSH Server Profile");			
-			numProcessorsField.setValue(max);
-		}
-	}
-
-	/*.................................................................................................................*
-	public void keyPressed(KeyEvent e) {
-	}
-
-	public void keyReleased(KeyEvent e) {
-		checkFields();
-	}
-
-	public void keyTyped(KeyEvent e) {
-		checkFields();
-	}
 
 	/*.................................................................................................................*/
 	public void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, String LOCproteinModelMatrix,
@@ -294,25 +243,32 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		String treeFileName;
 		String workingTreeFileName;
 		String logFileName;
-		if (bootstrapOrJackknife())
+		if (bootstrapOrJackknife()) {
 			treeFileName = outputFilePrefix+".raxml.bootstraps";
-		else if (onlyBest)
-			treeFileName = outputFilePrefix+".raxml.bestTree";
-		else
-			treeFileName = outputFilePrefix+".raxml.mlTrees";
-		logFileName = outputFilePrefix+".raxml.log";
-		workingTreeFileName= outputFilePrefix+".raxml.lastTree.TMP";
-	/*	if (!bootstrapOrJackknife() && numRuns>1) {
-			treeFileName+=".RUN.";
-			workingTreeFileName= treeFileName + currentRun;
-			logFileName+=".RUN.";
+			workingTreeFileName= outputFilePrefix+".raxml.bootstraps.TMP";
+		} else {
+			if (onlyBest)
+				treeFileName = outputFilePrefix+".raxml.bestTree";
+			else
+				treeFileName = outputFilePrefix+".raxml.mlTrees";
+			workingTreeFileName= outputFilePrefix+".raxml.lastTree.TMP";
 		}
-		*/
+		logFileName = outputFilePrefix+".raxml.log";
 		return new String[]{logFileName, treeFileName, logFileName, workingTreeFileName};
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String[] modifyOutputPaths(String[] outputFilePaths){
-		if (!bootstrapOrJackknife() && numRuns>1 ) {
+		if (bootstrapOrJackknife()) {
+			if (currentRun!=previousCurrentRun) {
+				String[] fileNames = getLogFileNames();
+				externalProcRunner.setOutputFileNameToWatch(WORKING_TREEFILE, fileNames[WORKING_TREEFILE]);
+				outputFilePaths[WORKING_TREEFILE] = externalProcRunner.getOutputFilePath(fileNames[WORKING_TREEFILE]);
+				externalProcRunner.resetLastModified(WORKING_TREEFILE);
+				previousCurrentRun=currentRun;
+				//				logln("\n----- Now displaying results from run " + currentRun);
+			}
+		} else
+		if (bootstrapOrJackknife()) {
 			if (currentRun!=previousCurrentRun) {
 				String[] fileNames = getLogFileNames();
 				externalProcRunner.setOutputFileNameToWatch(WORKING_TREEFILE, fileNames[WORKING_TREEFILE]);
