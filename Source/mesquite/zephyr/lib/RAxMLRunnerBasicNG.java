@@ -44,6 +44,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	protected int threadingVersion = THREADING_OTHER;
 	protected int numProcessors = 2;
 
+	protected String outputFilePrefix="file";
 
 	protected boolean showIntermediateTrees = true;
 
@@ -113,7 +114,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "8.0.0–8.2.12";
+		return "1.1.0";
 	}
 
 	/*.................................................................................................................*/
@@ -135,7 +136,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	}
 	/*.................................................................................................................*/
 	public  String queryOptionsDialogTitle() {
-		return "RAxML Options & Locations";
+		return "RAxML-NG Options & Locations";
 	}
 
 	//TEST IF WORKS ON SSH
@@ -196,7 +197,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			MesquiteString arguments = new MesquiteString();
 			getArguments(arguments, "[fileName]", proteinModelField.getText(), proteinModelMatrixChoice.getSelectedItem(), dnaModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, nobfgsCheckBox.getState(), false);
 			String command = externalProcRunner.getExecutableCommand() + arguments.getValue();
-			commandLabel.setText("This command will be used to run RAxML:");
+			commandLabel.setText("This command will be used to run RAxML-NG:");
 			commandField.setText(command);
 		}
 		else	if (e.getActionCommand().equalsIgnoreCase("clearCommand")) {
@@ -234,59 +235,64 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 
 		String localArguments = "";
 
+
 		if (preflight)
 			localArguments += " -n preflight.out "; 
 		else
-			localArguments += " -s " + fileName + " -n file.out "; 
+			localArguments += " --msa " + fileName + " --prefix  " + outputFilePrefix; 
 
-
-		localArguments += " -m "; 
-		if (isProtein) {
+		localArguments += " --model "; 
+		if (StringUtil.notEmpty(LOCMultipleModelFile))
+			localArguments += ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
+		else if (isProtein) {
 			if (StringUtil.blank(LOCproteinModel))
-				localArguments += "PROTGAMMAJTT";
+				localArguments += "JTT+G";
 			else
 				localArguments += LOCproteinModel+LOCproteinModelMatrix;
 		}
 		else if (StringUtil.blank(LOCdnaModel))
-			localArguments += "GTRGAMMA";
+			localArguments += "GTR+G";
 		else
 			localArguments += LOCdnaModel;
 
-		if (StringUtil.notEmpty(LOCMultipleModelFile))
-			localArguments += " -q " + ShellScriptUtil.protectForShellScript(LOCMultipleModelFile);
 
-		localArguments += " -p " + randomIntSeed;
 
 		if (!StringUtil.blank(LOCotherOptions)) 
 			localArguments += " " + LOCotherOptions;
+		
 		if (useConstraintTree == SKELETAL)
 			localArguments += " -r " + CONSTRAINTTREEFILENAME + " "; 
 		else if (useConstraintTree == MONOPHYLY)
 			localArguments += " -g " + CONSTRAINTTREEFILENAME + " "; 
 
 		if (LOCdoBootstrap) {
+			localArguments += " --bootstrap ";
 			if (LOCbootstrapreps>0)
-				localArguments += " -# " + LOCbootstrapreps + " -b " + LOCbootstrapSeed;
+				localArguments += " --bs-trees " + LOCbootstrapreps + " --seed " + LOCbootstrapSeed;
 			else
-				localArguments += " -# 1 -b " + LOCbootstrapSeed;   // just do one rep
+				localArguments += " --bs-trees 1 --seed " + LOCbootstrapSeed;   // just do one rep
 			if (bootstrapBranchLengths)
 				localArguments += " -k "; 
 		}
 		else {
-			if (LOCnobfgs)
-				localArguments += " --no-bfgs ";
+			localArguments += " --search --seed " + randomIntSeed;
+			//if (LOCnobfgs)
+			//	localArguments += " --no-bfgs ";
 			if (LOCnumRuns>1)
-				localArguments += " -# " + LOCnumRuns;
-			if (RAxML814orLater)
-				localArguments += " --mesquite";
+				localArguments += " -tree pars{" + LOCnumRuns + "} ";
+		//	if (RAxML814orLater)
+		//		localArguments += " --mesquite";
 		}
 
+		/*
 		TaxaSelectionSet outgroupSet =null;
 		if (!StringUtil.blank(LOCoutgroupTaxSetString)) {
 			outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(LOCoutgroupTaxSetString,TaxaSelectionSet.class);
 			if (outgroupSet!=null) 
 				localArguments += " -o " + outgroupSet.getStringList(",", namer, false);
 		}
+		*/
+	
 		arguments.setValue(localArguments);
 	}
 	/*.................................................................................................................*/
@@ -299,11 +305,11 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		String workingTreeFileName;
 		String logFileName;
 		if (bootstrapOrJackknife())
-			treeFileName = "RAxML_bootstrap.file.out";
+			treeFileName = outputFilePrefix+".raxml.bootstraps";
 		else 
-			treeFileName = "RAxML_result.file.out";
-		logFileName = "RAxML_log.file.out";
-		workingTreeFileName= treeFileName;
+			treeFileName = outputFilePrefix+".raxml.bestTree";
+		logFileName = outputFilePrefix+".raxml.log";
+		workingTreeFileName= outputFilePrefix+".raxml.lastTree.TMP";
 		if (!bootstrapOrJackknife() && numRuns>1) {
 			treeFileName+=".RUN.";
 			workingTreeFileName= treeFileName + currentRun;
