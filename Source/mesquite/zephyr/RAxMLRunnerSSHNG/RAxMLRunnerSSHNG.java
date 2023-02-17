@@ -7,36 +7,24 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
  */
 
-package mesquite.zephyr.IQTreeRunnerSSH;
+package mesquite.zephyr.RAxMLRunnerSSHNG;
 
 
 import java.awt.*;
 import java.io.*;
 import java.awt.event.*;
-import java.util.*;
 
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 
-import mesquite.categ.lib.*;
 import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.lib.system.SystemUtil;
-import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
-import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.RAxMLRunnerSSHOld.RAxMLRunnerSSHOld;
 import mesquite.zephyr.SSHRunner.SSHRunner;
 import mesquite.zephyr.lib.*;
-import mesquite.io.lib.*;
 
 
-public class IQTreeRunnerSSH extends IQTreeRunnerBasic  {
-
+public class RAxMLRunnerSSHNG extends RAxMLRunnerBasic  {
 
 	/*.................................................................................................................*/
 	public int getProgramNumber() {
-		return SSHServerProfile.IQTREE;
+		return SSHServerProfile.RAxML;
 	}
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
@@ -44,8 +32,24 @@ public class IQTreeRunnerSSH extends IQTreeRunnerBasic  {
 	}
 
 	public Class getDutyClass() {
-		return IQTreeRunnerSSH.class;
+		return RAxMLRunnerSSHNG.class;
 	}
+
+	/*.................................................................................................................*/
+	public Class getExternalProcessRunnerClass(){
+		return SSHRunner.class;
+	}
+
+	/*.................................................................................................................*/
+	public String getTestedProgramVersions(){
+		return "8.2.10";
+	}
+	
+	/*.................................................................................................................*/
+	public void reportNewTreeAvailable(){
+		log("[New tree acquired]");
+ 	}
+
 
 	public String getLogText() {
 		String log= externalProcRunner.getStdOut();
@@ -54,18 +58,42 @@ public class IQTreeRunnerSSH extends IQTreeRunnerBasic  {
 		return log;
 	}
 	/*.................................................................................................................*/
-	public Class getExternalProcessRunnerClass(){
-		return SSHRunner.class;
+	public int getMaxCores(){
+		if (externalProcRunner!=null)
+			return externalProcRunner.getMaxCores();
+		return MesquiteInteger.infinite ;
+	}
+	public void checkFields() {
+		int max = getMaxCores();
+		if (MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
+			MesquiteMessage.notifyUser("Number of processors used cannot exceed "+max +", as that is the maximum specified in the SSH Server Profile");			
+			numProcessorsField.setValue(max);
+		}
 	}
 
 	/*.................................................................................................................*/
-	public void reportNewTreeAvailable(){
-		log("[New tree acquired]");
- 	}
+	public  String queryOptionsDialogTitle() {
+		return "RAxML Options on SSH Server";
+	}
 
 	/*.................................................................................................................*/
-	public  String queryOptionsDialogTitle() {
-		return "IQ-TREE Options on SSH Server";
+	int currentRunProcessed=0;
+	public String[] modifyOutputPaths(String[] outputFilePaths){
+		if (!bootstrapOrJackknife() && numRuns>1 ) {
+			String[] fileNames = getLogFileNames();
+			externalProcRunner.setOutputFileNameToWatch(WORKING_TREEFILE, fileNames[WORKING_TREEFILE]);
+			outputFilePaths[WORKING_TREEFILE] = externalProcRunner.getOutputFilePath(fileNames[WORKING_TREEFILE]);
+			for (int i=currentRunProcessed; i<numRuns; i++) {
+				String candidate = outputFilePaths[WORKING_TREEFILE]+i;
+				if (MesquiteFile.fileExists(candidate)) {
+					outputFilePaths[WORKING_TREEFILE]= candidate;
+					currentRunProcessed++;
+				}
+			}
+			externalProcRunner.resetLastModified(WORKING_TREEFILE);
+			previousCurrentRun=currentRun;
+		}
+		return outputFilePaths;
 	}
 
 	/*.................................................................................................................*/
@@ -77,7 +105,7 @@ public class IQTreeRunnerSSH extends IQTreeRunnerBasic  {
 	}
 
 	public String getName() {
-		return "IQ-TREE Likelihood (SSH Server)";
+		return "RAxML Likelihood (SSH Server)";
 	}
 
 	/*.................................................................................................................*/
@@ -95,8 +123,6 @@ public class IQTreeRunnerSSH extends IQTreeRunnerBasic  {
 		// TODO Auto-generated method stub
 
 	}
-
-
 
 
 

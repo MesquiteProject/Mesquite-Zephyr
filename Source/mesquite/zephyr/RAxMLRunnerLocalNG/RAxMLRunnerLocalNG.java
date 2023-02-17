@@ -5,40 +5,49 @@ Zephry's web site is http://zephyr.mesquiteproject.org
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
-*/
+ */
 
-package mesquite.zephyr.lib;
+package mesquite.zephyr.RAxMLRunnerLocalNG;
+
 
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.util.Random;
+import java.io.*;
+import java.awt.event.*;
+import java.util.*;
+
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
-import mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal;
-import mesquite.zephyr.RAxMLRunnerLocalOld.RAxMLRunnerLocalOld;
+import mesquite.lib.characters.*;
+import mesquite.lib.duties.*;
+import mesquite.lib.system.SystemUtil;
+import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
+import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
+import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
+import mesquite.zephyr.RAxMLTreesLocalOld.*;
 import mesquite.zephyr.lib.*;
+import mesquite.io.lib.*;
 
-public abstract class PAUPParsimonyTrees extends PAUPTrees implements ParsimonyAnalysis {
 
-	/*.................................................................................................................*/
-	public boolean isPrerelease(){
-		return false;
-	}
+public class RAxMLRunnerLocalNG extends RAxMLRunnerBasic  {
 
 	/*.................................................................................................................*/
-	public String getMethodNameForMenu() {
-		return "Parsimony";
+	public String getExternalProcessRunnerModuleName(){
+		return "#mesquite.zephyr.LocalScriptRunner.LocalScriptRunner";
 	}
 	/*.................................................................................................................*/
-	public String getMethodNameForTreeBlock() {
-		return "MP";
+	public Class getExternalProcessRunnerClass(){
+		return LocalScriptRunner.class;
+	}
+	public Class getDutyClass() {
+		return RAxMLRunnerLocalNG.class;
+	}
+	/*.................................................................................................................*/
+	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
+		return true;
 	}
 
-	/*.................................................................................................................*/
-	public boolean showBranchLengthsProportional(boolean bootstrap, boolean finalTree){
-		return false;
-	}
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
@@ -48,23 +57,29 @@ public abstract class PAUPParsimonyTrees extends PAUPTrees implements ParsimonyA
 		return -100;  
 	}
 
+	public String getName() {
+		return "RAxML Likelihood (Local)";
+	}
+	/*.................................................................................................................*/
+	public boolean isPrerelease(){
+		return false;
+	}
 
-	public String getExplanation() {
-		return "If PAUP is installed, will save a copy of a character matrix and script PAUP to conduct a parsimony search, and harvest the resulting trees.";
-	}
-	
 	/*.................................................................................................................*/
-	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal";
+	public int getMaxCores(){
+		return Runtime.getRuntime().availableProcessors();
 	}
-	/*.................................................................................................................*/
-	public Class getRunnerClass() {
-		return PAUPParsimonyRunnerLocal.class;
+
+	public void runFailed(String message) {
+		// TODO Auto-generated method stub
+
 	}
-	/*.................................................................................................................*/
-	 public String getProgramLocation(){
-		 return "Local";
+
+	public void runFinished(String message) {
+		// TODO Auto-generated method stub
+
 	}
+
 
 
 }

@@ -17,7 +17,7 @@ import mesquite.io.lib.InterpretPhylip;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.FileInterpreterI;
-import mesquite.zephyr.RAxMLRunnerLocal.*;
+import mesquite.zephyr.RAxMLRunnerLocalOld.*;
 import mesquite.zephyr.lib.*;
 
 /*TODO: Eventually will become a module to run RAxML on a remote cluster.
@@ -27,7 +27,7 @@ import mesquite.zephyr.lib.*;
 
 //TODO: add functionality to commandField
 
-public class RAxMLExporter extends RAxMLRunnerLocal {
+public class RAxMLExporter extends RAxMLRunnerLocalOld {
 	String baseFileName = "untitled";
 	String directoryPath;
 	static final int threadingOther =0;

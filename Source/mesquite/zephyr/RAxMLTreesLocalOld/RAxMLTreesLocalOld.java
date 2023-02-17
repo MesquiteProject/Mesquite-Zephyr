@@ -7,13 +7,13 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.RAxMLTreesLocal;
+package mesquite.zephyr.RAxMLTreesLocalOld;
 
-import mesquite.zephyr.RAxMLRunnerLocal.RAxMLRunnerLocal;
+import mesquite.zephyr.RAxMLRunnerLocalOld.RAxMLRunnerLocalOld;
 import mesquite.zephyr.lib.*;
 
 
-public class RAxMLTreesLocal extends RAxMLTrees {
+public class RAxMLTreesLocalOld extends RAxMLTrees {
 
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
@@ -21,7 +21,7 @@ public class RAxMLTreesLocal extends RAxMLTrees {
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return RAxMLRunnerLocal.class;
+		return RAxMLRunnerLocalOld.class;
 	}
 
 	/*.................................................................................................................*/

@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
  */
 
-package mesquite.zephyr.RAxMLRunnerSSH;
+package mesquite.zephyr.RAxMLRunnerSSHOld;
 
 
 import java.awt.*;
@@ -20,7 +20,7 @@ import mesquite.zephyr.SSHRunner.SSHRunner;
 import mesquite.zephyr.lib.*;
 
 
-public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
+public class RAxMLRunnerSSHOld extends RAxMLRunnerBasic  {
 
 	/*.................................................................................................................*/
 	public int getProgramNumber() {
@@ -32,7 +32,7 @@ public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
 	}
 
 	public Class getDutyClass() {
-		return RAxMLRunnerSSH.class;
+		return RAxMLRunnerSSHOld.class;
 	}
 
 	/*.................................................................................................................*/

@@ -13,7 +13,7 @@ package mesquite.zephyr.RAxMLScore;
 import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
-import mesquite.zephyr.RAxMLRunnerLocal.*;
+import mesquite.zephyr.RAxMLRunnerLocalOld.*;
 
 
 public class RAxMLScore extends NumberForTree {

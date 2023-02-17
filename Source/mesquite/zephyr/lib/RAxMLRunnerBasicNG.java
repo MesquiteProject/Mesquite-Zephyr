@@ -36,7 +36,7 @@ outgroups
 
  */
 
-public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListener  {
+public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements KeyListener  {
 
 	protected static final int THREADING_OTHER =0;
 	protected static final int THREADING_PTHREADS = 1;
