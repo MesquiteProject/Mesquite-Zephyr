@@ -315,7 +315,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			workingTreeFileName= treeFileName + currentRun;
 			logFileName+=".RUN.";
 		}
-		return new String[]{logFileName, treeFileName, "RAxML_info.file.out", workingTreeFileName};
+		return new String[]{logFileName, treeFileName, logFileName, workingTreeFileName};
 	}
 	/*.................................................................................................................*/
 	public String[] modifyOutputPaths(String[] outputFilePaths){
@@ -333,7 +333,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	}
 	/*.................................................................................................................*/
 	public String getPreflightLogFileNames(){
-		return "RAxML_log.file.out";	
+		return outputFilePrefix+".raxml.log";
 	}
 
 
