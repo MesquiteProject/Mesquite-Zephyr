@@ -882,7 +882,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			t =readRAxMLTreeFile(treeList, treeFilePath, getProgramName()+" Bootstrap Tree", readSuccess, false);
 			ZephyrUtil.adjustTree(t, outgroupSet);
 		}
-		else if (numRuns==1 || isRAxMLNG()) {
+		else if (numRuns==1 || (isRAxMLNG()&&onlyBest)) {
 			t =readRAxMLTreeFile(treeList, treeFilePath, getProgramName()+"Tree", readSuccess, true);
 			ZephyrUtil.adjustTree(t, outgroupSet);
 			String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);
@@ -943,140 +943,164 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		}
 		else if (numRuns>1) {
-			TreeVector tv = new TreeVector(taxa);
-			for (int run=0; run<numRuns; run++)
-				if (MesquiteFile.fileExists(treeFilePath+run)) {
-					String path =treeFilePath+run;
-					t = readRAxMLTreeFile(tv, path, "RAxMLTree Run " + (run+1), readSuccess, true);
-					if (treeList!= null)
-						treeList.addElement(t, false);
-				}
-			if (treeList !=null) {
-				String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);
-				Parser parser = new Parser(summary);
-				parser.setAllowComments(false);
-				parser.allowComments = false;
+			if (isRAxMLNG()) {
+				t =readRAxMLTreeFile(treeList, treeFilePath, getProgramName()+"Tree", readSuccess, false);
+				if (treeList !=null) {
+					String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);
+					Parser parser = new Parser(summary);
+					parser.setAllowComments(false);
+					parser.allowComments = false;
 
-				String line = parser.getRawNextDarkLine();
-				if (isVerbose()) 
+					String line = parser.getRawNextDarkLine();
+					boolean outputLines = false;
 					logln("\nSummary of RAxML Search");
+					while (!StringUtil.blank(line)) {
+						if (!outputLines && line.startsWith("Optimized model parameters:"))
+							outputLines = true;
+						if (outputLines)
+							logln(line);
+						line = parser.getRawNextDarkLine();
+
+					}
+					logln("");
+				}
+			} else {
+				TreeVector tv = new TreeVector(taxa);
+				for (int run=0; run<numRuns; run++)
+					if (MesquiteFile.fileExists(treeFilePath+run)) {
+						String path =treeFilePath+run;
+						t = readRAxMLTreeFile(tv, path, "RAxMLTree Run " + (run+1), readSuccess, true);
+						if (treeList!= null)
+							treeList.addElement(t, false);
+					}
+				tv.dispose();
+				tv =null;
+
+				if (treeList !=null) {
+					String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);
+					Parser parser = new Parser(summary);
+					parser.setAllowComments(false);
+					parser.allowComments = false;
+
+					String line = parser.getRawNextDarkLine();
+					if (isVerbose()) 
+						logln("\nSummary of RAxML Search");
 
 
-				while (!StringUtil.blank(line) && count < finalValues.length) {
-					if (line.startsWith("Inference[")) {
-						Parser subParser = new Parser();
-						subParser.setString(line);
-						String token = subParser.getFirstToken();   // should be "Inference"
-						while (!StringUtil.blank(token) && ! subParser.atEnd()){
-							if (token.indexOf("likelihood")>=0) {
+					while (!StringUtil.blank(line) && count < finalValues.length) {
+						if (line.startsWith("Inference[")) {
+							Parser subParser = new Parser();
+							subParser.setString(line);
+							String token = subParser.getFirstToken();   // should be "Inference"
+							while (!StringUtil.blank(token) && ! subParser.atEnd()){
+								if (token.indexOf("likelihood")>=0) {
+									token = subParser.getNextToken();
+									finalValues[count] = -MesquiteDouble.fromString(token);
+									//	finalScore[count].setValue(finalValues[count]);
+									//logln("RAxML Run " + (count+1) + " ln L = -" + finalValues[count]);
+								}
 								token = subParser.getNextToken();
-								finalValues[count] = -MesquiteDouble.fromString(token);
-								//	finalScore[count].setValue(finalValues[count]);
-								//logln("RAxML Run " + (count+1) + " ln L = -" + finalValues[count]);
 							}
-							token = subParser.getNextToken();
+							count++;
 						}
-						count++;
+						parser.setAllowComments(false);
+						line = parser.getRawNextDarkLine();
 					}
-					parser.setAllowComments(false);
-					line = parser.getRawNextDarkLine();
-				}
 
-				count =0;
+					count =0;
 
-				while (!StringUtil.blank(line) && count < optimizedValues.length) {
-					if (line.startsWith("Inference[")) {
-						Parser subParser = new Parser();
-						subParser.setString(line);
-						String token = subParser.getFirstToken();   // should be "Inference"
-						while (!StringUtil.blank(token) && ! subParser.atEnd()){
-							if (token.indexOf("Likelihood")>=0) {
-								token = subParser.getNextToken(); // :
-								token = subParser.getNextToken(); // -
-								optimizedValues[count] = -MesquiteDouble.fromString(token);
-								//	finalScore[count].setValue(finalValues[count]);
-								//logln("RAxML Run " + (count+1) + " ln L = -" + optimizedValues[count]);
+					while (!StringUtil.blank(line) && count < optimizedValues.length) {
+						if (line.startsWith("Inference[")) {
+							Parser subParser = new Parser();
+							subParser.setString(line);
+							String token = subParser.getFirstToken();   // should be "Inference"
+							while (!StringUtil.blank(token) && ! subParser.atEnd()){
+								if (token.indexOf("Likelihood")>=0) {
+									token = subParser.getNextToken(); // :
+									token = subParser.getNextToken(); // -
+									optimizedValues[count] = -MesquiteDouble.fromString(token);
+									//	finalScore[count].setValue(finalValues[count]);
+									//logln("RAxML Run " + (count+1) + " ln L = -" + optimizedValues[count]);
+								}
+								token = subParser.getNextToken();
 							}
-							token = subParser.getNextToken();
+							count++;
 						}
-						count++;
-					}
-					parser.setAllowComments(false);
-					line = parser.getRawNextDarkLine();
-				}
-
-				boolean summaryWritten = false;
-				for (int i=0; i<finalValues.length && i<optimizedValues.length; i++){
-					if (MesquiteDouble.isCombinable(finalValues[i]) && MesquiteDouble.isCombinable(optimizedValues[i])) {
-						if (isVerbose())
-							logln("  RAxML Run " + (i+1) + " ln L = -" + finalValues[i] + ",  final gamma-based ln L = -" + optimizedValues[i]);
-						summaryWritten = true;
-					}
-				}
-				if (!summaryWritten)
-					logln("  No ln L values for RAxML Runs available");
-
-
-				double bestScore =MesquiteDouble.unassigned;
-				int bestRun = MesquiteInteger.unassigned;
-				for (int i=0; i<treeList.getNumberOfTrees() && i<finalValues.length; i++) {
-					Tree newTree = treeList.getTree(i);
-					ZephyrUtil.adjustTree(newTree, outgroupSet);
-					if (MesquiteDouble.isCombinable(finalValues[i])){
-						MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
-						s.setName(IOUtil.RAXMLSCORENAME);
-						((Attachable)newTree).attachIfUniqueName(s);
-					}
-					if (MesquiteDouble.isCombinable(optimizedValues[i])){
-						MesquiteDouble s = new MesquiteDouble(-optimizedValues[i]);
-						s.setName(IOUtil.RAXMLFINALSCORENAME);
-						((Attachable)newTree).attachIfUniqueName(s);
+						parser.setAllowComments(false);
+						line = parser.getRawNextDarkLine();
 					}
 
-					if (MesquiteDouble.isCombinable(finalValues[i]))
-						if (MesquiteDouble.isUnassigned(bestScore)) {
-							bestScore = finalValues[i];
-							bestRun = i;
+					boolean summaryWritten = false;
+					for (int i=0; i<finalValues.length && i<optimizedValues.length; i++){
+						if (MesquiteDouble.isCombinable(finalValues[i]) && MesquiteDouble.isCombinable(optimizedValues[i])) {
+							if (isVerbose())
+								logln("  RAxML Run " + (i+1) + " ln L = -" + finalValues[i] + ",  final gamma-based ln L = -" + optimizedValues[i]);
+							summaryWritten = true;
 						}
-						else if (bestScore>finalValues[i]) {
-							bestScore = finalValues[i];
-							bestRun = i;
-						}
-					if (MesquiteDouble.isCombinable(optimizedValues[i]))
-						if (MesquiteDouble.isUnassigned(optimizedValue)) {
-							optimizedValue = optimizedValues[i];
-						}
-						else if (optimizedValue>optimizedValues[i]) {
-							optimizedValue = optimizedValues[i];
-						}
-				}
+					}
+					if (!summaryWritten)
+						logln("  No ln L values for RAxML Runs available");
 
-				if (MesquiteInteger.isCombinable(bestRun)) {
-					t = treeList.getTree(bestRun);
-					ZephyrUtil.adjustTree(t, outgroupSet);
 
-					String newName = t.getName() + " BEST";
-					if (t instanceof AdjustableTree )
-						((AdjustableTree)t).setName(newName);
-				}
-				if (MesquiteDouble.isCombinable(bestScore)){
-					logln("Best score: " + bestScore);
-					if (!useOptimizedScoreAsBest)
-						finalScore.setValue(bestScore);
-					else
-						finalScore.setValue(optimizedValue);
-				} else
+					double bestScore =MesquiteDouble.unassigned;
+					int bestRun = MesquiteInteger.unassigned;
+					for (int i=0; i<treeList.getNumberOfTrees() && i<finalValues.length; i++) {
+						Tree newTree = treeList.getTree(i);
+						ZephyrUtil.adjustTree(newTree, outgroupSet);
+						if (MesquiteDouble.isCombinable(finalValues[i])){
+							MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
+							s.setName(IOUtil.RAXMLSCORENAME);
+							((Attachable)newTree).attachIfUniqueName(s);
+						}
+						if (MesquiteDouble.isCombinable(optimizedValues[i])){
+							MesquiteDouble s = new MesquiteDouble(-optimizedValues[i]);
+							s.setName(IOUtil.RAXMLFINALSCORENAME);
+							((Attachable)newTree).attachIfUniqueName(s);
+						}
+
+						if (MesquiteDouble.isCombinable(finalValues[i]))
+							if (MesquiteDouble.isUnassigned(bestScore)) {
+								bestScore = finalValues[i];
+								bestRun = i;
+							}
+							else if (bestScore>finalValues[i]) {
+								bestScore = finalValues[i];
+								bestRun = i;
+							}
+						if (MesquiteDouble.isCombinable(optimizedValues[i]))
+							if (MesquiteDouble.isUnassigned(optimizedValue)) {
+								optimizedValue = optimizedValues[i];
+							}
+							else if (optimizedValue>optimizedValues[i]) {
+								optimizedValue = optimizedValues[i];
+							}
+					}
+
+					if (MesquiteInteger.isCombinable(bestRun)) {
+						t = treeList.getTree(bestRun);
+						ZephyrUtil.adjustTree(t, outgroupSet);
+
+						String newName = t.getName() + " BEST";
+						if (t instanceof AdjustableTree )
+							((AdjustableTree)t).setName(newName);
+					}
+					if (MesquiteDouble.isCombinable(bestScore)){
+						logln("Best score: " + bestScore);
+						if (!useOptimizedScoreAsBest)
+							finalScore.setValue(bestScore);
+						else
+							finalScore.setValue(optimizedValue);
+					} else
 						finalScore.setValue(optimizedValue);
 
-				//Only retain the best tree in tree block.
-				if(treeList.getTree(bestRun) != null && onlyBest){
-					Tree bestTree = treeList.getTree(bestRun);
-					treeList.removeAllElements(false);
-					treeList.addElement(bestTree, false);
-				}
-			} 
-			tv.dispose();
-			tv =null;
+					//Only retain the best tree in tree block.
+					if(treeList.getTree(bestRun) != null && onlyBest){
+						Tree bestTree = treeList.getTree(bestRun);
+						treeList.removeAllElements(false);
+						treeList.addElement(bestTree, false);
+					}
+				} 
+			}
 		}
 		MesquiteThread.setCurrentCommandRecord(oldCR);
 		success = readSuccess.getValue();
