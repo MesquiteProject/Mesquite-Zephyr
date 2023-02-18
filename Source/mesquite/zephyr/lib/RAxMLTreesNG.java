@@ -37,7 +37,7 @@ public abstract class RAxMLTreesNG extends RAxMLTrees {
 
 	/*.................................................................................................................*/
 	 public String getProgramURL() {
-		 return "http://sco.h-its.org/exelixis/web/software/raxml/index.html";
+		 return "https://github.com/amkozlov/raxml-ng/wiki";
 	 }
 
 	/*.................................................................................................................*/

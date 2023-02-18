@@ -30,6 +30,10 @@ public class RAxMLTreesCIPRes extends RAxMLTrees {
 	public Class getRunnerClass() {
 		return RAxMLRunnerCIPRes.class;
 	}
+	/*.................................................................................................................*/
+	 public String getProgramURL() {
+		 return "http://sco.h-its.org/exelixis/web/software/raxml/index.html";
+	 }
 
 	/*.................................................................................................................*/
 	 public String getProgramLocation(){

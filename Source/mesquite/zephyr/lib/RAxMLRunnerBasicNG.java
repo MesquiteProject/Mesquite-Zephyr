@@ -72,6 +72,8 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("autoNumProcessors".equalsIgnoreCase(tag))
 			autoNumProcessors = MesquiteBoolean.fromTrueFalseString(content);
+		if ("autoNumBootstrapReps".equalsIgnoreCase(tag))
+			autoNumBootstrapReps = MesquiteBoolean.fromTrueFalseString(content);
 
 		if ("numProcessors".equalsIgnoreCase(tag))
 			numProcessors = MesquiteInteger.fromString(content);
@@ -85,6 +87,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "autoNumProcessors", autoNumProcessors);  
+		StringUtil.appendXMLTag(buffer, 2, "autoNumBootstrapReps", autoNumBootstrapReps);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
 
 		buffer.append(super.preparePreferencesForXML());
@@ -104,7 +107,10 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		appendToSearchDetails("Search details: \n");
 		if (bootstrapOrJackknife()){
 			appendToSearchDetails("   Bootstrap analysis\n");
-			appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
+			if (autoNumBootstrapReps)
+				appendToSearchDetails("   autoMRE option used ");
+			else
+				appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
 		} else {
 			appendToSearchDetails("   Search for maximum-likelihood tree\n");
 			appendToSearchDetails("   "+numRuns + " search replicate");
@@ -129,10 +135,18 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			if (bootstrapOrJackknife()){
 				s+="Bootstrap analysis<br>";
 				s+="Bootstrap replicates completed: <b>";
-				if (numRunsCompleted>bootstrapreps)
-					s+=numRuns +" of " + bootstrapreps;
-				else
-					s+=numRunsCompleted +" of " + bootstrapreps;
+				if (autoNumBootstrapReps) {
+					if (bootstrapreps>0)
+						s+=numRuns +" of at most " + bootstrapreps;
+					else
+						s+=numRunsCompleted +" of " + bootstrapreps;
+				} else {
+					if (numRunsCompleted>bootstrapreps)
+						s+=numRuns +" of " + bootstrapreps;
+					else
+						s+=numRunsCompleted +" of " + bootstrapreps;
+				}
+					
 			}
 			else {
 				s+="Search for ML Tree<br>";
@@ -156,20 +170,47 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		numProcessorsField = dialog.addIntegerField("Specify number of processors", numProcessors, 8, 1, MesquiteInteger.infinite);
 		dialog.addHorizontalLine(1);
 
-		dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());
+		dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s) of "+ getProgramName() + ": " + getTestedProgramVersions());
 	}
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getItemSelectable() == autoNumProcessorsCheckBox){
 			numProcessorsField.getTextField().setEnabled(!autoNumProcessorsCheckBox.getState());
-		} else
+		} else if (e.getItemSelectable() == autoNumBootstrapRepsCheckBox){
+			checkAdditionalFields();
+		}
 			super.itemStateChanged(e);
+	}
+	/*.................................................................................................................*/
+	public void checkAdditionalFields() {
+		if (autoNumBootstrapRepsCheckBox!=null && bootStrapRepsField!=null) {
+			if (autoNumBootstrapRepsCheckBox.getState())
+				bootStrapRepsField.setLabelText("Maximum bootstrap replicates");
+			else
+				bootStrapRepsField.setLabelText("Bootstrap replicates");
+		}
 	}
 
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
 		autoNumProcessors = autoNumProcessorsCheckBox.getState();
 		numProcessors = numProcessorsField.getValue(); //
+	}
+
+	/*.................................................................................................................*/
+	public void addExtraBootstrapOptions(ExtensibleDialog dialog) {
+		autoNumBootstrapRepsCheckBox = dialog.addCheckBox("Let " + getProgramName() + " choose number of bootstrap replicates", autoNumBootstrapReps);
+		autoNumBootstrapRepsCheckBox.addItemListener(this);
+	}
+	/*.................................................................................................................*/
+	public void processExtraBootstrapOptions() {
+		 autoNumBootstrapReps = autoNumBootstrapRepsCheckBox.getState();
+	}
+	/*.................................................................................................................*/
+	protected String getHelpString() {
+		return "This module will prepare a matrix for RAxML-NG, and ask RAxM-NG do to an analysis.  A command-line version of RAxML-NG must be installed. "
+				+ "You can ask it to do multiple searches for optimal trees, OR to do a bootstrap analysis (but not both). "
+				+ "Mesquite will read in the trees found by RAxML-NG, and, for non-bootstrap analyses.";
 	}
 
 	/*.................................................................................................................*/
@@ -195,7 +236,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			if (StringUtil.blank(LOCproteinModel))
 				localArguments += "JTT+G";
 			else
-				localArguments += LOCproteinModel+LOCproteinModelMatrix;
+				localArguments += LOCproteinModelMatrix+LOCproteinModel;
 		}
 		else if (StringUtil.blank(LOCdnaModel))
 			localArguments += "GTR+G";
@@ -214,7 +255,13 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 
 		if (LOCdoBootstrap) {
 			localArguments += " --bootstrap ";
-			if (LOCbootstrapreps>0)
+			if (autoNumBootstrapReps) {
+				 if (LOCbootstrapreps>0)
+					 localArguments += " --bs-trees autoMRE{" + LOCbootstrapreps + "} --seed " + LOCbootstrapSeed;
+				 else
+					 localArguments += " --bs-trees autoMRE  --seed " + LOCbootstrapSeed;
+			}
+			else if (LOCbootstrapreps>0)
 				localArguments += " --bs-trees " + LOCbootstrapreps + " --seed " + LOCbootstrapSeed;
 			else
 				localArguments += " --bs-trees 1 --seed " + LOCbootstrapSeed;   // just do one rep

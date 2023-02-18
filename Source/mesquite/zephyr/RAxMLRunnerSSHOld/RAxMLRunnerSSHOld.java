@@ -49,6 +49,10 @@ public class RAxMLRunnerSSHOld extends RAxMLRunnerBasicOld  {
 	public void reportNewTreeAvailable(){
 		log("[New tree acquired]");
  	}
+	/*.................................................................................................................*/
+	public String maxNumProcessorsMessage() {
+		return ", as that is the maximum specified in the SSH Server Profile";
+	}
 
 
 	public String getLogText() {

@@ -38,6 +38,7 @@ outgroups
 
 public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListener  {
 
+	
 	protected int numProcessors = 2;
 
 	protected boolean showIntermediateTrees = true;
@@ -154,12 +155,17 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 		}
 	}
 	/*.................................................................................................................*/
+	public String maxNumProcessorsMessage() {
+		return "";
+	}
+	/*.................................................................................................................*/
 	public void checkFields() {
 		int max = getMaxCores();
 		if (MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
-			MesquiteMessage.notifyUser("Number of processors used cannot exceed "+max +", as that is the maximum specified in the SSH Server Profile");			
+			MesquiteMessage.notifyUser("Number of processors used cannot exceed "+max +maxNumProcessorsMessage());			
 			numProcessorsField.setValue(max);
 		}
+		checkAdditionalFields();
 	}
 
 	/*.................................................................................................................*/

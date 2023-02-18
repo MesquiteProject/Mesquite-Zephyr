@@ -35,10 +35,6 @@ public abstract class RAxMLTrees extends ZephyrTreeSearcher implements Likelihoo
 		return "RAxML";
 	}
 
-	/*.................................................................................................................*/
-	 public String getProgramURL() {
-		 return "http://sco.h-its.org/exelixis/web/software/raxml/index.html";
-	 }
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
