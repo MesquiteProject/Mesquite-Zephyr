@@ -165,9 +165,9 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		dialog.addHorizontalLine(1);
-		autoNumProcessorsCheckBox = dialog.addCheckBox("Let " + getProgramName() + " choose number of processors", autoNumProcessors);
+		autoNumProcessorsCheckBox = dialog.addCheckBox("Let " + getProgramName() + " choose number of processor cores", autoNumProcessors);
 		autoNumProcessorsCheckBox.addItemListener(this);
-		numProcessorsField = dialog.addIntegerField("Specify number of processors", numProcessors, 8, 1, MesquiteInteger.infinite);
+		numProcessorsField = dialog.addIntegerField("Specify number of processor cores", numProcessors, 8, 1, MesquiteInteger.infinite);
 		dialog.addHorizontalLine(1);
 
 		dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s) of "+ getProgramName() + ": " + getTestedProgramVersions());

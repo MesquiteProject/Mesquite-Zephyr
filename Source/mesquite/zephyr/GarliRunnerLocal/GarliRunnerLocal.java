@@ -133,7 +133,7 @@ public class GarliRunnerLocal extends GarliRunner {
 	public boolean addRunnerOptions(ExtensibleDialog dialog) {
 		externalProcRunner.addItemsToDialogPanel(dialog);
 		availableMemoryField = dialog.addIntegerField("Memory for GARLI (MB)", availMemory, 8, 256, MesquiteInteger.infinite);
-		numProcessorsField = dialog.addIntegerField("Number of Processors (to use all processors, enter 0)", numProcessors, 8, 0, MesquiteInteger.infinite);
+		numProcessorsField = dialog.addIntegerField("Number of processor cores(to use all processors, enter 0)", numProcessors, 8, 0, MesquiteInteger.infinite);
 		return true;
 	//	dialog.addLabel("(To use all processors, enter 0)");
 		

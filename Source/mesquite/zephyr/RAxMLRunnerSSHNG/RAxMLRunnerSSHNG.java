@@ -70,7 +70,7 @@ public class RAxMLRunnerSSHNG extends RAxMLRunnerBasicNG  {
 	public void checkFields() {
 		int max = getMaxCores();
 		if (MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
-			MesquiteMessage.notifyUser("Number of processors used cannot exceed "+max +", as that is the maximum specified in the SSH Server Profile");			
+			MesquiteMessage.notifyUser("Number of processor cores used cannot exceed "+max +", as that is the maximum specified in the SSH Server Profile");			
 			numProcessorsField.setValue(max);
 		}
 	}
