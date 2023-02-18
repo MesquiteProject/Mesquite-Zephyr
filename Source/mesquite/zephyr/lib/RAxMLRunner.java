@@ -94,6 +94,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected static final int OUT_TREEFILE=1;
 	protected static final int OUT_SUMMARYFILE=2;
 	protected static final int WORKING_TREEFILE=3;
+	protected static final int WORKING_MLTREESFILE=4;
 
 
 	/*.................................................................................................................*/
@@ -1205,6 +1206,14 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			} 
 		}
 
+		if (fileNum==WORKING_MLTREESFILE && outputFilePaths.length>WORKING_MLTREESFILE && !StringUtil.blank(outputFilePaths[WORKING_MLTREESFILE]) && isRAxMLNG()) {   // tree file
+			if (MesquiteFile.fileExists(filePath)) {
+				String s = MesquiteFile.getFileContentsAsString(filePath);
+				numRunsCompleted =StringUtil.getNumberOfLines(s);
+				logln(getProgramName()+" search replicate " + numRunsCompleted + " of " + numRuns+" completed");
+			}
+
+		}
 		if (fileNum==WORKING_TREEFILE && outputFilePaths.length>WORKING_TREEFILE && !StringUtil.blank(outputFilePaths[WORKING_TREEFILE]) && bootstrapOrJackknife() && isRAxMLNG()) {   // tree file
 			if (MesquiteFile.fileExists(filePath)) {
 				String s = MesquiteFile.getFileContentsAsString(filePath);
@@ -1223,14 +1232,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				}
 				else ((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, null);
 				reportNewTreeAvailable();
-
-				if (isRAxMLNG()) {
-					String s = MesquiteFile.getFileContentsAsString(filePath);
-					if (StringUtil.notEmpty(s)) {
-						numRunsCompleted =StringUtil.getNumberOfLines(s);
-						logln(getProgramName()+" search replicate " + numRunsCompleted + " of " + numRuns+" completed");
-					}
-				}
 
 			}
 		}

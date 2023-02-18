@@ -243,6 +243,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		String treeFileName;
 		String workingTreeFileName;
 		String logFileName;
+		String workingMLTrees ="";
 		if (bootstrapOrJackknife()) {
 			treeFileName = outputFilePrefix+".raxml.bootstraps";
 			workingTreeFileName= outputFilePrefix+".raxml.bootstraps.TMP";
@@ -252,9 +253,10 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			else
 				treeFileName = outputFilePrefix+".raxml.mlTrees";
 			workingTreeFileName= outputFilePrefix+".raxml.lastTree.TMP";
+			workingMLTrees= outputFilePrefix+".raxml.mlTrees.TMP";
 		}
 		logFileName = outputFilePrefix+".raxml.log";
-		return new String[]{logFileName, treeFileName, logFileName, workingTreeFileName};
+		return new String[]{logFileName, treeFileName, logFileName, workingTreeFileName, workingMLTrees};
 	}
 	/*.................................................................................................................*
 	public String[] modifyOutputPaths(String[] outputFilePaths){
