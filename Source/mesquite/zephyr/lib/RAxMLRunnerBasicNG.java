@@ -187,7 +187,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			if (autoNumBootstrapRepsCheckBox.getState())
 				bootStrapRepsField.setLabelText("Maximum bootstrap replicates");
 			else
-				bootStrapRepsField.setLabelText("Bootstrap replicates");
+				bootStrapRepsField.setLabelText("              Bootstrap replicates");
 		}
 	}
 

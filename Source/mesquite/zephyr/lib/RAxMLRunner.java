@@ -346,7 +346,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			dialog.addLabel("Bootstrap Options", Label.LEFT, false, true);
 			doBootstrapCheckbox.addItemListener(this);
 			addExtraBootstrapOptions(dialog);
-			bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, 1, MesquiteInteger.infinite);
+		//	if (isRAxMLNG())
+		//		bootStrapRepsField = dialog.addIntegerField("Maximum bootstrap replicates", bootstrapreps, 8, 1, MesquiteInteger.infinite);
+		//	else
+				bootStrapRepsField = dialog.addIntegerField("                     Bootstrap Replicates", bootstrapreps, 8, 1, MesquiteInteger.infinite);
 			seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
 			if (!isRAxMLNG())
 				bootstrapBranchLengthsCheckBox = dialog.addCheckBox("save branch lengths in bootstrap trees", bootstrapBranchLengths);
@@ -360,7 +363,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		numRunsField = dialog.addIntegerField("Number of Search Replicates", numRuns, 8, minimumNumSearchReplicates(), MesquiteInteger.infinite);
 		onlyBestBox = dialog.addCheckBox("save only best tree", onlyBest);
 		checkEnabled(doBootstrap);
-		checkAdditionalFields();
 
 		if (getConstrainedSearchAllowed())
 			tabbedPanel.addPanel("Character Models & Constraints", true);
@@ -423,6 +425,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		dialog.completeAndShowDialog(true);
 		boolean acceptableOptions = false;
+		checkAdditionalFields();
 		
 		
 		if (buttonPressed.getValue()==0)  {
