@@ -57,8 +57,15 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		return "RAxML-NG";
 	}
 
+	public boolean getConstrainedSearchAllowed() {
+		return false;
+	}
 
 	/*.................................................................................................................*/
+	public String[] getProteinModelMatrixOptions() {
+		return new String[] {"Blosum62", "cpREV", "Dayhoff", "DCMut", "DEN", "FLU", "HIVb", "HIVw", "JTT", "JTT-DCMut", "LG", "mtART,mtMAM", "mtREV", "mtZOA", "PMB", "rtREV","stmtREV", "VT", "WAG", "LG4M", "LG4X", "PROTGTR"};
+	}
+/*.................................................................................................................*/
 	public void setUpRunner() { 
 		dnaModel = "GTR+G+I";
 		proteinModel = "+G";
@@ -137,7 +144,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 				s+="Bootstrap replicates completed: <b>";
 				if (autoNumBootstrapReps) {
 					if (bootstrapreps>0)
-						s+=numRuns +" of at most " + bootstrapreps;
+						s+=numRunsCompleted +" of at most " + bootstrapreps;
 					else
 						s+=numRunsCompleted +" of " + bootstrapreps;
 				} else {
@@ -248,11 +255,12 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		if (!StringUtil.blank(LOCotherOptions)) 
 			localArguments += " " + LOCotherOptions;
 		
-		if (useConstraintTree == SKELETAL)
+	/*	if (useConstraintTree == SKELETAL)
 			localArguments += " -r " + CONSTRAINTTREEFILENAME + " "; 
 		else if (useConstraintTree == MONOPHYLY)
 			localArguments += " -g " + CONSTRAINTTREEFILENAME + " "; 
-
+*/
+		
 		if (LOCdoBootstrap) {
 			localArguments += " --bootstrap ";
 			if (autoNumBootstrapReps) {
@@ -270,8 +278,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		}
 		else {
 			localArguments += " --search --seed " + randomIntSeed;
-			if (LOCnumRuns>1)
-				localArguments += " -tree pars{" + LOCnumRuns + "}, rand{"+ LOCnumRuns + "}";
+			localArguments += " -tree pars{" + LOCnumRuns + "}, rand{"+ LOCnumRuns + "}";
 		}
 
 		
