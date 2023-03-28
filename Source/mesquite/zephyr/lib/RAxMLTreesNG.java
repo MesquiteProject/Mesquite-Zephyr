@@ -40,10 +40,10 @@ public abstract class RAxMLTreesNG extends RAxMLTrees {
 		 return "https://github.com/amkozlov/raxml-ng/wiki";
 	 }
 
-	/*.................................................................................................................*/
-	public boolean isPrerelease(){
-		return false;
-	}
+		/*.................................................................................................................*/
+		public boolean isPrerelease(){
+			return true;
+		}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){
 		return true;
@@ -53,6 +53,10 @@ public abstract class RAxMLTreesNG extends RAxMLTrees {
 		return true;
 	}
 	
+	/*.................................................................................................................*/
+
+	public void addModelOptions(ExtensibleDialog dialog) {
+	}
 
 
 

@@ -40,6 +40,14 @@ public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, I
 
 	//Checkbox RAxML814orLaterCheckbox;
 
+	/*.................................................................................................................*/
+	public boolean loadModule(){
+		return false;
+	}
+	/*.................................................................................................................*/
+
+	public void addModelOptions(ExtensibleDialog dialog) {
+	}
 
 	/*.................................................................................................................*/
 	 public String getExternalProcessRunnerModuleName(){

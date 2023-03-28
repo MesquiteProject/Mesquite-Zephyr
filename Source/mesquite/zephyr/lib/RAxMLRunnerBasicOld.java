@@ -155,6 +155,15 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		RAxML814orLater = RAxML814orLaterCheckbox.getState();
 		threadingVersion = threadingRadioButtons.getValue();
 		numProcessors = numProcessorsField.getValue(); //
+		dnaModel = dnaModelField.getText();
+		proteinModel = proteinModelField.getText();
+}
+	/*.................................................................................................................*/
+
+	public void addModelOptions(ExtensibleDialog dialog) {
+		dnaModelField = dialog.addTextField("DNA Model:", dnaModel, 20);
+		proteinModelField = dialog.addTextField("Protein Model:", proteinModel, 20);
+		proteinModelMatrixChoice = dialog.addPopUpMenu("Protein Transition Matrix Model", getProteinModelMatrixOptions(), getProteinModelMatrixNumber(proteinModelMatrix));
 	}
 
 	/*.................................................................................................................*/

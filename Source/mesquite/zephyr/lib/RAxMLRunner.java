@@ -56,7 +56,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected boolean isProtein = false;
 	protected String dnaModel = "GTRGAMMAI";
 	protected String proteinModel = "PROTGAMMA";
-	protected static String proteinModelMatrix = "JTT";
+	protected  String dnaModelMatrix = "G";
+	protected  String proteinModelMatrix = "JTT";
 	protected static String otherOptions = "";
 	protected boolean doBootstrap = false;
 	protected static final int NOCONSTRAINT = 0;
@@ -195,10 +196,17 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			bootstrapBranchLengths = MesquiteBoolean.fromTrueFalseString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
 			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
+		if ("dnaModelMatrix".equalsIgnoreCase(tag)){   
+			dnaModelMatrix = StringUtil.cleanXMLEscapeCharacters(content);
+		}
+		if ("proteinModelMatrix".equalsIgnoreCase(tag)){   
+			proteinModelMatrix = StringUtil.cleanXMLEscapeCharacters(content);
+		}
 
 
 		preferencesSet = true;
 	}
+
 
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
@@ -211,6 +219,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		StringUtil.appendXMLTag(buffer, 2, "nobfgs", nobfgs);  
 		StringUtil.appendXMLTag(buffer, 2, "bootstrapBranchLengths", bootstrapBranchLengths);  
 		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
+		StringUtil.appendXMLTag(buffer, 2, "dnaModelMatrix", dnaModelMatrix);  
+		StringUtil.appendXMLTag(buffer, 2, "proteinModelMatrix", proteinModelMatrix);  
 
 		preferencesSet = true;
 		return buffer.toString();
@@ -254,6 +264,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 	public abstract void addRunnerOptions(ExtensibleDialog dialog);
 	public abstract void processRunnerOptions();
+	public abstract void addModelOptions(ExtensibleDialog dialog);
 	/*.................................................................................................................*/
 	public int minimumNumSearchReplicates() {
 		return 1;
@@ -268,22 +279,35 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	public abstract String queryOptionsDialogTitle();
 
 	/*.................................................................................................................*/
+	public String[] getDNAModelMatrixOptions() {
+		return new String[] {"GTR"};
+	}
+/*.................................................................................................................*/
 	public String[] getProteinModelMatrixOptions() {
 		return new String[] {"DAYHOFF", "DCMUT", "JTT", "MTREV", "WAG", "RTREV", "CPREV", "VT", "BLOSUM62", "MTMAM", "LG", "MTART", "MTZOA", "PMB", "HIVB", "HIVW", "JTTDCMUT", "FLU", "STMTREV", "DUMMY", "DUMMY2", "AUTO", "LG4M", "LG4X", "PROT_FILE", "GTR_UNLINKED", "GTR"};
 	}
 	/*.................................................................................................................*/
-	public int getProteinModelMatrixNumber(String name) {
+	public int getPositionInArray(String[] names, String name) {
 		if (StringUtil.blank(name))
 			return 0;
-		String[] names = getProteinModelMatrixOptions();
 		for (int i=0;  i<names.length; i++)
 			if (names[i]!=null && names[i].equalsIgnoreCase(name))
 				return i;
 		return 0;
 	}
+	/*.................................................................................................................*/
+	public int getProteinModelMatrixNumber(String name) {
+		return getPositionInArray(getProteinModelMatrixOptions(), name);
+	}
+	/*.................................................................................................................*/
+	public int getDNAModelMatrixNumber(String name) {
+		return getPositionInArray(getDNAModelMatrixOptions(), name);
+	}
+	
+	
 	protected RadioButtons charPartitionButtons = null;
 
-	/*.................................................................................................................*/
+/*.................................................................................................................*/
 	public void addExtraBootstrapOptions(ExtensibleDialog dialog) {
 	}
 	/*.................................................................................................................*/
@@ -388,9 +412,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			charPartitionButtons.setEnabled(2, false);
 		}
 		dialog.addHorizontalLine(1);
-		dnaModelField = dialog.addTextField("DNA Model:", dnaModel, 20);
-		proteinModelField = dialog.addTextField("Protein Model:", proteinModel, 20);
-		proteinModelMatrixChoice = dialog.addPopUpMenu("Protein Transition Matrix Model", getProteinModelMatrixOptions(), getProteinModelMatrixNumber(proteinModelMatrix));
+		addModelOptions(dialog);
 
 		if (getConstrainedSearchAllowed()) {
 			dialog.addHorizontalLine(1);
@@ -432,8 +454,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			boolean infererOK =  (treeInferer==null || treeInferer.optionsChosen());
 			if (externalProcRunner.optionsChosen() && infererOK) {
 				partitionScheme = charPartitionButtons.getValue();
-				dnaModel = dnaModelField.getText();
-				proteinModel = proteinModelField.getText();
 				String name = proteinModelMatrixChoice.getSelectedItem();
 				if (StringUtil.notEmpty(name))
 					proteinModelMatrix = name;
