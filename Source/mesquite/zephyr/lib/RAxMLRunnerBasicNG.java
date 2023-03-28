@@ -366,7 +366,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			if (StringUtil.blank(LOCproteinModel))
 				localArguments += "JTT+G";
 			else
-				localArguments += LOCproteinModelMatrix+LOCproteinModel;
+				localArguments += LOCproteinModel;
 		}
 		else if (StringUtil.blank(LOCdnaModel))
 			localArguments += "GTR+G";
