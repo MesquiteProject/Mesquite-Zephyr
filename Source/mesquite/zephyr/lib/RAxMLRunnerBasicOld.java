@@ -167,7 +167,30 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 	}
 
 	/*.................................................................................................................*/
-	public void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, String LOCproteinModelMatrix,
+	public  String getComposedCommand(MesquiteString arguments) {
+		isProtein = data instanceof ProteinData;
+
+		String localModelFileName = null;
+		if (charPartitionButtons!=null) {
+			int localPartitionScheme = charPartitionButtons.getValue();
+			prepareMultipleModelFile(localPartitionScheme);
+			if (StringUtil.notEmpty(multipleModelFileContents)) 
+				localModelFileName=MULTIPLEMODELFILENAME;
+		}
+
+		boolean nobfgsValue = false;
+		if (nobfgsCheckBox!=null)
+			nobfgsValue =nobfgsCheckBox.getState();
+		String localProteinModel = proteinModelField.getText();
+		if (StringUtil.blank(localProteinModel))
+			localProteinModel = "PROTGAMMAJTT";
+		else
+			localProteinModel = localProteinModel+proteinModelMatrixChoice.getSelectedItem();
+		getArguments(arguments, "[fileName]", localProteinModel, dnaModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, localModelFileName, nobfgsValue, false);
+		return externalProcRunner.getExecutableCommand() + arguments.getValue() + getAdditionalArguments();
+	}
+/*.................................................................................................................*/
+	public void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel,
 			String LOCdnaModel, String LOCotherOptions, 
 			boolean LOCdoBootstrap, int LOCbootstrapreps, int LOCbootstrapSeed, 
 			int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean LOCnobfgs, boolean preflight){
@@ -187,7 +210,7 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 			if (StringUtil.blank(LOCproteinModel))
 				localArguments += "PROTGAMMAJTT";
 			else
-				localArguments += LOCproteinModel+LOCproteinModelMatrix;
+				localArguments += LOCproteinModel;
 		}
 		else if (StringUtil.blank(LOCdnaModel))
 			localArguments += "GTRGAMMA";
@@ -291,14 +314,19 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 	/*.................................................................................................................*/
 	public Object getProgramArguments(String dataFileName, boolean isPreflight) {
 		MesquiteString arguments = new MesquiteString();
+		String localProteinModel = proteinModel;
+		if (StringUtil.blank(proteinModel))
+			localProteinModel = "PROTGAMMAJTT";
+		else
+			localProteinModel = proteinModel+proteinModelMatrix;
 
 		if (!isPreflight) {
-			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
+			getArguments(arguments, dataFileName, localProteinModel, dnaModel, otherOptions, doBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
 			if (isVerbose()) {
 				logln("RAxML arguments: \n" + arguments.getValue() + getAdditionalArguments()+"\n");
 			}
 		} else {
-			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
+			getArguments(arguments, dataFileName, localProteinModel, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
 		arguments.append(getAdditionalArguments());
 		return arguments; // + " | tee log.txt"; // + "> log.txt";

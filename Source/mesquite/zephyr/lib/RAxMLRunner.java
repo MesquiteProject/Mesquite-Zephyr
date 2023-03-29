@@ -67,6 +67,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected int SOWHConstraintTree = MONOPHYLY;
 	protected boolean bootstrapBranchLengths = false;
 	protected static String CONSTRAINTTREEFILENAME =  "constraintTree.tre";
+	protected static String MULTIPLEMODELFILENAME= "multipleModelFile.txt";
+	protected boolean specifyPartByPartModels = false;
 
 	long summaryFilePosition =0;
 
@@ -79,7 +81,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected javax.swing.JLabel commandLabel;
 	protected SingleLineTextArea commandField;
 	protected IntegerField numRunsField, bootStrapRepsField;
-	protected Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox, nobfgsCheckBox,bootstrapBranchLengthsCheckBox;
+	protected Checkbox onlyBestBox, retainFilescheckBox, doBootstrapCheckbox, nobfgsCheckBox,bootstrapBranchLengthsCheckBox, specifyPartByPartModelsBox;
 	RadioButtons constraintButtons;
 	RadioButtons threadingRadioButtons;
 	//	int count=0;
@@ -202,6 +204,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if ("proteinModelMatrix".equalsIgnoreCase(tag)){   
 			proteinModelMatrix = StringUtil.cleanXMLEscapeCharacters(content);
 		}
+		if ("specifyPartByPartModels".equalsIgnoreCase(tag))
+			specifyPartByPartModels = MesquiteBoolean.fromTrueFalseString(content);
 
 
 		preferencesSet = true;
@@ -221,7 +225,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
 		StringUtil.appendXMLTag(buffer, 2, "dnaModelMatrix", dnaModelMatrix);  
 		StringUtil.appendXMLTag(buffer, 2, "proteinModelMatrix", proteinModelMatrix);  
-
+		StringUtil.appendXMLTag(buffer, 2, "specifyPartByPartModels", specifyPartByPartModels);  
+		
 		preferencesSet = true;
 		return buffer.toString();
 	}
@@ -413,6 +418,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		}
 		dialog.addHorizontalLine(1);
 		addModelOptions(dialog);
+		specifyPartByPartModelsBox = dialog.addCheckBox("specify different models for each part", specifyPartByPartModels);
+
 
 		if (getConstrainedSearchAllowed()) {
 			dialog.addHorizontalLine(1);
@@ -469,6 +476,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				onlyBest = onlyBestBox.getState();
 				if (!isRAxMLNG())
 					nobfgs = nobfgsCheckBox.getState();
+				specifyPartByPartModels = specifyPartByPartModelsBox.getState();
 
 				if (getConstrainedSearchAllowed()) {
 					useConstraintTree = constraintButtons.getValue();
@@ -667,16 +675,13 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	/*.................................................................................................................*/
 	public void setFileNames () {
-		multipleModelFileName = "multipleModelFile.txt";
-
+		multipleModelFileName =MULTIPLEMODELFILENAME;
 	}
 
 	/*.................................................................................................................*/
 	public String getPreflightLogFileNames(){
 		return "RAxML_log.file.out";	
 	}
-
-
 
 	TaxaSelectionSet outgroupSet;
 
@@ -722,8 +727,21 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected static final int DATAFILENUMBER = 0;
 	protected static final int MULTIMODELFILENUMBER = 1;
 	protected static final int CONSTRAINTFILENUMBER = 3;
-	
+	String multipleModelFileContents = "";
 
+
+	/*.................................................................................................................*/
+	public void prepareMultipleModelFile(int localPartitionScheme) {
+		if (localPartitionScheme == partitionByCharacterGroups) {
+			if (multipleModelFileAllowed())
+				multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false, proteinModel, dnaModel, isRAxMLNG(), specifyPartByPartModels);
+		}
+		else if (localPartitionScheme == partitionByCodonPosition) {
+			multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, true,proteinModel, dnaModel,isRAxMLNG(), specifyPartByPartModels);
+		} else
+			multipleModelFileContents="";
+		
+	}
 	/*.................................................................................................................*/
 	public synchronized Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		finalValues=null;
@@ -763,21 +781,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		setFileNames();
 
-		String multipleModelFileContents = "";
-		if (partitionScheme == partitionByCharacterGroups) {
-			if (multipleModelFileAllowed())
-				multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false);
-		}
-		else if (partitionScheme == partitionByCodonPosition) {
-			multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, true);
-		}
-	//	if (multipleModelFileAllowed())
-	//		multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false);//TODO: why is partByCodPos false?  
-		//Debugg.println: David: could there be a choice for partByCodPos?  I'd like that
-		//Debugg.println("multipleModelFileContents " + multipleModelFileContents);
-		
+		prepareMultipleModelFile(partitionScheme);
 		if (StringUtil.blank(multipleModelFileContents)) 
 			multipleModelFileName=null;
+
 
 		String constraintTree = "";
 		

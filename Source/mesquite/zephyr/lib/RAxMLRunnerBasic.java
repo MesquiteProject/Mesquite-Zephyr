@@ -137,15 +137,13 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 		return MesquiteInteger.infinite;
 	}
 	/*.................................................................................................................*/
+	public abstract String getComposedCommand(MesquiteString arguments);
+	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equalsIgnoreCase(composeProgramCommand)) {
 
 			MesquiteString arguments = new MesquiteString();
-			boolean nobfgsValue = false;
-			if (nobfgsCheckBox!=null)
-				nobfgsValue =nobfgsCheckBox.getState();
-			getArguments(arguments, "[fileName]", proteinModelField.getText(), proteinModelMatrixChoice.getSelectedItem(), dnaModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, null, nobfgsValue, false);
-			String command = externalProcRunner.getExecutableCommand() + arguments.getValue() + getAdditionalArguments();
+			String command = getComposedCommand(arguments);
 			commandLabel.setText("This command will be used to run "+ getProgramName()+ ":");
 			commandField.setText(command);
 		}
@@ -181,7 +179,7 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 	}
 
 	/*.................................................................................................................*/
-	public abstract void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, String LOCproteinModelMatrix,
+	public abstract void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel,
 			String LOCdnaModel, String LOCotherOptions, 
 			boolean LOCdoBootstrap, int LOCbootstrapreps, int LOCbootstrapSeed, 
 			int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean LOCnobfgs, boolean preflight);

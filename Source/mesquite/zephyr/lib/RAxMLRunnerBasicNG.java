@@ -87,23 +87,8 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 
 		if ("numProcessors".equalsIgnoreCase(tag))
 			numProcessors = MesquiteInteger.fromString(content);
-		if ("propInvariant".equalsIgnoreCase(tag)){   
-			propInvariant = StringUtil.cleanXMLEscapeCharacters(content);
-		}
-		if ("stationaryFreq".equalsIgnoreCase(tag)){   
-			stationaryFreq = StringUtil.cleanXMLEscapeCharacters(content);
-		}
-		if ("amongSiteVariation".equalsIgnoreCase(tag)){   
-			amongSiteVariation = StringUtil.cleanXMLEscapeCharacters(content);
-		}
-		if ("stationaryFreqSuffix".equalsIgnoreCase(tag)){   
-			stationaryFreqSuffix = StringUtil.cleanXMLEscapeCharacters(content);
-		}
-		if ("proportionInvariantSuffix".equalsIgnoreCase(tag)){   
-			proportionInvariantSuffix = StringUtil.cleanXMLEscapeCharacters(content);
-		}
-		if ("amongSiteVariationSuffix".equalsIgnoreCase(tag)){   
-			amongSiteVariationSuffix = StringUtil.cleanXMLEscapeCharacters(content);
+		if ("otherModelOptions".equalsIgnoreCase(tag)){   
+			otherModelOptions = StringUtil.cleanXMLEscapeCharacters(content);
 		}
 
 		super.processSingleXMLPreference(tag, content);
@@ -118,12 +103,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		StringUtil.appendXMLTag(buffer, 2, "autoNumProcessors", autoNumProcessors);  
 		StringUtil.appendXMLTag(buffer, 2, "autoNumBootstrapReps", autoNumBootstrapReps);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
-		StringUtil.appendXMLTag(buffer, 2, "propInvariant", propInvariant);  
-		StringUtil.appendXMLTag(buffer, 2, "stationaryFreq", stationaryFreq);  
-		StringUtil.appendXMLTag(buffer, 2, "amongSiteVariation", amongSiteVariation);  
-		StringUtil.appendXMLTag(buffer, 2, "stationaryFreqSuffix", stationaryFreqSuffix);  
-		StringUtil.appendXMLTag(buffer, 2, "proportionInvariantSuffix", proportionInvariantSuffix);  
-		StringUtil.appendXMLTag(buffer, 2, "amongSiteVariationSuffix", amongSiteVariationSuffix);  
+		StringUtil.appendXMLTag(buffer, 2, "otherModelOptions", otherModelOptions);  
 
 		buffer.append(super.preparePreferencesForXML());
 
@@ -199,58 +179,23 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 
 
 	protected Choice dnaModelMatrixChoice;
-	protected Choice stationaryFreqChoice;
-	protected Choice propInvariantChoice;
-	protected Choice amongSiteVariationChoice;
-	protected  SingleLineTextField stationaryFreqSuffixField;
-	protected  SingleLineTextField proportionInvariantSuffixField;
-	protected  SingleLineTextField amongSiteVariationSuffixField;
-	protected  String propInvariant = "none";
-	protected  String stationaryFreq = "F";
-	protected  String amongSiteVariation = "G";
-	protected  String stationaryFreqSuffix = "";
-	protected  String proportionInvariantSuffix = "";
-	protected  String amongSiteVariationSuffix = "";
+	protected  SingleLineTextField otherModelOptionsChoice;
+	protected  String otherModelOptions = "+G";
 
 	/*.................................................................................................................*/
 	public void prepareModels() { 
-		String addendum = "";
-		if (StringUtil.notEmpty(amongSiteVariationSuffix))
-			addendum+="+"+ amongSiteVariation + amongSiteVariationSuffix;
-		else
-			addendum+="+"+ amongSiteVariation;
-		
-		if (propInvariant.equalsIgnoreCase("IU")) {
-			if (StringUtil.notEmpty(proportionInvariantSuffix))
-				addendum+="+"+ propInvariant + proportionInvariantSuffix;
-		}
-		else if (!propInvariant.equalsIgnoreCase("none"))
-			addendum += "+"+ propInvariant;
-		
-		if (stationaryFreq.equalsIgnoreCase("FU")) {
-			if (StringUtil.notEmpty(stationaryFreqSuffix))
-				addendum+="+"+ stationaryFreq + stationaryFreqSuffix;
-		}
-		else
-			addendum+="+"+ stationaryFreq;
-		
-		dnaModel = dnaModelMatrix+addendum;
-		proteinModel = proteinModelMatrix+addendum;
+	
+		dnaModel = dnaModelMatrix+otherModelOptions;
+		proteinModel = proteinModelMatrix+otherModelOptions;
 		
 	}
-
 
 	/*.................................................................................................................*/
 
 	public void addModelOptions(ExtensibleDialog dialog) {
 		dnaModelMatrixChoice = dialog.addPopUpMenu("DNA Substitution Matrix Model", getDNAModelMatrixOptions(), getDNAModelMatrixNumber(dnaModelMatrix));
 		proteinModelMatrixChoice = dialog.addPopUpMenu("Protein Transition Matrix Model", getProteinModelMatrixOptions(), getProteinModelMatrixNumber(proteinModelMatrix));
-		amongSiteVariationChoice = dialog.addPopUpMenu("Among-site Variation Model", getAmongSiteVariationOptions(), getAmongSiteVariationNumber(amongSiteVariation));
-		amongSiteVariationSuffixField = dialog.addTextField("Among-site variation suffix:", amongSiteVariationSuffix, 20);
-		propInvariantChoice = dialog.addPopUpMenu("Proportion Invariant Site Model", getPropInvariantOptions(), getPropInvariantNumber(propInvariant));
-		proportionInvariantSuffixField = dialog.addTextField("Proportion invariant suffix:", proportionInvariantSuffix, 20);
-		stationaryFreqChoice = dialog.addPopUpMenu("Stationary Frequencies Model", getStationaryFreqOptions(), getStationaryFreqNumber(stationaryFreq));
-		stationaryFreqSuffixField = dialog.addTextField("Stationary Frequencies suffix:", stationaryFreqSuffix, 20);
+		otherModelOptionsChoice = dialog.addTextField("Additional model options:", otherModelOptions, 20);
 }
 /*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
@@ -264,31 +209,6 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	}
 	
 	
-	/*.................................................................................................................*/
-	public String[] getAmongSiteVariationOptions() {
-		return new String[] {"G", "GA", "R"};
-	}
-	/*.................................................................................................................*/
-	public String[] getPropInvariantOptions() {
-		return new String[] {"none", "I", "IC", "IU"};
-	}
-	/*.................................................................................................................*/
-	public String[] getStationaryFreqOptions() {
-		return new String[] {"F", "FO", "FE", "FU"};
-	}
-	/*.................................................................................................................*/
-	public int getStationaryFreqNumber(String name) {
-		return getPositionInArray(getStationaryFreqOptions(), name);
-	}
-	/*.................................................................................................................*/
-	public int getAmongSiteVariationNumber(String name) {
-		return getPositionInArray(getAmongSiteVariationOptions(), name);
-	}
-	/*.................................................................................................................*/
-	public int getPropInvariantNumber(String name) {
-		return getPositionInArray(getPropInvariantOptions(), name);
-	}
-
 
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
@@ -297,18 +217,33 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		String name = dnaModelMatrixChoice.getSelectedItem();
 		if (StringUtil.notEmpty(name))
 			dnaModelMatrix = name;
-		name = stationaryFreqChoice.getSelectedItem();
-		if (StringUtil.notEmpty(name))
-			stationaryFreq = name;
-		name = propInvariantChoice.getSelectedItem();
-		if (StringUtil.notEmpty(name))
-			propInvariant = name;
-		stationaryFreqSuffix = stationaryFreqSuffixField.getText();
-		proportionInvariantSuffix = proportionInvariantSuffixField.getText();
-		amongSiteVariationSuffix = amongSiteVariationSuffixField.getText();
+		otherModelOptions = otherModelOptionsChoice.getText();
 		prepareModels();
 	}
 	/*.................................................................................................................*/
+	public  String getComposedCommand(MesquiteString arguments) {
+		isProtein = data instanceof ProteinData;
+
+		String localModelFileName = null;
+		if (charPartitionButtons!=null) {
+			int localPartitionScheme = charPartitionButtons.getValue();
+			prepareMultipleModelFile(localPartitionScheme);
+			if (StringUtil.notEmpty(multipleModelFileContents)) 
+				localModelFileName=MULTIPLEMODELFILENAME;
+		}
+
+		String localDNAModel = dnaModelMatrixChoice.getSelectedItem();
+		String localProteinModel = proteinModelMatrixChoice.getSelectedItem();
+		if (StringUtil.notEmpty(otherModelOptionsChoice.getText())) {
+			localDNAModel += otherModelOptionsChoice.getText();
+			localProteinModel += otherModelOptionsChoice.getText();
+		}
+		getArguments(arguments, "[fileName]", localProteinModel, localDNAModel, otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, localModelFileName, true, false);
+		return externalProcRunner.getExecutableCommand() + arguments.getValue() + getAdditionalArguments();
+	}
+
+
+/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getItemSelectable() == autoNumProcessorsCheckBox){
 			numProcessorsField.getTextField().setEnabled(!autoNumProcessorsCheckBox.getState());
@@ -344,7 +279,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	}
 
 	/*.................................................................................................................*/
-	public void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel, String LOCproteinModelMatrix,
+	public void getArguments(MesquiteString arguments, String fileName, String LOCproteinModel,
 			String LOCdnaModel, String LOCotherOptions, 
 			boolean LOCdoBootstrap, int LOCbootstrapreps, int LOCbootstrapSeed, 
 			int LOCnumRuns, String LOCoutgroupTaxSetString, String LOCMultipleModelFile, boolean LOCnobfgs, boolean preflight){
@@ -486,14 +421,15 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	/*.................................................................................................................*/
 	public Object getProgramArguments(String dataFileName, boolean isPreflight) {
 		MesquiteString arguments = new MesquiteString();
+		prepareModels();
 
 		if (!isPreflight) {
-			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
+			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, doBootstrap, bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, false);
 			if (isVerbose()) {
 				logln(getProgramName() + " arguments: \n" + arguments.getValue() + getAdditionalArguments()+"\n");
 			}
 		} else {
-			getArguments(arguments, dataFileName, proteinModel, proteinModelMatrix, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
+			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
 		arguments.append(getAdditionalArguments());
 	
