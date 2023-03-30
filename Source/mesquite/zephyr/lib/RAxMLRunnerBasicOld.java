@@ -157,6 +157,7 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		numProcessors = numProcessorsField.getValue(); //
 		dnaModel = dnaModelField.getText();
 		proteinModel = proteinModelField.getText();
+		proteinModelMatrix = proteinModelMatrixChoice.getSelectedItem();
 }
 	/*.................................................................................................................*/
 

@@ -410,16 +410,20 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		else
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
 	//	charPartitionButtons.addItemListener(this);
+		dialog.addHorizontalLine(1);
+		addModelOptions(dialog);
+		specifyPartByPartModelsBox = dialog.addCheckBox("specify different models for each part", specifyPartByPartModels);
 		if (!data.hasCharacterGroups()) {
 			charPartitionButtons.setEnabled(1, false);
 		}
 		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
 			charPartitionButtons.setEnabled(2, false);
 		}
-		dialog.addHorizontalLine(1);
-		addModelOptions(dialog);
-		specifyPartByPartModelsBox = dialog.addCheckBox("specify different models for each part", specifyPartByPartModels);
-
+		if (data.hasCharacterGroups() || (data instanceof DNAData && ((DNAData) data).someCoding())) 
+			specifyPartByPartModelsBox.setEnabled(true);
+		else
+			specifyPartByPartModelsBox.setEnabled(false);
+		
 
 		if (getConstrainedSearchAllowed()) {
 			dialog.addHorizontalLine(1);
@@ -732,12 +736,15 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	/*.................................................................................................................*/
 	public void prepareMultipleModelFile(int localPartitionScheme) {
+		String localProteinModel = proteinModel;
+		if (!isRAxMLNG())
+			localProteinModel =proteinModelMatrix;
 		if (localPartitionScheme == partitionByCharacterGroups) {
 			if (multipleModelFileAllowed())
-				multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false, proteinModel, dnaModel, isRAxMLNG(), specifyPartByPartModels);
+				multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false, localProteinModel, dnaModel, isRAxMLNG(), specifyPartByPartModels);
 		}
 		else if (localPartitionScheme == partitionByCodonPosition) {
-			multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, true,proteinModel, dnaModel,isRAxMLNG(), specifyPartByPartModels);
+			multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, true,localProteinModel, dnaModel,isRAxMLNG(), specifyPartByPartModels);
 		} else
 			multipleModelFileContents="";
 		
@@ -921,7 +928,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		MesquiteThread.setCurrentCommandRecord(scr);
 
 		// define file paths and set tree files as needed. 
-		setFileNames();
+		//setFileNames();
 		String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
 		if (completedRuns == null){
 			completedRuns = new boolean[numRuns];

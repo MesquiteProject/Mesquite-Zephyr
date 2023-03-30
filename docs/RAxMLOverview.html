@@ -175,14 +175,26 @@
     </p>
     <div style="text-align: center"><img src="files/RAxML2.jpg" alt="RAxML2.jpg" title="RAxML2.jpg" style="height: 432px; width: 480px;" /></div><br />
 <br />
-The Character Models &amp; Constraints panel has two options for the models to use, one for DNA data, and one for Protein data. In addition, you can choose to enforce a constraint tree. If you do choose to enforce a constraint, the tree to use as a constraint must be present in a Mesquite tree window in your project.<br />
+RAXML as a Character Models &amp; Constraints panel has two options for the models to use, one for DNA data, and one for Protein data. In addition, you can choose to enforce a constraint tree. If you do choose to enforce a constraint, the tree to use as a constraint must be present in a Mesquite tree window in your project.<br />
 <br />
-<div style="text-align: center"><img src="files/RAxML3.jpg" alt="RAxML3.jpg" title="RAxML3.jpg" style="height: 349px; width: 480px;" /></div><br />
-<br />
-<br />
-The last panel, &quot;Other options&quot;, provides a field called &quot;Other RAxML options&quot; in which you can type RAxML commands yourself.<br />
-<br />
-<div style="text-align: center"><img src="files/RAxML4.jpg" alt="RAxML4.jpg" title="RAxML4.jpg" style="height: 349px; width: 480px;" /></div><br />
+<div style="text-align: center"><img src="images/raxmlCharModels.png" width="468" height="428" /></div>
+<p><br />
+  
+  In contrast, RAXML-NG has a Character Models panel as follows:</p>
+<div style="text-align: center"></div>
+  <div style="text-align: center"><img src="images/raxmlngCharModels3.png" width="516" height="374" /></div><br />
+
+  <p>In this panel for RAXML-NG, the substitution model to be included in the RAXML-NG command is formed by taking the Matrix model (e.g., GTR for DNA in the example above), and appending the additional components from the other fields. The example shown above would yield the model specification HKY+G+I for DNA data and WAG+G+I for protein data. For additional details of the model specification, see <a href="https://github.com/amkozlov/raxml-ng/wiki/Input-data#single-model">https://github.com/amkozlov/raxml-ng/wiki/Input-data#single-model</a>. If your data is partitioned into different character groups or codon positions and you ask those to be considered, and you check &quot;specify different models for each part&quot;, then you will be presented with a dialog box allowing you to specify a different model for each part:</p>
+	    <div style="text-align: center"><img src="images/raxmlngPartByPartModels.png" width="248" height="420" /></div>
+	    If &quot;specify different models for each part&quot; is unchecked, then Mesquite will use the same model for each part of a partition.<br />
+
+
+	  <div style="text-align: center"></div>
+    <p>The last panel, &quot;Other options&quot;, provides a field called &quot;Other RAxML options&quot; in which you can type RAxML commands yourself.<br />
+    <br />
+</p>
+  </p>
+  <div style="text-align: center"><img src="files/RAxML4.jpg" alt="RAxML4.jpg" title="RAxML4.jpg" style="height: 349px; width: 480px;" /></div><br />
 <br />
 In addition, there is a &quot;Compose Command&quot; button that will take your options and show you the command that will be used to start RAxML and give it its options.<br />
 <br />
