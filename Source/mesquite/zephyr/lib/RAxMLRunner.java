@@ -913,6 +913,62 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	
 
 
+	/*.................................................................................................................*/
+	public int recordLikelihoodScores(TreeVector treeList, Tree t, MesquiteDouble finalScore) {
+		double bestScore =MesquiteDouble.unassigned;
+		int bestRun = MesquiteInteger.unassigned;
+		boolean recordOptimizedValues = !isRAxMLNG();
+		for (int i=0; i<treeList.getNumberOfTrees() && i<finalValues.length; i++) {
+			Tree newTree = treeList.getTree(i);
+			ZephyrUtil.adjustTree(newTree, outgroupSet);
+			if (MesquiteDouble.isCombinable(finalValues[i])){
+				MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
+				s.setName(IOUtil.RAXMLSCORENAME);
+				((Attachable)newTree).attachIfUniqueName(s);
+			}
+			if (recordOptimizedValues && MesquiteDouble.isCombinable(optimizedValues[i])){
+				MesquiteDouble s = new MesquiteDouble(-optimizedValues[i]);
+				s.setName(IOUtil.RAXMLFINALSCORENAME);
+				((Attachable)newTree).attachIfUniqueName(s);
+			}
+
+			if (MesquiteDouble.isCombinable(finalValues[i]))
+				if (MesquiteDouble.isUnassigned(bestScore)) {
+					bestScore = finalValues[i];
+					bestRun = i;
+				}
+				else if (bestScore>finalValues[i]) {
+					bestScore = finalValues[i];
+					bestRun = i;
+				}
+			if (recordOptimizedValues && MesquiteDouble.isCombinable(optimizedValues[i]))
+				if (MesquiteDouble.isUnassigned(optimizedValue)) {
+					optimizedValue = optimizedValues[i];
+				}
+				else if (optimizedValue>optimizedValues[i]) {
+					optimizedValue = optimizedValues[i];
+				}
+		}
+
+		if (MesquiteInteger.isCombinable(bestRun)) {
+			t = treeList.getTree(bestRun);
+			ZephyrUtil.adjustTree(t, outgroupSet);
+
+			String newName = t.getName() + " BEST";
+			if (t instanceof AdjustableTree )
+				((AdjustableTree)t).setName(newName);
+		}
+		if (MesquiteDouble.isCombinable(bestScore)){
+			logln("Best score: " + bestScore);
+			if (!useOptimizedScoreAsBest)
+				finalScore.setValue(bestScore);
+			else
+				finalScore.setValue(optimizedValue);
+		} else
+			finalScore.setValue(optimizedValue);
+		return bestRun;
+	}
+	
 
 	/*.................................................................................................................*/
 	public synchronized Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore){
@@ -1009,10 +1065,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		}
 		else if (numRuns>1) {
-			if (isRAxMLNG()) {
+			if (isRAxMLNG()) {   //raxml-ng
 				t =readRAxMLTreeFile(treeList, treeFilePath, getProgramName()+"Tree", readSuccess, false);
 				if (treeList !=null) {
-					String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);
+					String summary = MesquiteFile.getFileContentsAsString(outputFilePaths[OUT_SUMMARYFILE]);   // this is the log file
 					Parser parser = new Parser(summary);
 					parser.setAllowComments(false);
 					parser.allowComments = false;
@@ -1020,7 +1076,29 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 					String line = parser.getRawNextDarkLine();
 					boolean outputLines = false;
 					logln("\nSummary of RAxML Search");
+					int searchNumber=-1;
 					while (!StringUtil.blank(line)) {
+						if (line.contains("logLikelihood:") && line.contains("ML tree search #")) {
+							Parser subParser = new Parser();
+							subParser.setString(line);
+							subParser.addToDefaultPunctuationString("#");
+							String token = subParser.getFirstToken();   // should be "Inference"
+							while (!StringUtil.blank(token) && ! subParser.atEnd()){
+								if (token.indexOf("search")>=0) {
+									token = subParser.getNextToken(); // should be #
+									token = subParser.getNextToken(); // should be search number
+									searchNumber = MesquiteInteger.fromString(token)-1;
+								}
+								if (token.indexOf("logLikelihood")>=0) {
+									token = subParser.getNextToken(); // should be :
+									token = subParser.getNextToken(); // should be value
+									if (searchNumber<finalValues.length && searchNumber>=0)
+										finalValues[searchNumber] = -MesquiteDouble.fromString(token);
+								}
+								token = subParser.getNextToken();
+							}
+							count++;
+						}
 						if (!outputLines && line.startsWith("Optimized model parameters:"))
 							outputLines = true;
 						if (outputLines)
@@ -1029,8 +1107,19 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 					}
 					logln("");
+					boolean summaryWritten = false;
+					for (int i=0; i<finalValues.length; i++){
+						if (MesquiteDouble.isCombinable(finalValues[i])) {
+							if (isVerbose())
+								logln("  RAxML-NG Search " + (i+1) + " ln L = -" + finalValues[i]);
+							summaryWritten = true;
+						}
+					}
+					if (!summaryWritten)
+						logln("  No ln L values for RAxML Runs available");
+					recordLikelihoodScores( treeList,  t,  finalScore);
 				}
-			} else {
+			} else {   //Old RAxML
 				TreeVector tv = new TreeVector(taxa);
 				for (int run=0; run<numRuns; run++)
 					if (MesquiteFile.fileExists(treeFilePath+run)) {
@@ -1106,8 +1195,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 					}
 					if (!summaryWritten)
 						logln("  No ln L values for RAxML Runs available");
+					int bestRun = recordLikelihoodScores( treeList,  t,  finalScore);
 
-
+/*
 					double bestScore =MesquiteDouble.unassigned;
 					int bestRun = MesquiteInteger.unassigned;
 					for (int i=0; i<treeList.getNumberOfTrees() && i<finalValues.length; i++) {
@@ -1158,7 +1248,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 							finalScore.setValue(optimizedValue);
 					} else
 						finalScore.setValue(optimizedValue);
-
+*/
 					//Only retain the best tree in tree block.
 					if(treeList.getTree(bestRun) != null && onlyBest){
 						Tree bestTree = treeList.getTree(bestRun);

@@ -65,12 +65,12 @@ public class RAxMLScore extends NumberForTree {
     /** Explains what the module does. */
 
     public String getExplanation() {
-        return "Supplies - ln L score from RAxML";
+        return "Supplies - ln L score from RAxML or RAxML-NG";
     }
 
     /* ................................................................................................................. */
     /** Name of module */
     public String getName() {
-        return "RAxML Score";
+        return "RAxML-NG / RAxML Score";
     }
 }
