@@ -42,7 +42,7 @@ public abstract class RAxMLTreesNG extends RAxMLTrees {
 
 		/*.................................................................................................................*/
 		public boolean isPrerelease(){
-			return true;
+			return false;
 		}
 	/*.................................................................................................................*/
 	public boolean requestPrimaryChoice(){

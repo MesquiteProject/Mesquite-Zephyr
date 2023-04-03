@@ -271,7 +271,7 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 			workingTreeFileName= treeFileName + currentRun;
 			logFileName+=".RUN.";
 		}
-		return new String[]{logFileName, treeFileName, "RAxML_info.file.out", workingTreeFileName};
+		return new String[]{logFileName, treeFileName, "RAxML_info.file.out", workingTreeFileName, VERSIONFILENAME};
 	}
 	/*.................................................................................................................*/
 	public String[] modifyOutputPaths(String[] outputFilePaths){

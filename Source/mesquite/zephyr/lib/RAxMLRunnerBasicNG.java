@@ -368,7 +368,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			workingMLTrees= outputFilePrefix+".raxml.mlTrees.TMP";
 		}
 		logFileName = outputFilePrefix+".raxml.log";
-		return new String[]{logFileName, treeFileName, logFileName, workingTreeFileName, workingMLTrees};
+		return new String[]{logFileName, treeFileName, logFileName, workingTreeFileName, workingMLTrees, VERSIONFILENAME};
 	}
 	/*.................................................................................................................*
 	public String[] modifyOutputPaths(String[] outputFilePaths){

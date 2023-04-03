@@ -730,7 +730,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	
 	protected static final int DATAFILENUMBER = 0;
 	protected static final int MULTIMODELFILENUMBER = 1;
+	protected static final int TRANSLATIONTABLEFILENUMBER = 2;
 	protected static final int CONSTRAINTFILENUMBER = 3;
+	protected static final int RUNINFORMATIONFILENUMBER = 4;
 	String multipleModelFileContents = "";
 
 
@@ -749,6 +751,20 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			multipleModelFileContents="";
 		
 	}
+	/*.................................................................................................................*/
+	public  String getVersionAsReportedByProgram(String programCommand) {     
+		boolean success = runVersionQueryOnExternalProcess (programCommand, "-v", VERSIONFILENAME);
+		if (success) {
+			String versionFilePath = externalProcRunner.getOutputFilePath(VERSIONFILENAME);
+			if (MesquiteFile.fileExists(versionFilePath)) {
+				String s = MesquiteFile.getFileLastContents(versionFilePath);
+				return s;
+			} 
+		}
+		return "";
+
+	}
+
 	/*.................................................................................................................*/
 	public synchronized Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		finalValues=null;
@@ -875,21 +891,28 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		fileNames[DATAFILENUMBER] = dataFileName;
 		fileContents[MULTIMODELFILENUMBER] = multipleModelFileContents;
 		fileNames[MULTIMODELFILENUMBER] = multipleModelFileName;
-		fileContents[2] = translationTable;
-		fileNames[2] = translationFileName;
+		fileContents[TRANSLATIONTABLEFILENUMBER] = translationTable;
+		fileNames[TRANSLATIONTABLEFILENUMBER] = translationFileName;
 		fileContents[CONSTRAINTFILENUMBER] = constraintTree;
 		fileNames[CONSTRAINTFILENUMBER] = CONSTRAINTTREEFILENAME;
-		fileContents[4] = getRunInformation(arguments);
-		fileNames[4] = runInformationFileName;
-		int runInformationFileNumber = 4;
+		fileContents[RUNINFORMATIONFILENUMBER] = getRunInformation(arguments);
+		fileNames[RUNINFORMATIONFILENUMBER] = runInformationFileName;
+//		int runInformationFileNumber = 4;
 
 		numRunsCompleted = 0;
 		completedRuns = new boolean[numRuns];
 		for (int i=0; i<numRuns; i++) completedRuns[i]=false;
 		summaryFilePosition=0;
+		
+/*		String versionString =  getVersionAsReportedByProgram(programCommand);
+		if (StringUtil.notEmpty(versionString)) {
+			logln("Version information for " + getProgramName()+ "\n");
+			logln(versionString+ "\n");
+		}
+	*/	
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), RUNINFORMATIONFILENUMBER);
 
 		MesquiteFile.deleteDirectory(tempDir);
 		if (!isDoomed()){  // not Doomed - i.e., file/modulee not being closed
@@ -907,6 +930,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		externalProcRunner.setLeaveAnalysisDirectoryIntact(true);  // we don't want to delete the directory here
 		externalProcRunner.finalCleanup();  
 		cleanupAfterSearch();
+		
+		
 		return null;
 
 	}	
