@@ -754,10 +754,17 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	/*.................................................................................................................*/
 	public  String getVersionAsReportedByProgram(String programCommand) {     
 		boolean success = runVersionQueryOnExternalProcess (programCommand, "-v", VERSIONFILENAME);
-		if (success) {
-			String versionFilePath = externalProcRunner.getOutputFilePath(VERSIONFILENAME);
+/*		if (success) {
+			String versionFilePath = externalProcRunner.getStdOut(VERSIONFILENAME);
 			if (MesquiteFile.fileExists(versionFilePath)) {
 				String s = MesquiteFile.getFileLastContents(versionFilePath);
+				return s;
+			} 
+		}
+		*/
+		if (success) {
+			String s = externalProcRunner.getStdOut();
+			if (StringUtil.notEmpty(s)) {
 				return s;
 			} 
 		}
@@ -909,7 +916,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			logln("Version information for " + getProgramName()+ "\n");
 			logln(versionString+ "\n");
 		}
-	*/	
+*/
 
 		//----------//
 		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), RUNINFORMATIONFILENUMBER);
