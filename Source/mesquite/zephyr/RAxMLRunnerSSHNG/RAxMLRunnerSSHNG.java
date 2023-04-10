@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
  */
 
-package mesquite.zephyr.RAxMLRunnerSSH;
+package mesquite.zephyr.RAxMLRunnerSSHNG;
 
 
 import java.awt.*;
@@ -20,7 +20,7 @@ import mesquite.zephyr.SSHRunner.SSHRunner;
 import mesquite.zephyr.lib.*;
 
 
-public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
+public class RAxMLRunnerSSHNG extends RAxMLRunnerBasicNG  {
 
 	/*.................................................................................................................*/
 	public int getProgramNumber() {
@@ -32,7 +32,7 @@ public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
 	}
 
 	public Class getDutyClass() {
-		return RAxMLRunnerSSH.class;
+		return RAxMLRunnerSSHNG.class;
 	}
 
 	/*.................................................................................................................*/
@@ -42,13 +42,17 @@ public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "8.2.10";
+		return "1.1.0";
 	}
 	
 	/*.................................................................................................................*/
 	public void reportNewTreeAvailable(){
 		log("[New tree acquired]");
  	}
+	/*.................................................................................................................*/
+	public String maxNumProcessorsMessage() {
+		return ", as that is the maximum specified in the SSH Server Profile";
+	}
 
 
 	public String getLogText() {
@@ -66,14 +70,14 @@ public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
 	public void checkFields() {
 		int max = getMaxCores();
 		if (MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
-			MesquiteMessage.notifyUser("Number of processors used cannot exceed "+max +", as that is the maximum specified in the SSH Server Profile");			
+			MesquiteMessage.notifyUser("Number of processor cores used cannot exceed "+max +", as that is the maximum specified in the SSH Server Profile");			
 			numProcessorsField.setValue(max);
 		}
 	}
 
 	/*.................................................................................................................*/
 	public  String queryOptionsDialogTitle() {
-		return "RAxML Options on SSH Server";
+		return "RAxML-NG Options on SSH Server";
 	}
 
 	/*.................................................................................................................*/
@@ -105,7 +109,7 @@ public class RAxMLRunnerSSH extends RAxMLRunnerBasic  {
 	}
 
 	public String getName() {
-		return "RAxML Likelihood (SSH Server)";
+		return "RAxML-NG Likelihood (SSH Server)";
 	}
 
 	/*.................................................................................................................*/

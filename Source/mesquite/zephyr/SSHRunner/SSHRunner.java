@@ -408,15 +408,17 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		//communicator.setRemoteWorkingDirectoryPath("/Users/david/Desktop/runTest");
 		commands = new String[] {"> "+ShellScriptUtil.runningFileName, programCommand+" "+args, "rm -f "+ShellScriptUtil.runningFileName};
 
-		if (runInfoFileNumber<fileContents.length)
-			fileContents[runInfoFileNumber]+= getAdditionalRunInformation();
-		inputFilePaths = new String[fileNames.length];
-		inputFileNames = new String[fileNames.length];
-		for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
-			if (StringUtil.notEmpty(fileNames[i]) && fileContents[i]!=null) {
-				MesquiteFile.putFileContents(localRootDir+fileNames[i], fileContents[i], true);
-				inputFilePaths[i]=localRootDir+fileNames[i];
-				inputFileNames[i]=fileNames[i];
+		if (fileNames !=null && fileContents !=null) {   // only write input files if available
+			if (runInfoFileNumber<fileContents.length)
+				fileContents[runInfoFileNumber]+= getAdditionalRunInformation();
+			inputFilePaths = new String[fileNames.length];
+			inputFileNames = new String[fileNames.length];
+			for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
+				if (StringUtil.notEmpty(fileNames[i]) && fileContents[i]!=null) {
+					MesquiteFile.putFileContents(localRootDir+fileNames[i], fileContents[i], true);
+					inputFilePaths[i]=localRootDir+fileNames[i];
+					inputFileNames[i]=fileNames[i];
+				}
 			}
 		}
 		processRequester.prepareRunnerObject(commands);

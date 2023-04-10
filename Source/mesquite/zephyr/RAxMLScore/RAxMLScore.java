@@ -13,7 +13,7 @@ package mesquite.zephyr.RAxMLScore;
 import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
-import mesquite.zephyr.RAxMLRunnerLocal.*;
+import mesquite.zephyr.RAxMLRunnerLocalOld.*;
 
 
 public class RAxMLScore extends NumberForTree {
@@ -65,12 +65,12 @@ public class RAxMLScore extends NumberForTree {
     /** Explains what the module does. */
 
     public String getExplanation() {
-        return "Supplies - ln L score from RAxML";
+        return "Supplies - ln L score from RAxML or RAxML-NG";
     }
 
     /* ................................................................................................................. */
     /** Name of module */
     public String getName() {
-        return "RAxML Score";
+        return "RAxML-NG / RAxML Score";
     }
 }

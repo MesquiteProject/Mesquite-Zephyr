@@ -13,7 +13,6 @@ package mesquite.zephyr.IQTreeScore;
 import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
-import mesquite.zephyr.RAxMLRunnerLocal.*;
 
 
 public class IQTreeScore extends NumberForTree {

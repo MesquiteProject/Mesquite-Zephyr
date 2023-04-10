@@ -83,6 +83,7 @@ public class ZephyrUtil {
 		MesquiteFile file = new MesquiteFile();
 		file.writeTaxaWithAllMissing = false;
 		file.writeExcludedCharacters = false;
+		file.writeCharactersWithNoData=false;
 		file.writeCharLabelInfo = false;
 		if (exporter!=null) {
 			exporter.writeOnlySelectedTaxa = selectedTaxaOnly;

@@ -58,6 +58,10 @@ public class IQTreeRunnerSSHqsub extends IQTreeRunnerSSH  {
 	public boolean isPrerelease(){
 		return true;
 	}
+	/*.................................................................................................................*/
+	public boolean loadModule(){
+		return false;
+	}
 
 
 

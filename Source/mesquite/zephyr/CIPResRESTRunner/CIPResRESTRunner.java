@@ -263,11 +263,13 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		if (!setRootDir())
 			return false;
 		
-		inputFilePaths = new String[fileNames.length];
-		for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
-			if (StringUtil.notEmpty(fileNames[i]) && fileContents[i]!=null) {
-				MesquiteFile.putFileContents(localRootDir+fileNames[i], fileContents[i], true);
-				inputFilePaths[i]=localRootDir+fileNames[i];
+		if (fileNames !=null && fileContents !=null) {   // only write input files if available
+			inputFilePaths = new String[fileNames.length];
+			for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
+				if (StringUtil.notEmpty(fileNames[i]) && fileContents[i]!=null) {
+					MesquiteFile.putFileContents(localRootDir+fileNames[i], fileContents[i], true);
+					inputFilePaths[i]=localRootDir+fileNames[i];
+				}
 			}
 		}
 		processRequester.prepareRunnerObject(builder);

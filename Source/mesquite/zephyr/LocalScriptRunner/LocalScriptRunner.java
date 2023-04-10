@@ -377,11 +377,12 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		if (!setRootDir())
 			return false;
 
-		for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
-			if (StringUtil.notEmpty(fileNames[i]) && fileContents[i]!=null) {
-				MesquiteFile.putFileContents(localRootDir+fileNames[i], fileContents[i], true);
+		if (fileContents !=null && fileNames !=null)  // if there are input files to write, then write them.
+			for (int i=0; i<fileContents.length && i<fileNames.length; i++) {
+				if (StringUtil.notEmpty(fileNames[i]) && fileContents[i]!=null) {
+					MesquiteFile.putFileContents(localRootDir+fileNames[i], fileContents[i], true);
+				}
 			}
-		}
 		String args = null;
 		if (arguments instanceof MesquiteString)
 			args = ((MesquiteString)arguments).getValue();

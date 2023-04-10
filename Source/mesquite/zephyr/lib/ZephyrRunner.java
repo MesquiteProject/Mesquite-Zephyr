@@ -27,6 +27,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public static String runInformationFileName = "runInformation.txt";
 
 	String[] logFileNames;
+	protected static String VERSIONFILENAME = "version.txt";
 	protected ExternalProcessRunner externalProcRunner;
 	protected ProgressIndicator progIndicator;
 	protected CategoricalData data;
@@ -73,6 +74,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected int outgroupTaxSetNumber = 0;
 
 	public abstract Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore);
+	public  String getVersionAsReportedByProgram(String programCommand) {
+		return "";
+	}
 	public abstract Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore);
 	public abstract boolean bootstrapOrJackknife();
 	public abstract boolean showMultipleRuns();
@@ -725,6 +729,32 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 		return sb.toString();
 	}
+	/*.................................................................................................................*/
+		public String getRunInformation(Object arguments) {
+			StringBuffer sb = new StringBuffer(1000);
+			sb.append("\n\nArguments passed to " + getProgramName() + ": \n");
+			if (arguments instanceof MesquiteString)
+				sb.append(((MesquiteString)arguments).getValue());
+			else if (arguments instanceof String)
+				sb.append((String)arguments);
+
+			return getRunInformation()+ sb.toString();
+		}
+		/*.................................................................................................................*/
+		public boolean runVersionQueryOnExternalProcess (String programCommand, Object arguments, String versionFileName) {  // TODO:  need to override, temporarily,  StdOutFilename, as that's were it will go
+			boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, null, null, -1);
+			if (!success){
+				if (!beanWritten)
+					postBean("failed, externalProcRunner.runVersionQueryOnExternalProcess | "+externalProcRunner.getDefaultProgramLocation());
+				beanWritten = true;
+				return false;
+			}
+			String[] logFiles = new String[] {versionFileName};
+			externalProcRunner.setOutputFileNamesToWatch(logFiles);
+
+			return externalProcRunner.startExecution();
+
+		}
 	/*.................................................................................................................*/
 	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle, int runInfoFileNumber) {
 		runInProgress=true;

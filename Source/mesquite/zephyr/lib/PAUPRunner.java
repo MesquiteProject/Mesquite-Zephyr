@@ -371,7 +371,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		fileNames[0] = dataFileName;
 		fileContents[1] = commands;
 		fileNames[1] = commandFileName;
-		fileContents[2] = getRunInformation();
+		fileContents[2] = getRunInformation(commands);
 		fileNames[2] = runInformationFileName;
 		int runInformationFileNumber = 2;
 

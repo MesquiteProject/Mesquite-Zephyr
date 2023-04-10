@@ -7,28 +7,24 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 
-package mesquite.zephyr.RAxMLTreesSSH;
+package mesquite.zephyr.RAxMLTreesSSHOld;
 
 import java.util.*;
 
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.RAxMLRunnerSSH.RAxMLRunnerSSH;
-import mesquite.zephyr.RAxMLRunnerLocal.RAxMLRunnerLocal;
+import mesquite.zephyr.RAxMLRunnerSSHOld.RAxMLRunnerSSHOld;
 import mesquite.zephyr.lib.*;
 
 
-public class RAxMLTreesSSH extends RAxMLTrees {
+public class RAxMLTreesSSHOld extends RAxMLTreesOld {
 
 	
 	/*.................................................................................................................*/
 	public String getRunnerModuleName() {
-		return "#mesquite.zephyr.RAxMLRunnerSSH.RAxMLRunnerSSH";
+		return "#mesquite.zephyr.RAxMLRunnerSSHOld.RAxMLRunnerSSHOld";
 	}
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
-		return RAxMLRunnerSSH.class;
+		return RAxMLRunnerSSHOld.class;
 	}
 
 	/*.................................................................................................................*/

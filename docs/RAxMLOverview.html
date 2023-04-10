@@ -39,10 +39,10 @@
     <table width="100%" border="0" cellpadding="4">
   <tr>
     <td width="51%"><img src="images/zephyrBannerNarrow.jpg" width="628" height="110" /></td>
-    <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->RAxML<!-- InstanceEndEditable --></div></td>
+    <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->RAxML-NG and RAxML<!-- InstanceEndEditable --></div></td>
     <td width="2%">&nbsp;</td>
-    <td width="14%">Version 3.20<br />
-      August 2021<br /></td>
+    <td width="14%">Version 3.30<br />      
+    April 2023<br /></td>
   </tr>
 </table>
 
@@ -80,7 +80,8 @@
   			<tr><td><a href="javascript:pageLink('GARLIOverview.html');">GARLI</a></td></tr>
   			<tr><td><a href="javascript:pageLink('IQTREEOverview.html');">IQ-TREE</a></td></tr>
   			<tr><td><a href="javascript:pageLink('PAUPOverview.html');">PAUP*</a></td></tr>
-  			<tr><td><a href="javascript:pageLink('RAXMLOverview.html');">RAxML</a></td></tr>
+  			<tr>
+  			  <td><a href="javascript:pageLink('RAXMLOverview.html');">RAxML-NG and RAxML</a></td></tr>
   			<tr><td><a href="javascript:pageLink('TNTOverview.html');">TNT</a></td></tr>
 		</table>
     </div>
@@ -148,39 +149,56 @@
   <div id="mainContent">
     
 <!-- InstanceBeginEditable name="content" -->
-    <h1 id="toc0"><a name="RAXML"></a>RAXML</h1>
- RAxML is a program for maximum likelihood inference of phylogenies, written by Alexandros Stamatakis and other code contributors. For details about RAxML and how to acquire it for runs on your local computer, go to the <a class="wiki_link_ext" href="http://sco.h-its.org/exelixis/web/software/raxml/index.html" rel="nofollow">RAxML web page</a>.<br />
+    <h1 id="toc0"><a name="RAXML"></a>RAxML-NG and RAxML</h1>
+    <p>RAxML-NG is a program for maximum likelihood inference of phylogenies, written by Alexey Kozlov and others; RAxML is an older program written by Alexandros Stamatakis and other code contributors. For details about RAxML-NG and how to acquire it to use on your computers, go to the <a href="https://github.com/amkozlov/raxml-ng">RAxML-NG Github page</a>; for RAxML, go to the <a class="wiki_link_ext" href="http://sco.h-its.org/exelixis/web/software/raxml/index.html" rel="nofollow">RAxML web page</a>.<br />
+  <br />
+    RAxML is no longer being developed, but it is available from <a class="wiki_link_ext" href="https://github.com/stamatak/standard-RAxML" rel="nofollow">https://github.com/stamatak/standard-RAxML</a>. For other operating systems (Mac, Linux), you will need to download the source (<a class="wiki_link_ext" href="https://github.com/stamatak/standard-RAxML/releases" rel="nofollow">https://github.com/stamatak/standard-RAxML/releases</a>) and compile the software yourself. (On the Mac, you can get the relevant software for compiling RAxML by downloading Xcode from <a class="wiki_link_ext" href="https://developer.apple.com/xcode/" rel="nofollow">https://developer.apple.com/xcode/</a>)</p>
+    <p>RAxML is available from the <a href="https://github.com/amkozlov/raxml-ng">RAxML-NG Github page</a>.<br />
+      <br />
+      If you use RAxML-NG or RAxML, please cite it appropriately as recommended in the program's documentation.<br />
+      <br />
+    The Zephyr options available for these two programs are shown in four panels of the RAxML-NG or RAxML dialog box. The first panel is critical, as it includes basic setup details about the program; it varies depending upon whether you are running RAxML-NG or RAxML locally on your computer (the same computer that has Mesquite on it), or on an SSH server, or on CIPRes. If you have asked for the &quot;RAxML-NG Likelihood [Local]&quot; option, then the dialog box will look like the top image below; if you have asked for the &quot;RAxML Likelihood [Local]&quot; option, then the dialog box will look like the middle image; if you asked for the &quot;RAxML Likelihood [CIPRes]&quot; option, then it will look like the bottom image:<br />
+      <br />
+    <span style="display: block; text-align: center;"><img src="images/RAxML-NG.dialog.png" width="522" height="403" alt=""/></span></p>
+    <p><span style="display: block; text-align: center;"><img src="files/RAxMLLocal1.jpg" alt="RAxMLLocal1.jpg" title="RAxMLLocal1.jpg" style="height: 432px; width: 480px;" /></span></p>
+    <p>&nbsp;</p>
+    <p><span style="display: block; text-align: center;"><img src="files/RAxMLCIPRES12Sept2017.jpg" alt="RAxMLCIPRES12Sept2017.jpg" title="RAxMLCIPRES12Sept2017.jpg" style="height: 381px; width: 480px;" /></span><br />
+      <br />
+      <br />
+      <strong>RAxML-NG or RAxML Likelihood [Local]</strong>: If RAxML-NG or RAxML are on the same computer that has Mesquite on it, then in this first panel you will need to first specify where on your computer's hard disk your copy of the software resides. The next few options (script-based, terminal, delete analysis directory) are discussed in the <a class="wiki_link" href="Local%20Analyses.html">Local Analyses</a> page. If you are using RAxML-NG then in this panel you will also need to choose whether to let RAxML-NG decide how many processor cores to use for the analysis; if not, then you need to set the number of cores to use. If you are using RAxML then in this panel you will also need to choose whether or not the version of RAxML you are using is a PTHREADS version or not, and the number of processors you would like RAxML to use. <br />
+      <br />
+      Whether you are running RAxML locally or not, you have the option to automatically save the Mesquite file after the inference is completed and the phylogenetic trees moved into the file.<br />
+      <br />
+      In the Replicates panel, you can choose whether to do a bootstrap analysis or a basic search of maximum likelihood trees for your data. If you choose to do a bootstrap analysis, you will need to determine the number of bootstrap replicates (or, in the case of RAxML-NG, let the program decide), as well as the random number seed. By default Zephyr will put a random number seed based upon the computer's clock, and thus each time you start a RAxML analysis the random number seed shown by default should be different.<br />
+      <br />
+      <br />
+    </p>
+    <div style="text-align: center"><img src="files/RAxML2.jpg" alt="RAxML2.jpg" title="RAxML2.jpg" style="height: 432px; width: 480px;" /></div><br />
 <br />
-As of September 2017, the latest Windows version of RAxML is available from <a class="wiki_link_ext" href="https://github.com/stamatak/standard-RAxML" rel="nofollow">https://github.com/stamatak/standard-RAxML</a>. For other operating systems (Mac, Linux), you will need to download the source (<a class="wiki_link_ext" href="https://github.com/stamatak/standard-RAxML/releases" rel="nofollow">https://github.com/stamatak/standard-RAxML/releases</a>) and compile the software yourself. (On the Mac, you can get the relevant software for compiling RAxML by downloading Xcode from <a class="wiki_link_ext" href="https://developer.apple.com/xcode/" rel="nofollow">https://developer.apple.com/xcode/</a>)<br />
+RAXML as a Character Models &amp; Constraints panel has two options for the models to use, one for DNA data, and one for Protein data. In addition, you can choose to enforce a constraint tree. If you do choose to enforce a constraint, the tree to use as a constraint must be present in a Mesquite tree window in your project.<br />
 <br />
-If you use RAxML, please cite it appropriately as recommended in the program's documentation.<br />
-<br />
-The Zephyr options available for RAxML are shown in four panels of the RAxML dialog box. The first panel is critical, as it includes basic setup details about RAxML; it varies depending upon whether you are running RAxML locally on your computer (the same computer that has Mesquite on it), or on an SSH server, or on CIPRes. If you have asked for the &quot;RAxML Likelihood [Local]&quot; option, then the dialog box will look like that shown on the left, and if you asked for the &quot;RAxML Likelihood [CIPRes]&quot; option, then it will look like that shown on the right:<br />
-<br />
-<span style="display: block; text-align: center;"><img src="files/RAxMLLocal1.jpg" alt="RAxMLLocal1.jpg" title="RAxMLLocal1.jpg" style="height: 432px; width: 480px;" /><img src="files/RAxMLCIPRES12Sept2017.jpg" alt="RAxMLCIPRES12Sept2017.jpg" title="RAxMLCIPRES12Sept2017.jpg" style="height: 381px; width: 480px;" /></span><br />
-<br />
-<br />
-<strong>RAxML Likelihood [Local]</strong>: If running RAxML on the same computer that has Mesquite on it, then in this panel you will need to first specify where on your computer's hard disk your copy of RAxML resides. The next few options (script-based, terminal, delete analysis directory) are discussed in the <a class="wiki_link" href="Local%20Analyses.html">Local Analyses</a> page. In this panel you will also need to choose whether or not the version of RAxML you are using is the PTHREADS version or not, and the number of processors you would like RAxML to use. Note as well the version number of RAxML that is needed for the particular installation of Zephyr that you have running; it should be stated in this panel.<br />
-<br />
-Whether you are running RAxML locally or not, you have the option to automatically save the Mesquite file after the inference in completed and the phylogenetic trees moved into the file.<br />
-<br />
-In the Replicates panel, you can choose whether to do a bootstrap analysis or a basic search of maximum likelihood trees for your data. If you choose to do a bootstrap analysis, you will need to determine the number of bootstrap replicates, as well as the random number seed. By default Zephyr will put a random number seed based upon the computer's clock, and thus each time you start a RAxML analysis the random number seed shown by default should be different.<br />
-<br />
-<br />
-<div style="text-align: center"><img src="files/RAxML2.jpg" alt="RAxML2.jpg" title="RAxML2.jpg" style="height: 432px; width: 480px;" /></div><br />
-<br />
-The Character Models &amp; Constraints panel has two options for the models to use, one for DNA data, and one for Protein data. In addition, you can choose to enforce a constraint tree. If you do choose to enforce a constraint, the tree to use as a constraint must be present in a Mesquite tree window in your project.<br />
-<br />
-<div style="text-align: center"><img src="files/RAxML3.jpg" alt="RAxML3.jpg" title="RAxML3.jpg" style="height: 349px; width: 480px;" /></div><br />
-<br />
-<br />
-The last panel, &quot;Other options&quot;, provides a field called &quot;Other RAxML options&quot; in which you can type RAxML commands yourself.<br />
-<br />
-<div style="text-align: center"><img src="files/RAxML4.jpg" alt="RAxML4.jpg" title="RAxML4.jpg" style="height: 349px; width: 480px;" /></div><br />
+<div style="text-align: center"><img src="images/raxmlCharModels.png" width="468" height="428" /></div>
+<p><br />
+  
+  In contrast, RAXML-NG has a Character Models panel as follows:</p>
+<div style="text-align: center"></div>
+  <div style="text-align: center"><img src="images/raxmlngCharModels3.png" width="516" height="374" /></div><br />
+
+  <p>In this panel for RAXML-NG, the substitution model to be included in the RAXML-NG command is formed by taking the Matrix model (e.g., GTR for DNA in the example above), and appending the additional components from the other fields. The example shown above would yield the model specification HKY+G+I for DNA data and WAG+G+I for protein data. For additional details of the model specification, see <a href="https://github.com/amkozlov/raxml-ng/wiki/Input-data#single-model">https://github.com/amkozlov/raxml-ng/wiki/Input-data#single-model</a>. If your data is partitioned into different character groups or codon positions and you ask those to be considered, and you check &quot;specify different models for each part&quot;, then you will be presented with a dialog box allowing you to specify a different model for each part:</p>
+	    <div style="text-align: center"><img src="images/raxmlngPartByPartModels.png" width="248" height="420" /></div>
+	    If &quot;specify different models for each part&quot; is unchecked, then Mesquite will use the same model for each part of a partition.<br />
+
+
+	  <div style="text-align: center"></div>
+    <p>The last panel, &quot;Other options&quot;, provides a field called &quot;Other RAxML options&quot; in which you can type RAxML commands yourself.<br />
+    <br />
+</p>
+  </p>
+  <div style="text-align: center"><img src="files/RAxML4.jpg" alt="RAxML4.jpg" title="RAxML4.jpg" style="height: 349px; width: 480px;" /></div><br />
 <br />
 In addition, there is a &quot;Compose Command&quot; button that will take your options and show you the command that will be used to start RAxML and give it its options.<br />
 <br />
-<span style="background-color: #ffffff;">If you have done a non-bootstrap analysis, then Zephyr will read in the final likelihood score of each of the RAxML trees. These scores can be seen by choosing Taxa&amp;Trees&gt;List of Trees&gt;[name of RAxML tree block], and once the window listing the trees is visible, choosing Columns&gt;Number for Tree&gt;RAxML Score. This is the value of ln Likelihood that RAxML first reports as it is finishing each replicate. You can also see the finalized, Gamma-based score by choosing Columns&gt;Number for Tree&gt;RAxML Final Gamma-Based Score. Note that the latter score might not be using the same model that you used to infer the trees.</span>
+<span style="background-color: #ffffff;">If you have done a non-bootstrap analysis using RAxML, then Zephyr will read in the final likelihood score of each of the RAxML trees. These scores can be seen by choosing Taxa&amp;Trees&gt;List of Trees&gt;[name of RAxML tree block], and once the window listing the trees is visible, choosing Columns&gt;Number for Tree&gt;RAxML Score. This is the value of ln Likelihood that RAxML first reports as it is finishing each replicate. You can also see the finalized, Gamma-based score by choosing Columns&gt;Number for Tree&gt;RAxML Final Gamma-Based Score. Note that the latter score might not be using the same model that you used to infer the trees.</span>
 
     
 <!-- InstanceEndEditable -->
