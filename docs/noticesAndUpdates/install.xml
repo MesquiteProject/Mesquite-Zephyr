@@ -17,7 +17,7 @@
 			</message>
 		</notice>
 		<notice><!--Zephyr install -->
-			<forBuildNumberEqualOrGreater>949</forBuildNumberEqualOrGreater> <!-- this refers to Mesquite build, e.g. for compatibility -->
+			<forBuildNumberEqualOrGreater>950</forBuildNumberEqualOrGreater> <!-- this refers to Mesquite build, e.g. for compatibility -->
 			<noticeNumber>11</noticeNumber>
 			<messageType>update</messageType>
 			<identity>Zephyr</identity>
