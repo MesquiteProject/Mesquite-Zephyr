@@ -44,7 +44,6 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 	protected boolean showIntermediateTrees = true;
 
 
-	protected SingleLineTextField MPISetupField;
 	protected IntegerField numProcessorsField;
 	protected RadioButtons threadingRadioButtons;
 
@@ -159,7 +158,7 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 	/*.................................................................................................................*/
 	public void checkFields() {
 		int max = getMaxCores();
-		if (MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
+		if (numProcessorsField!=null && MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
 			MesquiteMessage.notifyUser("Number of processors used cannot exceed "+max +maxNumProcessorsMessage());			
 			numProcessorsField.setValue(max);
 		}
