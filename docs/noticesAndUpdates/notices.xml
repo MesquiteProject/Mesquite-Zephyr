@@ -4,11 +4,11 @@
 		<version>1</version>
 		<notice><!--Zephyr notice of update -->
 			<forBuildNumberEqualOrLess>948</forBuildNumberEqualOrLess> <!-- this refers to Mesquite build, e.g. for compatibility -->
-			<noticeNumber>9</noticeNumber>
+			<noticeNumber>12</noticeNumber>
 			<messageType>alert</messageType>
 			<identity>Zephyr</identity>
-			<updateVersion>011</updateVersion>
-			<packageName>Zephyr version 3.30</packageName>
+			<updateVersion>012</updateVersion>
+			<packageName>Zephyr version 3.31</packageName>
 			<message>
 			<![CDATA[<img src="http://zephyr.mesquiteproject.org/splash.jpg"><p>
 			In order to install Zephyr, you need to first update to Mesquite version 3.80.  
@@ -17,25 +17,25 @@
 			</message>
 		</notice>
 		<currentReleaseVersion>
-			<versionString>3.30</versionString>
-			<version>3300</version>
+			<versionString>3.31</versionString>
+			<version>3310</version>
 			<downloadURL>http://zephyr.mesquiteproject.org/download.html</downloadURL>
 		</currentReleaseVersion>
 		<notice>
-			<forPackageVersionEqualOrLess>3299</forPackageVersionEqualOrLess>
+			<forPackageVersionEqualOrLess>3309</forPackageVersionEqualOrLess>
 			<messageType>update</messageType>
 			<identity>Zephyr</identity>
-			<packageName>Zephyr 3.30</packageName>
-			<explanation><![CDATA[This is an update to Zephyr containing RAxML-NG support.]]>
+			<packageName>Zephyr 3.31</packageName>
+			<explanation><![CDATA[This is an update to Zephyr containing bug fixes.]]>
 			</explanation>
-			<noticeNumber>011</noticeNumber>
-			<updateVersion>011</updateVersion>
+			<noticeNumber>012</noticeNumber>
+			<updateVersion>012</updateVersion>
 			<install>
 				<location>mesquite</location>
 				<file>zephyr</file>
-				<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/v3.30/Zephyr.3.30.zip</url>
+				<url>https://github.com/MesquiteProject/Mesquite-Zephyr/releases/download/v3.31/Zephyr.3.31.zip</url>
 				<treatment>unzip</treatment>
-				<updateVersion>011</updateVersion>
+				<updateVersion>012</updateVersion>
 			</install>
 		</notice>
 		
