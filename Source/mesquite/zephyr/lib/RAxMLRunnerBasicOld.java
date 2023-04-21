@@ -46,8 +46,6 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 
 	protected boolean showIntermediateTrees = true;
 
-	protected SingleLineTextField MPISetupField;
-	protected IntegerField numProcessorsField;
 	protected RadioButtons threadingRadioButtons;
 	protected Checkbox RAxML814orLaterCheckbox;
 
