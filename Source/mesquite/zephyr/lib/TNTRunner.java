@@ -713,7 +713,8 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 
 	}
 	int[] taxonNumberTranslation = null;
-
+	FileInterpreterI exporter;
+	
 	/*.................................................................................................................*/
 	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
 		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
@@ -730,7 +731,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		String dataFileName = "data.ss";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 
-		FileInterpreterI exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretTNT");
+		exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretTNT");
 		if (exporter==null)
 			return null;
 		boolean fileSaved = false;
@@ -764,6 +765,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 
 		if (StringUtil.blank(programCommand)) {
 			MesquiteMessage.discreetNotifyUser("Path to TNT not specified!");
+			((InterpretHennig86Base)exporter).setTaxonNamer(null);
 			return null;
 		}
 
@@ -804,6 +806,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 			data.decrementEditInhibition();
 		externalProcRunner.setLeaveAnalysisDirectoryIntact(true);  // we don't want to delete the directory here
 		externalProcRunner.finalCleanup();
+		((InterpretHennig86Base)exporter).setTaxonNamer(null);
 		return null;
 	}	
 
@@ -871,6 +874,8 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 			data.decrementEditInhibition();
 		//	manager.deleteElement(tv);  // get rid of temporary tree block
 		externalProcRunner.finalCleanup();
+		if (exporter!=null)
+			((InterpretHennig86Base)exporter).setTaxonNamer(null);
 		if (success) 
 			return t;
 		return null;
