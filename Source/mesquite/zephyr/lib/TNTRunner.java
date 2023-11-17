@@ -54,6 +54,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 	long bootstrapSeed = System.currentTimeMillis();
 	//	boolean doBootstrap= false;
 	String otherOptions = "";
+	String preLogReadOptions = "";
 
 	boolean parallel = false;
 	int numSlaves = 6;
@@ -176,6 +177,8 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 			searchArguments = StringUtil.cleanXMLEscapeCharacters(content);
 		if ("bootstrapSearchArguments".equalsIgnoreCase(tag))
 			bootstrapSearchArguments = StringUtil.cleanXMLEscapeCharacters(content);
+		if ("preLogReadOptions".equalsIgnoreCase(tag))
+			preLogReadOptions = StringUtil.cleanXMLEscapeCharacters(content);
 		if ("otherOptions".equalsIgnoreCase(tag))
 			otherOptions = StringUtil.cleanXMLEscapeCharacters(content);
 
@@ -194,6 +197,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		StringUtil.appendXMLTag(buffer, 2, "bootstrapSearchArguments", bootstrapSearchArguments);  
 		StringUtil.appendXMLTag(buffer, 2, "searchStyle", searchStyle);  
 		StringUtil.appendXMLTag(buffer, 2, "otherOptions", otherOptions);  
+		StringUtil.appendXMLTag(buffer, 2, "preLogReadOptions", preLogReadOptions);  
 
 		preferencesSet = true;
 		return buffer.toString();
@@ -227,6 +231,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 	}
 	public void setDefaultTNTCommandsOtherOptions(){
 		otherOptions = "";   
+		preLogReadOptions = "";   
 		convertGapsToMissing = true;
 	}
 	public boolean localScriptRunsRequireTerminalWindow(){
@@ -245,6 +250,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		commands += getTNTCommand("mxram " + mxram);
 
 		commands += getTNTCommand("report+0/1/0");
+		commands += preLogReadOptions;
 		commands += getTNTCommand("log "+logFileName) ; 
 		commands += getTNTCommand("p " + dataFileName);
 		if (vversionAllowed())
@@ -389,6 +395,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 	TextArea searchField = null;
 	TextArea bootstrapSearchField = null;
 	TextArea otherOptionsField = null;
+	TextArea preLogReadOptionsField = null;
 	SingleLineTextField searchScriptPathField=null;
 	SingleLineTextField bootSearchScriptPathField=null;
 	Checkbox convertGapsBox=null;
@@ -472,7 +479,9 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		tabbedPanel.addPanel("Other Options", true);
 		convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
 		queryOptionsDialog.addHorizontalLine(1);
-		queryOptionsDialog.addLabel("Post-Search TNT Commands");
+		queryOptionsDialog.addLabel("Pre-Log, Pre-Read TNT Commands:");
+		preLogReadOptionsField = queryOptionsDialog.addTextAreaSmallFont(preLogReadOptions, 4, 80);
+		queryOptionsDialog.addLabel("Post-Search TNT Commands:");
 		otherOptionsField = queryOptionsDialog.addTextAreaSmallFont(otherOptions, 7, 80);
 		queryOptionsDialog.addHorizontalLine(1);
 		queryOptionsDialog.addNewDialogPanel();
@@ -500,6 +509,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 				}
 				numSlaves = slavesField.getValue();
 				otherOptions = otherOptionsField.getText();
+				preLogReadOptions = preLogReadOptionsField.getText();
 				convertGapsToMissing = convertGapsBox.getState();
 				parallel = parallelCheckBox.getState();
 				//				doBootstrap = doBootstrapBox.getState();
@@ -558,6 +568,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		} else if (e.getActionCommand().equalsIgnoreCase("setToDefaultsOtherOptions")) {
 			setDefaultTNTCommandsOtherOptions();
 			otherOptionsField.setText(otherOptions);
+			preLogReadOptionsField.setText(preLogReadOptions);
 			convertGapsBox.setState(convertGapsToMissing);
 		} else if (e.getActionCommand().equalsIgnoreCase("browseSearchScript") && searchScriptPathField!=null) {
 			MesquiteString directoryName = new MesquiteString();
