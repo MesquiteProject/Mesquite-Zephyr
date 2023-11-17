@@ -167,6 +167,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			partitionScheme = MesquiteInteger.fromString(content);
 		if ("partitionLinkage".equalsIgnoreCase(tag))
 			partitionLinkage = MesquiteInteger.fromString(content);		
+		
+		
+		
 
 		if ("bootStrapReps".equalsIgnoreCase(tag)){
 			bootstrapreps = MesquiteInteger.fromString(content);
@@ -186,6 +189,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			searchStyle = MesquiteInteger.fromString(content);
 		if ("substitutionModel".equalsIgnoreCase(tag))
 			substitutionModel = StringUtil.cleanXMLEscapeCharacters(content);
+		if ("importBestPartitionScheme".equalsIgnoreCase(tag))
+			importBestPartitionScheme = MesquiteBoolean.fromTrueFalseString(content);
 
 
 		preferencesSet = true;
@@ -205,6 +210,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		StringUtil.appendXMLTag(buffer, 2, "searchStyle", searchStyle);  
 		StringUtil.appendXMLTag(buffer, 2, "modelOption", modelOption);  
 		StringUtil.appendXMLTag(buffer, 2, "substitutionModel", substitutionModel);  
+		StringUtil.appendXMLTag(buffer, 2, "importBestPartitionScheme", importBestPartitionScheme);  
 
 		preferencesSet = true;
 		return buffer.toString();
