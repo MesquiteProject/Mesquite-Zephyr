@@ -38,6 +38,8 @@ public interface ExternalProcessRequester {
 	
 	public String getExecutableName();
 	
+	public String getExecutablePathWithinAppsDirectory();
+	
 	public void prepareRunnerObject(Object obj);
 	
 	public String[] modifyOutputPaths(String[] outputFilePaths);

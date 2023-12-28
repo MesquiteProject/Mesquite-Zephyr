@@ -51,6 +51,9 @@ public class RAxMLRunnerLocalOld extends RAxMLRunnerBasicOld  {
 		return true;
 	}
 
+	public String getExecutablePathWithinAppsDirectory() {
+		return "raxml.app/Contents/MacOS/raxml";
+	}
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer

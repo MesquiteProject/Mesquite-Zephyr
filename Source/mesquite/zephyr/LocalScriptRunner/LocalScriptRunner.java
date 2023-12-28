@@ -79,9 +79,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	/*.................................................................................................................*/
 	public String getExecutablePath(){
 		if (defaultExecutablePath) {
-			String appName = processRequester.getExecutableName();
-			String appPackagePath = MesquiteFile.getPathWithSingleSeparatorAtEnd(MesquiteTrunk.appsDirectory) +appName +".app";
-			return appPackagePath+ MesquiteFile.fileSeparator + "Contents" + MesquiteFile.fileSeparator + "MacOS" + MesquiteFile.fileSeparator + appName;
+			return MesquiteFile.getPathWithSingleSeparatorAtEnd(MesquiteTrunk.appsDirectory) +processRequester.getExecutablePathWithinAppsDirectory();
 		}
 		else
 			return executablePath;

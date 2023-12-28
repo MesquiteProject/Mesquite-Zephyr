@@ -139,6 +139,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return false;
 	}
 
+	public String getExecutablePathWithinAppsDirectory() {
+		return getExecutableName()+ MesquiteFile.fileSeparator + "Contents" + MesquiteFile.fileSeparator + "MacOS" + MesquiteFile.fileSeparator + getExecutableName()+".app";
+	}
+
 	/*.................................................................................................................*/
 	public void processUserClickingOnTextCommandLink(String command) {
 		if ("harvest".equalsIgnoreCase(command)) {
