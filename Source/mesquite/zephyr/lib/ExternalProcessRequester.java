@@ -28,6 +28,8 @@ public interface ExternalProcessRequester {
 	
 	public boolean getDirectProcessConnectionAllowed();
 	
+	public boolean getDefaultExecutablePathAllowed();
+	
 	public boolean requiresLinuxTerminalCommands();
 	
 	public String getRootNameForDirectory();

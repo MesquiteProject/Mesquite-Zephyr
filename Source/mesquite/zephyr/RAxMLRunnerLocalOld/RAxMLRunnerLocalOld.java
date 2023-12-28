@@ -47,6 +47,9 @@ public class RAxMLRunnerLocalOld extends RAxMLRunnerBasicOld  {
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
 		return true;
 	}
+	public boolean getDefaultExecutablePathAllowed() {
+		return true;
+	}
 
 
 	/*.................................................................................................................*/

@@ -135,6 +135,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return "Bootstrap Trees";
 	}
 
+	public boolean getDefaultExecutablePathAllowed() {
+		return false;
+	}
 
 	/*.................................................................................................................*/
 	public void processUserClickingOnTextCommandLink(String command) {

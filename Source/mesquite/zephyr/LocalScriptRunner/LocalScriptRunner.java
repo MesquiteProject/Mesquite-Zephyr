@@ -29,6 +29,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	Random rng;
 	String executablePath;
 	String arguments;
+	boolean defaultExecutablePath=true;
 
 	String stdOutFileName;
 	String scriptPath = "";
@@ -77,7 +78,13 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public String getExecutablePath(){
-		return executablePath;
+		if (defaultExecutablePath) {
+			String appName = processRequester.getExecutableName();
+			String appPackagePath = MesquiteFile.getPathWithSingleSeparatorAtEnd(MesquiteTrunk.appsDirectory) +appName +".app";
+			return appPackagePath+ MesquiteFile.fileSeparator + "Contents" + MesquiteFile.fileSeparator + "MacOS" + MesquiteFile.fileSeparator + appName;
+		}
+		else
+			return executablePath;
 	}
 
 	/*.................................................................................................................*/
@@ -138,6 +145,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
+		if ("defaultExecutablePath".equalsIgnoreCase(tag) && getDefaultExecutablePathAllowed())
+			defaultExecutablePath = MesquiteBoolean.fromTrueFalseString(content);
 		if ("visibleTerminal".equalsIgnoreCase(tag) && visibleTerminalOptionAllowed())
 			visibleTerminal = MesquiteBoolean.fromTrueFalseString(content);
 		if ("scriptBased".equalsIgnoreCase(tag))
@@ -154,6 +163,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), executablePath);  
 		if (visibleTerminalOptionAllowed())
 			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
+		if (getDefaultExecutablePathAllowed())
+			StringUtil.appendXMLTag(buffer, 2, "defaultExecutablePath", defaultExecutablePath);  
 		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
 		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
 		StringUtil.appendXMLTag(buffer, 2, "addExitCommand", addExitCommand);  
@@ -253,6 +264,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 
 
 	SingleLineTextField executablePathField =  null;
+	Checkbox defaultExecutablePathCheckBox =  null;
 	Checkbox visibleTerminalCheckBox =  null;
 	Checkbox deleteAnalysisDirectoryCheckBox =  null;
 	Checkbox scriptBasedCheckBox =  null;
@@ -260,6 +272,9 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 
 	// given the opportunity to fill in options for user
 	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
+		if (getDefaultExecutablePathAllowed()) {
+			defaultExecutablePathCheckBox = dialog.addCheckBox("Default path for "+ getExecutableName(), defaultExecutablePath);
+		}
 		executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
 		browseButton.setActionCommand("browse");
@@ -303,6 +318,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			visibleTerminal=true;
 		else if (visibleTerminalCheckBox!=null)
 			visibleTerminal = visibleTerminalCheckBox.getState();
+		if (defaultExecutablePathCheckBox!=null)
+			defaultExecutablePath = defaultExecutablePathCheckBox.getState();
 		if (deleteAnalysisDirectoryCheckBox!=null)
 			deleteAnalysisDirectory = deleteAnalysisDirectoryCheckBox.getState();
 		if (addExitCommandCheckBox!=null)
@@ -325,7 +342,10 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		return processRequester.getDirectProcessConnectionAllowed() && MesquiteTrunk.isJavaGreaterThanOrEqualTo(1.7);
 	}
 
-	
+	public boolean getDefaultExecutablePathAllowed() {
+		return processRequester.getDefaultExecutablePathAllowed();
+	}
+
 
 
 	/*.................................................................................................................*/
@@ -502,7 +522,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			setReadyForReconnectionSave(true);
 			return scriptRunner.executeInShell();
 		} else {
-			externalRunner = new ExternalProcessManager(this, localRootDir, executablePath, arguments, getExecutableName(), outputFilePaths, this, this, false);
+			externalRunner = new ExternalProcessManager(this, localRootDir, getExecutablePath(), arguments, getExecutableName(), outputFilePaths, this, this, false);
 			setReadyForReconnectionSave(true);
 			return externalRunner.executeInShell();
 		}
