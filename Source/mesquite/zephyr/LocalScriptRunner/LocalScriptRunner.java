@@ -21,6 +21,7 @@ import java.util.Random;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
+import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
@@ -28,12 +29,12 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 
 	ExternalProcessManager externalRunner;
 	ShellScriptRunner scriptRunner;
-	ZephyrInformationFile zephyrInfoFile;
+	AppInformationFile appInfoFile;
 
 	Random rng;
 	private String executablePath;
 	String arguments;
-	boolean useDefaultExecutablePath=true;
+	boolean useDefaultExecutablePath=false;
 
 	String stdOutFileName;
 	String scriptPath = "";
@@ -81,19 +82,22 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		return scriptBased;
 	}
 	/*.................................................................................................................*/
-	public String getExecutablePath(){
-		if (useDefaultExecutablePath) {
-			if (zephyrInfoFile==null) {
-				 zephyrInfoFile = new ZephyrInformationFile(this);
-				 boolean success = zephyrInfoFile.processAppInfoFile();
-				 if (!success) zephyrInfoFile=null;
-			}
-			if (zephyrInfoFile!=null) {
-				String fullPath = zephyrInfoFile.getFullPath();
-				return fullPath;
-			}
-			return null;
+	public String getDefaultExecutablePath(){
+		if (appInfoFile==null) {
+			appInfoFile = new AppInformationFile(getExternalProcessRequester().getAppNameWithinAppsDirectory());
+			boolean success = appInfoFile.processAppInfoFile();
+			if (!success) appInfoFile=null;
 		}
+		if (appInfoFile!=null) {
+			String fullPath = appInfoFile.getFullPath();
+			return fullPath;
+		}
+		return null;
+	}
+	/*.................................................................................................................*/
+	public String getExecutablePath(){
+		if (useDefaultExecutablePath) 
+			return getDefaultExecutablePath();
 		else
 			return executablePath;
 	}
@@ -143,21 +147,32 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 
 	/*.................................................................................................................*/
-	public void processSingleXMLPreference (String tag, String flavor, String content) {
-		if (StringUtil.notEmpty(flavor) && "executablePath".equalsIgnoreCase(tag)){   // it is one with the flavor attribute
-			if (flavor.equalsIgnoreCase(getExecutableName()))   /// check to see if flavor is correct!!!
-				executablePath = StringUtil.cleanXMLEscapeCharacters(content);
-			else {
-				String path = StringUtil.cleanXMLEscapeCharacters(content);
-				StringUtil.appendXMLTag(extraPreferences, 2, "executablePath", flavor, path);  		// store for next time
+	public void processSingleXMLPreference (String tag, String flavor, String content) {    // for preferences that are program-specific
+		if (StringUtil.notEmpty(flavor)) {// it is one with the flavor attribute; in this case this is the executable
+			if ("executablePath".equalsIgnoreCase(tag)){   
+				if (flavor.equalsIgnoreCase(getExecutableName()))   /// check to see if flavor is correct!!!
+					executablePath = StringUtil.cleanXMLEscapeCharacters(content);
+				else {
+					String path = StringUtil.cleanXMLEscapeCharacters(content);
+					StringUtil.appendXMLTag(extraPreferences, 2, "executablePath", flavor, path);  		// store for next time
+				}
+			}
+			if ("useDefaultExecutablePath".equalsIgnoreCase(tag)){   
+				String s = getExecutableName();
+				if (flavor.equalsIgnoreCase(getExecutableName())) {   /// check to see if flavor is correct!!!
+					boolean temp = MesquiteBoolean.fromTrueFalseString(content);
+					if (getDefaultExecutablePathAllowed())
+						useDefaultExecutablePath = temp;
+				} else {
+					boolean use = MesquiteBoolean.fromTrueFalseString(content);
+					StringUtil.appendXMLTag(extraPreferences, 2, "useDefaultExecutablePath", flavor, use);  		// store for next time
+				}
 			}
 		}
 		super.processSingleXMLPreference(tag, content);
 	}
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
-		if ("useDefaultExecutablePath".equalsIgnoreCase(tag) && getDefaultExecutablePathAllowed())
-			useDefaultExecutablePath = MesquiteBoolean.fromTrueFalseString(content);
 		if ("visibleTerminal".equalsIgnoreCase(tag) && visibleTerminalOptionAllowed())
 			visibleTerminal = MesquiteBoolean.fromTrueFalseString(content);
 		if ("scriptBased".equalsIgnoreCase(tag))
@@ -175,7 +190,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		if (visibleTerminalOptionAllowed())
 			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
 		if (getDefaultExecutablePathAllowed())
-			StringUtil.appendXMLTag(buffer, 2, "useDefaultExecutablePath", useDefaultExecutablePath);  
+			StringUtil.appendXMLTag(buffer, 2, "useDefaultExecutablePath", getExecutableName(), useDefaultExecutablePath);  
 		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
 		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
 		StringUtil.appendXMLTag(buffer, 2, "addExitCommand", addExitCommand);  
@@ -284,7 +299,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	// given the opportunity to fill in options for user
 	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
 		if (getDefaultExecutablePathAllowed()) {
-			defaultExecutablePathCheckBox = dialog.addCheckBox("Default path for "+ getExecutableName(), useDefaultExecutablePath);
+			defaultExecutablePathCheckBox = dialog.addCheckBox("Use built-in app path for "+ getExecutableName(), useDefaultExecutablePath);
 		}
 		executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
@@ -316,6 +331,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		}
 	}
 
+	/*.................................................................................................................*/
 
 	public boolean optionsChosen(){
 		String tempPath = executablePathField.getText();
@@ -341,8 +357,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			scriptBased = scriptBasedCheckBox.getState();
 		
 		if (useDefaultExecutablePath) {
-			zephyrInfoFile = new ZephyrInformationFile(this);
-			zephyrInfoFile.processAppInfoFile();
+			appInfoFile = new AppInformationFile(getExternalProcessRequester().getAppNameWithinAppsDirectory());
+			appInfoFile.processAppInfoFile();
 		}
 		return true;
 	}
@@ -646,87 +662,3 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 
 }
 
-
-class ZephyrInformationFile {
-	String appName;
-	String compiledAs;
-	String path;
-	String version;
-	String URL;
-	String license;
-	String licenseURL;
-	String appsFilePath;
-	static final int infoFileVersion = 1;
-	LocalScriptRunner localScriptRunner;
-	ExternalProcessRequester processRequester;
-	
-	public ZephyrInformationFile(LocalScriptRunner localScriptRunner) {
-		this.localScriptRunner = localScriptRunner;
-		processRequester = localScriptRunner.getExternalProcessRequester();
-	}
-	/*.................................................................................................................*/
-	public boolean processAppInfoFile(){
-		appsFilePath = MesquiteFile.getPathWithSingleSeparatorAtEnd(MesquiteTrunk.appsDirectory) +processRequester.getAppNameWithinAppsDirectory()+MesquiteFile.fileSeparator;
-		String infoFilePath = appsFilePath + "Contents" + MesquiteFile.fileSeparator + "Resources" + MesquiteFile.fileSeparator + "appinfo.xml";
-		String s = MesquiteFile.getFileContentsAsString(infoFilePath); 
-		Document doc = XMLUtil.getDocumentFromString(s);
-		if (doc==null) return false;
-		Element rootElement = doc.getRootElement();
-		Element zephyrElement = rootElement.element("zephyr");
-		if (zephyrElement != null) {
-			String versionString = zephyrElement.attributeValue("version");
-			int versionInXml = MesquiteInteger.fromString(versionString);
-			if (versionInXml==infoFileVersion) {
-				Element appInfoElement = zephyrElement.element("appinfo");
-				Element element = appInfoElement.element("appname");
-				if (element!=null)
-					appName = element.getStringValue();
-				element = appInfoElement.element("compiledas");
-				if (element!=null)
-					compiledAs = element.getStringValue();
-				element = appInfoElement.element("path");
-				if (element!=null)
-					path = element.getStringValue();
-				element = appInfoElement.element("version");
-				if (element!=null)
-					version = element.getStringValue();
-				element = appInfoElement.element("URL");
-				if (element!=null)
-					URL = element.getStringValue();
-				element = appInfoElement.element("licenseURL");
-				if (element!=null)
-					license = element.getStringValue();
-				element = appInfoElement.element("license");
-				if (element!=null)
-					licenseURL = element.getStringValue();
-			}
-
-		}
-		return true;
-	}
-	public String getAppName() {
-		return appName;
-	}
-	public String getCompiledAs() {
-		return compiledAs;
-	}
-	public String getPath() {
-		return path;
-	}
-	public String getFullPath() {
-		return appsFilePath+path;
-	}
-	public String getVersion() {
-		return version;
-	}
-	public String getURL() {
-		return URL;
-	}
-	public String getLicense() {
-		return license;
-	}
-	public String getLicenseURL() {
-		return licenseURL;
-	}
-	
-}

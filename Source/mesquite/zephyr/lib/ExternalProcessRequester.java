@@ -28,8 +28,6 @@ public interface ExternalProcessRequester {
 	
 	public boolean getDirectProcessConnectionAllowed();
 	
-	public boolean getDefaultExecutablePathAllowed();
-	
 	public boolean requiresLinuxTerminalCommands();
 	
 	public String getRootNameForDirectory();
@@ -37,6 +35,8 @@ public interface ExternalProcessRequester {
 	public void setUserAborted(boolean userAborted);
 	
 	public String getExecutableName();
+	
+	public boolean getDefaultExecutablePathAllowed();
 	
 	public String getAppNameWithinAppsDirectory();
 	
