@@ -51,8 +51,9 @@ public class RAxMLRunnerLocalOld extends RAxMLRunnerBasicOld  {
 		return true;
 	}
 
-	public String getExecutablePathWithinAppsDirectory() {
-		return "raxml.app/Contents/MacOS/raxml";
+	/*.................................................................................................................*/
+	public String getAppNameWithinAppsDirectory() {
+		return "raxml.app";
 	}
 
 	/*.................................................................................................................*/
