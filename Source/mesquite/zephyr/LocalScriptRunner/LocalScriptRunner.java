@@ -34,7 +34,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	Random rng;
 	private String executablePath;
 	String arguments;
-	boolean useDefaultExecutablePath=false;
+	boolean useDefaultExecutablePath=true;
 
 	String stdOutFileName;
 	String scriptPath = "";
@@ -84,19 +84,30 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	/*.................................................................................................................*/
 	public String getDefaultExecutablePath(){
 		if (appInfoFile==null) {
-			appInfoFile = new AppInformationFile(getExternalProcessRequester().getAppNameWithinAppsDirectory());
-			boolean success = appInfoFile.processAppInfoFile();
-			if (!success) appInfoFile=null;
+			appInfoFile = getExternalProcessRequester().getAppInfoFile();
 		}
 		if (appInfoFile!=null) {
 			String fullPath = appInfoFile.getFullPath();
+			Debugg.println(getAppInfoForLog());
 			return fullPath;
 		}
 		return null;
 	}
 	/*.................................................................................................................*/
+	public String getAppInfoForLog(){
+		if (appInfoFile==null) {
+			appInfoFile = getExternalProcessRequester().getAppInfoFile();
+		}
+		if (appInfoFile!=null) {
+			StringBuffer sb = new StringBuffer(0);
+			sb.append("\nVersion " + appInfoFile.getVersion());
+			return sb.toString();
+		}
+		return null;
+	}
+	/*.................................................................................................................*/
 	public String getExecutablePath(){
-		if (useDefaultExecutablePath) 
+		if (useDefaultExecutablePath && getDefaultExecutablePathAllowed()) 
 			return getDefaultExecutablePath();
 		else
 			return executablePath;
@@ -161,7 +172,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 				String s = getExecutableName();
 				if (flavor.equalsIgnoreCase(getExecutableName())) {   /// check to see if flavor is correct!!!
 					boolean temp = MesquiteBoolean.fromTrueFalseString(content);
-					if (getDefaultExecutablePathAllowed())
+					//if (getDefaultExecutablePathAllowed())
 						useDefaultExecutablePath = temp;
 				} else {
 					boolean use = MesquiteBoolean.fromTrueFalseString(content);
@@ -189,7 +200,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		StringUtil.appendXMLTag(buffer, 2, "executablePath", getExecutableName(), executablePath);  
 		if (visibleTerminalOptionAllowed())
 			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
-		if (getDefaultExecutablePathAllowed())
+		//if (getDefaultExecutablePathAllowed())
 			StringUtil.appendXMLTag(buffer, 2, "useDefaultExecutablePath", getExecutableName(), useDefaultExecutablePath);  
 		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
 		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
@@ -300,8 +311,9 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
 		if (getDefaultExecutablePathAllowed()) {
 			defaultExecutablePathCheckBox = dialog.addCheckBox("Use built-in app path for "+ getExecutableName(), useDefaultExecutablePath);
-		}
-		executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
+			executablePathField = dialog.addTextField("Path to alternative version:", executablePath, 40);
+		} else
+			executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
 		browseButton.setActionCommand("browse");
 		if (getDirectProcessConnectionAllowed()) {
@@ -356,11 +368,11 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		else if (scriptBasedCheckBox!=null)
 			scriptBased = scriptBasedCheckBox.getState();
 		
-		if (useDefaultExecutablePath) {
+/*		if (useDefaultExecutablePath) {
 			appInfoFile = new AppInformationFile(getExternalProcessRequester().getAppNameWithinAppsDirectory());
 			appInfoFile.processAppInfoFile();
 		}
-		return true;
+*/		return true;
 	}
 	/*.................................................................................................................*/
 	public static boolean isMacOSXCatalinaOrLater(){

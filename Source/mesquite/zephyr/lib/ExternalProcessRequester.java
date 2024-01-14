@@ -8,6 +8,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 package mesquite.zephyr.lib;
 
+import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.*;
 
 public interface ExternalProcessRequester {
@@ -38,7 +39,7 @@ public interface ExternalProcessRequester {
 	
 	public boolean getDefaultExecutablePathAllowed();
 	
-	public String getAppNameWithinAppsDirectory();
+	public AppInformationFile getAppInfoFile();
 	
 	public void prepareRunnerObject(Object obj);
 	

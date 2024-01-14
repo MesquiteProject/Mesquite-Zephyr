@@ -21,6 +21,7 @@ import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
 import mesquite.io.lib.*;
+import mesquite.zephyr.aZephyrIntro.*;
 
 /* TODO:
 -b bootstrapRandomNumberSeed  // allow user to set seed
@@ -112,10 +113,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		setUpRunner();
 
 		return true;
-	}
-
-	/*.................................................................................................................*/
-	public void setUpRunner() { 
 	}
 
 	/*.................................................................................................................*/

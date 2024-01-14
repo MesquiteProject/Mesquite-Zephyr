@@ -115,8 +115,13 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			return sorry("Couldn't hire an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
+		setUpRunner();
 
 		return true;
+	}
+	/*.................................................................................................................*/
+	public void setUpRunner() { 
+		
 	}
 
 	/*.................................................................................................................*/

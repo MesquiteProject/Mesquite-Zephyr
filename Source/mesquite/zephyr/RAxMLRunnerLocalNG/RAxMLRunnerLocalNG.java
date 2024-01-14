@@ -18,6 +18,8 @@ import java.util.*;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
+import mesquite.externalCommunication.AppHarvester.AppHarvester;
+import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -47,7 +49,24 @@ public class RAxMLRunnerLocalNG extends RAxMLRunnerBasicNG  {
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
 		return true;
 	}
+	public boolean getDefaultExecutablePathAllowed() {
+		return getHasApp();
+	}
 
+	/*.................................................................................................................*/
+	public void setUpRunner() { 
+		super.setUpRunner();
+		AppHarvester.examineAppsFolder(this);
+	}
+
+	/*.................................................................................................................*/
+	public AppInformationFile getAppInfoFile() {
+		return AppHarvester.getAppInfoFileForProgram(this);
+	}
+	/*.................................................................................................................*/
+	public String getAppOfficialName() {
+		return "RAxML-NG";
+	}
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer

@@ -18,6 +18,8 @@ import java.util.*;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
+import mesquite.externalCommunication.AppHarvester.AppHarvester;
+import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -52,14 +54,19 @@ public class IQTreeRunnerLocal extends IQTreeRunnerBasic  {
 	}
 
 	/*.................................................................................................................*/
-	public String getAppNameWithinAppsDirectory() {
-		return "iqtree.app";
-	}
-	/*.................................................................................................................*/
-	public boolean getDefaultExecutablePathAllowed() {
-		return true;
+	public void setUpRunner() { 
+		super.setUpRunner();
+		AppHarvester.examineAppsFolder(this);
 	}
 
+	/*.................................................................................................................*/
+	public AppInformationFile getAppInfoFile() {
+		return AppHarvester.getAppInfoFileForProgram(this);
+	}
+	/*.................................................................................................................*/
+	public String getAppOfficialName() {
+		return "IQ-TREE";
+	}
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
 	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.

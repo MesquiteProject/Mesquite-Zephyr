@@ -15,13 +15,15 @@ import java.awt.Choice;
 import java.util.Random;
 
 import mesquite.categ.lib.CategoricalData;
+import mesquite.externalCommunication.lib.*;
+import mesquite.externalCommunication.AppHarvester.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.CharacterData;
 import mesquite.lib.characters.MCharactersDistribution;
 import mesquite.lib.duties.TreeInferer;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 
-public abstract class ZephyrRunner extends MesquiteModule implements ExternalProcessRequester, OutputFilePathModifier{
+public abstract class ZephyrRunner extends MesquiteModule implements ExternalProcessRequester, OutputFilePathModifier, AppUser{
 
 	protected TreeInferer treeInferer = null;
 	public static String runInformationFileName = "runInformation.txt";
@@ -46,6 +48,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	private boolean userAborted = false;
 	String programVersion = "";
 	protected static String composeProgramCommand = "composeProgramCommand";
+	protected boolean hasApp = false;
 
 	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
@@ -109,7 +112,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean showAssocStrings() {
 		return false;
 	}
-
+	/*.................................................................................................................*/
+	public void setUpRunner() { 
+		
+	}
 	/*.................................................................................................................*/
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
 		return false;
@@ -135,14 +141,35 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return "Bootstrap Trees";
 	}
 
+	public boolean getHasApp() {
+		return hasApp;
+	}
+	public void setHasApp(boolean hasApp) {
+		this.hasApp = hasApp;
+	}
+	public String getAppOfficialName() {
+		return getExecutableName();
+	}
 	public boolean getDefaultExecutablePathAllowed() {
-		return false;
+		return getHasApp();
 	}
 
 	/*.................................................................................................................*/
-	public String getAppNameWithinAppsDirectory() {
-		return getExecutableName();
+	public AppInformationFile getAppInfoFile() {
+		return AppHarvester.getAppInfoFileForProgram(this);
 	}
+
+	/*.................................................................................................................*
+	public void examineAppsFolder(String programName) { 
+		int numApps = AppHarvester.getNumAppsForProgram(programName);
+		if (numApps==1) {
+			setHasApp(true);
+			
+		} else if (numApps>1) {
+			MesquiteMessage.warnUser("There is more than one " + getProgramName() + " app in the apps folder; please remove all but one copy, and restart Mesquite.");
+		}
+	}
+
 	/*.................................................................................................................*/
 	public void processUserClickingOnTextCommandLink(String command) {
 		if ("harvest".equalsIgnoreCase(command)) {

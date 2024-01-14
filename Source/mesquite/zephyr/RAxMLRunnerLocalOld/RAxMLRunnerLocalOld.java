@@ -15,19 +15,11 @@ import java.io.*;
 import java.awt.event.*;
 import java.util.*;
 
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-
-import mesquite.categ.lib.*;
+import mesquite.externalCommunication.AppHarvester.AppHarvester;
+import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.lib.system.SystemUtil;
-import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.RAxMLTreesLocalOld.*;
 import mesquite.zephyr.lib.*;
-import mesquite.io.lib.*;
 
 
 public class RAxMLRunnerLocalOld extends RAxMLRunnerBasicOld  {
@@ -47,13 +39,23 @@ public class RAxMLRunnerLocalOld extends RAxMLRunnerBasicOld  {
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
 		return true;
 	}
+	/*.................................................................................................................*
 	public boolean getDefaultExecutablePathAllowed() {
-		return true;
+		return getHasApp();
+	}
+	/*.................................................................................................................*/
+	public void setUpRunner() { 
+		super.setUpRunner();
+		AppHarvester.examineAppsFolder(this);
 	}
 
 	/*.................................................................................................................*/
-	public String getAppNameWithinAppsDirectory() {
-		return "raxml.app";
+	public AppInformationFile getAppInfoFile() {
+		return AppHarvester.getAppInfoFileForProgram(this);
+	}
+	/*.................................................................................................................*/
+	public String getAppOfficialName() {
+		return "raxml";
 	}
 
 	/*.................................................................................................................*/
