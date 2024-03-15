@@ -346,8 +346,10 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	/*.................................................................................................................*/
 
 	public boolean optionsChosen(){
+		if (defaultExecutablePathCheckBox!=null)
+			useDefaultExecutablePath = defaultExecutablePathCheckBox.getState();
 		String tempPath = executablePathField.getText();
-		if (StringUtil.blank(tempPath)){
+		if (StringUtil.blank(tempPath) && !useDefaultExecutablePath){
 			MesquiteMessage.discreetNotifyUser("The path to " +getExecutableName()+ " must be entered.");
 			return false;
 		}
@@ -357,8 +359,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			visibleTerminal=true;
 		else if (visibleTerminalCheckBox!=null)
 			visibleTerminal = visibleTerminalCheckBox.getState();
-		if (defaultExecutablePathCheckBox!=null)
-			useDefaultExecutablePath = defaultExecutablePathCheckBox.getState();
 		if (deleteAnalysisDirectoryCheckBox!=null)
 			deleteAnalysisDirectory = deleteAnalysisDirectoryCheckBox.getState();
 		if (addExitCommandCheckBox!=null)
