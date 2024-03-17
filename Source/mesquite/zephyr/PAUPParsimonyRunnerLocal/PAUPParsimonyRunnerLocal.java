@@ -52,10 +52,6 @@ public class PAUPParsimonyRunnerLocal extends PAUPParsimonyRunnerBasic {
 	public AppInformationFile getAppInfoFile() {
 		return AppHarvester.getAppInfoFileForProgram(this);
 	}
-	/*.................................................................................................................*/
-	public String getAppOfficialName() {
-		return "PAUP";
-	}
 
 	/*.................................................................................................................*/
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {

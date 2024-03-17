@@ -82,6 +82,12 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	public int getProgramNumber() {
 		return -1;
 	}
+	
+	/*.................................................................................................................*/
+	public String getAppOfficialName() {
+		return "PAUP";
+	}
+
 
 	public String getLogText() {
 		return externalProcRunner.getStdOut();

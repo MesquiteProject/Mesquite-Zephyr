@@ -16,6 +16,8 @@ import java.util.*;
 import javax.swing.*;
 
 import mesquite.categ.lib.*;
+import mesquite.externalCommunication.AppHarvester.AppHarvester;
+import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -36,6 +38,16 @@ public  class PAUPSVDRunnerLocal extends PAUPSVDRunner {
 	/*.................................................................................................................*/
 	public Class getExternalProcessRunnerClass(){
 		return LocalScriptRunner.class;
+	}
+	/*.................................................................................................................*/
+	public void setUpRunner() { 
+		super.setUpRunner();
+		AppHarvester.examineAppsFolder(this);
+	}
+
+	/*.................................................................................................................*/
+	public AppInformationFile getAppInfoFile() {
+		return AppHarvester.getAppInfoFileForProgram(this);
 	}
 
 	/*.................................................................................................................*/
