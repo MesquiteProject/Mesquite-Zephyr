@@ -74,6 +74,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		externalProcRunner.setProcessRequester(this);
 		rng = new Random(System.currentTimeMillis());
 		loadPreferences();
+		setUpRunner();
 
 		return true;
 	}

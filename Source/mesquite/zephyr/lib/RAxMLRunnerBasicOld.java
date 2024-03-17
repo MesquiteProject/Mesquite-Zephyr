@@ -137,10 +137,23 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 
 
 	/*.................................................................................................................*/
+	public boolean requiresPThreads() {
+		return false;
+	}
+	/*.................................................................................................................*/
+
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		dialog.addHorizontalLine(1);
 		dialog.addLabel("RAxML parallelization style:");
+		boolean requiresPThreads = requiresPThreads();
+		if (requiresPThreads)
+			threadingVersion = THREADING_PTHREADS;
 		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);
+/*		if (requiresPThreads) {
+			threadingRadioButtons.setEnabled(THREADING_OTHER, false);
+			threadingRadioButtons.setEnabled(THREADING_PTHREADS, false);
+		}
+		*/
 		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, 1, MesquiteInteger.infinite);
 		numProcessorsField.addKeyListener(this);
 		dialog.addHorizontalLine(1);

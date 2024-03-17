@@ -39,10 +39,6 @@ public class RAxMLRunnerLocalOld extends RAxMLRunnerBasicOld  {
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
 		return true;
 	}
-	/*.................................................................................................................*
-	public boolean getDefaultExecutablePathAllowed() {
-		return getHasApp();
-	}
 	/*.................................................................................................................*/
 	public void setUpRunner() { 
 		super.setUpRunner();
@@ -56,6 +52,13 @@ public class RAxMLRunnerLocalOld extends RAxMLRunnerBasicOld  {
 	/*.................................................................................................................*/
 	public String getAppOfficialName() {
 		return "raxml";
+	}
+	/*.................................................................................................................*/
+	public boolean requiresPThreads() {
+		String version = ((LocalScriptRunner)externalProcRunner).getVersionFromAppInfo();
+		if (StringUtil.notEmpty(version) && version.contains("PTHREADS"))
+			return true;
+		return false;
 	}
 
 	/*.................................................................................................................*/
