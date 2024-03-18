@@ -56,6 +56,8 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 	Checkbox alltreesSearchBox;
 	boolean secondarySearchNoChannel=false;
 	Checkbox secondarySearchNoChannelBox;
+	JLabel regularSearchLabel;
+	JLabel resamplingSearchLabel;
 
 	int nrepsBoot = 10;
 	IntegerField nrepsBootField;
@@ -322,11 +324,31 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			}
 		}
 	}
+	/*.................................................................................................................*/
+	public void setLabels(int style) {
+
+		if (style==BOOTSTRAPSEARCH || style==JACKKNIFESEARCH) {
+			regularSearchLabel.setForeground(Color.red);
+			resamplingSearchLabel.setForeground(Color.black);
+		}
+		else {
+			regularSearchLabel.setForeground(Color.black);
+			resamplingSearchLabel.setForeground(Color.red);
+		}
+	}
 
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent arg0) {
 		if (dialog!=null) {
-			if (arg0.getItemSelectable()==standardSearchBox || arg0.getItemSelectable()==customSearchBox || arg0.getItemSelectable()==branchAndBoundSearchBox || arg0.getItemSelectable()==alltreesSearchBox){
+			if (arg0.getItemSelectable()==bootstrapBox.getSelectedCheckbox()){
+				if (bootstrapBox!=null) {
+					int style = bootstrapBox.getValue();
+					setLabels(style);
+					regularSearchLabel.repaint();
+					resamplingSearchLabel.repaint();
+
+				}
+			} else if (arg0.getItemSelectable()==standardSearchBox || arg0.getItemSelectable()==customSearchBox || arg0.getItemSelectable()==branchAndBoundSearchBox || arg0.getItemSelectable()==alltreesSearchBox){
 				if (arg0.getItemSelectable()==standardSearchBox && standardSearchBox!=null && standardSearchBox.getState())
 					adjustDialogText(STANDARDHEURISTIC, false);
 				if (arg0.getItemSelectable()==customSearchBox && customSearchBox!=null && customSearchBox.getState())
@@ -369,6 +391,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		if (bootstrapAllowed) {
 			dialog.addHorizontalLine(1);
 			bootstrapBox = dialog.addRadioButtons(new String[] {"regular search", "bootstrap resampling", "jackknife resampling"}, searchStyle);
+			bootstrapBox.addItemListener(this);
 		}
 		dialog.addHorizontalLine(1);
 
@@ -418,8 +441,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		getConsensusBox = dialog.addCheckBox("only read in strict consensus", getConsensus);
 
 		dialog.addHorizontalLine(1);
-		dialog.addLabel("(To conduct a regular search, \"regular search\" must be selected in the General panel) ", Label.LEFT, true, true);
-
+		regularSearchLabel = dialog.addLabel("(To conduct a regular search, \"regular search\" must be selected in the General panel) ", Label.LEFT, true, true);
 
 		if (bootstrapAllowed) {
 			tabbedPanel.addPanel("Resampled Searches", true);
@@ -457,9 +479,9 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			alltreesSearchBootBox.setCheckboxGroup(searchGroupBoot);
 
 			dialog.addHorizontalLine(1);
-			dialog.addLabel("(To conduct resampling, Bootstrap or Jackknife must be selected in the General panel) ", Label.LEFT, true, true);
+			resamplingSearchLabel = dialog.addLabel("(To conduct resampling, Bootstrap or Jackknife must be selected in the General panel) ", Label.LEFT, true, true);
 		} 
-
+		setLabels(searchStyle);
 
 		adjustDialogText(searchCategory, false);	
 		adjustDialogText(bootSearchCategory, true);	

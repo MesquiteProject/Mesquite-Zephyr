@@ -29,7 +29,7 @@ public abstract class PAUPParsimonyRunnerBasic extends PAUPSearchRunner {
 
 
 	public String getCriterionSetCommand() {
-		return "set criterion=parsimony;";
+		return "set criterion=parsimony; pset msTaxa=variable;";
 	}
 
 	public String getCriterionScoreCommand() {
