@@ -765,9 +765,10 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		return "Bootstrap";
 	}
 
-	public boolean errorsAreFatal(){
+/*	public boolean errorsAreFatal(){  // this was causing failure if BandB or exhaustive search was done with likelihood, as in this case PAUP wrote eto StdError March 2024.  Not sure why this was set to true.
 		return true;
 	}
+*/
 
 	public boolean allowStdErrRedirect() {
 		return true;

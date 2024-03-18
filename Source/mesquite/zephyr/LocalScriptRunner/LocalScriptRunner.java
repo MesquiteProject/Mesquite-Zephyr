@@ -43,6 +43,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 
 	StringBuffer extraPreferences;
 	boolean deleteAnalysisDirectory = false;
+	boolean openAnalysisDirectory = false;
 
 	/*.================================================================..*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
@@ -205,6 +206,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			addExitCommand = MesquiteBoolean.fromTrueFalseString(content);
 		if ("deleteAnalysisDirectory".equalsIgnoreCase(tag))
 			deleteAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(content);
+		if ("openAnalysisDirectory".equalsIgnoreCase(tag))
+			openAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(content);
 		super.processSingleXMLPreference(tag, content);
 	}
 	/*.................................................................................................................*/
@@ -214,8 +217,9 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		if (visibleTerminalOptionAllowed())
 			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
 		//if (getDefaultExecutablePathAllowed())
-			StringUtil.appendXMLTag(buffer, 2, "useDefaultExecutablePath", getExecutableName(), useDefaultExecutablePath);  
+		StringUtil.appendXMLTag(buffer, 2, "useDefaultExecutablePath", getExecutableName(), useDefaultExecutablePath);  
 		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
+		StringUtil.appendXMLTag(buffer, 2, "openAnalysisDirectory", openAnalysisDirectory);  
 		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
 		StringUtil.appendXMLTag(buffer, 2, "addExitCommand", addExitCommand);  
 		buffer.append(extraPreferences);
@@ -239,6 +243,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		if (visibleTerminalOptionAllowed())
 			temp.addLine("visibleTerminal "+MesquiteBoolean.toTrueFalseString(visibleTerminal));
 		temp.addLine("deleteAnalysisDirectory "+MesquiteBoolean.toTrueFalseString(deleteAnalysisDirectory));
+		temp.addLine("openAnalysisDirectory "+MesquiteBoolean.toTrueFalseString(openAnalysisDirectory));
 		temp.addLine("scriptBased "+MesquiteBoolean.toTrueFalseString(scriptBased));
 		if (scriptBased) {
 			if (scriptRunner != null){
@@ -296,6 +301,9 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		else  if (checker.compare(this.getClass(), "Sets whether or not the analysis folder should be deleted at the end of the run.", "[true; false]", commandName, "deleteAnalysisDirectory")) {
 			deleteAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
 		}
+		else  if (checker.compare(this.getClass(), "Sets whether or not the analysis folder should be opened at the end of the run.", "[true; false]", commandName, "openAnalysisDirectory")) {
+			openAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+		}
 		else if (checker.compare(this.getClass(), "Sets root directory", null, commandName, "setRootDir")) {
 			localRootDir = parser.getFirstToken(arguments);
 		}
@@ -317,6 +325,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	Checkbox defaultExecutablePathCheckBox =  null;
 	Checkbox visibleTerminalCheckBox =  null;
 	Checkbox deleteAnalysisDirectoryCheckBox =  null;
+	Checkbox openAnalysisDirectoryCheckBox =  null;
 	Checkbox scriptBasedCheckBox =  null;
 	Checkbox addExitCommandCheckBox = null;
 
@@ -343,6 +352,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			addExitCommandCheckBox.setEnabled(scriptBased);	
 		} 
 		deleteAnalysisDirectoryCheckBox = dialog.addCheckBox("Delete analysis directory after completion", deleteAnalysisDirectory);
+		openAnalysisDirectoryCheckBox = dialog.addCheckBox("Open analysis directory after completion", openAnalysisDirectory);
 		return true;
 
 	}
@@ -374,6 +384,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			visibleTerminal = visibleTerminalCheckBox.getState();
 		if (deleteAnalysisDirectoryCheckBox!=null)
 			deleteAnalysisDirectory = deleteAnalysisDirectoryCheckBox.getState();
+		if (openAnalysisDirectoryCheckBox!=null)
+			openAnalysisDirectory = openAnalysisDirectoryCheckBox.getState();
 		if (addExitCommandCheckBox!=null)
 			addExitCommand = addExitCommandCheckBox.getState();
 		if (!getDirectProcessConnectionAllowed())
@@ -664,6 +676,9 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public void finalCleanup() {
 		if (deleteAnalysisDirectory && !leaveAnalysisDirectoryIntact)
 			MesquiteFile.deleteDirectory(localRootDir);
+		else if (openAnalysisDirectory) {
+			MesquiteFile.showDirectory(localRootDir);
+		}
 		localRootDir=null;
 	}
 
