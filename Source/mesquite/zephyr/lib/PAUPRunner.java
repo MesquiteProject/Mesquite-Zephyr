@@ -765,10 +765,10 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		return "Bootstrap";
 	}
 
-/*	public boolean errorsAreFatal(){  // this was causing failure if BandB or exhaustive search was done with likelihood, as in this case PAUP wrote eto StdError March 2024.  Not sure why this was set to true.
+	public boolean errorsAreFatal(){  // this was causing failure if BandB or exhaustive search was done with likelihood, as in this case PAUP wrote to StdError March 2024.  Not sure why this was set to true.
 		return true;
 	}
-*/
+
 
 	public boolean allowStdErrRedirect() {
 		return true;
@@ -792,6 +792,19 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	public String getMethodNameForTreeBlock() {
 		return "";
 	}
+	/*.................................................................................................................*/
+	public boolean stdErrIsTrueError(String stdErr) {
+		Debugg.println(stdErr);
+		if (StringUtil.notEmpty(stdErr)) {
+			stdErr = StringUtil.stripBoundingWhitespace(stdErr);
+			if (StringUtil.startsWithIgnoreCase(stdErr,  "Error"))
+				return true;
+			else
+				return false;
+		}
+		return false;
+	}
+
 	/*.................................................................................................................*/
 
 	public String getName() {

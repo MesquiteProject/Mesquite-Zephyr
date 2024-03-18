@@ -29,8 +29,8 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 
 	int bootStrapReps = 500;
 	boolean getConsensus = false;
-	String customSearchOptions = "";
-	String customSearchOptionsBoot = "";
+	String customSearchOptions = "hs;";
+	String customSearchOptionsBoot = "hs;";
 
 	int nreps = 10;
 	IntegerField nrepsField;

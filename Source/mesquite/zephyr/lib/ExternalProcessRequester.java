@@ -49,6 +49,9 @@ public interface ExternalProcessRequester {
 
 	public boolean errorsAreFatal();
 	
+	public boolean stdErrIsTrueError(String stdErr);
+
+	
 	public boolean allowStdErrRedirect();
 
 	public String getPrefixForProgramCommand();
@@ -58,6 +61,8 @@ public interface ExternalProcessRequester {
 	public boolean removeCommandSameCommandLineAsProgramCommand();
 
 	public String getRunDetailsForHelp() ;
+	
+	
 
 
 }

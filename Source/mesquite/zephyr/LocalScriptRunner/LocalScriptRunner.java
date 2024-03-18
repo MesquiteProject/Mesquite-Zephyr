@@ -685,16 +685,14 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public boolean continueShellProcess(Process proc) {
 		if (processRequester.errorsAreFatal()) { 
 			String stdErr = getStdErr();
-			if (StringUtil.notEmpty(stdErr))
-				return false;
+			return !processRequester.stdErrIsTrueError(stdErr);
 		}
 		return true;
 	}
 	public boolean fatalErrorDetected() {
 		if (processRequester.errorsAreFatal()) { 
 			String stdErr = getStdErr();
-			if (StringUtil.notEmpty(stdErr))
-				return true;
+			return processRequester.stdErrIsTrueError(stdErr);
 		}
 		return false;
 	}
