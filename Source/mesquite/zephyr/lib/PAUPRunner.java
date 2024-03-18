@@ -794,7 +794,6 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	}
 	/*.................................................................................................................*/
 	public boolean stdErrIsTrueError(String stdErr) {
-		Debugg.println(stdErr);
 		if (StringUtil.notEmpty(stdErr)) {
 			stdErr = StringUtil.stripBoundingWhitespace(stdErr);
 			if (StringUtil.startsWithIgnoreCase(stdErr,  "Error"))
