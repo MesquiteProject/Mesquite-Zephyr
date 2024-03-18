@@ -5,7 +5,7 @@ Zephry's web site is http://zephyr.mesquiteproject.org
 
 This source code and its compiled class files are free and modifiable under the terms of 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
-*/
+ */
 
 package mesquite.zephyr.lib;
 
@@ -40,21 +40,23 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 	IntegerField chuckScoreField;
 	Checkbox channelSearchBox;
 	boolean channelSearch=false;
-	
+
 	final static int STANDARDHEURISTIC =0;
 	final static int CUSTOMHEURISTIC =1;
 	final static int BANDB =2;
+	final static int ALLTREES =3;
 	int searchCategory = STANDARDHEURISTIC;
-	
+
 	int bootSearchCategory=STANDARDHEURISTIC;
 
-	
+
 	Checkbox standardSearchBox;
 	Checkbox customSearchBox;
 	Checkbox branchAndBoundSearchBox;
+	Checkbox alltreesSearchBox;
 	boolean secondarySearchNoChannel=false;
 	Checkbox secondarySearchNoChannelBox;
-	
+
 	int nrepsBoot = 10;
 	IntegerField nrepsBootField;
 	int nchuckBoot = 25;
@@ -66,10 +68,11 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 	Checkbox standardSearchBootBox;
 	Checkbox customSearchBootBox;
 	Checkbox branchAndBoundSearchBootBox;
+	Checkbox alltreesSearchBootBox;
 
 
 	JLabel bootstrapPanelLabel;
-	
+
 
 	int maxTrees = 100;
 	IntegerField maxTreesField;
@@ -117,7 +120,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		if ("maxTrees".equalsIgnoreCase(tag))
 			maxTrees = MesquiteInteger.fromString(content);
 
-		
+
 		if ("nrepsBoot".equalsIgnoreCase(tag))
 			nrepsBoot = MesquiteInteger.fromString(content);
 		if ("nchuckBoot".equalsIgnoreCase(tag))
@@ -129,12 +132,12 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		if ("channelSearchBoot".equalsIgnoreCase(tag))
 			channelSearchBoot = MesquiteBoolean.fromTrueFalseString(content);
 
-		
-		
+
+
 		super.processSingleXMLPreference(tag, content);
 
 		preferencesSet = true;
-}
+	}
 	/*.................................................................................................................*/
 	public String prepareMorePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
@@ -145,31 +148,31 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		StringUtil.appendXMLTag(buffer, 2, "customSearchOptions", customSearchOptions);  
 		StringUtil.appendXMLTag(buffer, 2, "customSearchOptionsBoot", customSearchOptionsBoot);  
 		StringUtil.appendXMLTag(buffer, 2, "paupCommands", paupCommands);  
-		
+
 		StringUtil.appendXMLTag(buffer, 2, "nreps", nreps);  
 		StringUtil.appendXMLTag(buffer, 2, "nchuck", nchuck);  
 		StringUtil.appendXMLTag(buffer, 2, "chuckScore", chuckScore);  
 		StringUtil.appendXMLTag(buffer, 2, "channelSearch", channelSearch);  
 		StringUtil.appendXMLTag(buffer, 2, "searchCategory", searchCategory);  
 		StringUtil.appendXMLTag(buffer, 2, "secondarySearchNoChannel", secondarySearchNoChannel);  
-		
+
 		StringUtil.appendXMLTag(buffer, 2, "nrepsBoot", nrepsBoot);  
 		StringUtil.appendXMLTag(buffer, 2, "nchuckBoot", nchuckBoot);  
 		StringUtil.appendXMLTag(buffer, 2, "chuckScoreBoot", chuckScoreBoot);  
 		StringUtil.appendXMLTag(buffer, 2, "channelSearchBoot", channelSearchBoot);  
 		StringUtil.appendXMLTag(buffer, 2, "bootSearchCategory", bootSearchCategory);  
-		
-		
-		
-		
+
+
+
+
 		StringUtil.appendXMLTag(buffer, 2, "maxTreesIncrease", maxTreesIncrease);  
 		StringUtil.appendXMLTag(buffer, 2, "maxTrees", maxTrees);  
-		
-		
-		
+
+
+
 		preferencesSet = true;
 
-	return buffer.toString();
+		return buffer.toString();
 	}
 	/*.................................................................................................................*/
 	public boolean allowRerooting() {
@@ -191,10 +194,10 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			else if (useConstraintTree == MONOPHYLY)
 				sb.append("\tconstraints constraintTree (MONOPHYLY) =  " + constraintTree +";" + StringUtil.lineEnding()); 
 		}
-		
-		
+
+
 		if (bootstrapOrJackknife()) {  //bootstrap or jackknife
-			
+
 			String defaults = "";
 			if (bootSearchCategory==STANDARDHEURISTIC){
 				defaults+="\ths addseq=random nreps=" + nrepsBoot;
@@ -210,6 +213,9 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			} else if (bootSearchCategory==BANDB) {
 				if ( isConstrainedSearch())
 					defaults+=" bandb constraint=constraintTree enforce"; 
+			} else if (bootSearchCategory==ALLTREES) {
+				if ( isConstrainedSearch())
+					defaults+=" alltrees constraint=constraintTree enforce"; 
 			}
 			if (StringUtil.notEmpty(defaults)) {
 				sb.append("\tdefaults ");
@@ -226,6 +232,8 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			sb.append(" nreps = " + bootStrapReps);
 			if (bootSearchCategory==BANDB) 
 				sb.append(" search=bandb;" + StringUtil.lineEnding());
+			else  	if (bootSearchCategory==ALLTREES) 
+				sb.append(" search=alltrees;" + StringUtil.lineEnding());
 			else 
 				sb.append(" search=heuristic;" + StringUtil.lineEnding());
 			sb.append("\tsavetrees from=1 to=1 SaveBootP=brlens file=" + StringUtil.tokenize(outputTreeFileName) + ";" + StringUtil.lineEnding());
@@ -247,6 +255,8 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 				sb.append("\t" + customSearchOptions  + StringUtil.lineEnding());
 			} else if (searchCategory==BANDB) {
 				sb.append("\tbandb;" + StringUtil.lineEnding());
+			} else if (searchCategory==ALLTREES) {
+				sb.append("\talltrees fd=barChart;" + StringUtil.lineEnding());
 			}
 			sb.append("\t"+ getCriterionScoreCommand() + " 1 / scorefile=" + StringUtil.tokenize(scoreFileName) + " replace;" + StringUtil.lineEnding());
 			if (getConsensus)
@@ -268,9 +278,9 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		}
 		return sb.toString();
 	}
-	
-	
-	 /*.................................................................................................................*/
+
+
+	/*.................................................................................................................*/
 	public String getHTMLDescriptionOfStatus(){
 		String s = "";
 		if (getRunInProgress()) {
@@ -285,18 +295,18 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		return s;
 	}
 	/*.................................................................................................................*/
-		public void appendAdditionalSearchDetails() {
-			if (StringUtil.notEmpty(paupCommands))
-				appendToSearchDetails("Pre-search commands: " + paupCommands);
-			appendToSearchDetails("Search details: \n");
-			if (bootstrapOrJackknife()){
-				appendToSearchDetails("   "+getResamplingKindName() +"\n");
-				appendToSearchDetails("   "+bootStrapReps + " replicates");
-			} else {
-				appendToSearchDetails("   Search for " + getOptimalTreeAdjectiveLowerCase() + " trees\n");
-				if (MesquiteInteger.isCombinable(numTreesFound))
-					appendToSearchDetails("\n   Number of trees found: "+numTreesFound+"\n");
-			}
+	public void appendAdditionalSearchDetails() {
+		if (StringUtil.notEmpty(paupCommands))
+			appendToSearchDetails("Pre-search commands: " + paupCommands);
+		appendToSearchDetails("Search details: \n");
+		if (bootstrapOrJackknife()){
+			appendToSearchDetails("   "+getResamplingKindName() +"\n");
+			appendToSearchDetails("   "+bootStrapReps + " replicates");
+		} else {
+			appendToSearchDetails("   Search for " + getOptimalTreeAdjectiveLowerCase() + " trees\n");
+			if (MesquiteInteger.isCombinable(numTreesFound))
+				appendToSearchDetails("\n   Number of trees found: "+numTreesFound+"\n");
+		}
 	}
 
 	/*.................................................................................................................*/
@@ -316,21 +326,25 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent arg0) {
 		if (dialog!=null) {
-			if (arg0.getItemSelectable()==standardSearchBox || arg0.getItemSelectable()==customSearchBox || arg0.getItemSelectable()==branchAndBoundSearchBox){
+			if (arg0.getItemSelectable()==standardSearchBox || arg0.getItemSelectable()==customSearchBox || arg0.getItemSelectable()==branchAndBoundSearchBox || arg0.getItemSelectable()==alltreesSearchBox){
 				if (arg0.getItemSelectable()==standardSearchBox && standardSearchBox!=null && standardSearchBox.getState())
 					adjustDialogText(STANDARDHEURISTIC, false);
-				 if (arg0.getItemSelectable()==customSearchBox && customSearchBox!=null && customSearchBox.getState())
+				if (arg0.getItemSelectable()==customSearchBox && customSearchBox!=null && customSearchBox.getState())
 					adjustDialogText(CUSTOMHEURISTIC, false);
-				 if (arg0.getItemSelectable()==branchAndBoundSearchBox && branchAndBoundSearchBox!=null && branchAndBoundSearchBox.getState())
+				if (arg0.getItemSelectable()==branchAndBoundSearchBox && branchAndBoundSearchBox!=null && branchAndBoundSearchBox.getState())
 					adjustDialogText(BANDB, false);
+				if (arg0.getItemSelectable()==alltreesSearchBox && alltreesSearchBox!=null && alltreesSearchBox.getState())
+					adjustDialogText(ALLTREES, false);
 			}
-			else if (arg0.getItemSelectable()==standardSearchBootBox || arg0.getItemSelectable()==customSearchBootBox || arg0.getItemSelectable()==branchAndBoundSearchBootBox){
+			else if (arg0.getItemSelectable()==standardSearchBootBox || arg0.getItemSelectable()==customSearchBootBox || arg0.getItemSelectable()==branchAndBoundSearchBootBox || arg0.getItemSelectable()==alltreesSearchBootBox){
 				if (arg0.getItemSelectable()==standardSearchBootBox && standardSearchBootBox!=null && standardSearchBootBox.getState())
 					adjustDialogText(STANDARDHEURISTIC, true);
-				 if (arg0.getItemSelectable()==customSearchBootBox && customSearchBootBox!=null && customSearchBootBox.getState())
+				if (arg0.getItemSelectable()==customSearchBootBox && customSearchBootBox!=null && customSearchBootBox.getState())
 					adjustDialogText(CUSTOMHEURISTIC, true);
-				 if (arg0.getItemSelectable()==branchAndBoundSearchBootBox && branchAndBoundSearchBootBox!=null && branchAndBoundSearchBootBox.getState())
+				if (arg0.getItemSelectable()==branchAndBoundSearchBootBox && branchAndBoundSearchBootBox!=null && branchAndBoundSearchBootBox.getState())
 					adjustDialogText(BANDB, true);
+				if (arg0.getItemSelectable()==alltreesSearchBootBox && alltreesSearchBootBox!=null && alltreesSearchBootBox.getState())
+					adjustDialogText(ALLTREES, true);
 			}
 		}
 	}
@@ -348,16 +362,16 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 
 	/*.................................................................................................................*/
 	public void queryOptionsSetup(ExtensibleDialog dialog, MesquiteTabbedPanel tabbedPanel) {
-//		String helpString = "\nIf \"bootstrap\" is on, the PAUP will do a bootstrap of the number of replicates specified; otherwise, it will do an heuristic search.";
-//		helpString+= "\nAny PAUP commands entered in the Additional Commands field will be executed in PAUP immediately before the bootstrap or hs command.";
-//		dialog.appendToHelpString(helpString);
+		//		String helpString = "\nIf \"bootstrap\" is on, the PAUP will do a bootstrap of the number of replicates specified; otherwise, it will do an heuristic search.";
+		//		helpString+= "\nAny PAUP commands entered in the Additional Commands field will be executed in PAUP immediately before the bootstrap or hs command.";
+		//		dialog.appendToHelpString(helpString);
 
 		if (bootstrapAllowed) {
 			dialog.addHorizontalLine(1);
 			bootstrapBox = dialog.addRadioButtons(new String[] {"regular search", "bootstrap resampling", "jackknife resampling"}, searchStyle);
 		}
 		dialog.addHorizontalLine(1);
-		
+
 		dialog.addLabel("Additional commands before search command: ");
 		paupCommandsField =dialog.addTextAreaSmallFont(paupCommands,4);
 		//dialog.addCheckBox("bootstrap", doBootstrap);
@@ -365,24 +379,24 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		maxTreesIncreaseBox= dialog.addCheckBox("increase maxtrees if needed", maxTreesIncrease);
 
 		queryOptionsSetupExtra(dialog, tabbedPanel);
-		
+
 		tabbedPanel.addPanel("Regular Searches", true);
-		
-		
+
+
 		CheckboxGroup searchGroup = new CheckboxGroup();
 		dialog.addHorizontalLine(1);
 		standardSearchBox = dialog.addCheckBox("pre-built heuristic search", searchCategory==STANDARDHEURISTIC);
 		standardSearchBox.addItemListener(this);
 		standardSearchBox.setCheckboxGroup(searchGroup);
-		
+
 		nrepsField = dialog.addIntegerField("Number of search replicates", nreps, 8, 1, MesquiteInteger.infinite);
-		
+
 		channelSearchBox = dialog.addCheckBox("channeled search", channelSearch);
 		nchuckField = dialog.addIntegerField("Save no more than", nchuck, 8, 1, MesquiteInteger.infinite);
 		dialog.suppressNewPanel();
 		chuckScoreField = dialog.addIntegerField("trees of length greater than or equal to", chuckScore, 8, 1, MesquiteInteger.infinite);
 		secondarySearchNoChannelBox = dialog.addCheckBox("subsequent unchanneled search", secondarySearchNoChannel);
-		
+
 		dialog.addHorizontalLine(1);
 		customSearchBox = dialog.addCheckBox("custom heuristic search", searchCategory==CUSTOMHEURISTIC);
 		customSearchBox.addItemListener(this);
@@ -390,18 +404,23 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 
 		dialog.addLabel("Custom Search Commands");
 		customSearchOptionsField = dialog.addTextAreaSmallFont(customSearchOptions, 4,60);
-		
+
 		dialog.addHorizontalLine(1);
 		branchAndBoundSearchBox = dialog.addCheckBox("branch and bound search", searchCategory==BANDB);
 		branchAndBoundSearchBox.addItemListener(this);
 		branchAndBoundSearchBox.setCheckboxGroup(searchGroup);
+		alltreesSearchBox = dialog.addCheckBox("exhaustive search", searchCategory==ALLTREES);
+		alltreesSearchBox.addItemListener(this);
+		alltreesSearchBox.setCheckboxGroup(searchGroup);
 
 		dialog.addHorizontalLine(1);
-		
+
 		getConsensusBox = dialog.addCheckBox("only read in strict consensus", getConsensus);
 
-		
-		
+		dialog.addHorizontalLine(1);
+		dialog.addLabel("(To conduct a regular search, \"regular search\" must be selected in the General panel) ", Label.LEFT, true, true);
+
+
 		if (bootstrapAllowed) {
 			tabbedPanel.addPanel("Resampled Searches", true);
 			bootStrapRepsField = dialog.addIntegerField("Bootstrap/Jackknife Replicates", bootStrapReps, 8, 1, MesquiteInteger.infinite);
@@ -424,7 +443,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			customSearchBootBox.addItemListener(this);
 			customSearchBootBox.setCheckboxGroup(searchGroupBoot);
 
-			
+
 			dialog.addLabel("Custom Search Commands");
 			customSearchOptionsBootField = dialog.addTextAreaSmallFont(customSearchOptionsBoot, 4,60);
 
@@ -432,12 +451,16 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			branchAndBoundSearchBootBox = dialog.addCheckBox("branch and bound search", bootSearchCategory==BANDB);
 			branchAndBoundSearchBootBox.addItemListener(this);
 			branchAndBoundSearchBootBox.setCheckboxGroup(searchGroupBoot);
+			
+			alltreesSearchBootBox = dialog.addCheckBox("exhaustive search", bootSearchCategory==ALLTREES);
+			alltreesSearchBootBox.addItemListener(this);
+			alltreesSearchBootBox.setCheckboxGroup(searchGroupBoot);
 
 			dialog.addHorizontalLine(1);
 			dialog.addLabel("(To conduct resampling, Bootstrap or Jackknife must be selected in the General panel) ", Label.LEFT, true, true);
-		}
+		} 
 
-		
+
 		adjustDialogText(searchCategory, false);	
 		adjustDialogText(bootSearchCategory, true);	
 
@@ -454,9 +477,9 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		getConsensus = getConsensusBox.getState();
 		customSearchOptions = customSearchOptionsField.getText();
 		paupCommands = paupCommandsField.getText();
-		
+
 		queryOptionsProcessExtra(dialog);
-		
+
 		nreps=nrepsField.getValue();
 		nchuck=nchuckField.getValue();
 		chuckScore=chuckScoreField.getValue();
@@ -467,8 +490,10 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			searchCategory=CUSTOMHEURISTIC;
 		else if (branchAndBoundSearchBox.getState())
 			searchCategory=BANDB;
+		else if (alltreesSearchBox.getState())
+			searchCategory=ALLTREES;
 		secondarySearchNoChannel = secondarySearchNoChannelBox.getState();
-		
+
 		if (bootstrapAllowed) {
 			nrepsBoot=nrepsBootField.getValue();
 			nchuckBoot=nchuckBootField.getValue();
@@ -480,8 +505,10 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 				bootSearchCategory=CUSTOMHEURISTIC;
 			else if (branchAndBoundSearchBootBox.getState())
 				bootSearchCategory=BANDB;
+			else if (alltreesSearchBootBox.getState())
+				bootSearchCategory=ALLTREES;
 		}
-		
+
 		maxTrees = maxTreesField.getValue();
 		maxTreesIncrease = maxTreesIncreaseBox.getState();
 
