@@ -19,7 +19,7 @@ import mesquite.lib.duties.TreeSource;
 import mesquite.zephyr.PAUPLikelihoodRunnerLocal.PAUPLikelihoodRunnerLocal;
 import mesquite.zephyr.lib.*;
 
-public class PAUPLikelihoodTreesLocal extends PAUPTrees implements LikelihoodAnalysis {
+public class PAUPLikelihoodTreesLocal extends PAUPLikelihoodTrees implements LikelihoodAnalysis {
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
@@ -52,6 +52,11 @@ public class PAUPLikelihoodTreesLocal extends PAUPTrees implements LikelihoodAna
 	 public String getProgramLocation(){
 		 return "Local";
 	}
+		/*.................................................................................................................*/
+		public String getMethodNameForTreeBlock() {
+			return "ML";
+		}
+
 		/*.................................................................................................................*/
 
 		public String getName() {

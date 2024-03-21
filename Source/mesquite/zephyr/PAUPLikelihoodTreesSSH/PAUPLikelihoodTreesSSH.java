@@ -19,7 +19,7 @@ import mesquite.lib.duties.TreeSource;
 import mesquite.zephyr.PAUPLikelihoodRunnerSSH.PAUPLikelihoodRunnerSSH;
 import mesquite.zephyr.lib.*;
 
-public class PAUPLikelihoodTreesSSH extends PAUPTrees implements LikelihoodAnalysis {
+public class PAUPLikelihoodTreesSSH extends PAUPLikelihoodTrees implements LikelihoodAnalysis {
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
@@ -53,6 +53,11 @@ public class PAUPLikelihoodTreesSSH extends PAUPTrees implements LikelihoodAnaly
 			 return runner.getProgramLocation();
 		 return "SSH Server";
 	}
+		/*.................................................................................................................*/
+		public String getMethodNameForTreeBlock() {
+			return "ML";
+		}
+
 	/*.................................................................................................................*/
 
 	public String getName() {

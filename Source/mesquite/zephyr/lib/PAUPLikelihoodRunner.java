@@ -43,6 +43,7 @@ public abstract class PAUPLikelihoodRunner extends PAUPSearchRunner {
 		numThreadsField = dialog.addIntegerField("number of threads (use 0 for auto option)", numThreads, 8, 0, MesquiteInteger.infinite);
 
 	}
+
 	/*.................................................................................................................*/
 	public String getPAUPCommandExtras() {
 		if (MesquiteInteger.isCombinable(numThreads))

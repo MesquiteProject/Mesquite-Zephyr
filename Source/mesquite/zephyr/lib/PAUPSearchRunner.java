@@ -297,15 +297,25 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		return s;
 	}
 	/*.................................................................................................................*/
+	public String paupCriterionDetails() {
+		return "";
+	}
+	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
 		if (StringUtil.notEmpty(paupCommands))
 			appendToSearchDetails("Pre-search commands: " + paupCommands);
 		appendToSearchDetails("Search details: \n");
+		String s = paupCriterionDetails();
 		if (bootstrapOrJackknife()){
+			appendToSearchDetails("   "+getOptimalTreeAdjectiveLowerCase() +"\n");
 			appendToSearchDetails("   "+getResamplingKindName() +"\n");
 			appendToSearchDetails("   "+bootStrapReps + " replicates");
+			if (StringUtil.notEmpty(s))
+				appendToSearchDetails("   "+s +"\n");
 		} else {
 			appendToSearchDetails("   Search for " + getOptimalTreeAdjectiveLowerCase() + " trees\n");
+			if (StringUtil.notEmpty(s))
+				appendToSearchDetails("   "+s +"\n");
 			if (MesquiteInteger.isCombinable(numTreesFound))
 				appendToSearchDetails("\n   Number of trees found: "+numTreesFound+"\n");
 		}
