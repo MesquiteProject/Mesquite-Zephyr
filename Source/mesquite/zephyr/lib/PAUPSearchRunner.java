@@ -181,22 +181,30 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		return true;
 	}
 	/*.................................................................................................................*/
+	StringBuffer searchDetailsBuffer= new StringBuffer();
+	
+	/*.................................................................................................................*/
 	public String getPAUPCommandFileMiddle(String dataFileName, String outputTreeFileName, CategoricalData data, String constraintTree){
 		StringBuffer sb = new StringBuffer();
-		sb.append("\texec " + StringUtil.tokenize(dataFileName) + ";" + StringUtil.lineEnding());
+		sb.append("\texec " + StringUtil.tokenize(dataFileName) + ";" + StringUtil.lineEnding()+ StringUtil.lineEnding());
+		
+		
+		searchDetailsBuffer.setLength(0);
+		
+		
 		sb.append("\t"+ getCriterionSetCommand() +  StringUtil.lineEnding());
 		sb.append("\tset maxtrees=" + maxTrees + " increase=");
 		if (maxTreesIncrease)
 			sb.append("auto;" + StringUtil.lineEnding());
 		else
 			sb.append("no;" + StringUtil.lineEnding());
+
 		if (isConstrainedSearch() && StringUtil.notEmpty(constraintTree)) {
 			if (useConstraintTree == BACKBONE)
 				sb.append("\tconstraints constraintTree (BACKBONE) =  " + constraintTree +";" + StringUtil.lineEnding()); 
 			else if (useConstraintTree == MONOPHYLY)
 				sb.append("\tconstraints constraintTree (MONOPHYLY) =  " + constraintTree +";" + StringUtil.lineEnding()); 
 		}
-
 
 		if (bootstrapOrJackknife()) {  //bootstrap or jackknife
 
@@ -260,6 +268,10 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			} else if (searchCategory==ALLTREES) {
 				sb.append("\talltrees fd=barChart fdFile=paupFrequencyDistribution.txt  scoreFile=paupScoreFile.txt ;" + StringUtil.lineEnding());
 			}
+			
+			
+			
+			
 			sb.append("\t"+ getCriterionScoreCommand() + " 1 / scorefile=" + StringUtil.tokenize(scoreFileName) + " replace;" + StringUtil.lineEnding());
 			if (getConsensus)
 				sb.append("\n\tcontree all/strict=yes treefile=" + StringUtil.tokenize(outputTreeFileName) + ";" + StringUtil.lineEnding());
@@ -310,10 +322,15 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			appendToSearchDetails("   "+getOptimalTreeAdjectiveLowerCase() +"\n");
 			appendToSearchDetails("   "+getResamplingKindName() +"\n");
 			appendToSearchDetails("   "+bootStrapReps + " replicates");
+			if (StringUtil.notEmpty(paupCommands))
+				appendToSearchDetails("   "+paupCommands +"\n");
 			if (StringUtil.notEmpty(s))
 				appendToSearchDetails("   "+s +"\n");
 		} else {
 			appendToSearchDetails("   Search for " + getOptimalTreeAdjectiveLowerCase() + " trees\n");
+						
+			if (StringUtil.notEmpty(paupCommands))
+				appendToSearchDetails("   "+paupCommands +"\n");
 			if (StringUtil.notEmpty(s))
 				appendToSearchDetails("   "+s +"\n");
 			if (MesquiteInteger.isCombinable(numTreesFound))
