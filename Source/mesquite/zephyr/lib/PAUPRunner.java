@@ -307,7 +307,12 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		dataFileName = "dataFile.nex";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 		boolean fileSaved = false;
-		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, true, true, false, true);
+		if (partitionScheme == partitionByCharacterGroups)
+			fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, true, true, false, true);
+		else if (partitionScheme == partitionByCodonPosition)
+			fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, true, true, true, true);
+		else
+			fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, false, true, false, true);  // no partition
 		if (!fileSaved) return null;
 
 		setFileNames();

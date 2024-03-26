@@ -408,6 +408,12 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 	/*.................................................................................................................*/
 	public void queryOptionsProcessExtra(ExtensibleDialog dialog) {
 	}
+	/*.................................................................................................................*/
+	public void queryExtraPanelsSetup(ExtensibleDialog dialog, MesquiteTabbedPanel tabbedPanel) {
+	}
+	/*.................................................................................................................*/
+	public void queryExtraPanelsProcess(ExtensibleDialog dialog) {
+	}
 
 	/*.................................................................................................................*/
 	public void queryOptionsSetup(ExtensibleDialog dialog, MesquiteTabbedPanel tabbedPanel) {
@@ -508,6 +514,11 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			dialog.addHorizontalLine(1);
 			resamplingSearchLabel = dialog.addLabel("(To conduct resampling, Bootstrap or Jackknife must be selected in the General panel) ", Label.LEFT, true, true);
 		} 
+		
+		queryExtraPanelsSetup(dialog, tabbedPanel);
+		
+		
+		
 		setLabels(searchStyle);
 
 		adjustDialogText(searchCategory, false);	
@@ -528,6 +539,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		paupCommands = paupCommandsField.getText();
 
 		queryOptionsProcessExtra(dialog);
+		
 
 		nreps=nrepsField.getValue();
 		nchuck=nchuckField.getValue();
@@ -557,6 +569,9 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 			else if (alltreesSearchBootBox.getState())
 				bootSearchCategory=ALLTREES;
 		}
+		
+		queryExtraPanelsProcess(dialog);
+
 
 		maxTrees = maxTreesField.getValue();
 		maxTreesIncrease = maxTreesIncreaseBox.getState();
