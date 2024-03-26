@@ -423,7 +423,7 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 		dialog.addHorizontalLine(1);
 
 		dialog.addLabel("Additional commands before search command: ");
-		paupCommandsField =dialog.addTextAreaSmallFont(paupCommands,4);
+		paupCommandsField =dialog.addTextAreaSmallFont(paupCommands,6);
 		//dialog.addCheckBox("bootstrap", doBootstrap);
 		maxTreesField = dialog.addIntegerField("Maximum number of trees (maxtrees)", maxTrees, 8, 1, MesquiteInteger.infinite);
 		maxTreesIncreaseBox= dialog.addCheckBox("increase maxtrees if needed", maxTreesIncrease);

@@ -307,7 +307,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		dataFileName = "dataFile.nex";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 		boolean fileSaved = false;
-		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, true, true, true, true);
+		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, true, true, false, true);
 		if (!fileSaved) return null;
 
 		setFileNames();
@@ -796,7 +796,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	public boolean stdErrIsTrueError(String stdErr) {
 		if (StringUtil.notEmpty(stdErr)) {
 			stdErr = StringUtil.stripBoundingWhitespace(stdErr);
-			if (StringUtil.startsWithIgnoreCase(stdErr,  "Error"))
+			if (StringUtil.containsIgnoreCase(stdErr,  "Error"))
 				return true;
 			else
 				return false;
