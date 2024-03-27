@@ -80,6 +80,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 			return sorry("Couldn't hire an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
+		setUpRunner();
 
 		return true;
 	}
