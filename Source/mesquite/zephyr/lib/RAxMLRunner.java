@@ -42,7 +42,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	//	String MPIsetupCommand = "";
 	boolean showIntermediateTrees = true;
 
-	protected int numRuns = 5;
+	protected int numRuns = 1;
 	protected int numRunsCompleted = 0;
 	protected int run = 0;
 
@@ -350,8 +350,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		String helpString = getHelpString();
 
 		dialog.appendToHelpString(helpString);
-		if (zephyrRunnerEmployer!=null)
-			dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
+		dialog.setHelpURL(getHelpURL(zephyrRunnerEmployer));
 
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();

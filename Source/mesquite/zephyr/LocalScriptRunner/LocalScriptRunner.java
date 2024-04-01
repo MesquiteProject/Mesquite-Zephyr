@@ -127,6 +127,10 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			return executablePath;
 	}
 
+	public boolean useAppInAppFolder() {
+		return useDefaultExecutablePath && getDefaultExecutablePathAllowed();
+	}
+
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
 		return true;

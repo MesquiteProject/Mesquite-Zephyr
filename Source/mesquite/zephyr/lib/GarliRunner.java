@@ -711,8 +711,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose GARLI Score.";
 
 		dialog.appendToHelpString(helpString);
-		if (zephyrRunnerEmployer!=null)
-			dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
+		dialog.setHelpURL(getHelpURL(zephyrRunnerEmployer));
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 		String extraLabel = getLabelForQueryOptions();

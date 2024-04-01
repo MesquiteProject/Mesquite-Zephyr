@@ -158,6 +158,34 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public AppInformationFile getAppInfoFile() {
 		return AppHarvester.getAppInfoFileForProgram(this);
 	}
+	/*.................................................................................................................*/
+	public String getCitation()  {
+		String addendum = "";
+		AppInformationFile appInfoFile = getAppInfoFile();
+		if (externalProcRunner.useAppInAppFolder()) 
+			if (appInfoFile!=null) {
+				if (StringUtil.notEmpty(appInfoFile.getCitation())) {
+					addendum = " " + appInfoFile.getCitation();
+				} else if (StringUtil.notEmpty(appInfoFile.getCitationURL())) {
+					addendum = " For citation information about " + getProgramName() + " see: " + appInfoFile.getCitationURL();
+				}
+			}
+		return super.getCitation() + addendum;
+	}
+	
+	/*.................................................................................................................*/
+	public String getHelpURL(ZephyrRunnerEmployer zephyrRunnerEmployer) {
+		AppInformationFile appInfoFile = getAppInfoFile();
+		if (externalProcRunner.useAppInAppFolder()) 
+			if (appInfoFile!=null) {
+				if (StringUtil.notEmpty(appInfoFile.getURL()))
+					return appInfoFile.getURL();
+			}
+		if (zephyrRunnerEmployer!=null)
+			return zephyrRunnerEmployer.getProgramURL();
+		return "";
+	}
+
 
 	/*.................................................................................................................*
 	public void examineAppsFolder(String programName) { 

@@ -52,6 +52,10 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public void setScriptBased(boolean scriptBased) {
 		this.scriptBased = scriptBased;
 	}
+	
+	public boolean useAppInAppFolder() {
+		return false;
+	}
 
 
 	public String[] getDefaultModule() {

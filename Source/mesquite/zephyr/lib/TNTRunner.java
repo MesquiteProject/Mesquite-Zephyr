@@ -434,7 +434,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 				+ "Mesquite will read in the trees found by TNT. ";
 
 		queryOptionsDialog.appendToHelpString(helpString);
-		queryOptionsDialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
+		queryOptionsDialog.setHelpURL(getHelpURL(zephyrRunnerEmployer));
 
 		MesquiteTabbedPanel tabbedPanel = queryOptionsDialog.addMesquiteTabbedPanel();
 		String extraLabel = getLabelForQueryOptions();
