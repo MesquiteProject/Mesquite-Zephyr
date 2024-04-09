@@ -1347,6 +1347,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	protected static final int WORKING_TREEFILE=3;
 
 	/*.................................................................................................................*/
+	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
 
@@ -1360,6 +1361,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		String[] outputFilePaths = new String[logFileNames.length];
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
 		String filePath=outputFilePaths[fileNum];
+		setTimeOfEarlyRep(numRunsCompleted);
 
 		if (fileNum==OUT_LOGFILE && outputFilePaths.length>OUT_LOGFILE && !StringUtil.blank(outputFilePaths[OUT_LOGFILE]) && !bootstrapOrJackknife()) {   // screen log
 			String newFilePath = filePath;
@@ -1437,6 +1439,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		if (fileNum==OUT_SUMMARYFILE && outputFilePaths.length>OUT_SUMMARYFILE && !StringUtil.blank(outputFilePaths[OUT_SUMMARYFILE])) {   // info file
 			if (MesquiteFile.fileExists(filePath)) {
+				setTimeOfEarlyRep(numRunsCompleted);
 				//String s = MesquiteFile.getFileLastContents(filePath,fPOS);
 				String s = MesquiteFile.getFileContentsAsString(filePath);
 				long lastLength = s.length();
@@ -1505,19 +1508,23 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 						}
 
 						if (externalProcRunner.canCalculateTimeRemaining(numRunsCompleted)) {
-							double timePerRep = timer.timeSinceVeryStartInSeconds()/numRunsCompleted;   //this is time per rep
-							int timeLeft = 0;
-							if (bootstrapOrJackknife()) {
-								timeLeft = (int)((bootstrapreps- numRunsCompleted) * timePerRep);
-							}
-							else {
-								timeLeft = (int)((numRuns- numRunsCompleted) * timePerRep);
-							}
-							double timeSoFar = timer.timeSinceVeryStartInSeconds();
-							if (isVerbose()){
-								logln("   Run time " +  StringUtil.secondsToHHMMSS((int)timeSoFar)  + ", approximate time remaining " + StringUtil.secondsToHHMMSS(timeLeft));
-								logln("    Average time per replicate:  " +  StringUtil.secondsToHHMMSS((int)timePerRep));
-								logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
+
+							double timePerRep = getTimePerRep(numRunsCompleted);   //this is time per rep
+							if (timePerRep>0 && numRunsCompleted>1) {
+								int timeLeft = 0;
+								if (bootstrapOrJackknife()) {
+									timeLeft = (int)((bootstrapreps- numRunsCompleted) * timePerRep);
+								}
+								else {
+									timeLeft = (int)((numRuns- numRunsCompleted) * timePerRep);
+								}
+								double timeSoFar = timer.timeSinceVeryStartInSeconds();
+								if (isVerbose()){
+									logln("   Run time " +  StringUtil.secondsToHHMMSS((int)timeSoFar)  + ", approximate time remaining " + StringUtil.secondsToHHMMSS(timeLeft));
+									logln("    Average time per replicate:  " +  StringUtil.secondsToHHMMSS((int)timePerRep));
+									logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
+									logln("    Estimated time of completion: " + getTimeOfCompletion(timeLeft));
+								}
 							}
 						}
 

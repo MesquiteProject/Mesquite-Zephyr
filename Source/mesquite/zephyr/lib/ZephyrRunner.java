@@ -35,6 +35,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected CategoricalData data;
 	protected boolean createdNewDataObject;
 	protected MesquiteTimer timer = new MesquiteTimer();
+	protected double timeOfEarlyRep = 0.0;
+	protected int numEarlyReps = 0;
+	protected boolean earlyRepsSet = false;
 	protected Taxa taxa;
 	protected String unique;
 	protected Random rng;
@@ -996,7 +999,28 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			s+= "["+data.getName() + "]";
 		return s;
 	}
+	/*.................................................................................................................*/
+	public void setTimeOfEarlyRep(int numReplicates) {
+		if (!earlyRepsSet && numReplicates>0) {
+			timeOfEarlyRep = timer.timeSinceVeryStartInSeconds() ;
+			numEarlyReps = numReplicates;
+			earlyRepsSet=true;
+		}
+	}
+	/*.................................................................................................................*/
+	public double getTimePerRep(int numReplicates) {
+		if (numReplicates-numEarlyReps>0)
+				return (timer.timeSinceVeryStartInSeconds() - timeOfEarlyRep)/(numReplicates-numEarlyReps);
+		else
+			return -1 ;
+	}
+	/*.................................................................................................................*/
+	public String getTimeOfCompletion(int timeToCompletion) {
+		return getFutureDateAndTime(timeToCompletion);
 
+	}
+
+	
 	/*.................................................................................................................*/
 
 	public void runFilesAvailable(boolean[] filesAvailable) {

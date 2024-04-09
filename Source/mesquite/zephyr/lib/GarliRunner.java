@@ -1147,6 +1147,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		String[] outputFilePaths = new String[logFileNames.length];
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
 		String filePath = outputFilePaths[fileNum];
+		setTimeOfEarlyRep(numRunsCompleted);
+
 
 		/*
 		 * if (fileNum==1) filePath =
@@ -1218,14 +1220,18 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 						}
 						runNumber++;
 						numRunsCompleted++;
-						double timePerRep = timer.timeSinceVeryStartInSeconds()/ numRunsCompleted; // this is time per rep
-						int timeLeft = 0;
-						if (bootstrapOrJackknife()) {
-							timeLeft = (int) ((bootstrapreps - numRunsCompleted) * timePerRep);
-						} else {
-							timeLeft = (int) ((numRuns - numRunsCompleted) * timePerRep);
+						setTimeOfEarlyRep(numRunsCompleted);
+						double timePerRep = getTimePerRep(numRunsCompleted);   //this is time per rep
+						if (timePerRep>0 && numRunsCompleted>1) {
+							int timeLeft = 0;
+							if (bootstrapOrJackknife()) {
+								timeLeft = (int) ((bootstrapreps - numRunsCompleted) * timePerRep);
+							} else {
+								timeLeft = (int) ((numRuns - numRunsCompleted) * timePerRep);
+							}
+							logln("  Running time so far " + StringUtil.secondsToHHMMSS((int) timer.timeSinceVeryStartInSeconds()) + ", approximate time remaining "+ StringUtil.secondsToHHMMSS(timeLeft));
+							logln("  Estimated time of completion: " + getTimeOfCompletion(timeLeft));
 						}
-						logln("  Running time so far " + StringUtil.secondsToHHMMSS((int) timer.timeSinceVeryStartInSeconds()) + ", approximate time remaining "+ StringUtil.secondsToHHMMSS(timeLeft));
 
 					} else if (s.startsWith("ERROR:")) {
 						MesquiteMessage.discreetNotifyUser("GARLI " + s);

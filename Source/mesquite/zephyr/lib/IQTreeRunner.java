@@ -1386,6 +1386,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		String[] outputFilePaths = new String[logFileNames.length];
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
 		String filePath=outputFilePaths[fileNum];
+		setTimeOfEarlyRep(numRunsCompleted);
 
 		if (fileNum==OUT_LOGFILE && outputFilePaths.length>OUT_LOGFILE && !StringUtil.blank(outputFilePaths[OUT_LOGFILE]) && !bootstrapOrJackknife()) {   // screen log
 			String newFilePath = filePath;
@@ -1445,9 +1446,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				if (!StringUtil.blank(s)) {
 					if (searchStyle==STANDARDBOOTSTRAP || numRuns>1) {
 						numRunsCompleted=StringUtil.getNumberOfLines(s);
+						setTimeOfEarlyRep(numRunsCompleted);
 						currentRun=numRunsCompleted;
 						if (externalProcRunner.canCalculateTimeRemaining(numRunsCompleted)) {
-							double timePerRep = timer.timeSinceVeryStartInSeconds()/numRunsCompleted;   //this is time per rep
+							double timePerRep = getTimePerRep(numRunsCompleted);   //this is time per rep
 							int timeLeft = 0;
 							if (searchStyle==STANDARDBOOTSTRAP) {
 								logln("\n"+getExecutableName()+" bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
@@ -1461,11 +1463,14 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 								logln("\n"+getExecutableName()+" search replicate " + numRunsCompleted + " of " + numRuns+" completed");
 								timeLeft = (int)((numRuns- numRunsCompleted) * timePerRep);
 							}
-							double timeSoFar = timer.timeSinceVeryStartInSeconds();
-							if (isVerbose()){
-								logln("   Run time " +  StringUtil.secondsToHHMMSS((int)timeSoFar)  + ", approximate time remaining " + StringUtil.secondsToHHMMSS(timeLeft));
-								logln("    Average time per replicate:  " +  StringUtil.secondsToHHMMSS((int)timePerRep));
-								logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
+							if (timePerRep>0 && numRunsCompleted>1) {
+								double timeSoFar = timer.timeSinceVeryStartInSeconds();
+								if (isVerbose()){
+									logln("   Run time " +  StringUtil.secondsToHHMMSS((int)timeSoFar)  + ", approximate time remaining " + StringUtil.secondsToHHMMSS(timeLeft));
+									logln("    Average time per replicate:  " +  StringUtil.secondsToHHMMSS((int)timePerRep));
+									logln("    Estimated total time:  " +  StringUtil.secondsToHHMMSS((int)(timeSoFar+timeLeft))+"\n");
+									logln("    Estimated time of completion: " + getTimeOfCompletion(timeLeft));
+								}
 							}
 						} else {  // at least report the number of reps
 							logln("");
