@@ -46,15 +46,16 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 		suffix+= processRequester.getSuffixForProgramCommand();
 			
 		
-		if (!processRequester.allowStdErrRedirect())
-			shellScript.append(programCommand + " " + args);
-		else {
-			if (visibleTerminal && isMacOSX()) {
-				shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName);
-			}
-			else
-				shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName);
+		if (visibleTerminal && isMacOSX()) {
+			 if (!processRequester.allowStdErrRedirect())
+				 shellScript.append(programCommand + " " + args+ " >/dev/tty ");
+			 else 
+				 shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName);
 		}
+		else if (!processRequester.allowStdErrRedirect())
+			shellScript.append(programCommand + " " + args);
+		else 
+				shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName);
 		
 		if (!processRequester.removeCommandSameCommandLineAsProgramCommand()) {
 			shellScript.append(suffix + StringUtil.lineEnding(isWindows()));

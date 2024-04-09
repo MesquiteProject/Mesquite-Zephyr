@@ -403,13 +403,9 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		}
 */		return true;
 	}
-	/*.................................................................................................................*/
-	public static boolean isMacOSXCatalinaOrLater(){
-		return System.getProperty("os.name").startsWith("Mac OS X") && (MesquiteTrunk.getOSXVersion()>=15);
-	} 	
 
 	public boolean visibleTerminalOptionAllowed(){
-		return ShellScriptRunner.localScriptRunsCanDisplayTerminalWindow() && !processRequester.localScriptRunsRequireTerminalWindow() && !isMacOSXCatalinaOrLater();
+		return ShellScriptRunner.localScriptRunsCanDisplayTerminalWindow() && !processRequester.localScriptRunsRequireTerminalWindow() && !MesquiteTrunk.isMacOSXCatalinaOrLater();
 	}
 	public boolean getDirectProcessConnectionAllowed(){
 		return processRequester.getDirectProcessConnectionAllowed() && MesquiteTrunk.isJavaGreaterThanOrEqualTo(1.7);
@@ -485,7 +481,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 
 		if (scriptBased) {
 			String shellScript = getShellScript(programCommand, localRootDir, args);
-			scriptPath = localRootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
+			scriptPath = localRootDir + scriptFileName;// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
 			MesquiteFile.putFileContents(scriptPath, shellScript, false);
 		}
 		/* alternative, not well tested
@@ -516,7 +512,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			//shellScript.append("badCommand2 "+StringUtil.lineEnding()); 
 			if (scriptBased&&addExitCommand && ShellScriptUtil.exitCommandIsAvailableAndUseful())
 				shellScript.append("\n" + ShellScriptUtil.getExitCommand() + "\n");
-			scriptPath = rootDir + "Script.bat";// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
+			scriptPath = rootDir + scriptFileName;// + MesquiteFile.massageStringToFilePathSafe(unique) + ".bat";
 			MesquiteFile.putFileContents(scriptPath, shellScript.toString(), false);
 		}
 		*/

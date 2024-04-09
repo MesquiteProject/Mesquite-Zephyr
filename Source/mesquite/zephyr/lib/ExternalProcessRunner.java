@@ -23,7 +23,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	protected boolean readyForReconnectionSave = false;
 	protected boolean onlySetUpRun = false;
 	protected boolean leaveAnalysisDirectoryIntact = false;
-	public boolean scriptBased = false;
+	protected boolean scriptBased = false;
 	protected boolean visibleTerminal = false;
 
 
