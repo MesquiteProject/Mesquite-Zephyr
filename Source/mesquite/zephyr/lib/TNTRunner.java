@@ -737,7 +737,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		//David: if isDoomed() then module is closing down; abort somehow
 
 		//write data file
-		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "TNT","-Run.");  
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, "TNT","-Run.");  
 		if (tempDir==null)
 			return null;
 		String dataFileName = "data.ss";   //replace this with actual file name?

@@ -918,7 +918,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		setGarliSeed(seed);
 
 		// create the data file
-		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this,MesquiteFileUtil.IN_SUPPORT_DIR, "GARLI", "-Run.");
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this,MesquiteFileUtil.BESIDE_HOME_FILE, "GARLI", "-Run.");
 		if (tempDir == null)
 			return null;
 

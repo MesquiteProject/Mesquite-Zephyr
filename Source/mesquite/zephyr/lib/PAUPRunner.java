@@ -301,7 +301,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		//David: if isDoomed() then module is closing down; abort somehow
 
 		//write data file
-		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "PAUP","-Run.");  
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, "PAUP","-Run.");  
 		if (tempDir==null)
 			return null;
 		dataFileName = "dataFile.nex";   //replace this with actual file name?
