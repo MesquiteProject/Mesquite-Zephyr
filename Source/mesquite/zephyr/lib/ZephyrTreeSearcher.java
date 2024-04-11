@@ -31,11 +31,11 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences();
-
-		matrixSourceTask = (MatrixSourceCoord)hireCompatibleEmployee(MatrixSourceCoord.class, getCharacterClass(), "Source of matrix (for " + getName() + ")");
-		if (matrixSourceTask == null)
-			return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
-
+		if (!(condition instanceof String && ((String)condition).equals("acceptImposedMatrixSource"))) {
+			matrixSourceTask = (MatrixSourceCoord)hireCompatibleEmployee(MatrixSourceCoord.class, getCharacterClass(), "Source of matrix (for " + getName() + ")");
+			if (matrixSourceTask == null)
+				return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
+		}
 		runner = (ZephyrRunner)hireNamedEmployee(getRunnerClass(), getRunnerModuleName());
 		if (runner ==null)
 			return false;
@@ -43,6 +43,11 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		runner.setUpdateWindow(true);
 		return true;
 	}
+	/*.................................................................................................................*/
+	 public void setMatrixSource(MatrixSourceCoord msource) {
+		 super.setMatrixSource(msource);
+		 this.matrixSourceTask = getMatrixSource();
+	 }
 	public  void setOutputTextListener(OutputTextListener textListener){
 		if (runner != null)
 			runner.setOutputTextListener(textListener);
@@ -70,7 +75,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			return runner.getCommandOfTextCommandLink();
 		return "";
 	}
-/*.................................................................................................................*/
+	/*.................................................................................................................*/
 	public void processUserClickingOnTextCommandLink(String command) {
 		if (runner!=null)
 			runner.processUserClickingOnTextCommandLink(command);
@@ -228,7 +233,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 	/*.................................................................................................................*/
 	public Class getCharacterClass() {
-		return null;
+		return CategoricalData.class;
 	}
 
 	private boolean initializeObservedStates(Taxa taxa) {
@@ -274,11 +279,11 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			name += " ["+ getProgramLocation() +"]";
 		return name;
 	}
-	
+
 	public String getColorForProgramLocationHTMLText() {
 		return "#3d7040";
 	}
-	
+
 	public String getNameForHTML() {
 		String name =  getProgramName() + " Trees";
 		if (StringUtil.notEmpty(getMethodNameForTreeBlock()))
@@ -292,7 +297,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		}
 		return name;
 	}
-	
+
 	public String getNameForMenuItem() {
 		return getName()+ "..."; 
 	}
@@ -342,7 +347,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		MesquiteDouble finalScores = new MesquiteDouble();
 
 		runner.setTreeInferer(getTreeInferer());
-		
+
 		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
 		runner.setRunInProgress(false);
 		appendSearchDetails();
@@ -431,7 +436,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		taxa = treeList.getTaxa();
 		if (!initialize(taxa))
 			return;
-		
+
 		//DISCONNECTABLE
 		TreeVector trees = getTrees(taxa);
 		if (trees == null)
