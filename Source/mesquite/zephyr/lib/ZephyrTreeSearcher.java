@@ -233,7 +233,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 	/*.................................................................................................................*/
 	public Class getCharacterClass() {
-		return CategoricalData.class;
+		return null; //Debugg.println need to have this return CategoricalData if relevant and then still work with Zephyr run [return CategoricalData.class;
 	}
 
 	private boolean initializeObservedStates(Taxa taxa) {
