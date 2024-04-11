@@ -104,6 +104,7 @@ public class OptimalTreeScoreForMatrix extends NumberForMatrix implements Reconn
 
 
 	/*.................................................................................................................*/
+	//This should be the subclass of CharacterState, not CharacterData
 	public Class getCharacterClass() {
 		return null;
 	}

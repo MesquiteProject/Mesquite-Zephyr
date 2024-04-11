@@ -174,6 +174,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		return -2000;  
 	}
 	/*.................................................................................................................*/
+	//This should be the subclass of CharacterState, not CharacterData
 	public Class getCharacterClass() {
 		return null;
 	}
