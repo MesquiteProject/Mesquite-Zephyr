@@ -89,7 +89,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		}
 		if (appInfoFile!=null) {
 			String fullPath = appInfoFile.getFullPath();
-			Debugg.println(getAppInfoForLog());
 			return fullPath;
 		}
 		return null;
