@@ -11,7 +11,9 @@ package mesquite.zephyr.lib;
 
 import java.util.*;
 
+
 import mesquite.categ.lib.CategoricalData;
+import mesquite.categ.lib.CategoricalState;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -232,8 +234,11 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 
 	/*.................................................................................................................*/
+	//This should be the subclass of CharacterState, not CharacterData
+	// subclasses can override this if they want something more specific or a different character type
 	public Class getCharacterClass() {
-		return null; //Debugg.println need to have this return CategoricalData if relevant and then still work with Zephyr run [return CategoricalData.class;
+		return CategoricalState.class;
+		//return null; 
 	}
 
 	private boolean initializeObservedStates(Taxa taxa) {

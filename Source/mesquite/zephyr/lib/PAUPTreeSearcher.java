@@ -63,6 +63,7 @@ public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 	}
 
 	/*.................................................................................................................*/
+	//This should be the subclass of CharacterState, not CharacterData
 	public Class getCharacterClass() {
 		return null;
 	}
