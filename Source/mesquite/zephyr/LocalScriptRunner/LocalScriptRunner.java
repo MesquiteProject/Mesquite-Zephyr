@@ -105,6 +105,18 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		}
 		return null;
 	}
+	/*.................................................................................................................*/
+	public String getOtherPropertiesFromAppInfo(){
+		if (!useDefaultExecutablePath || !getDefaultExecutablePathAllowed()) 
+			return null;
+		if (appInfoFile==null) {
+			appInfoFile = getExternalProcessRequester().getAppInfoFile();
+		}
+		if (appInfoFile!=null) {
+			return appInfoFile.getOtherProperties();
+		}
+		return null;
+	}
 
 	/*.................................................................................................................*/
 	public String getAppInfoForLog(){

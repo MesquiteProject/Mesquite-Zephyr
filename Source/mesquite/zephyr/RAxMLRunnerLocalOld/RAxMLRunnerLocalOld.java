@@ -55,8 +55,8 @@ public class RAxMLRunnerLocalOld extends RAxMLRunnerBasicOld  {
 	}
 	/*.................................................................................................................*/
 	public boolean requiresPThreads() {
-		String version = ((LocalScriptRunner)externalProcRunner).getVersionFromAppInfo();
-		if (StringUtil.notEmpty(version) && version.contains("PTHREADS"))
+		String otherProperties = ((LocalScriptRunner)externalProcRunner).getOtherPropertiesFromAppInfo();
+		if (StringUtil.notEmpty(otherProperties) && otherProperties.contains("PTHREADS"))
 			return true;
 		return false;
 	}
