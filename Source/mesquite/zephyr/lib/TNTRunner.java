@@ -236,7 +236,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		convertGapsToMissing = true;
 	}
 	public boolean localScriptRunsRequireTerminalWindow(){
-		return true;
+		return false;
 	}
 
 	public boolean vversionAllowed(){
@@ -736,10 +736,11 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 
 		//David: if isDoomed() then module is closing down; abort somehow
 
-		//write data file
-		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, "TNT","-Run.");  
+// create local version of data file; this will then be copied over to the running location		
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "TNT","-Run.");  
 		if (tempDir==null)
 			return null;
+
 		String dataFileName = "data.ss";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 
@@ -771,7 +772,10 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		logln("");
 
 		MesquiteString arguments = new MesquiteString();
-		arguments.setValue(" proc " + commandsFileName);
+		if (MesquiteTrunk.isMacOS())
+			arguments.setValue(" bground proc " + commandsFileName);  //19 May 2024 - added bground
+		else
+			arguments.setValue(" proc " + commandsFileName);  
 
 		String programCommand = getExecutableCommand();
 
@@ -802,6 +806,8 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 
 		//----------//
 		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(),runInformationFileNumber);
+
+		MesquiteFile.deleteDirectory(tempDir);  //delete directory in Support Files
 
 		if (!isDoomed()){
 			if (success){

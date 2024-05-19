@@ -30,7 +30,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	String[] logFileNames;
 	protected static String VERSIONFILENAME = "version.txt";
-	protected ExternalProcessRunner externalProcRunner;
+	public ExternalProcessRunner externalProcRunner;
 	protected ProgressIndicator progIndicator;
 	protected CategoricalData data;
 	protected boolean createdNewDataObject;

@@ -147,9 +147,13 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	}
 	/*.................................................................................................................*/
 	public boolean setRootDir() {
-		if (localRootDir==null) 
+		if (StringUtil.blank(localRootDir)) 
 			localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
 		return localRootDir!=null; 
+	}
+	/*.................................................................................................................*/
+	public void setRootDir(String localRootDir) {
+		this.localRootDir = localRootDir;
 	}
 
 	/*.................................................................................................................*/
