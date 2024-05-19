@@ -448,9 +448,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public void setSearchDetails() {  // for annotation to tree block.  designed to be composed after the tree search started.  
 		if (searchDetails!=null) {
 			searchDetails.setLength(0);
+			searchDetails.append("Mesquite version " + MesquiteTrunk.getMesquiteVersion() + ", build " + MesquiteTrunk.getBuildVersion()+"\n");
+			searchDetails.append("Zephyr version " + getPackageIntroModule().getPackageVersion() + ", build " +  getPackageIntroModule().getPackageBuildNumber() +"\n\n");
 			searchDetails.append("Trees acquired from " + getProgramName() + " using Mesquite's Zephyr package. \n");
 			searchDetails.append(getProgramName() + " run on " + getProgramLocation() +" \n");
-			searchDetails.append("Analysis started " + getDateAndTime()+ "\n");
+			searchDetails.append("\nAnalysis started " + getDateAndTime()+ "\n");
 			if (StringUtil.notEmpty(externalProcRunner.getDirectoryPath()))
 				searchDetails.append("Results stored in folder: " + externalProcRunner.getDirectoryPath()+ "\n");
 			searchStartedDetails = getDateAndTime();

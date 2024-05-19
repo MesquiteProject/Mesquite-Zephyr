@@ -772,7 +772,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		logln("");
 
 		MesquiteString arguments = new MesquiteString();
-		if (MesquiteTrunk.isMacOS())
+		if (MesquiteTrunk.isMacOSX())
 			arguments.setValue(" bground proc " + commandsFileName);  //19 May 2024 - added bground
 		else
 			arguments.setValue(" proc " + commandsFileName);  
