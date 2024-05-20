@@ -293,6 +293,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 					commands +=  getTNTCommand("macro=");				
 					commands +=  getTNTCommand("ttags =");		
 				}
+				commands +=  getTNTCommand("taxname =");			// added 20 May 2024 to ensure proper behavior on reconnect	
 				commands +=  getTNTCommand("tsave *" + treeFileName);				
 				if (bootstrapAllowed) {
 					if (searchStyle==BOOTSTRAPSEARCH)
