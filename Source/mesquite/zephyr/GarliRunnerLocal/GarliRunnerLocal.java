@@ -52,6 +52,10 @@ public class GarliRunnerLocal extends GarliRunner {
 		public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
 			return true;
 		}
+		/*.................................................................................................................*/
+		public boolean canUseLocalApp() {
+			return true;
+		}
 
 	 /*.................................................................................................................*/
 	 public Object getProgramArguments(String dataFileName, String configFileName, boolean isPreflight) {

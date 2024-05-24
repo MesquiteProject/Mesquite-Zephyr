@@ -49,6 +49,11 @@ public class TNTRunnerLocal extends TNTRunner  {
 		return AppHarvester.getAppInfoFileForProgram(this);
 	}
 	/*.................................................................................................................*/
+	public boolean canUseLocalApp() {
+		return true;
+	}
+
+	/*.................................................................................................................*/
 	public String getAppOfficialName() {
 		return "TNT";
 	}

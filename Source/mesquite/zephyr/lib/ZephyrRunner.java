@@ -154,7 +154,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return getExecutableName();
 	}
 	public boolean getDefaultExecutablePathAllowed() {
-		return getHasApp();
+		return canUseLocalApp() && getHasApp();
+	}
+
+	/*.................................................................................................................*/
+	public boolean canUseLocalApp() {
+		return false;
 	}
 
 	/*.................................................................................................................*/

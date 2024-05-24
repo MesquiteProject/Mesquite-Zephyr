@@ -52,6 +52,10 @@ public class IQTreeRunnerLocal extends IQTreeRunnerBasic  {
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
 		return true;
 	}
+	/*.................................................................................................................*/
+	public boolean canUseLocalApp() {
+		return true;
+	}
 
 	/*.................................................................................................................*/
 	public void setUpRunner() { 

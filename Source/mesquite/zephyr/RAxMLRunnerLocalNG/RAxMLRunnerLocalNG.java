@@ -67,6 +67,10 @@ public class RAxMLRunnerLocalNG extends RAxMLRunnerBasicNG  {
 	public String getAppOfficialName() {
 		return "RAxML-NG";
 	}
+	/*.................................................................................................................*/
+	public boolean canUseLocalApp() {
+		return true;
+	}
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer

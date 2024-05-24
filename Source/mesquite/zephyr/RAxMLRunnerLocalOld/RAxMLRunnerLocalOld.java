@@ -60,6 +60,10 @@ public class RAxMLRunnerLocalOld extends RAxMLRunnerBasicOld  {
 			return true;
 		return false;
 	}
+	/*.................................................................................................................*/
+	public boolean canUseLocalApp() {
+		return true;
+	}
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer
