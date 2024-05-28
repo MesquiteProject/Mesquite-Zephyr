@@ -645,6 +645,20 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		//scriptRunner = null;
 		return false;
 	}
+	
+	/*.................................................................................................................*/
+	/** Notifies all employees that a file is about to be closed.*/
+	public boolean fileCloseRequested () {
+		if (scriptBased) {
+			if (scriptRunner!=null) {
+				boolean letRun = AlertDialog.query(containerOfModule(),"Let "+ processRequester.getProgramName() + " run?", "Let "+ processRequester.getProgramName() + " continue to run in the background if possible?", "Let run", "Kill run", 1, "");
+				if (letRun)
+					scriptRunner.setDontKill(true);
+			}
+		} 
+		return true;
+	}
+
 	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equalsIgnoreCase("browse")) {
