@@ -156,15 +156,18 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	}
 	/*.................................................................................................................*/
 	/** Notifies all employees that a file is about to be closed.*/
-	public void fileCloseRequested () {
+	public boolean fileCloseRequested () {
 		if (!MesquiteThread.isScripting()){
 			if (!isReconnectable() || !runner.getReadyForReconnectionSave()){
 				if (taxa != null)
 					taxa.setDirty(true);
-			}
-			discreetAlert(runner.getFileCloseNotification(getProject().getHomeFile().isDirty()));
+			}			
+			boolean close = AlertDialog.query(containerOfModule(), "Close file?", runner.getFileCloseNotification(getProject().getHomeFile().isDirty()), "Close", "Cancel", 2, "");
+			if (!close)
+				return false;
+
 		}
-		super.fileCloseRequested();
+		return super.fileCloseRequested();
 	}
 	/*.................................................................................................................*/
 	public boolean successfulReconnect(){
