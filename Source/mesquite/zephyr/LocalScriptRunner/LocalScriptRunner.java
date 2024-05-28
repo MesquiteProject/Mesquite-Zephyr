@@ -694,6 +694,12 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 
 	public boolean continueShellProcess(Process proc) {
+		if (proc!=null && scriptBased) {
+			if (!scriptRunner.processRunning()) {
+				Debugg.println("***** process no longer running *****");
+				return false;
+			}
+		}
 		if (processRequester.errorsAreFatal()) { 
 			String stdErr = getStdErr();
 			return !processRequester.stdErrIsTrueError(stdErr);
