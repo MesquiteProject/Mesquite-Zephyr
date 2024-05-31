@@ -52,11 +52,11 @@ public abstract class ZephyrNumberForTree extends NumberForTree implements Recon
 
 	/*.................................................................................................................*/
 	/** Notifies all employees that a file is about to be closed.*/
-	public void fileCloseRequested () {
+	public boolean fileCloseRequested () {
 		if (!MesquiteThread.isScripting()){
 			discreetAlert(runner.getFileCloseNotification(getProject().getHomeFile().isDirty()));
 		}
-		super.fileCloseRequested();
+		return super.fileCloseRequested();
 	}
 	MesquiteBoolean runSucceeded = new MesquiteBoolean(true);
 	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/

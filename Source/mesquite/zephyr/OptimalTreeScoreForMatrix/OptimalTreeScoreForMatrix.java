@@ -54,7 +54,7 @@ public class OptimalTreeScoreForMatrix extends NumberForMatrix implements Reconn
 
 	/*.................................................................................................................*/
 	/** Notifies all employees that a file is about to be closed.*/
-	public void fileCloseRequested () {
+	public boolean fileCloseRequested () {
 		if (!MesquiteThread.isScripting()) { //WAYNECHECK:
 			if (runner!=null){
 				if (!runner.isReconnectable())
@@ -66,7 +66,7 @@ public class OptimalTreeScoreForMatrix extends NumberForMatrix implements Reconn
 					discreetAlert("There is a run of "+ runner.getProgramName() + " underway.  " + runner.getMessageIfCloseFileRequested());
 			}
 			}
-		super.fileCloseRequested();
+		return super.fileCloseRequested();
 	}
 	MesquiteBoolean runSucceeded = new MesquiteBoolean(true);
 	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
