@@ -269,11 +269,10 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			runner = (ZephyrRunner)hireNamedEmployee(getRunnerClass(), getRunnerModuleName());
 		}
 		if (runner !=null){
-			runner.initializeTaxa(taxa);
+			return runner.initializeTaxa(taxa);
 		}
 		else
 			return false;
-		return true;
 	}
 
 	public String getExplanation() {
@@ -433,28 +432,27 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 	}
 	/*.................................................................................................................*/
-	public void fillTreeBlock(TreeVector treeList){
-		if (treeList==null || runner==null)
-			return;
-		if (getProject()==null)
-			return;
+	public int fillTreeBlock(TreeVector treeList){
+		if (treeList==null || runner==null || getProject()==null)
+			return NULLVALUE;
 		if (getProject().getHomeFile()==null)
-			return;
+			return NULLVALUE;
 		getProject().getHomeFile().setDirtiedByCommand(true);
 		taxa = treeList.getTaxa();
 		if (!initialize(taxa))
-			return;
+			return USERABORTONINITIALIZE;
 
 		//DISCONNECTABLE
 		TreeVector trees = getTrees(taxa);
 		if (trees == null)
-			return;
+			return NULLVALUE;
 		treeList.setName(trees.getName());
 		treeList.setAnnotation (runner.getSearchDetails(), false);
 		if (trees!=null)
 			treeList.addElements(trees, false);
 		trees.dispose();
 		treeBlockID = treeList.getID();
+		return NOERROR;
 
 	}
 
