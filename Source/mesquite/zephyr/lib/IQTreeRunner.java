@@ -850,18 +850,19 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				return null;
 			}
 			else if (useConstraintTree){
-				if (constraint.hasPolytomies(constraint.getRoot())){
+				//DAVIDCHECK: IQTree does skeletal constraints now, apparently. I commented this stuff oiut, and it worked.
+				//if (constraint.hasPolytomies(constraint.getRoot())){
 					constraintTree = constraint.writeTreeByT0Names(false) + ";";
 					appendToExtraSearchDetails("\nPartial resolution constraint using tree \"" + constraint.getName() + "\"");
 					appendToAddendumToTreeBlockName("Constrained by tree \"" + constraint.getName() + "\"");
-				}
+				/*}
 				else {
 					discreetAlert("Constraint tree cannot be used as a partial resolution constraint because it is strictly dichotomous");
 					constraint=null;
 					if (constraintTreeTask != null)
 						constraintTreeTask.reset();
 					return null;
-				}
+				}*/
 			}
 		}
 		setRootNameForDirectoryInProcRunner();
