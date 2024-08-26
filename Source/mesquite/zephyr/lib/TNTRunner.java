@@ -260,7 +260,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 			commands += getTNTCommand("outgroup " + firstOutgroup);
 		if (bootstrapOrJackknife()) {
 			if (parallel) {
-				commands += indentTNTCommand("ptnt begin parallelRun " + numSlaves + "/ram x 2 = ");
+				commands += indentTNTCommand("ptnt begin demo " + numSlaves + "/ram x 2 = ");
 			}
 			if (StringUtil.notEmpty(bootSearchScriptPath)) {
 				String script = MesquiteFile.getFileContentsAsString(bootSearchScriptPath);

@@ -21,7 +21,7 @@ import mesquite.externalCommunication.lib.*;
 import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
-public class SSHRunner extends ScriptRunner implements OutputFileProcessor, ShellScriptWatcher, OutputFilePathModifier, ActionListener {
+public class SSHRunner extends ScriptRunner implements OutputFileProcessor, ProcessWatcher, OutputFilePathModifier, ActionListener {
 	MesquiteString xmlPrefs= new MesquiteString();
 	String xmlPrefsString = null;
 	StringBuffer extraPreferences;
@@ -658,7 +658,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	public String[] modifyOutputPaths(String[] outputFilePaths){
 		return processRequester.modifyOutputPaths(outputFilePaths);
 	}
-	public boolean continueShellProcess(Process proc) {
+	public boolean continueProcess(Process proc) {
 		return true;
 	}
 	public boolean fatalErrorDetected() {
@@ -666,6 +666,9 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		if (StringUtil.notEmpty(stdErr))
 			return true;
 		return false;
+	}
+	public boolean warnIfError() {
+		return true;
 	}
 
 

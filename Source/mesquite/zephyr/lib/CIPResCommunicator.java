@@ -778,7 +778,7 @@ public class CIPResCommunicator extends RESTCommunicator implements UsernamePass
 				return false;
 			}
 
-			stillGoing = watcher == null || watcher.continueShellProcess(null);
+			stillGoing = watcher == null || watcher.continueProcess(null);
 			String newStatus = getJobStatus(location); 
 			if (newStatus!=null && !newStatus.equalsIgnoreCase(status)) {
 				ownerModule.logln(getServiceName()+" Job Status: " + newStatus + "  (" + StringUtil.getDateTime() + ")");

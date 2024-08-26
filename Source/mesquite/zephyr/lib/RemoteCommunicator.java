@@ -29,7 +29,7 @@ public abstract class RemoteCommunicator  {
 	protected RemoteJobFile[] previousRemoteJobFiles;
 
 	protected OutputFileProcessor outputFileProcessor; // for reconnection
-	protected ShellScriptWatcher watcher; // for reconnection
+	protected ProcessWatcher watcher; // for reconnection
 	protected UsernamePasswordKeeper usernamePasswordKeeper;
 	protected boolean hasBeenReconnected = false;
 	protected boolean authorizationFailure = false;
@@ -123,7 +123,7 @@ public abstract class RemoteCommunicator  {
 	public void setOutputProcessor(OutputFileProcessor outputFileProcessor){
 		this.outputFileProcessor = outputFileProcessor;
 	}
-	public void setWatcher(ShellScriptWatcher watcher){
+	public void setWatcher(ProcessWatcher watcher){
 		this.watcher = watcher;
 	}
 
@@ -381,7 +381,7 @@ public abstract class RemoteCommunicator  {
 				return false;
 			}
 
-			stillGoing = watcher == null || watcher.continueShellProcess(null);
+			stillGoing = watcher == null || watcher.continueProcess(null);
 			String newStatus = getJobStatus(location, onceThrough && submittedReportedToUser); 
 			if (StringUtil.notEmpty(newStatus) && !newStatus.equalsIgnoreCase(status) && !submittedReportedToUser) {
 				if (hasBeenReconnected() && newStatus.equalsIgnoreCase(submitted))
@@ -416,6 +416,9 @@ public abstract class RemoteCommunicator  {
 		}
 		if (aborted || isAuthorizationFailure())
 			return false;
+		return true;
+	}
+	public boolean warnIfError() {
 		return true;
 	}
 

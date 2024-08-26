@@ -25,9 +25,9 @@ import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 
-public class LocalScriptRunner extends ScriptRunner implements ActionListener, ItemListener, OutputFileProcessor, ShellScriptWatcher {
+public class LocalScriptRunner extends ScriptRunner implements ActionListener, ItemListener, OutputFileProcessor, ProcessWatcher {
 
-	ExternalProcessManager externalRunner;
+	ExternalProcessManager externalProcessManager;
 	ShellScriptRunner scriptRunner;
 	AppInformationFile appInfoFile;
 
@@ -68,8 +68,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public  void setOutputTextListener(OutputTextListener textListener){
 		if (scriptRunner!=null)
 			scriptRunner.setOutputTextListener(textListener);
-		if (externalRunner!=null)
-			externalRunner.setOutputTextListener(textListener);
+		if (externalProcessManager!=null)
+			externalProcessManager.setOutputTextListener(textListener);
 	}
 
 	public static String getDefaultProgramLocation() {
@@ -171,8 +171,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			if (scriptRunner!=null)
 				return scriptRunner.getStdErr();
 		}
-		else if (externalRunner!=null)
-			return externalRunner.getStdErr();
+		else if (externalProcessManager!=null)
+			return externalProcessManager.getStdErr();
 		return "";
 	}
 	/*.................................................................................................................*/
@@ -181,8 +181,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			if (scriptRunner!=null)
 				return scriptRunner.getStdOut();
 		}
-		else if (externalRunner!=null)
-			return externalRunner.getStdOut();
+		else if (externalProcessManager!=null)
+			return externalProcessManager.getStdOut();
 		return "";
 	}
 
@@ -248,8 +248,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			if (scriptRunner!=null)
 				scriptRunner.resetLastModified(i);
 		}
-		else if (externalRunner!=null)
-			externalRunner.resetLastModified(i);
+		else if (externalProcessManager!=null)
+			externalProcessManager.resetLastModified(i);
 	}
 
 	/*.................................................................................................................*/
@@ -268,10 +268,10 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 				temp.addLine("endTell");
 				//	temp.addLine("startMonitoring ");  this happens via reconnectToRequester so that it happens on the separate thread
 			}
-		} else if (externalRunner != null){
+		} else if (externalProcessManager != null){
 			temp.addLine("reviveExternalRunner ");
 			temp.addLine("tell It");
-			temp.incorporate(externalRunner.getSnapshot(file), true);
+			temp.incorporate(externalProcessManager.getSnapshot(file), true);
 			temp.addLine("endTell");
 			//	temp.addLine("startMonitoring ");  this happens via reconnectToRequester so that it happens on the separate thread
 		}
@@ -283,12 +283,12 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
 		if (checker.compare(this.getClass(), "Sets the externalRunner", "[file path]", commandName, "reviveExternalRunner")) {
 			logln("Reviving ExternalProcessRunner");
-			externalRunner = new ExternalProcessManager(this);
-			externalRunner.setOutputProcessor(this);
-			externalRunner.setWatcher(this);
+			externalProcessManager = new ExternalProcessManager(this);
+			externalProcessManager.setOutputProcessor(this);
+			externalProcessManager.setWatcher(this);
 			if (visibleTerminalOptionAllowed())
-				externalRunner.setVisibleTerminal(visibleTerminal);
-			return externalRunner;
+				externalProcessManager.setVisibleTerminal(visibleTerminal);
+			return externalProcessManager;
 		}
 		else if (checker.compare(this.getClass(), "Sets the scriptRunner", "[file path]", commandName, "reviveScriptRunner")) {
 			logln("Reviving ShellScriptRunner");
@@ -306,8 +306,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 				if (scriptBased) {
 					if (scriptRunner != null)
 						scriptRunner.setVisibleTerminal(visibleTerminal);
-				} else if (externalRunner != null)
-					externalRunner.setVisibleTerminal(visibleTerminal);
+				} else if (externalProcessManager != null)
+					externalProcessManager.setVisibleTerminal(visibleTerminal);
 			}
 		}
 		else  if (checker.compare(this.getClass(), "Sets whether or not the analysis is done via a shell script.", "[true; false]", commandName, "scriptBased")) {
@@ -602,9 +602,9 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			setReadyForReconnectionSave(true);
 			return scriptRunner.executeInShell();
 		} else {
-			externalRunner = new ExternalProcessManager(this, localRootDir, getExecutablePath(), arguments, getExecutableName(), outputFilePaths, this, this, false);
+			externalProcessManager = new ExternalProcessManager(this, localRootDir, getExecutablePath(), arguments, getExecutableName(), outputFilePaths, this, this, false);
 			setReadyForReconnectionSave(true);
-			return externalRunner.executeInShell();
+			return externalProcessManager.executeInShell();
 		}
 	}
 
@@ -619,9 +619,9 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 				return success;
 			}
 		} else {
-			if (externalRunner!=null) {
-				boolean success = externalRunner.monitorAndCleanUpShell(progIndicator);
-				if (externalRunner.exitCodeIsBad())  // if bad exit code, then don't autodelete the directory
+			if (externalProcessManager!=null) {
+				boolean success = externalProcessManager.monitorAndCleanUpShell(progIndicator);
+				if (externalProcessManager.exitCodeIsBad())  // if bad exit code, then don't autodelete the directory
 					leaveAnalysisDirectoryIntact=true;
 				if (progIndicator!=null && progIndicator.isAborted())
 					processRequester.setUserAborted(true);
@@ -640,8 +640,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		if (scriptBased) {
 			if (scriptRunner!=null)
 				scriptRunner.stopExecution();
-		} else if (externalRunner!=null)
-			externalRunner.stopExecution();
+		} else if (externalProcessManager!=null)
+			externalProcessManager.stopExecution();
 		//scriptRunner = null;
 		return false;
 	}
@@ -707,7 +707,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		localRootDir=null;
 	}
 
-	public boolean continueShellProcess(Process proc) {
+	public boolean continueProcess(Process proc) {
 		if (proc!=null && scriptBased) {
 			if (!scriptRunner.processRunning()) {
 				return false;
@@ -727,6 +727,9 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		return false;
 	}
 
+	public boolean warnIfError() {
+		return true;
+	}
 
 }
 
