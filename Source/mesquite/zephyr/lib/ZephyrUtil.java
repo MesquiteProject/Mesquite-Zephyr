@@ -89,9 +89,9 @@ public class ZephyrUtil {
 			exporter.writeOnlySelectedTaxa = selectedTaxaOnly;
 			if (module instanceof ZephyrFilePreparer)
 				((ZephyrFilePreparer)module).prepareExportFile(exporter);
-			StringBuffer sb = exporter.getDataAsFileText(file, data);
-			if (sb!=null) {
-				MesquiteFile.putFileContents(path, sb.toString(), true);
+			MesquiteStringBuffer msb = exporter.getDataAsFileText(file, data);
+			if (msb!=null) {
+				MesquiteFile.putFileContents(path, msb, true);
 				module.decrementMenuResetSuppression();
 
 				return true;
