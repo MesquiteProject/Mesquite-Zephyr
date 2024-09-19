@@ -84,6 +84,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return "";
 	}
 	public abstract Tree retrieveTreeBlock(TreeVector treeList, MesquiteDouble finalScore);
+	public TreeVector retrieveCurrentMultipleTrees(Taxa taxa) {
+		return null;
+	}
+	
+
 	public abstract boolean bootstrapOrJackknife();
 	public abstract boolean showMultipleRuns();
 

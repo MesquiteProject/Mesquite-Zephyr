@@ -335,6 +335,19 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		return latestTree;
 	}
 
+   	public TreeVector getCurrentMultipleTrees(Taxa taxa, MesquiteString titleForWindow){
+		if (titleForWindow != null)
+			titleForWindow.setValue("Tree from "+ getProgramName());
+		TreeVector trees = null;
+		if (taxa==null)
+			trees = runner.retrieveCurrentMultipleTrees(this.taxa);
+		else
+			trees =  runner.retrieveCurrentMultipleTrees(taxa);
+		if (trees !=null)
+			trees.setName(getTreeBlockName(false));
+		return trees;
+	}
+
 
 	public void newTreeAvailable(String path, TaxaSelectionSet outgroupTaxSet){
 	}
@@ -404,9 +417,11 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 					s += "; " + add;
 			}
 
-
 			if (!completedRun)
-				s+= " INCOMPLETE SEARCH";
+				if (runner.bootstrapOrJackknife()) 
+					s+= " PARTIAL RUN";
+				else
+					s+= " INCOMPLETE SEARCH";
 		}
 		else s +=  " Trees";
 		return s;

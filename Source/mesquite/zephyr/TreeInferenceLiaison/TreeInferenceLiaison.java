@@ -222,9 +222,40 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		}
 		return true;
 	}
+	/*-----------------------------------------------------------------*/
 	public boolean canStoreLatestTree(){
 		if (inferenceTask!=null)
 			return inferenceTask.canStoreLatestTree();
+		else return false;
+	}
+	/*-----------------------------------------------------------------*/
+
+	public boolean storeMultipleCurrentTrees(){
+		if (inferenceTask==null)
+			return false;
+		TreeVector trees = inferenceTask.getCurrentMultipleTrees(null, null);		
+		if (trees==null) 
+			return false;
+		MesquiteProject proj = getProject();
+		if (proj==null)
+			return false;
+		//TreesManager manager = (TreesManager)findElementManager(TreeVector.class);
+		//trees.setName("blah blah blah");
+		trees.addToFile(getProject().getHomeFile(), getProject(), findElementManager(TreeVector.class));
+		
+		//		TreeVector trees = manager.makeNewTreeBlock(trees.getTaxa(), inferenceTask.getTreeBlockName(false), proj.getHomeFile());
+//		trees.addElement(latestTree, true);
+		if (trees.size() >0){
+			trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));
+			saveAndPresentTrees(inferenceTask, trees.getTaxa(),  trees);
+		}
+		return true;
+	}
+
+	/*-----------------------------------------------------------------*/
+	public boolean canStoreMultipleCurrentTrees(){
+		if (inferenceTask!=null)
+			return inferenceTask.canStoreMultipleCurrentTrees();
 		else return false;
 	}
 	/*-----------------------------------------------------------------*/
@@ -467,8 +498,9 @@ boolean userAborted = false;
 					if (trees.size()==before) {
 						if (userAborted)
 							ownerModule.logln(inferenceTask.getName() + " aborted by the user.");
-						else
+						else {
 							ownerModule.alert("Sorry, no trees were returned by " + inferenceTask.getName());
+						}
 						userAborted=false;
 						ownerModule.fireTreeFiller();
 
@@ -477,7 +509,8 @@ boolean userAborted = false;
 						trees.addToFile(file, ownerModule.getProject(), 		(TreesManager)ownerModule.findElementManager(TreeVector.class));
 						okToSave = true;
 					}
-				}
+				} else if (userAborted)
+					ownerModule.logln(inferenceTask.getName() + " aborted by the user.");					
 				if (trees.size()!=before)
 					ownerModule.saveAndPresentTrees(inferenceTask, trees.getTaxa(), trees);
 				ownerModule.fireTreeFiller();
@@ -506,10 +539,10 @@ boolean userAborted = false;
 		threadGoodbye();
 	}
 	public void stopFilling(){
-		if (inferenceTask != null)
-			inferenceTask.abortFilling();
 		userAborted = true;
 		aborted = true;
+		if (inferenceTask != null)
+			inferenceTask.abortFilling();
 		if (ownerModule.taxa != null)
 			ownerModule.taxa.decrementEditInhibition();
 	}
