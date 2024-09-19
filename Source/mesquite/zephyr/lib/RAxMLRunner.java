@@ -1006,32 +1006,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	
 	/*.................................................................................................................*/
 	public TreeVector retrieveCurrentMultipleTrees(Taxa taxa) {
-		if (bootstrapOrJackknife()) {
-			if (isVerbose()) 
-				logln("Preparing to receive " + getProgramName() + " " + getResamplingKindName() + " trees.");
-			suppressProjectPanelReset();
-			CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
-			CommandRecord scr = new CommandRecord(true);
-			MesquiteThread.setCurrentCommandRecord(scr);
-
-			String[] outputFilePaths = externalProcRunner.getOutputFilePaths();
-			String treeFilePath = outputFilePaths[OUT_TREEFILE];
-
-			TreeVector trees = new TreeVector(taxa);
-			MesquiteBoolean readSuccess = new MesquiteBoolean(false);
-			readTreeFileForCurrentMultipleTrees(trees, treeFilePath, readSuccess);
-			//trees.setName(getProgramName()+" Bootstrap Trees (Partial Run)");
-			
-			if (readSuccess.getValue())
-				logln("  Reading of " + getProgramName() + " " + getResamplingKindName() + " trees succeeded.");
-			else
-				logln("  Reading of " + getProgramName() + " " + getResamplingKindName() + " trees failed.");
-
-			MesquiteThread.setCurrentCommandRecord(oldCR);
-			desuppressProjectPanelReset();
-			return trees;
-		}
-		return null;
+		return basicRetrieveCurrentMultipleTrees(taxa, OUT_TREEFILE);
 	}
 
 
