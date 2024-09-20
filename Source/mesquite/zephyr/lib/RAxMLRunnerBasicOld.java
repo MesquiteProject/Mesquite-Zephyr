@@ -47,7 +47,7 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 	protected boolean showIntermediateTrees = true;
 
 	protected RadioButtons threadingRadioButtons;
-	protected Checkbox RAxML814orLaterCheckbox;
+//	protected Checkbox RAxML814orLaterCheckbox;
 
 	public String getExecutableName() {
 		return "RAxML";
@@ -55,8 +55,8 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
-		if ("RAxML814orLater".equalsIgnoreCase(tag))
-			RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
+	//	if ("RAxML814orLater".equalsIgnoreCase(tag))
+	//		RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
 
 		if ("raxmlThreadingVersion".equalsIgnoreCase(tag))
 			threadingVersion = MesquiteInteger.fromString(content);
@@ -72,7 +72,7 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "RAxML814orLater", RAxML814orLater);  
+//		StringUtil.appendXMLTag(buffer, 2, "RAxML814orLater", RAxML814orLater);  
 		StringUtil.appendXMLTag(buffer, 2, "raxmlThreadingVersion", threadingVersion);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
 
@@ -158,12 +158,12 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		numProcessorsField.addKeyListener(this);
 		dialog.addHorizontalLine(1);
 
-		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
-		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
+//		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
+//		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
-		RAxML814orLater = RAxML814orLaterCheckbox.getState();
+//		RAxML814orLater = RAxML814orLaterCheckbox.getState();
 		threadingVersion = threadingRadioButtons.getValue();
 		numProcessors = numProcessorsField.getValue(); //
 		dnaModel = dnaModelField.getText();

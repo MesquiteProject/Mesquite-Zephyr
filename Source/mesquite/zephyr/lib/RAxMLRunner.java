@@ -359,10 +359,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			dialog.addLabel(extraLabel);
 
 		tabbedPanel.addPanel(getProgramName() + " Program Details", true);
-		externalProcRunner.addItemsToDialogPanel(dialog);
-		addRunnerOptions(dialog);
+		externalProcRunner.addItemsToDialogPanel(dialog);  // this adds use built in path, script-based, delete analysis directory, open analysis directory
 		if (treeInferer!=null) 
-			treeInferer.addItemsToDialogPanel(dialog);
+			treeInferer.addItemsToDialogPanel(dialog);  //ads autosave after inference
+		addRunnerOptions(dialog);   // this adds parallelization style, number of cores
 		externalProcRunner.addNoteToBottomOfDialog(dialog);
 
 		if (bootstrapAllowed) {
