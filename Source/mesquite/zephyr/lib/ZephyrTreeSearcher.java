@@ -65,6 +65,12 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			return runner.getMessageIfUserAbortRequested();
 		return null;
 	}
+	public String getInferenceDetails() {
+		if (runner==null)
+			return "";
+		return runner.getSearchDetails();
+	}
+
 	/*.................................................................................................................*/
 	public String getTitleOfTextCommandLink() {
 		if (runner!=null)
@@ -343,8 +349,10 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 			trees = runner.retrieveCurrentMultipleTrees(this.taxa);
 		else
 			trees =  runner.retrieveCurrentMultipleTrees(taxa);
-		if (trees !=null)
+		if (trees !=null) {
 			trees.setName(getTreeBlockName(false));
+			trees.setAnnotation (runner.getSearchDetails(), false);
+		}
 		return trees;
 	}
 

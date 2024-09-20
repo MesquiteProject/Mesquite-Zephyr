@@ -218,6 +218,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		trees.addElement(latestTree, true);
 		if (trees.size() >0){
 			trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));
+			trees.setAnnotation (inferenceTask.getInferenceDetails(), false);
 			saveAndPresentTrees(inferenceTask, latestTree.getTaxa(),  trees);
 		}
 		return true;
