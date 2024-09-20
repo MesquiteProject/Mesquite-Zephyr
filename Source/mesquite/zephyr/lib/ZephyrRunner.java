@@ -49,7 +49,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean constrainSearchAllowed = true;
 	protected String extraQueryOptionsTitle = "";
 	private boolean userAborted = false;
-	String programVersion = "";
+	private String programVersion = "";
 	protected static String composeProgramCommand = "composeProgramCommand";
 	protected boolean hasApp = false;
 
@@ -170,6 +170,17 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public AppInformationFile getAppInfoFile() {
 		return AppHarvester.getAppInfoFileForProgram(this);
+	}
+	/*.................................................................................................................*/
+	public String getAppVersion()  {
+		AppInformationFile appInfoFile = getAppInfoFile();
+		if (externalProcRunner.useAppInAppFolder()) 
+			if (appInfoFile!=null) {
+				if (StringUtil.notEmpty(appInfoFile.getVersion())) {
+					return appInfoFile.getVersion();
+				}
+			}
+		return "";
 	}
 	/*.................................................................................................................*/
 	public String getCitation()  {
@@ -461,7 +472,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			searchDetails.append("Mesquite version " + MesquiteTrunk.getMesquiteVersion() + ", build " + MesquiteTrunk.getBuildVersion()+"\n");
 			searchDetails.append("Zephyr version " + getPackageIntroModule().getPackageVersion() + ", build " +  getPackageIntroModule().getPackageBuildNumber() +"\n\n");
 			searchDetails.append("Trees acquired from " + getProgramName() + " using Mesquite's Zephyr package. \n");
-			searchDetails.append(getProgramName() + " run on " + getProgramLocation() +" \n");
+			String version = getProgramVersion();
+			if (StringUtil.notEmpty(version))
+				searchDetails.append(getProgramName() + " [version "+ version +"] run on " + getProgramLocation() +" \n");
+			else 
+				searchDetails.append(getProgramName() + " run on " + getProgramLocation() +" \n");
 			searchDetails.append("\nAnalysis started " + getDateAndTime()+ "\n");
 			if (StringUtil.notEmpty(externalProcRunner.getDirectoryPath()))
 				searchDetails.append("Results stored in folder: " + externalProcRunner.getDirectoryPath()+ "\n");
@@ -558,7 +573,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	/*.................................................................................................................*/
 	public String getProgramVersion(){
-		return programVersion;
+		if (StringUtil.notEmpty(programVersion))
+			return programVersion;
+		return getAppVersion();
 	}
 	/*.................................................................................................................*/
 	public void setProgramVersion(String programVersion){
@@ -611,6 +628,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected String searchStartedDetails = "";
 	protected StringBuffer extraSearchDetails = new StringBuffer();
 	protected StringBuffer addendumToTreeBlockName = new StringBuffer();
+	
 	public String getSearchDetails(){
 		return searchDetails.toString();
 	}
