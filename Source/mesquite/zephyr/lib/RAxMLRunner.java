@@ -789,11 +789,12 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		String dataFileName = getDataFileName();   //replace this with actual file name?
 		String translationFileName = IOUtil.translationTableFileName;   
 		String dataFilePath = tempDir +  dataFileName;
+		
 		FileInterpreterI exporter = null;
 		if (data instanceof DNAData)
-			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipDNA");
+			exporter =getFileInterpreter(this,"#InterpretPhylipDNA");
 		else if (data instanceof ProteinData)
-			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipProtein");
+			exporter = getFileInterpreter(this,"#InterpretPhylipProtein");
 		if (exporter==null)
 			return null;
 		((InterpretPhylip)exporter).setTaxonNameLength(100);
@@ -801,6 +802,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		((InterpretPhylip)exporter).setTaxonNamer(namer);
 
 		boolean fileSaved = false;
+		//DANGER Debugg.println: Since the file interpreter here is the coordinator's, reentrancy could make a mess of things, including with writing hints
 		if (data instanceof DNAData)
 			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		else if (data instanceof ProteinData)

@@ -66,40 +66,46 @@ public class ZephyrUtil {
 
 	/*.................................................................................................................*/
 	//TODO: Many unused variables in method call (taxa, directoryPath, fileName)?
-	public static FileInterpreterI getFileInterpreter(MesquiteModule module, String interpreterModuleName) {
-		FileCoordinator coord = module.getFileCoordinator();
-		if (coord == null) 
-			return null;
-		FileInterpreterI exporter = (FileInterpreterI)coord.findEmployeeWithName(interpreterModuleName);
-		return exporter;
-	}	
-	/*.................................................................................................................*/
-	//TODO: Many unused variables in method call (taxa, directoryPath, fileName)?
 	public static boolean saveExportFile(MesquiteModule module, FileInterpreterI exporter, String path, CategoricalData data, boolean selectedTaxaOnly) {
 		if (data==null)
 			return false;
 
 		module.incrementMenuResetSuppression();
-		MesquiteFile file = new MesquiteFile();
-		file.writeTaxaWithAllMissing = false;
-		file.writeExcludedCharacters = false;
-		file.writeCharactersWithNoData=false;
-		file.writeCharLabelInfo = false;
+		boolean success = false;
 		if (exporter!=null) {
-			exporter.writeOnlySelectedTaxa = selectedTaxaOnly;
+			/* oldStyle 
+			MesquiteFile file = new MesquiteFile();
+			file.writeTaxaWithAllMissing = false;
+			file.writeExcludedCharacters = false;
+			file.writeCharactersWithNoData=false;
+			file.writeCharLabelInfo = false;
+			file.setPath(path);
+				exporter.writeOnlySelectedTaxa = selectedTaxaOnly;
 			if (module instanceof ZephyrFilePreparer)
 				((ZephyrFilePreparer)module).prepareExportFile(exporter);
-			MesquiteStringBuffer msb = exporter.getDataAsFileText(file, data);
+			MesquiteStringBuffer msb = exporter.getDataAsFileText(file, data);  //Debugg.println use writeMatrixToFile instead, thoug this will require other rearrangements
 			if (msb!=null) {
 				MesquiteFile.putFileContents(path, msb, true);
 				module.decrementMenuResetSuppression();
 
 				return true;
 			}
+		*/
+			exporter.writeOnlySelectedTaxa = selectedTaxaOnly;
+			exporter.writeTaxaWithAllMissing = false;
+			exporter.writeExcludedCharacters = false;
+			exporter.writeCharactersWithNoData=false;
+			exporter.writeCharLabels = false;  
+			
+			if (module instanceof ZephyrFilePreparer)
+				((ZephyrFilePreparer)module).prepareExportFile(exporter);
+			
+			 success = exporter.writeMatrixToFile(data, path);
+			
 		}
 
 		module.decrementMenuResetSuppression();
-		return false;
+		return success;
 	}	
 	/*.................................................................................................................*/
 	public static boolean validPhylipTree(String line){  // check to see if tree is valid

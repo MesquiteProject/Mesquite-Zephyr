@@ -20,6 +20,8 @@ import mesquite.externalCommunication.AppHarvester.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.CharacterData;
 import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.duties.FileCoordinator;
+import mesquite.lib.duties.FileInterpreterI;
 import mesquite.lib.duties.TreeInferer;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 
@@ -112,6 +114,18 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return externalProcRunner.stopExecution();
 	}
 	
+	/*.................................................................................................................*/
+// each Runner should have its own interpreter for re-entrancy and parameter setting issues
+	FileInterpreterI exporter = null;
+	String lastInterpreterName = null;
+	public FileInterpreterI getFileInterpreter(MesquiteModule module, String interpreterModuleName) {
+		if (exporter == null || lastInterpreterName == null || !lastInterpreterName.equals(interpreterModuleName)) {
+			exporter = (FileInterpreterI)hireNamedEmployee(FileInterpreterI.class, interpreterModuleName);
+			if (exporter != null)
+				lastInterpreterName = interpreterModuleName;
+		}
+		return exporter;
+	}	
 	/*.................................................................................................................*/
 	public String getNameRefForAssocStrings() {
 		return null;

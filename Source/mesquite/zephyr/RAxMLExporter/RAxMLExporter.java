@@ -355,9 +355,9 @@ public class RAxMLExporter extends RAxMLRunnerLocalOld {
 		
 		FileInterpreterI exporter = null;
 		if (data instanceof DNAData)
-			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipDNA");
+			exporter = getFileInterpreter(this,"#InterpretPhylipDNA");
 		else if (data instanceof ProteinData)
-			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipProtein");
+			exporter = getFileInterpreter(this,"#InterpretPhylipProtein");
 		if (exporter==null){
 			desuppressProjectPanelReset();
 			return null;
@@ -365,6 +365,7 @@ public class RAxMLExporter extends RAxMLRunnerLocalOld {
 		prepareExportFile(exporter);
 
 		boolean fileSaved = false;
+		//DANGER Debugg.println: Since the file interpreter here is the coordinator's, reentrancy could make a mess of things, including with writing hints
 		if (data instanceof DNAData)
 			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		else if (data instanceof ProteinData)

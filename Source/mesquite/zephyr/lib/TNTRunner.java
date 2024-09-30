@@ -745,7 +745,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		String dataFileName = "data.ss";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 
-		exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretTNT");
+		exporter = getFileInterpreter(this,"#InterpretTNT");
 		if (exporter==null)
 			return null;
 		boolean fileSaved = false;
