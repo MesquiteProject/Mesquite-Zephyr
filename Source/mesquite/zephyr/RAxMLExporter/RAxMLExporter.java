@@ -126,9 +126,9 @@ public class RAxMLExporter extends RAxMLRunnerLocalOld {
 			directoryPath = MesquiteFile.chooseDirectory("Where to save .phy and .config files?");
 			if(StringUtil.blank(directoryPath)){
 				if(!MesquiteThread.isScripting()){
-					logln("Directory not accessable as entered (could not find /'" + directoryPath + "/'); files will be saved to " + MesquiteTrunk.suggestedDirectory + ".");
+					logln("Directory not accessable as entered (could not find /'" + directoryPath + "/'); files will be saved to " + MesquiteTrunk.getSuggestedDirectory() + ".");
 				}
-				directoryPath = MesquiteTrunk.suggestedDirectory;
+				directoryPath = MesquiteTrunk.getSuggestedDirectory();
 			}
 			//Check to make sure directoryPath ends with file separator character.  If it doesn't, append it.
 			String endOfPath = directoryPath.substring(directoryPath.length());
