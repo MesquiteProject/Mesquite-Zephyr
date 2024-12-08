@@ -141,6 +141,12 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		return false;
 	}
 	/*.................................................................................................................*/
+	public void checkEnabling() {
+		threadingRadioButtons.setEnabled(THREADING_OTHER, !usingBuiltinApp);
+		Debugg.println("============\nCHECK ENABLING\n==========");
+	}
+	
+	/*.................................................................................................................*/
 
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		dialog.addHorizontalLine(1);
@@ -148,7 +154,8 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		boolean requiresPThreads = requiresPThreads();
 		if (requiresPThreads)
 			threadingVersion = THREADING_PTHREADS;
-		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);
+		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);	
+		
 /*		if (requiresPThreads) {
 			threadingRadioButtons.setEnabled(THREADING_OTHER, false);
 			threadingRadioButtons.setEnabled(THREADING_PTHREADS, false);
@@ -157,6 +164,7 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, 1, MesquiteInteger.infinite);
 		numProcessorsField.addKeyListener(this);
 		dialog.addHorizontalLine(1);
+		checkEnabling();
 
 //		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
 //		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());

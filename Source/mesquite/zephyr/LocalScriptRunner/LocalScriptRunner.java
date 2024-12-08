@@ -347,9 +347,9 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	
 	AppChooser appChooser;
 
+	/*.................................................................................................................*/
 	// given the opportunity to fill in options for user
 	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
-		
 		
 		dialog.addHorizontalLine(1);
 		dialog.addHorizontalLine(1);
