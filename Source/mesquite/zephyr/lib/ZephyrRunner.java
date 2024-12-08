@@ -76,6 +76,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	
 	boolean hasBeenReconnected = false;
 	protected boolean scriptBasedNoTerminal = false;
+	
+	boolean usingBuiltinApp = false;
 
 
 	protected String outgroupTaxSetString = "";
@@ -114,6 +116,13 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return externalProcRunner.stopExecution();
 	}
 	
+	public AppUser getAppUser() {
+		return this;
+	}
+	public void setUsingBuiltinApp(boolean usingBuiltinApp) {
+		this.usingBuiltinApp = usingBuiltinApp;  
+	}
+
 	/*.................................................................................................................*/
 // each Runner should have its own interpreter for re-entrancy and parameter setting issues
 	FileInterpreterI exporter = null;

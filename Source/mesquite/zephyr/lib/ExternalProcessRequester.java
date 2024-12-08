@@ -9,6 +9,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 import mesquite.externalCommunication.lib.AppInformationFile;
+import mesquite.externalCommunication.lib.AppUser;
 import mesquite.lib.*;
 
 public interface ExternalProcessRequester {
@@ -40,6 +41,8 @@ public interface ExternalProcessRequester {
 	public boolean getBuiltInExecutableAllowed();
 	
 	public AppInformationFile getAppInfoFile();
+	
+	public AppUser getAppUser();
 	
 	public void prepareRunnerObject(Object obj);
 	

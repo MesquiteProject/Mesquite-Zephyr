@@ -347,20 +347,18 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	
 	AppChooser appChooser;
 
+	/*.................................................................................................................*/
 	// given the opportunity to fill in options for user
 	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
 		
-		
-		/*dialog.addHorizontalLine(1);
 		dialog.addHorizontalLine(1);
-		AppChooser appChooser = new AppChooser("trimAl", true, trimAlPath);
+		dialog.addHorizontalLine(1);
+		appChooser = new AppChooser(processRequester.getAppUser(), useDefaultExecutablePath, executablePath);
 		appChooser.addToDialog(dialog);
 		dialog.addHorizontalLine(1);
 		dialog.addHorizontalLine(1);
-	*/
-		
-		
-
+	
+		/*
 		if (getBuiltInExecutableAllowed()) {
 			defaultExecutablePathCheckBox = dialog.addCheckBox("Use built-in app path for "+ getExecutableName(), useDefaultExecutablePath);
 			executablePathField = dialog.addTextField("Path to alternative version:", executablePath, 40);
@@ -368,7 +366,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
 		browseButton.setActionCommand("browse");
-		
+		*/
 		
 		
 		
@@ -403,7 +401,11 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	/*.................................................................................................................*/
 
 	public boolean optionsChosen(){
-		if (defaultExecutablePathCheckBox!=null)
+		executablePath = appChooser.getManualPath(); //for preference writing
+		useDefaultExecutablePath = appChooser.useBuiltInExecutable(); //for preference writing
+	//	builtInVersion = appChooser.getVersion(); //for informing user; only if built-in
+
+		/*		if (defaultExecutablePathCheckBox!=null)
 			useDefaultExecutablePath = defaultExecutablePathCheckBox.getState();
 		String tempPath = executablePathField.getText();
 		if (StringUtil.blank(tempPath) && !useDefaultExecutablePath){
@@ -411,7 +413,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			return false;
 		}
 		executablePath = tempPath;
-
+*/
+		
 		if (processRequester.localScriptRunsRequireTerminalWindow())
 			visibleTerminal=true;
 		else if (visibleTerminalCheckBox!=null)
@@ -427,12 +430,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		else if (scriptBasedCheckBox!=null)
 			scriptBased = scriptBasedCheckBox.getState();
 		
-		/*
-		trimAlPath = appChooser.getPathToUse()
-			alternativeManualPath = appChooser.getManualPath() //for preference writing
-		useBuiltInIfAvailable = appChooser.useBuiltInIfAvailable(); //for preference writing
-		builtInVersion = appChooser.getVersion(); //for informing user; only if built-in
-		*/
+		
+		
 
 		
 /*		if (useDefaultExecutablePath) {
