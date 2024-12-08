@@ -21,6 +21,7 @@ import java.util.Random;
 import org.dom4j.Document;
 import org.dom4j.Element;
 
+import mesquite.externalCommunication.lib.AppChooser;
 import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
@@ -95,7 +96,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public String getVersionFromAppInfo(){
-		if (!useDefaultExecutablePath || !getDefaultExecutablePathAllowed()) 
+		if (!useDefaultExecutablePath || !getBuiltInExecutableAllowed()) 
 			return null;
 		if (appInfoFile==null) {
 			appInfoFile = getExternalProcessRequester().getAppInfoFile();
@@ -107,7 +108,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public String getOtherPropertiesFromAppInfo(){
-		if (!useDefaultExecutablePath || !getDefaultExecutablePathAllowed()) 
+		if (!useDefaultExecutablePath || !getBuiltInExecutableAllowed()) 
 			return null;
 		if (appInfoFile==null) {
 			appInfoFile = getExternalProcessRequester().getAppInfoFile();
@@ -132,14 +133,14 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public String getExecutablePath(){
-		if (useDefaultExecutablePath && getDefaultExecutablePathAllowed()) 
+		if (useDefaultExecutablePath && getBuiltInExecutableAllowed()) 
 			return getDefaultExecutablePath();
 		else
 			return executablePath;
 	}
 
 	public boolean useAppInAppFolder() {
-		return useDefaultExecutablePath && getDefaultExecutablePathAllowed();
+		return useDefaultExecutablePath && getBuiltInExecutableAllowed();
 	}
 
 	/*.................................................................................................................*/
@@ -343,16 +344,34 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	Checkbox openAnalysisDirectoryCheckBox =  null;
 	Checkbox scriptBasedCheckBox =  null;
 	Checkbox addExitCommandCheckBox = null;
+	
+	AppChooser appChooser;
 
 	// given the opportunity to fill in options for user
 	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
-		if (getDefaultExecutablePathAllowed()) {
+		
+		
+		/*dialog.addHorizontalLine(1);
+		dialog.addHorizontalLine(1);
+		AppChooser appChooser = new AppChooser("trimAl", true, trimAlPath);
+		appChooser.addToDialog(dialog);
+		dialog.addHorizontalLine(1);
+		dialog.addHorizontalLine(1);
+	*/
+		
+		
+
+		if (getBuiltInExecutableAllowed()) {
 			defaultExecutablePathCheckBox = dialog.addCheckBox("Use built-in app path for "+ getExecutableName(), useDefaultExecutablePath);
 			executablePathField = dialog.addTextField("Path to alternative version:", executablePath, 40);
 		} else
 			executablePathField = dialog.addTextField("Path to "+ getExecutableName()+":", executablePath, 40);
 		Button browseButton = dialog.addAListenedButton("Browse...",null, this);
 		browseButton.setActionCommand("browse");
+		
+		
+		
+		
 		if (getDirectProcessConnectionAllowed()) {
 			scriptBasedCheckBox = dialog.addCheckBox("Script-based analysis (allows reconnection, but can't be stopped easily)", scriptBased);
 			scriptBasedCheckBox.addItemListener(this);
@@ -408,6 +427,14 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		else if (scriptBasedCheckBox!=null)
 			scriptBased = scriptBasedCheckBox.getState();
 		
+		/*
+		trimAlPath = appChooser.getPathToUse()
+			alternativeManualPath = appChooser.getManualPath() //for preference writing
+		useBuiltInIfAvailable = appChooser.useBuiltInIfAvailable(); //for preference writing
+		builtInVersion = appChooser.getVersion(); //for informing user; only if built-in
+		*/
+
+		
 /*		if (useDefaultExecutablePath) {
 			appInfoFile = new AppInformationFile(getExternalProcessRequester().getAppNameWithinAppsDirectory());
 			appInfoFile.processAppInfoFile();
@@ -422,8 +449,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		return processRequester.getDirectProcessConnectionAllowed() && MesquiteTrunk.isJavaGreaterThanOrEqualTo(1.7);
 	}
 
-	public boolean getDefaultExecutablePathAllowed() {
-		return processRequester.getDefaultExecutablePathAllowed();
+	public boolean getBuiltInExecutableAllowed() {
+		return processRequester.getBuiltInExecutableAllowed();
 	}
 
 

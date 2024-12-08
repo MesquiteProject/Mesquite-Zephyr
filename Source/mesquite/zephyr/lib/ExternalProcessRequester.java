@@ -37,7 +37,7 @@ public interface ExternalProcessRequester {
 	
 	public String getExecutableName();
 	
-	public boolean getDefaultExecutablePathAllowed();
+	public boolean getBuiltInExecutableAllowed();
 	
 	public AppInformationFile getAppInfoFile();
 	

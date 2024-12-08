@@ -49,7 +49,7 @@ public class RAxMLRunnerLocalNG extends RAxMLRunnerBasicNG  {
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
 		return true;
 	}
-	public boolean getDefaultExecutablePathAllowed() {
+	public boolean getBuiltInExecutableAllowed() {
 		return getHasApp();
 	}
 
