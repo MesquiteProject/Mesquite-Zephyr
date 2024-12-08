@@ -263,7 +263,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "8.0.0 - 8.2.12";
+		return "8.0.0 - 8.2.13";
 	}
 	public abstract void addRunnerOptions(ExtensibleDialog dialog);
 	public abstract void processRunnerOptions();

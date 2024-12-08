@@ -69,7 +69,7 @@ public class IQTreeRunnerLocal extends IQTreeRunnerBasic  {
 	}
 	/*.................................................................................................................*/
 	public String getAppOfficialName() {
-		return "IQ-TREE";
+		return "iq-tree";
 	}
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer

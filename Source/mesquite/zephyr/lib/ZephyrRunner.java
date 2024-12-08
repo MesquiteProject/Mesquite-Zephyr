@@ -114,6 +114,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return externalProcRunner.stopExecution();
 	}
 	
+	public AppUser getAppUser() {
+		return this;
+	}
+
 	/*.................................................................................................................*/
 // each Runner should have its own interpreter for re-entrancy and parameter setting issues
 	FileInterpreterI exporter = null;
