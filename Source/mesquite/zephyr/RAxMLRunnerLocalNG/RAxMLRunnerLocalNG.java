@@ -53,7 +53,7 @@ public class RAxMLRunnerLocalNG extends RAxMLRunnerBasicNG  {
 	/*.................................................................................................................*/
 	public void setUpRunner() { 
 		super.setUpRunner();
-		AppHarvester.examineAppsFolder(this);
+		hasApp = AppHarvester.builtinAppExists(this);
 	}
 
 	/*.................................................................................................................*/

@@ -38,7 +38,7 @@ public class PAUPNJRunnerLocal extends PAUPNJRunner {
 	/*.................................................................................................................*/
 	public void setUpRunner() { 
 		super.setUpRunner();
-		AppHarvester.examineAppsFolder(this);
+		hasApp = AppHarvester.builtinAppExists(this);
 	}
 
 	/*.................................................................................................................*/

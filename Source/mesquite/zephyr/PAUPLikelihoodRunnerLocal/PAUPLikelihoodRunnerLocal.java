@@ -40,7 +40,7 @@ public class PAUPLikelihoodRunnerLocal extends PAUPLikelihoodRunner {
 	/*.................................................................................................................*/
 	public void setUpRunner() { 
 		super.setUpRunner();
-		AppHarvester.examineAppsFolder(this);
+		hasApp = AppHarvester.builtinAppExists(this);
 	}
 
 	/*.................................................................................................................*/

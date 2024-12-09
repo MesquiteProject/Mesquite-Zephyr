@@ -45,7 +45,7 @@ public class PAUPParsimonyRunnerLocal extends PAUPParsimonyRunnerBasic {
 	/*.................................................................................................................*/
 	public void setUpRunner() { 
 		super.setUpRunner();
-		AppHarvester.examineAppsFolder(this);
+		hasApp = AppHarvester.builtinAppExists(this);
 	}
 
 	/*.................................................................................................................*/

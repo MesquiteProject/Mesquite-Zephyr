@@ -119,9 +119,6 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public AppUser getAppUser() {
 		return this;
 	}
-	public void setUsingBuiltinApp(boolean usingBuiltinApp) {
-		this.usingBuiltinApp = usingBuiltinApp;  
-	}
 
 	/*.................................................................................................................*/
 // each Runner should have its own interpreter for re-entrancy and parameter setting issues
@@ -174,9 +171,6 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	public boolean getHasApp() {
 		return hasApp;
-	}
-	public void setHasApp(boolean hasApp) {
-		this.hasApp = hasApp;
 	}
 	public String getAppOfficialName() {
 		return getExecutableName();
