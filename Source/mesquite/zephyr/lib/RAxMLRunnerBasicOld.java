@@ -15,9 +15,13 @@ import java.io.*;
 import java.awt.event.*;
 import java.util.*;
 
+import javax.swing.JLabel;
+
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
+import mesquite.externalCommunication.AppHarvester.AppHarvester;
+import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -36,7 +40,7 @@ outgroups
 
  */
 
-public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements KeyListener  {
+public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements KeyListener, ItemListener  {
 
 	protected static final int THREADING_OTHER =0;
 	protected static final int THREADING_PTHREADS = 1;
@@ -141,16 +145,41 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		return false;
 	}
 	/*.................................................................................................................*/
-	public void checkEnabling() {
-		threadingRadioButtons.setEnabled(THREADING_OTHER, !usingBuiltinApp);
-		Debugg.println("============\nCHECK ENABLING\n==========");
+	public boolean appUsesPThreads() {
+		usingBuiltinApp = externalProcRunner.useAppInAppFolder();
+		if (usingBuiltinApp) {
+			AppInformationFile appInfo = AppHarvester.getAppInfoFileForProgram(this);
+			if (appInfo!=null) {
+				String otherProp = appInfo.getOtherProperties();
+				if (StringUtil.containsIgnoreCase(otherProp, "PTHREAD")) 
+					return true;
+			}
+		}
+		return false;
+	}
+	/*.................................................................................................................*/
+	public void checkOtherEnabled(boolean usingBuiltInApp) {
+		if (usingBuiltInApp) {
+			threadingRadioButtons.disableRadioButtons();
+			pthreadsLabel.setEnabled(false);
+		}
+		else {
+			threadingRadioButtons.enableRadioButtons();
+			pthreadsLabel.setEnabled(true);
+		}
+	//	threadingRadioButtons.setEnabled(THREADING_OTHER, !usingBuiltinApp);
+		Debugg.println("||||||||||||||||||||  usingBuiltInApp: " + usingBuiltInApp + "  ||||||||||||");
+//		if (usingBuiltInApp) {
+//			threadingRadioButtons.setEnabled(THREADING_OTHER, !usingBuiltinApp);
+//		}
 	}
 	
+	JLabel pthreadsLabel;
 	/*.................................................................................................................*/
 
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		dialog.addHorizontalLine(1);
-		dialog.addLabel("RAxML parallelization style:");
+		pthreadsLabel = dialog.addLabel("RAxML parallelization style:");
 		boolean requiresPThreads = requiresPThreads();
 		if (requiresPThreads)
 			threadingVersion = THREADING_PTHREADS;
@@ -164,7 +193,7 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, 1, MesquiteInteger.infinite);
 		numProcessorsField.addKeyListener(this);
 		dialog.addHorizontalLine(1);
-		checkEnabling();
+		checkOtherEnabled(externalProcRunner.useAppInAppFolder());
 
 //		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
 //		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
@@ -172,12 +201,42 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
 //		RAxML814orLater = RAxML814orLaterCheckbox.getState();
-		threadingVersion = threadingRadioButtons.getValue();
+		usingBuiltinApp = externalProcRunner.useAppInAppFolder();
+		if (usingBuiltinApp) {
+			AppInformationFile appInfo = AppHarvester.getAppInfoFileForProgram(this);
+			if (appInfo!=null) {
+				String otherProp = appInfo.getOtherProperties();
+				if (StringUtil.containsIgnoreCase(otherProp, "PTHREAD")) {
+					threadingVersion = THREADING_PTHREADS;
+				} else {
+					threadingVersion = THREADING_OTHER;
+				}
+			} else
+				threadingVersion = threadingRadioButtons.getValue();
+		}
+		else
+			threadingVersion = threadingRadioButtons.getValue();
+		
 		numProcessors = numProcessorsField.getValue(); //
 		dnaModel = dnaModelField.getText();
 		proteinModel = proteinModelField.getText();
 		proteinModelMatrix = proteinModelMatrixChoice.getSelectedItem();
 }
+	public void itemStateChangedInAppUser(Object itemSelectable) {
+	}
+
+	
+	/*.................................................................................................................*/
+	public void appChoiceChanged(boolean builtInAppChosen) {
+		checkOtherEnabled(builtInAppChosen);
+	}
+
+	/*.................................................................................................................*/
+	public void itemStateChanged(ItemEvent arg0) {
+		externalProcRunner.itemStateChangedInAppUser(arg0.getItemSelectable());
+		super.itemStateChanged(arg0);
+	}
+
 	/*.................................................................................................................*/
 
 	public void addModelOptions(ExtensibleDialog dialog) {

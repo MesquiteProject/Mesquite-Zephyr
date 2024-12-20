@@ -9,6 +9,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
+import java.awt.ItemSelectable;
+
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
 
@@ -57,6 +59,11 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		return false;
 	}
 
+	public String getAppOtherProperties() {
+		return "";
+	}
+	public void itemStateChangedInAppUser(ItemSelectable itemSelectable) {
+	}
 
 	public String[] getDefaultModule() {
 		return new String[] {""};

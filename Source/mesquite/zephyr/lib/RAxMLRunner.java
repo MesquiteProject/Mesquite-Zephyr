@@ -497,6 +497,9 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	/*.................................................................................................................*/
 	public void checkAdditionalFields() {
 	}
+	/*.................................................................................................................*/
+	public void checkOtherEnabled() {
+	}
 	/* ................................................................................................................. */
 	public void checkEnabled(boolean doBoot) {
 		onlyBestBox.setEnabled(!doBoot);
@@ -507,6 +510,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			bootstrapBranchLengthsCheckBox.setEnabled(doBoot);
 		if (seedField!=null)
 			seedField.getTextField().setEnabled(doBoot);
+		checkOtherEnabled();
 	}
 	/* ................................................................................................................. */
 	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */
