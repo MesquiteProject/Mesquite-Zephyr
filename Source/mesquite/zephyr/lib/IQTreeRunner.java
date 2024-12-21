@@ -512,7 +512,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			} 
 				
 		} else 
-			treeInferer.setUserAborted();
+			treeInferer.setUserCancelled();
 		dialog.dispose();
 		return (acceptableOptions);
 	}

@@ -841,7 +841,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				acceptableOptions=true;
 			}
 		} else
-			treeInferer.setUserAborted();
+			treeInferer.setUserCancelled();
 		dialog.dispose();
 		if (closeWizard)
 			MesquiteDialog.closeWizard();
