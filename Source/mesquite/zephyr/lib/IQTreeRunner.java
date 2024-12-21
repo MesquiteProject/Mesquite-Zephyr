@@ -509,9 +509,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				acceptableOptions = true;
 //				onlySetUpRun = onlySetUpRunBox.getState();
 				externalProcRunner.setOnlySetUpRun(onlySetUpRun);
-			}
+			} 
 				
-		}
+		} else 
+			treeInferer.setUserAborted();
 		dialog.dispose();
 		return (acceptableOptions);
 	}

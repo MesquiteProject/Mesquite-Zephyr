@@ -51,7 +51,6 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 	protected boolean showIntermediateTrees = true;
 
 	protected RadioButtons threadingRadioButtons;
-//	protected Checkbox RAxML814orLaterCheckbox;
 
 	public String getExecutableName() {
 		return "RAxML";
@@ -59,8 +58,6 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
-	//	if ("RAxML814orLater".equalsIgnoreCase(tag))
-	//		RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
 
 		if ("raxmlThreadingVersion".equalsIgnoreCase(tag))
 			threadingVersion = MesquiteInteger.fromString(content);
@@ -76,7 +73,6 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-//		StringUtil.appendXMLTag(buffer, 2, "RAxML814orLater", RAxML814orLater);  
 		StringUtil.appendXMLTag(buffer, 2, "raxmlThreadingVersion", threadingVersion);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
 
@@ -162,16 +158,16 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		if (usingBuiltInApp) {
 			threadingRadioButtons.disableRadioButtons();
 			pthreadsLabel.setEnabled(false);
+			if (appUsesPThreads()) {
+				threadingRadioButtons.setValue(THREADING_PTHREADS);
+			} else {
+				threadingRadioButtons.setValue(THREADING_OTHER);
+			}
 		}
 		else {
 			threadingRadioButtons.enableRadioButtons();
 			pthreadsLabel.setEnabled(true);
 		}
-	//	threadingRadioButtons.setEnabled(THREADING_OTHER, !usingBuiltinApp);
-		Debugg.println("||||||||||||||||||||  usingBuiltInApp: " + usingBuiltInApp + "  ||||||||||||");
-//		if (usingBuiltInApp) {
-//			threadingRadioButtons.setEnabled(THREADING_OTHER, !usingBuiltinApp);
-//		}
 	}
 	
 	JLabel pthreadsLabel;
@@ -184,19 +180,12 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		if (requiresPThreads)
 			threadingVersion = THREADING_PTHREADS;
 		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);	
-		
-/*		if (requiresPThreads) {
-			threadingRadioButtons.setEnabled(THREADING_OTHER, false);
-			threadingRadioButtons.setEnabled(THREADING_PTHREADS, false);
-		}
-		*/
+
 		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, 1, MesquiteInteger.infinite);
 		numProcessorsField.addKeyListener(this);
 		dialog.addHorizontalLine(1);
 		checkOtherEnabled(externalProcRunner.useAppInAppFolder());
 
-//		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
-//		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
