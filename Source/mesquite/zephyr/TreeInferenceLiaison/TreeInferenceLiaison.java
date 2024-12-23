@@ -219,7 +219,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		if (trees.size() >0){
 			trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));
 			trees.setAnnotation (inferenceTask.getInferenceDetails(), false);
-			saveAndPresentTrees(inferenceTask, latestTree.getTaxa(),  trees);
+			saveAndPresentTrees(inferenceTask, latestTree.getTaxa(),  trees); //DAVIDQUERY -- when non-bootstrap run is aborted, this is called here and also there
 		}
 		return true;
 	}
@@ -248,7 +248,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 //		trees.addElement(latestTree, true);
 		if (trees.size() >0){
 			trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));
-			saveAndPresentTrees(inferenceTask, trees.getTaxa(),  trees);
+			saveAndPresentTrees(inferenceTask, trees.getTaxa(),  trees); //DAVIDQUERY -- when bootstrap run is aborted, this is called here and also there
 		}
 		return true;
 	}
@@ -314,6 +314,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			treeWindowCoord = fCoord.findEmployeeWithName("#BasicTreeWindowCoord");
 
 		if (treeWindowCoord!=null){
+			///Debugg.printStackTrace();
 			//send script to tree window coord to makeTreeWindow with set of taxa and then set to stored trees and this tree vector
 			TreesManager manager = (TreesManager)findElementManager(TreeVector.class);
 			int whichTreeBlock = manager.getTreeBlockNumber(taxa, trees);
@@ -322,9 +323,11 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			if (StringUtil.blank(extraWindowCommands))
 				extraWindowCommands="";
 			String commands = "makeTreeWindow " + getProject().getTaxaReferenceInternal(taxa) + "  #BasicTreeWindowMaker; tell It; setTreeSource  #StoredTrees;";  
+
 			commands += " tell It; setTaxa " + getProject().getTaxaReferenceInternal(taxa) + " ;  setTreeBlockByID " + treeBlockID + "; endTell;  getWindow; tell It; setSize 400 300; " + extraWindowCommands + " endTell; showWindowForce; endTell; ";
 			if (MesquiteTrunk.debugMode)
 				logln(commands);
+
 			MesquiteInteger pos = new MesquiteInteger(0);
 			Puppeteer p = new Puppeteer(this);
 			CommandRecord prev = MesquiteThread.getCurrentCommandRecord();
@@ -512,8 +515,8 @@ boolean userAborted = false;
 					}
 				} else if (userAborted)
 					ownerModule.logln(inferenceTask.getName() + " aborted by the user.");					
-				if (trees.size()!=before)
-					ownerModule.saveAndPresentTrees(inferenceTask, trees.getTaxa(), trees);
+				if (trees.size()!=before) //Debugg.println maybe do this only if not aborted???? given it's also done otherwise?
+					ownerModule.saveAndPresentTrees(inferenceTask, trees.getTaxa(), trees); //DAVIDQUERY -- when  run is aborted, bootstrap or not, this is called here and also there
 				ownerModule.fireTreeFiller();
 			}
 			ownerModule.resetAllMenuBars();
