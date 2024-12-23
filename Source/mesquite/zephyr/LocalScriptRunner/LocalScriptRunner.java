@@ -11,6 +11,7 @@ package mesquite.zephyr.LocalScriptRunner;
 
 import java.awt.Button;
 import java.awt.Checkbox;
+import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -117,6 +118,10 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			return appInfoFile.getOtherProperties();
 		}
 		return null;
+	}
+	/*.................................................................................................................*/
+	public String getAppOtherProperties() {
+		return getOtherPropertiesFromAppInfo();
 	}
 
 	/*.................................................................................................................*/
@@ -352,10 +357,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
 		
 		dialog.addHorizontalLine(1);
-		dialog.addHorizontalLine(1);
-		appChooser = new AppChooser(processRequester.getAppUser(), useDefaultExecutablePath, executablePath);
+		appChooser = new AppChooser(processRequester.getModule(), processRequester.getAppUser(), useDefaultExecutablePath, executablePath);
 		appChooser.addToDialog(dialog);
-		dialog.addHorizontalLine(1);
 		dialog.addHorizontalLine(1);
 	
 		/*
@@ -395,6 +398,14 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 				visibleTerminalCheckBox.setEnabled(scriptBasedCheckBox.getState());	
 			if (addExitCommandCheckBox!=null)
 				addExitCommandCheckBox.setEnabled(scriptBasedCheckBox.getState());	
+		} else {
+		}
+	}
+	/*.................................................................................................................*/
+	public void itemStateChangedInAppUser(ItemSelectable itemSelectable) {
+		if (appChooser!=null) {
+			processRequester.appChoiceChanged(appChooser.builtInAppChosen());
+
 		}
 	}
 

@@ -8,6 +8,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 package mesquite.zephyr.lib;
 
+import java.awt.ItemSelectable;
+
 import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.externalCommunication.lib.AppUser;
 import mesquite.lib.*;
@@ -43,6 +45,12 @@ public interface ExternalProcessRequester {
 	public AppInformationFile getAppInfoFile();
 	
 	public AppUser getAppUser();
+	
+	public void appChoiceChanged(boolean builtInAppChosen);
+	
+	public void itemStateChangedInAppUser(ItemSelectable itemSelectable);
+
+	public MesquiteModule getModule();
 	
 	public void prepareRunnerObject(Object obj);
 	

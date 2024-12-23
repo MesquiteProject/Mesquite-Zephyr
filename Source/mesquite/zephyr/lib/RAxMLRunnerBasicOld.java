@@ -15,9 +15,13 @@ import java.io.*;
 import java.awt.event.*;
 import java.util.*;
 
+import javax.swing.JLabel;
+
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
+import mesquite.externalCommunication.AppHarvester.AppHarvester;
+import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -36,7 +40,7 @@ outgroups
 
  */
 
-public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements KeyListener  {
+public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements KeyListener, ItemListener  {
 
 	protected static final int THREADING_OTHER =0;
 	protected static final int THREADING_PTHREADS = 1;
@@ -47,7 +51,6 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 	protected boolean showIntermediateTrees = true;
 
 	protected RadioButtons threadingRadioButtons;
-//	protected Checkbox RAxML814orLaterCheckbox;
 
 	public String getExecutableName() {
 		return "RAxML";
@@ -55,8 +58,6 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 
 	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
-	//	if ("RAxML814orLater".equalsIgnoreCase(tag))
-	//		RAxML814orLater = MesquiteBoolean.fromTrueFalseString(content);
 
 		if ("raxmlThreadingVersion".equalsIgnoreCase(tag))
 			threadingVersion = MesquiteInteger.fromString(content);
@@ -72,7 +73,6 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-//		StringUtil.appendXMLTag(buffer, 2, "RAxML814orLater", RAxML814orLater);  
 		StringUtil.appendXMLTag(buffer, 2, "raxmlThreadingVersion", threadingVersion);  
 		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
 
@@ -141,43 +141,91 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		return false;
 	}
 	/*.................................................................................................................*/
-	public void checkEnabling() {
-		threadingRadioButtons.setEnabled(THREADING_OTHER, !usingBuiltinApp);
-		Debugg.println("============\nCHECK ENABLING\n==========");
+	public boolean appUsesPThreads() {
+		usingBuiltinApp = externalProcRunner.useAppInAppFolder();
+		if (usingBuiltinApp) {
+			AppInformationFile appInfo = AppHarvester.getAppInfoFileForProgram(this);
+			if (appInfo!=null) {
+				String otherProp = appInfo.getOtherProperties();
+				if (StringUtil.containsIgnoreCase(otherProp, "PTHREAD")) 
+					return true;
+			}
+		}
+		return false;
+	}
+	/*.................................................................................................................*/
+	public void checkOtherEnabled(boolean usingBuiltInApp) {
+		if (usingBuiltInApp) {
+			threadingRadioButtons.disableRadioButtons();
+			pthreadsLabel.setEnabled(false);
+			if (appUsesPThreads()) {
+				threadingRadioButtons.setValue(THREADING_PTHREADS);
+			} else {
+				threadingRadioButtons.setValue(THREADING_OTHER);
+			}
+		}
+		else {
+			threadingRadioButtons.enableRadioButtons();
+			pthreadsLabel.setEnabled(true);
+		}
 	}
 	
+	JLabel pthreadsLabel;
 	/*.................................................................................................................*/
 
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		dialog.addHorizontalLine(1);
-		dialog.addLabel("RAxML parallelization style:");
+		pthreadsLabel = dialog.addLabel("RAxML parallelization style:");
 		boolean requiresPThreads = requiresPThreads();
 		if (requiresPThreads)
 			threadingVersion = THREADING_PTHREADS;
 		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);	
-		
-/*		if (requiresPThreads) {
-			threadingRadioButtons.setEnabled(THREADING_OTHER, false);
-			threadingRadioButtons.setEnabled(THREADING_PTHREADS, false);
-		}
-		*/
+
 		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, 1, MesquiteInteger.infinite);
 		numProcessorsField.addKeyListener(this);
 		dialog.addHorizontalLine(1);
-		checkEnabling();
+		checkOtherEnabled(externalProcRunner.useAppInAppFolder());
 
-//		RAxML814orLaterCheckbox = dialog.addCheckBox("RAxML version 8.1.4 or later", RAxML814orLater);
-//		dialog.addLabelSmallText("This version of Zephyr tested on the following RAxML version(s): " + getTestedProgramVersions());
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
 //		RAxML814orLater = RAxML814orLaterCheckbox.getState();
-		threadingVersion = threadingRadioButtons.getValue();
+		usingBuiltinApp = externalProcRunner.useAppInAppFolder();
+		if (usingBuiltinApp) {
+			AppInformationFile appInfo = AppHarvester.getAppInfoFileForProgram(this);
+			if (appInfo!=null) {
+				String otherProp = appInfo.getOtherProperties();
+				if (StringUtil.containsIgnoreCase(otherProp, "PTHREAD")) {
+					threadingVersion = THREADING_PTHREADS;
+				} else {
+					threadingVersion = THREADING_OTHER;
+				}
+			} else
+				threadingVersion = threadingRadioButtons.getValue();
+		}
+		else
+			threadingVersion = threadingRadioButtons.getValue();
+		
 		numProcessors = numProcessorsField.getValue(); //
 		dnaModel = dnaModelField.getText();
 		proteinModel = proteinModelField.getText();
 		proteinModelMatrix = proteinModelMatrixChoice.getSelectedItem();
 }
+	public void itemStateChangedInAppUser(Object itemSelectable) {
+	}
+
+	
+	/*.................................................................................................................*/
+	public void appChoiceChanged(boolean builtInAppChosen) {
+		checkOtherEnabled(builtInAppChosen);
+	}
+
+	/*.................................................................................................................*/
+	public void itemStateChanged(ItemEvent arg0) {
+		externalProcRunner.itemStateChangedInAppUser(arg0.getItemSelectable());
+		super.itemStateChanged(arg0);
+	}
+
 	/*.................................................................................................................*/
 
 	public void addModelOptions(ExtensibleDialog dialog) {

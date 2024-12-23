@@ -502,6 +502,8 @@ boolean userAborted = false;
 					if (trees.size()==before) {
 						if (userAborted)
 							ownerModule.logln(inferenceTask.getName() + " aborted by the user.");
+						else if (inferenceTask.getUserCancelled()) 
+							ownerModule.logln(inferenceTask.getName() + " cancelled by the user.");
 						else {
 							ownerModule.alert("Sorry, no trees were returned by " + inferenceTask.getName());
 						}

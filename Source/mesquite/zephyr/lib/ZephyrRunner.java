@@ -12,6 +12,7 @@ package mesquite.zephyr.lib;
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.Choice;
+import java.awt.ItemSelectable;
 import java.util.Random;
 
 import mesquite.categ.lib.CategoricalData;
@@ -144,6 +145,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public void setUpRunner() { 
 		
 	}
+	/*.................................................................................................................*/
+
+	public MesquiteModule getModule() {
+		return this;
+	}
+
 	/*.................................................................................................................*/
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
 		return false;
@@ -333,6 +340,15 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public void reportNewTreeAvailable(){
  	}
+	
+	/*.................................................................................................................*/
+	public void itemStateChangedInAppUser(ItemSelectable itemSelectable) {
+	}
+
+	/*.................................................................................................................*/
+	public void appChoiceChanged(boolean builtInAppChosen) {
+	}
+
 	/*.................................................................................................................*/
 
 	public boolean localScriptRunsRequireTerminalWindow(){
