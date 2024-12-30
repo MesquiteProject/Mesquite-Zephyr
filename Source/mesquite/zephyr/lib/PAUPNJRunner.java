@@ -109,6 +109,8 @@ public abstract class PAUPNJRunner extends PAUPRunner {
 				sb.append("\tconstraints constraintTree (MONOPHYLY) =  " + constraintTree +";" + StringUtil.lineEnding()); 
 		}
 		if (bootstrapOrJackknife() && bootStrapReps>0) {
+			sb.append("\tset criterion=distance;\n");
+		
 			if (searchStyle==BOOTSTRAPSEARCH)
 				sb.append("\tboot");
 			else

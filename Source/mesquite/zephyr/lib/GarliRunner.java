@@ -594,10 +594,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String getTestedProgramVersions() {
 		return "2.0";
 	}
+	/*.................................................................................................................*/
 	public  boolean smallerIsBetter (){
 		return false;
 	}
@@ -719,10 +720,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			dialog.addLabel(extraLabel);
 
 		tabbedPanel.addPanel("GARLI Program Details", true);
-		addRunnerOptions(dialog);
-		dialog.addLabelSmallText("This version of Zephyr tested on the following GARLI version(s): " + getTestedProgramVersions());
 		if (treeInferer!=null) 
 			treeInferer.addItemsToDialogPanel(dialog);
+		addRunnerOptions(dialog);
+	//	dialog.addLabelSmallText("This version of Zephyr tested on the following GARLI version(s): " + getTestedProgramVersions());
 		
 		externalProcRunner.addNoteToBottomOfDialog(dialog);
 		
@@ -841,7 +842,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				acceptableOptions=true;
 			}
 		} else
-			treeInferer.setUserCancelled();
+			if (treeInferer!=null)
+				treeInferer.setUserCancelled();
 		dialog.dispose();
 		if (closeWizard)
 			MesquiteDialog.closeWizard();

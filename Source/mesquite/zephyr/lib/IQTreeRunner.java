@@ -312,10 +312,11 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		}
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String getTestedProgramVersions(){
-		return "1.6.4-1.6.12, 2.2.0, 2.2.2.7";
+		return "1.6.4-1.6.12, 2.2.0–2.3.6";
 	}
+	/*.................................................................................................................*/
 	public abstract void addRunnerOptions(ExtensibleDialog dialog);
 	public abstract void processRunnerOptions();
 	/*.................................................................................................................*/
@@ -376,10 +377,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		tabbedPanel.addPanel(getExecutableName()+" Program Details", true);
 		externalProcRunner.addItemsToDialogPanel(dialog);
-		addRunnerOptions(dialog);
 		if (treeInferer!=null) {
 			treeInferer.addItemsToDialogPanel(dialog);
 		}
+		addRunnerOptions(dialog);
 		//Checkbox onlySetUpRunBox = dialog.addCheckBox("set up files but do not start inference", onlySetUpRun);
 		externalProcRunner.addNoteToBottomOfDialog(dialog);
 
@@ -512,7 +513,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			} 
 				
 		} else 
-			treeInferer.setUserCancelled();
+			if (treeInferer!=null)
+				treeInferer.setUserCancelled();
 		dialog.dispose();
 		return (acceptableOptions);
 	}
@@ -521,8 +523,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public void checkEnabled(int searchStyle) {
 		onlyBestBox.setEnabled(searchStyle==STANDARDSEARCH || !bootstrapAllowed);
 		numSearchRunsField.getTextField().setEnabled(searchStyle==STANDARDSEARCH || !bootstrapAllowed);
-		if (alrtBox!=null)
+		if (alrtBox!=null) {
 			alrtBox.setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
+		}
 		if (numUFBootRunsField!=null)
 			numUFBootRunsField.getTextField().setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
 		if (bootStrapRepsField!=null)

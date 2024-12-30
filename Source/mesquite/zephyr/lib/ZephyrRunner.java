@@ -172,7 +172,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return "";
 	}
 	/*.................................................................................................................*/
-	public  String bootstrapOrJackknifeTreeListName() {
+	public  String bootstrapOrJackknifeTreeListName()         {
 		return "Bootstrap Trees";
 	}
 
@@ -182,6 +182,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public String getAppOfficialName() {
 		return getExecutableName();
 	}
+
+	public void appChooserDialogBoxEntryChanged() {}
+
 	public boolean getBuiltInExecutableAllowed() {
 		return canUseLocalApp() && getHasApp();
 	}
@@ -341,14 +344,6 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public void reportNewTreeAvailable(){
  	}
 	
-	/*.................................................................................................................*/
-	public void itemStateChangedInAppUser(ItemSelectable itemSelectable) {
-	}
-
-	/*.................................................................................................................*/
-	public void appChoiceChanged(boolean builtInAppChosen) {
-	}
-
 	/*.................................................................................................................*/
 
 	public boolean localScriptRunsRequireTerminalWindow(){

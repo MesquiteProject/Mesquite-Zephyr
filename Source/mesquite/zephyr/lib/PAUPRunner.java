@@ -761,7 +761,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 				acceptableOptions = true;
 			}
 		} else
-			treeInferer.setUserCancelled();
+			if (treeInferer!=null)
+				treeInferer.setUserCancelled();
 		dialog.dispose();
 		return (acceptableOptions);
 	}

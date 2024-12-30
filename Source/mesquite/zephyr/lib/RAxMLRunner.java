@@ -491,7 +491,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				acceptableOptions = true;
 			}
 		} else
-			treeInferer.setUserCancelled();
+			if (treeInferer!=null)
+				treeInferer.setUserCancelled();
 		dialog.dispose();
 		return (acceptableOptions);
 	}

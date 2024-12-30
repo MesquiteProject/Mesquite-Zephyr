@@ -91,7 +91,7 @@ public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener,
 		return buffer.toString();
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String getTestedProgramVersions(){
 		return "1.6.4-1.6.10";
 	}
