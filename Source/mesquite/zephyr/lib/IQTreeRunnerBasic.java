@@ -103,7 +103,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.4-1.6.12, 2.2.0";
+		return "1.6.4-1.6.12, 2.2.0–2.3.6";
 	}
 
 	/*.................................................................................................................*/
@@ -155,7 +155,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		numProcessorsField = dialog.addIntegerField("Specify number of processor cores", numProcessors, 8, 1, MesquiteInteger.infinite);
 		dialog.addHorizontalLine(1);
 
-		dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());
+	//	dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());
 	}
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent e) {
