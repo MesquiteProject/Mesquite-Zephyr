@@ -147,6 +147,16 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public boolean useAppInAppFolder() {
 		return useDefaultExecutablePath && getBuiltInExecutableAllowed();
 	}
+	
+	public void appChooserDialogBoxEntryChanged() {
+		if (processRequester!=null)
+			processRequester.appChooserDialogBoxEntryChanged();
+	}
+
+	public AppChooser getAppChooser() {
+		return appChooser;
+	}
+
 
 	/*.................................................................................................................*/
 	public boolean isSubstantive(){
@@ -399,13 +409,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			if (addExitCommandCheckBox!=null)
 				addExitCommandCheckBox.setEnabled(scriptBasedCheckBox.getState());	
 		} else {
-		}
-	}
-	/*.................................................................................................................*/
-	public void itemStateChangedInAppUser(ItemSelectable itemSelectable) {
-		if (appChooser!=null) {
-			processRequester.appChoiceChanged(appChooser.builtInAppChosen());
-
 		}
 	}
 

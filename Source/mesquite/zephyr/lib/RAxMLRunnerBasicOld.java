@@ -21,6 +21,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
 import mesquite.externalCommunication.AppHarvester.AppHarvester;
+import mesquite.externalCommunication.lib.AppChooser;
 import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
@@ -84,7 +85,7 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "8.0.0–8.2.12";
+		return "8.1.4–8.2.12";
 	}
 
 	/*.................................................................................................................*/
@@ -189,7 +190,6 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 	}
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
-//		RAxML814orLater = RAxML814orLaterCheckbox.getState();
 		usingBuiltinApp = externalProcRunner.useAppInAppFolder();
 		if (usingBuiltinApp) {
 			AppInformationFile appInfo = AppHarvester.getAppInfoFileForProgram(this);
@@ -211,20 +211,18 @@ public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements K
 		proteinModel = proteinModelField.getText();
 		proteinModelMatrix = proteinModelMatrixChoice.getSelectedItem();
 }
-	public void itemStateChangedInAppUser(Object itemSelectable) {
-	}
-
 	
-	/*.................................................................................................................*/
-	public void appChoiceChanged(boolean builtInAppChosen) {
-		checkOtherEnabled(builtInAppChosen);
+	
+		/*.................................................................................................................*/
+
+	public void appChooserDialogBoxEntryChanged() 	{
+		AppChooser appChooser = externalProcRunner.getAppChooser();
+		if (appChooser!=null) {
+			boolean builtInAppChosen = appChooser.builtInAppChosen();
+			checkOtherEnabled(builtInAppChosen); 
+		}
 	}
 
-	/*.................................................................................................................*/
-	public void itemStateChanged(ItemEvent arg0) {
-		externalProcRunner.itemStateChangedInAppUser(arg0.getItemSelectable());
-		super.itemStateChanged(arg0);
-	}
 
 	/*.................................................................................................................*/
 

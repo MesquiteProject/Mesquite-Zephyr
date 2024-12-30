@@ -11,6 +11,7 @@ package mesquite.zephyr.lib;
 
 import java.awt.ItemSelectable;
 
+import mesquite.externalCommunication.lib.AppChooser;
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
 
@@ -62,7 +63,13 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public String getAppOtherProperties() {
 		return "";
 	}
-	public void itemStateChangedInAppUser(ItemSelectable itemSelectable) {
+
+	public void appChooserDialogBoxEntryChanged() {
+		
+	}
+
+	public AppChooser getAppChooser() {
+		return null;
 	}
 
 	public String[] getDefaultModule() {

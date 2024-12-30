@@ -46,9 +46,7 @@ public interface ExternalProcessRequester {
 	
 	public AppUser getAppUser();
 	
-	public void appChoiceChanged(boolean builtInAppChosen);
-	
-	public void itemStateChangedInAppUser(ItemSelectable itemSelectable);
+	public void appChooserDialogBoxEntryChanged() ;
 
 	public MesquiteModule getModule();
 	
