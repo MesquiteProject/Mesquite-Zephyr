@@ -526,6 +526,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		if (alrtBox!=null) {
 			alrtBox.setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
 		}
+		if (alrtRepsField!=null) 
+			alrtRepsField.setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
 		if (numUFBootRunsField!=null)
 			numUFBootRunsField.getTextField().setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
 		if (bootStrapRepsField!=null)
