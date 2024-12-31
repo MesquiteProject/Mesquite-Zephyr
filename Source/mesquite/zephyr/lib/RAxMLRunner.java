@@ -631,6 +631,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		}
 		else {
 			String contents = MesquiteFile.getFileContentsAsString(treeFilePath);
+			if (StringUtil.blank(contents)) 
+				contents = MesquiteFile.getFileContentsAsString(treeFilePath + ".TMP");   //added for RAXMLNG
 			Parser parser = new Parser(contents);
 
 			String s = parser.getRawNextDarkLine();
