@@ -384,7 +384,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		
 		
 		if (getDirectProcessConnectionAllowed()) {
-			scriptBasedCheckBox = dialog.addCheckBox("Script-based analysis (allows reconnection, but can't be stopped easily)", scriptBased);
+			scriptBasedCheckBox = dialog.addCheckBox("Script-based analysis (allows reconnection)", scriptBased);
 			scriptBasedCheckBox.addItemListener(this);
 		} else
 			scriptBased=true;
