@@ -34,8 +34,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	boolean onlyBest = true;
 
-//	boolean RAxML814orLater = false;
-
 	protected	int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
 
 	//	boolean retainFiles = false;
@@ -196,6 +194,12 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			bootstrapBranchLengths = MesquiteBoolean.fromTrueFalseString(content);
 		if ("doBootstrap".equalsIgnoreCase(tag))
 			doBootstrap = MesquiteBoolean.fromTrueFalseString(content);
+		if ("dnaModel".equalsIgnoreCase(tag)){   
+			dnaModel = StringUtil.cleanXMLEscapeCharacters(content);
+		}
+		if ("proteinModel".equalsIgnoreCase(tag)){   
+			proteinModel = StringUtil.cleanXMLEscapeCharacters(content);
+		}
 		if ("dnaModelMatrix".equalsIgnoreCase(tag)){   
 			dnaModelMatrix = StringUtil.cleanXMLEscapeCharacters(content);
 		}
@@ -221,6 +225,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		StringUtil.appendXMLTag(buffer, 2, "nobfgs", nobfgs);  
 		StringUtil.appendXMLTag(buffer, 2, "bootstrapBranchLengths", bootstrapBranchLengths);  
 		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
+		StringUtil.appendXMLTag(buffer, 2, "dnaModel", dnaModel);  
+		StringUtil.appendXMLTag(buffer, 2, "proteinModel", proteinModel);  
 		StringUtil.appendXMLTag(buffer, 2, "dnaModelMatrix", dnaModelMatrix);  
 		StringUtil.appendXMLTag(buffer, 2, "proteinModelMatrix", proteinModelMatrix);  
 		StringUtil.appendXMLTag(buffer, 2, "specifyPartByPartModels", specifyPartByPartModels);  

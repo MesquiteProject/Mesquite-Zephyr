@@ -1458,7 +1458,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		if (fileNum==OUT_SUMMARYFILE && outputFilePaths.length>OUT_SUMMARYFILE && !StringUtil.blank(outputFilePaths[OUT_SUMMARYFILE])) {   // info file
 			if (MesquiteFile.fileExists(filePath)) {
 				//String s = MesquiteFile.getFileLastContents(filePath,fPOS);
-				String s = MesquiteFile.getFileContentsAsString(filePath);
+				String s = MesquiteFile.getFileContentsAsStringSeparateNotReadableWarning(filePath, numRuns>1);
 				if (!StringUtil.blank(s)) {
 					if (searchStyle==STANDARDBOOTSTRAP || numRuns>1) {
 						numRunsCompleted=StringUtil.getNumberOfLines(s);
