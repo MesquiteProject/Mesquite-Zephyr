@@ -168,7 +168,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 				if (taxa != null)
 					taxa.setDirty(true);
 			}			
-			boolean close = AlertDialog.query(containerOfModule(), "Close file?", runner.getFileCloseNotification(getProject().getHomeFile().isDirty()), "Close", "Cancel", 2, "");
+			boolean close = AlertDialog.query(containerOfModule(), "Close file?", runner.getFileCloseNotification(getProject().getHomeFile().isDirty()), "Close File", "Cancel", 2, "");
 			if (!close)
 				return false;
 

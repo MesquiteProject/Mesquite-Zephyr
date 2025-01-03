@@ -508,6 +508,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			searchDetails.append("\nAnalysis started " + getDateAndTime()+ "\n");
 			if (StringUtil.notEmpty(externalProcRunner.getDirectoryPath()))
 				searchDetails.append("Results stored in folder: " + externalProcRunner.getDirectoryPath()+ "\n");
+			//NOTE: if above string changes, "Results stored in folder:", then change also string in ProjectWindow, TreesRPanel, variable targetHeading
 			searchStartedDetails = getDateAndTime();
 		}
 	}

@@ -327,7 +327,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			commands += " tell It; setTaxa " + getProject().getTaxaReferenceInternal(taxa) + " ;  setTreeBlockByID " + treeBlockID + "; endTell;  getWindow; tell It; setSize 400 300; " + extraWindowCommands + " endTell; showWindowForce; endTell; ";
 			if (MesquiteTrunk.debugMode)
 				logln(commands);
-
+			Debugg.printStackTrace("@@@@@@@@@@@@@@@@@@\n" + commands);
 			MesquiteInteger pos = new MesquiteInteger(0);
 			Puppeteer p = new Puppeteer(this);
 			CommandRecord prev = MesquiteThread.getCurrentCommandRecord();
@@ -517,8 +517,9 @@ boolean userAborted = false;
 					}
 				} else if (userAborted)
 					ownerModule.logln(inferenceTask.getName() + " aborted by the user.");					
-				if (trees.size()!=before) //Debugg.println maybe do this only if not aborted???? given it's also done otherwise?
-					ownerModule.saveAndPresentTrees(inferenceTask, trees.getTaxa(), trees); //DAVIDQUERY -- when  run is aborted, bootstrap or not, this is called here and also there
+Debugg.println("##########aborted " + aborted + " userAborted " + userAborted + " before " + before + " trees.size() " + trees.size());
+					if (trees.size()!=before) //Debugg.println maybe do this only if not aborted???? given it's also done otherwise?
+						ownerModule.saveAndPresentTrees(inferenceTask, trees.getTaxa(), trees); //DAVIDQUERY -- when  run is aborted, bootstrap or not, this is called here and also there
 				ownerModule.fireTreeFiller();
 			}
 			ownerModule.resetAllMenuBars();
