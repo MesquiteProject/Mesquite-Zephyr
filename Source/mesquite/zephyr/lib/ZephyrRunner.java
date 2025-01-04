@@ -361,7 +361,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public void setUserAborted(boolean userAborted) {
 		this.userAborted = userAborted;
 		if (externalProcRunner!=null)
-			externalProcRunner.setAborted(userAborted);
+			externalProcRunner.setUserAborted(userAborted);
 	}
 
 	public boolean errorsAreFatal(){

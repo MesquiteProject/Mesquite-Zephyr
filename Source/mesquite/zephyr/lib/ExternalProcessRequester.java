@@ -8,7 +8,6 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 package mesquite.zephyr.lib;
 
-import java.awt.ItemSelectable;
 
 import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.externalCommunication.lib.AppUser;

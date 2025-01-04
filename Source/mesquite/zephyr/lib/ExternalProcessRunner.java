@@ -9,7 +9,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.awt.ItemSelectable;
+
 
 import mesquite.externalCommunication.lib.AppChooser;
 import mesquite.lib.*;
@@ -20,7 +20,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	int executableNumber;
 	String rootNameForDirectory;
 	TreeInferer treeInferrer;
-	boolean aborted = false;
+	boolean userAborted = false;
 	protected ProgressIndicator progressIndicator;
 	protected String localRootDir = null;  // local directory for storing files on local machine
 	protected boolean readyForReconnectionSave = false;
@@ -97,10 +97,10 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		return "";
 	}
 	public boolean userAborted(){
-		return aborted;
+		return userAborted;
 	}
-	public void setAborted(boolean aborted){
-		this.aborted = aborted;
+	public void setUserAborted(boolean aborted){
+		this.userAborted = aborted;
 	}
 
 	public void setReadyForReconnectionSave(boolean readyForReconnectionSave){
