@@ -35,6 +35,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		loadPreferences();
 		if (!(condition instanceof String && ((String)condition).equals("acceptImposedMatrixSource"))) {
 			matrixSourceTask = (MatrixSourceCoord)hireCompatibleEmployee(MatrixSourceCoord.class, getCharacterClass(), "Source of matrix (for " + getName() + ")");
+			matrixSourceTask.setMenuToUse(new MesquiteMenuSpec(null, null, null));
 			if (matrixSourceTask == null)
 				return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
 		}

@@ -540,7 +540,6 @@ class TreeBlockThread extends FillerThread {
 					}
 				}
 								
-
 				ownerModule.fireTreeFiller();
 			}
 			ownerModule.resetAllMenuBars();
