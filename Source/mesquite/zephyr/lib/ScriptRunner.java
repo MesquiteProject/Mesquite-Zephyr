@@ -76,14 +76,14 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 
 	public String getMessageIfUserAbortRequested () {
 		if (scriptBased)
-			return "Mesquite will stop its monitoring of the analysis, but it will not be able to directly stop the other program.  To stop the other program, you will need to "
+			return "\nIf you choose to stop, Mesquite will attempt to stop the analysis program. Normally this will work, but if there is an error, you may need to  "
 					+ "use either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
 		return "";
 	}
 	public String getMessageIfCloseFileRequested () { 
 		if (scriptBased)
-			return "If Mesquite closes this file, it will not directly stop the other program.  To stop the other program, you will need to "
-					+ "use either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
+			return "\nEven if you let the analysis continue now, you can later stop it by reopening the file in Mesquite (if you save it), or by "
+					+ "using the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop it.";
 		return "";
 	}
 	

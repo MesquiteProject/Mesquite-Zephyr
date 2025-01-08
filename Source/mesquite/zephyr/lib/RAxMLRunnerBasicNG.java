@@ -275,7 +275,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	protected String getHelpString() {
 		return "This module will prepare a matrix for RAxML-NG, and ask RAxM-NG do to an analysis.  A command-line version of RAxML-NG must be installed. "
 				+ "You can ask it to do multiple searches for optimal trees, OR to do a bootstrap analysis (but not both). "
-				+ "Mesquite will read in the trees found by RAxML-NG, and, for non-bootstrap analyses.";
+				+ "Mesquite will read in the trees found by RAxML-NG, and, for non-bootstrap analyses." + super.getHelpString();
 	}
 
 	/*.................................................................................................................*/

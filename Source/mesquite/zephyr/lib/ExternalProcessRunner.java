@@ -51,6 +51,10 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public boolean isScriptBased() {
 		return scriptBased;
 	}
+	public String getHelpString() {
+		//override for more!
+		return "";
+	}
 
 	public void setScriptBased(boolean scriptBased) {
 		this.scriptBased = scriptBased;
@@ -88,6 +92,13 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	
 	public String getMessageIfUserAbortRequested () {
 		return "";
+	}
+	/** If file close has been requested, here say whether or not to ask about killing the. After deciding, the caller should call setDontKill below!!!!.*/
+	public boolean askAboutKillingRun() {
+		return false;
+	}
+	/** To be called after askAboutKillingRun.*/
+	public void setDontKill (boolean letRun) {
 	}
 
 	public void storeRunnerPreferences() {

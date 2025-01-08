@@ -364,13 +364,13 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				+ "You can ask it to do multiple searches for optimal trees, OR to do a bootstrap analysis (but not both). "
 				+ "Mesquite will read in the trees found by "+getExecutableName()+", and, for non-bootstrap analyses, also read in the value of the "+getExecutableName()+" score (-ln L) of the tree. " 
 				+ "You can see the "+getExecutableName()+" score by choosing Taxa&Trees>List of Trees, and then in the List of Trees for that trees block, choose "
-				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose "+getExecutableName()+" Score.";
-
+				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose "+getExecutableName()+" Score." + super.getHelpString();
+		
 		dialog.appendToHelpString(helpString);
 		dialog.setHelpURL(getHelpURL(zephyrRunnerEmployer));
 
-
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
+
 		String extraLabel = getLabelForQueryOptions();
 		if (StringUtil.notEmpty(extraLabel))
 			dialog.addLabel(extraLabel);
@@ -395,7 +395,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, minimumNumBootstrapReplicates(), MesquiteInteger.infinite);
 			numUFBootRunsField = dialog.addIntegerField("Number of Runs for Ultrafast Bootstrap", numUFBootRuns, 8, 1, MesquiteInteger.infinite);
 			alrtBox = dialog.addCheckBox("do SH-aLRT analysis", doALRT);
+			alrtBox.addItemListener(this);
 			alrtRepsField = dialog.addIntegerField("Number of Reps for SH-aLRT", alrtReps, 8, 1, MesquiteInteger.infinite);
+			alrtRepsField.setEnabled(!alrtBox.getState());
 			seedField = dialog.addIntegerField("Random number seed: ", randomIntSeed, 20);
 			dialog.addHorizontalLine(1);
 		}
@@ -526,8 +528,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		if (alrtBox!=null) {
 			alrtBox.setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
 		}
-		if (alrtRepsField!=null) 
-			alrtRepsField.setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
+		if (alrtRepsField!=null && alrtBox != null) 
+			alrtRepsField.setEnabled(alrtBox.getState() && searchStyle==ULTRAFASTBOOTSTRAP);
 		if (numUFBootRunsField!=null)
 			numUFBootRunsField.getTextField().setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
 		if (bootStrapRepsField!=null)
@@ -617,7 +619,11 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 			getConstraintTreeSource();
 
-		} else if (searchStyleButtons.isAButton(e.getItemSelectable())) {
+		} 
+		else if (e.getItemSelectable() == alrtBox){
+			alrtRepsField.setEnabled(alrtBox.getState());
+		}
+		else if (searchStyleButtons.isAButton(e.getItemSelectable())) {
 			checkEnabled (searchStyleButtons.getValue());
 			int bootreps = bootStrapRepsField.getValue();
 			int searchStyleLocal = searchStyleButtons.getValue();

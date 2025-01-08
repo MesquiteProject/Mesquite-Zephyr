@@ -713,7 +713,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			titleExtra += " ("+extra+")";
 		dialog = new ExtensibleDialog(containerOfModule(), getName() + " Options"+titleExtra,buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 		//		dialog.addLabel(getName() + " Options and Location");
-		String helpString = "This module will prepare a matrix for PAUP, and ask PAUP do to an analysis.  A command-line version of PAUP must be installed. ";
+		String helpString = "This module will prepare a matrix for PAUP, and ask PAUP do to an analysis.  A command-line version of PAUP must be installed. " + getHelpString();
 		dialog.appendToHelpString(helpString);
 		dialog.setHelpURL(getHelpURL(zephyrRunnerEmployer));
 

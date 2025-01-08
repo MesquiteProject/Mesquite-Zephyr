@@ -709,7 +709,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				+ "You can ask it to do multiple searches for optimal trees, OR to do a bootstrap analysis (but not both). "
 				+ "Mesquite will read in the trees found by GARLI, and, for non-bootstrap analyses, also read in the value of the GARLI score (-ln L) of the tree. "
 				+ "You can see the GARLI score by choosing Taxa&Trees>List of Trees, and then in the List of Trees for that trees block, choose "
-				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose GARLI Score.";
+				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose GARLI Score." + super.getHelpString();
 
 		dialog.appendToHelpString(helpString);
 		dialog.setHelpURL(getHelpURL(zephyrRunnerEmployer));

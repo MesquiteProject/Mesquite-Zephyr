@@ -45,7 +45,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 
 	StringBuffer extraPreferences;
 	boolean deleteAnalysisDirectory = false;
-	boolean openAnalysisDirectory = false;
 
 	/*.================================================================..*/
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
@@ -237,8 +236,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			addExitCommand = MesquiteBoolean.fromTrueFalseString(content);
 		if ("deleteAnalysisDirectory".equalsIgnoreCase(tag))
 			deleteAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(content);
-		if ("openAnalysisDirectory".equalsIgnoreCase(tag))
-			openAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(content);
 		super.processSingleXMLPreference(tag, content);
 	}
 	/*.................................................................................................................*/
@@ -250,7 +247,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		//if (getDefaultExecutablePathAllowed())
 		StringUtil.appendXMLTag(buffer, 2, "useDefaultExecutablePath", getExecutableName(), useDefaultExecutablePath);  
 		StringUtil.appendXMLTag(buffer, 2, "deleteAnalysisDirectory", deleteAnalysisDirectory);  
-		StringUtil.appendXMLTag(buffer, 2, "openAnalysisDirectory", openAnalysisDirectory);  
 		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
 		StringUtil.appendXMLTag(buffer, 2, "addExitCommand", addExitCommand);  
 		buffer.append(extraPreferences);
@@ -274,7 +270,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		if (visibleTerminalOptionAllowed())
 			temp.addLine("visibleTerminal "+MesquiteBoolean.toTrueFalseString(visibleTerminal));
 		temp.addLine("deleteAnalysisDirectory "+MesquiteBoolean.toTrueFalseString(deleteAnalysisDirectory));
-		temp.addLine("openAnalysisDirectory "+MesquiteBoolean.toTrueFalseString(openAnalysisDirectory));
 		temp.addLine("scriptBased "+MesquiteBoolean.toTrueFalseString(scriptBased));
 		if (scriptBased) {
 			if (scriptRunner != null){
@@ -332,9 +327,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		else  if (checker.compare(this.getClass(), "Sets whether or not the analysis folder should be deleted at the end of the run.", "[true; false]", commandName, "deleteAnalysisDirectory")) {
 			deleteAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
 		}
-		else  if (checker.compare(this.getClass(), "Sets whether or not the analysis folder should be opened at the end of the run.", "[true; false]", commandName, "openAnalysisDirectory")) {
-			openAnalysisDirectory = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
-		}
+
 		else if (checker.compare(this.getClass(), "Sets root directory", null, commandName, "setRootDir")) {
 			localRootDir = parser.getFirstToken(arguments);
 		}
@@ -356,12 +349,21 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	Checkbox defaultExecutablePathCheckBox =  null;
 	Checkbox visibleTerminalCheckBox =  null;
 	Checkbox deleteAnalysisDirectoryCheckBox =  null;
-	Checkbox openAnalysisDirectoryCheckBox =  null;
 	Checkbox scriptBasedCheckBox =  null;
 	Checkbox addExitCommandCheckBox = null;
 	
 	AppChooser appChooser;
 
+	public String getHelpString() {
+		String helpString = "<h3>Reconnectability</h3>With reconnection enabled, the analysis can continue even after you close the file or quit Mesquite."
+				+ " As long as you save the file before closing/quitting, you can later reopen it in Mesquite, and it will reconnect with the ongoing analysis."
+				+ " The potential drawback is that if something goes wrong (an error by the user, Mesquite crashes) then Mesquite will not be able to reconnect, "
+				+ "and the analysis program won’t stop until it is finished. If it continues, and if you want to stop it, you can use your computer’s "
+				+ " Task Manager (Windows) or Activity Manager (macOS) to force quit the analysis. "
+				+ "(Note: To enable reconnection, Mesquite communicates more loosely with the program via scripts. Otherwise, it connects more directly via Processes.)";
+
+		return helpString;
+	}
 	/*.................................................................................................................*/
 	// given the opportunity to fill in options for user
 	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
@@ -384,7 +386,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		
 		
 		if (getDirectProcessConnectionAllowed()) {
-			scriptBasedCheckBox = dialog.addCheckBox("Script-based analysis (allows reconnection)", scriptBased);
+			scriptBasedCheckBox = dialog.addCheckBox("Enable reconnection (see ? button below for details)", scriptBased);
 			scriptBasedCheckBox.addItemListener(this);
 		} else
 			scriptBased=true;
@@ -396,8 +398,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			addExitCommandCheckBox = dialog.addCheckBox("ask terminal window to exit after completion", addExitCommand);
 			addExitCommandCheckBox.setEnabled(scriptBased);	
 		} 
-		deleteAnalysisDirectoryCheckBox = dialog.addCheckBox("Delete analysis directory after completion", deleteAnalysisDirectory);
-		openAnalysisDirectoryCheckBox = dialog.addCheckBox("Open analysis directory after completion", openAnalysisDirectory);
+		deleteAnalysisDirectoryCheckBox = dialog.addCheckBox("Delete analysis folder after completion", deleteAnalysisDirectory);
 		return true;
 
 	}
@@ -435,8 +436,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			visibleTerminal = visibleTerminalCheckBox.getState();
 		if (deleteAnalysisDirectoryCheckBox!=null)
 			deleteAnalysisDirectory = deleteAnalysisDirectoryCheckBox.getState();
-		if (openAnalysisDirectoryCheckBox!=null)
-			openAnalysisDirectory = openAnalysisDirectoryCheckBox.getState();
 		if (addExitCommandCheckBox!=null)
 			addExitCommand = addExitCommandCheckBox.getState();
 		if (!getDirectProcessConnectionAllowed())
@@ -686,19 +685,28 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		return false;
 	}
 	
+	
 	/*.................................................................................................................*/
-	/** Notifies all employees that a file is about to be closed.*/
-	public boolean fileCloseRequested () {
+	/** If file close has been requested, here say whether or not to ask about killing the. After deciding, the caller should call setDontKill below!!!!.*/
+	public boolean askAboutKillingRun() {
 		if (scriptBased) {
 			if (scriptRunner!=null) {
-				boolean letRun = AlertDialog.query(containerOfModule(),"Let "+ processRequester.getProgramName() + " run?", "Let "+ processRequester.getProgramName() + " continue to run in the background if possible?", "Let run", "Kill run", 1, "");
+				return true;
+			}
+			
+		} 
+		return false;
+	}
+	/*.................................................................................................................*/
+	/** To be called after askAboutKillingRun.*/
+	public void setDontKill (boolean letRun) {
+		if (scriptBased) {
+			if (scriptRunner!=null) {
 				if (letRun)
 					scriptRunner.setDontKill(true);
 			}
 		} 
-		return true;
 	}
-
 	/*.................................................................................................................*/
 	public  void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equalsIgnoreCase("browse")) {
@@ -741,9 +749,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public void finalCleanup() {
 		if (deleteAnalysisDirectory && !leaveAnalysisDirectoryIntact)
 			MesquiteFile.deleteDirectory(localRootDir);
-		else if (openAnalysisDirectory) {
-			MesquiteFile.showDirectory(localRootDir);
-		}
 		localRootDir=null;
 	}
 

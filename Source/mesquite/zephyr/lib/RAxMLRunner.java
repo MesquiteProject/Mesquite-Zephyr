@@ -328,7 +328,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				+ "You can ask it to do multiple searches for optimal trees, OR to do a bootstrap analysis (but not both). "
 				+ "Mesquite will read in the trees found by RAxML, and, for non-bootstrap analyses, also read in the value of the RAxML score (-ln L) of the tree. " 
 				+ "You can see the RAxML score by choosing Taxa&Trees>List of Trees, and then in the List of Trees for that trees block, choose "
-				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose RAxML Score.";
+				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose RAxML Score." + super.getHelpString();
 	}
 	/*.................................................................................................................*/
 	public boolean queryOptions() {

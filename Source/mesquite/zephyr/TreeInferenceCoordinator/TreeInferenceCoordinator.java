@@ -266,7 +266,7 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 					logln("User request to stop tree inference");
 					String message = handler.getMessageIfUserAbortRequested();
 					if (handler.canStoreLatestTree()){
-						response = AlertDialog.queryLongMessage(containerOfModule(), "Save tree?", "Save the current tree in the inference?", message, "Save", "Don't Save", "Cancel", 2, "");
+						response = AlertDialog.queryLongMessage(containerOfModule(), "Stop analysis? Save tree?", "Stop analysis? Save the current tree in the inference?", message, "Stop & Save Tree", "Stop & Don't Save Tree", "Cancel", 2, "");
 						if (response==0)
 							handler.storeLatestTreeAfterAbort();
 						if (response<2) {
@@ -275,14 +275,14 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 						}
 					}
 					else	if (handler.canStoreMultipleCurrentTrees()){
-						response = AlertDialog.queryLongMessage(containerOfModule(), "Save trees?", "Save current trees in the inference?", message, "Save", "Don't Save", "Cancel", 2, "");
+						response = AlertDialog.queryLongMessage(containerOfModule(), "Stop analysis? Save trees?", "Stop analysis? Save current trees in the inference?", message, "Stop & Save Trees", "Stop & Don't Save Trees", "Cancel", 2, "");
 						if (response==0)
 							handler.storeMultipleCurrentTreesAfterAbort();
 						if (response<2) {
 							handler.setUserAborted();
 							handler.stopInference(true, response == 0);
 						}
-					} else if (AlertDialog.query(this, "Abort analysis", "Do you want to abort analysis? Preliminary trees will not be saved. "+message, "OK", "Cancel")) {
+					} else if (AlertDialog.query(this, "Stop analysis", "Do you want to stop the analysis? Preliminary trees will not be saved.\n"+message, "Stop", "Cancel")) {
 						handler.setUserAborted();
 						handler.stopInference(true, false);
 					}

@@ -224,6 +224,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return super.getCitation() + addendum;
 	}
 	
+	protected String getHelpString() {
+		//can add more if needed!
+		if (externalProcRunner!= null)
+			return externalProcRunner.getHelpString(); //override if you want to add more, e.g. about script based analyses
+		return "";
+	}
 	/*.................................................................................................................*/
 	public String getHelpURL(ZephyrRunnerEmployer zephyrRunnerEmployer) {
 		AppInformationFile appInfoFile = getAppInfoFile();
@@ -288,23 +294,69 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return  externalProcRunner!=null && externalProcRunner.getReadyForReconnectionSave();
 	}
 
+	/*====================================*/
 	public String getFileCloseNotification(boolean fileIsDirty){
 		boolean farEnoughAlongToReconnect = (externalProcRunner!=null && externalProcRunner.getReadyForReconnectionSave());
-			
 		if (!isReconnectable()) {
-			return ("There is a run of "+ getProgramName() + " underway.  If you close the file now, the search will be stopped and you will be NOT able to reconnect to it through Mesquite later. (If you want reconnectability in future runs, use the \"Script Based\" option.)");
+			return ("If you close the file now, the search will be stopped and you will be NOT able to reconnect to it through Mesquite later. (If you want reconnectability in future runs, use the \"Enable reconnection\" option.)");
 		}
 		else if (!farEnoughAlongToReconnect)
-			return ("There is a run of "+ getProgramName() + " underway.  If you save the file now, the search will not "
+			return ("If you close the file now (even if you save it), the search will not "
 					+ "be successful and you will be NOT able to reconnect to it through Mesquite later, as the process has not proceeded far enough to be reconnectible.  If you wish it to be reconnectible,"
 					+ "then press cancel, and try again a bit later.");
 		else if (fileIsDirty)
-			return ("There is a run of "+ getProgramName() + " underway.  If you save the file now, you will be able to reconnect to it by reopening this file, as long as you haven't moved the file or those files involved in the "+ getProgramName() 
+			return ("If you save the file now and permit the analysis to continue, you will be able to close the file and then later reconnect to the analysis by reopening this file, as long as you haven't moved the file or those files involved in the "+ getProgramName() 
 			+ " search. \n" + getMessageIfCloseFileRequested());
 		else
-			return ("There is a run of "+ getProgramName() + " underway.  If you reopen the file, it will reconnect to the search, as long as you haven't moved the file or those files involved in the "+ getProgramName() 
+			return ("If you permit the analysis to continue, you will be able to close the file and later reconnect to the analysis by re-opening the file, as long as you haven't moved the file or those files involved in the "+ getProgramName() 
 			+ " search. \n" + getMessageIfCloseFileRequested());
 	}
+	
+	/*-----------------------------------------------------------------------------------*/
+	public boolean queryWhetherToCloseFile(boolean fileIsDirty) {
+		boolean askContinue = externalProcRunner.askAboutKillingRun();
+
+		MesquiteInteger buttonPressed = new MesquiteInteger(1);
+		String title= "Close File?";
+		if (fileIsDirty && askContinue) //for some reason when not scripting, file is always dirty, but then later query will check on whether to save.
+			title += " Save?";
+		if (askContinue)
+			title += " Let Analysis Continue?";
+		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(),  title ,buttonPressed); 
+		
+		dialog.addLabel("You have asked to close the file, but there is a run of "+ getProgramName() + " underway.");
+		dialog.addBlankLine();
+		dialog.addLargeOrSmallTextLabel(getFileCloseNotification(fileIsDirty));
+		Checkbox sF = null;
+		dialog.addBlankLine();
+		if (fileIsDirty && askContinue)
+			sF = dialog.addCheckBox("Save File Before Closing", true);
+		Checkbox lR = null;
+		if (askContinue)
+			lR = dialog.addCheckBox("Let Analysis Continue", true);
+
+		dialog.addBlankLine();
+		dialog.defaultLabel = "Close File";
+		dialog.completeAndShowDialog(true);
+		if (buttonPressed.getValue()==0)  {
+			if (fileIsDirty && sF != null) {
+				if (sF.getState()) {
+					FileCoordinator fc = getFileCoordinator();
+					fc.saveAllFiles();
+				}
+			}
+			if (askContinue) {
+				if ( lR.getState())
+					externalProcRunner.setDontKill(true);
+			}
+		}
+		dialog.dispose();
+		return (buttonPressed.getValue()==0);
+	}
+	/*====================================*/
+
+	
+	
 	
 	public boolean getDirectProcessConnectionAllowed(){
 		return true;

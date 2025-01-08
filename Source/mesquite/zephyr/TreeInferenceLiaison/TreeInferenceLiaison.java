@@ -500,29 +500,6 @@ class TreeBlockThread extends FillerThread {
 			MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(false);
 
 			if (!ownerModule.isDoomed()){
-				/*OLD
-				 * if (!abortedAccordingToFillerThread){
-					if (trees.size()==before) {
-						if (userAborted)
-							ownerModule.logln(inferenceTask.getName() + " aborted by the user.");
-						else if (inferenceTask.getUserCancelled()) 
-							ownerModule.logln(inferenceTask.getName() + " cancelled by the user.");
-						else {
-							ownerModule.alert("Sorry, no trees were returned by " + inferenceTask.getName());
-						}
-						userAborted=false; //ZQuery: this seems to have no effect
-						ownerModule.fireTreeFiller();
-					}
-					else {
-						trees.addToFile(file, ownerModule.getProject(), 		(TreesManager)ownerModule.findElementManager(TreeVector.class));
-						okToSave = true;
-					}
-				} 
-				else if (userAborted)
-					ownerModule.logln(inferenceTask.getName() + " aborted by the user.");					
-					if (trees.size()!=before) //Debugg.println maybe do this only if not aborted???? given it's also done otherwise?
-						ownerModule.saveAndPresentTrees(inferenceTask, trees.getTaxa(), trees); //ZQUERY -- when  run is aborted, bootstrap or not, this is called here and also there
-				 */
 				
 				if (inferenceTask.getUserCancelled())  //cancelled even before inference started
 					ownerModule.logln(inferenceTask.getName() + " cancelled by the user.");
