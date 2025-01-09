@@ -42,7 +42,7 @@ public  class PAUPSVDRunnerLocal extends PAUPSVDRunner {
 	/*.................................................................................................................*/
 	public void setUpRunner() { 
 		super.setUpRunner();
-		hasApp = AppHarvester.builtinAppExists(this);
+		hasApp = AppHarvester.builtinAppExists(getAppOfficialName());
 	}
 
 	/*.................................................................................................................*/

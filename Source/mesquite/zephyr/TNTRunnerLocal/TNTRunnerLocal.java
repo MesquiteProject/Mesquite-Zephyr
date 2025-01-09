@@ -41,7 +41,7 @@ public class TNTRunnerLocal extends TNTRunner  {
 	/*.................................................................................................................*/
 	public void setUpRunner() { 
 		super.setUpRunner();
-		hasApp = AppHarvester.builtinAppExists(this);
+		hasApp = AppHarvester.builtinAppExists(getAppOfficialName());
 	}
 
 	/*.................................................................................................................*/

@@ -60,7 +60,7 @@ public class IQTreeRunnerLocal extends IQTreeRunnerBasic  {
 	/*.................................................................................................................*/
 	public void setUpRunner() { 
 		super.setUpRunner();
-		hasApp = AppHarvester.builtinAppExists(this);
+		hasApp = AppHarvester.builtinAppExists(getAppOfficialName());
 	}
 
 	/*.................................................................................................................*/

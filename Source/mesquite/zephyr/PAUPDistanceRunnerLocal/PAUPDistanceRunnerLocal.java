@@ -40,7 +40,7 @@ public class PAUPDistanceRunnerLocal extends PAUPDistanceRunner {
 	/*.................................................................................................................*/
 	public void setUpRunner() { 
 		super.setUpRunner();
-		hasApp = AppHarvester.builtinAppExists(this);
+		hasApp = AppHarvester.builtinAppExists(getAppOfficialName());
 	}
 
 	/*.................................................................................................................*/
