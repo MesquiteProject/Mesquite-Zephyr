@@ -25,7 +25,7 @@ import mesquite.lib.system.SystemUtil;
 import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
 import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.RAxMLRunnerSSHOld.RAxMLRunnerSSHOld;
+import mesquite.zephyr.RAxMLRunnerSSHOrig.RAxMLRunnerSSHOrig;
 import mesquite.zephyr.SSHRunner.SSHRunner;
 import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;

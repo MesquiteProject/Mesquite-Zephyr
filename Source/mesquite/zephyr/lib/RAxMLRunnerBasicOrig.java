@@ -30,7 +30,7 @@ import mesquite.lib.system.SystemUtil;
 import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
 import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.RAxMLTreesLocalOld.*;
+import mesquite.zephyr.RAxMLTreesLocalOrig.*;
 import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
 
@@ -41,7 +41,7 @@ outgroups
 
  */
 
-public abstract class RAxMLRunnerBasicOld extends RAxMLRunnerBasic  implements KeyListener, ItemListener  {
+public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements KeyListener, ItemListener  {
 
 	protected static final int THREADING_OTHER =0;
 	protected static final int THREADING_PTHREADS = 1;

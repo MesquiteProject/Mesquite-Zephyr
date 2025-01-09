@@ -1470,6 +1470,22 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 						numRunsCompleted=StringUtil.getNumberOfLines(s);
 						setTimeOfEarlyRep(numRunsCompleted);
 						currentRun=numRunsCompleted;
+						
+						/* DavidQuery TESTING. Debugg.println.
+						 * The following shows the intermediate consensus tree. The method is not yet in the inferer because things known here aren't known there without callbacks, 
+						 * which are not yet arranged.
+						 * There should also be a closeIntermediateConsensus method?
+						* Also, how does this work with remote?*/
+						if (bootstrapOrJackknife() && showIntermediateTrees) {
+							String[] fs = externalProcRunner.getOutputFilePaths();
+							String bootstrapFilePath = fs[OUT_TREEFILE];
+							if (MesquiteFile.fileExists(bootstrapFilePath)) {
+								String treeDescription = MesquiteFile.getFileLastDarkLine(bootstrapFilePath);
+								if (StringUtil.notEmpty(treeDescription))
+									showIntermediateConsensusAddingTree(treeDescription);
+							}
+						}
+
 						if (externalProcRunner.canCalculateTimeRemaining(numRunsCompleted)) {
 							double timePerRep = getTimePerRep(numRunsCompleted);   //this is time per rep
 							int timeLeft = 0;

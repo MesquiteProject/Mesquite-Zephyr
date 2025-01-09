@@ -15,7 +15,7 @@ import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
 import mesquite.zephyr.RAxMLRunnerCIPRes.RAxMLRunnerCIPRes;
-import mesquite.zephyr.RAxMLRunnerLocalOld.RAxMLRunnerLocalOld;
+import mesquite.zephyr.RAxMLRunnerLocalOrig.RAxMLRunnerLocalOrig;
 import mesquite.zephyr.lib.*;
 
 

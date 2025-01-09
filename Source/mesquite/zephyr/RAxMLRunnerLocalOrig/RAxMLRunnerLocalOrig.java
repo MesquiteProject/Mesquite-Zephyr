@@ -7,7 +7,7 @@ This source code and its compiled class files are free and modifiable under the 
 GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
  */
 
-package mesquite.zephyr.RAxMLRunnerLocalOld;
+package mesquite.zephyr.RAxMLRunnerLocalOrig;
 
 
 import java.awt.*;
@@ -22,7 +22,7 @@ import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 import mesquite.zephyr.lib.*;
 
 
-public class RAxMLRunnerLocalOld extends RAxMLRunnerBasicOld  {
+public class RAxMLRunnerLocalOrig extends RAxMLRunnerBasicOrig  {
 
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
@@ -33,7 +33,7 @@ public class RAxMLRunnerLocalOld extends RAxMLRunnerBasicOld  {
 		return LocalScriptRunner.class;
 	}
 	public Class getDutyClass() {
-		return RAxMLRunnerLocalOld.class;
+		return RAxMLRunnerLocalOrig.class;
 	}
 	/*.................................................................................................................*/
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
