@@ -73,7 +73,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected static final int STANDARDSEARCH = 2;
 	protected int searchStyle = STANDARDSEARCH;
 	protected RadioButtons searchStyleButtons = null;
-	
+
 	protected boolean doALRT = false;
 	protected int alrtReps=1000;
 
@@ -101,7 +101,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected double finalValue = MesquiteDouble.unassigned;
 	protected double optimizedValue = MesquiteDouble.unassigned;
 	protected double[] finalValues = null;
-//	protected double[] optimizedValues = null;
+	//	protected double[] optimizedValues = null;
 	protected int runNumber = 0;
 
 
@@ -120,7 +120,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 	/*.................................................................................................................*/
 	public void setUpRunner() { 
-		
+
 	}
 
 	/*.................................................................................................................*/
@@ -144,7 +144,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		} else if (checker.compare(this.getClass(), "sets the searchStyle ", "[searchStyle]", commandName, "setSearchStyle")) {
 			searchStyle = getSearchStyleFromName(parser.getFirstToken(arguments));
 			return null;
-			
+
 		}
 		else
 			return super.doCommand(commandName, arguments, checker);
@@ -171,9 +171,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			partitionScheme = MesquiteInteger.fromString(content);
 		if ("partitionLinkage".equalsIgnoreCase(tag))
 			partitionLinkage = MesquiteInteger.fromString(content);		
-		
-		
-		
+
+
+
 
 		if ("bootStrapReps".equalsIgnoreCase(tag)){
 			bootstrapreps = MesquiteInteger.fromString(content);
@@ -235,7 +235,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	/*.................................................................................................................*/
 	public int getSearchStyleFromName(String searchName) {
 		if (StringUtil.blank(searchName))
-				return STANDARDSEARCH;
+			return STANDARDSEARCH;
 		if (searchName.equalsIgnoreCase("standardBootstrap"))
 			return STANDARDBOOTSTRAP;
 		if (searchName.equalsIgnoreCase("ultrafastBootstrap"))
@@ -244,7 +244,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			return STANDARDSEARCH;			
 		return STANDARDSEARCH;
 	}
-	
+
 
 	/*.................................................................................................................*/
 	public String getNameRefForAssocStrings() {
@@ -365,7 +365,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				+ "Mesquite will read in the trees found by "+getExecutableName()+", and, for non-bootstrap analyses, also read in the value of the "+getExecutableName()+" score (-ln L) of the tree. " 
 				+ "You can see the "+getExecutableName()+" score by choosing Taxa&Trees>List of Trees, and then in the List of Trees for that trees block, choose "
 				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose "+getExecutableName()+" Score." + super.getHelpString();
-		
+
 		dialog.appendToHelpString(helpString);
 		dialog.setHelpURL(getHelpURL(zephyrRunnerEmployer));
 
@@ -510,10 +510,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				processRunnerOptions();
 				storeRunnerPreferences();
 				acceptableOptions = true;
-//				onlySetUpRun = onlySetUpRunBox.getState();
+				//				onlySetUpRun = onlySetUpRunBox.getState();
 				externalProcRunner.setOnlySetUpRun(onlySetUpRun);
 			} 
-				
+
 		} else 
 			if (treeInferer!=null)
 				treeInferer.setUserCancelled();
@@ -536,7 +536,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			bootStrapRepsField.getTextField().setEnabled(searchStyle!=STANDARDSEARCH);
 		if (seedField!=null)
 			seedField.getTextField().setEnabled(searchStyle!=STANDARDSEARCH);
-	
+
 	}
 	/* ................................................................................................................. */
 	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */
@@ -613,7 +613,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			String modelName =getModel(selected); 
 			substitutionModelField.setText(modelName);
 			checkEnablingOfImportOption(modelName);
-			
+
 		}
 		else if (e.getItemSelectable() == useConstraintTreeCheckbox && useConstraintTreeCheckbox.getState()){
 
@@ -672,10 +672,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	/*.................................................................................................................*/
 	private NameReference[] getNameRefsForNodeLabels() {
 		if (searchStyle==ULTRAFASTBOOTSTRAP) {
-			 if (doALRT)
-				 return new NameReference[] {IQTreeALRTUFBoot};
-			 else
-				 return new NameReference[] {IQTreeUFBoot};
+			if (doALRT)
+				return new NameReference[] {IQTreeALRTUFBoot};
+			else
+				return new NameReference[] {IQTreeUFBoot};
 			// return new NameReference[] {IQTreeALRT, IQTreeUFBoot};
 		} else
 			return null;
@@ -745,7 +745,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	/*.................................................................................................................*/
 	public void setFileNames () {
-	//	multipleModelFileName = "multipleModelFile.txt";
+		//	multipleModelFileName = "multipleModelFile.txt";
 
 	}
 
@@ -781,7 +781,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		useConstraintTree = constrainedSearch;
 		this.constrainedSearch = constrainedSearch;
 	}
-	
+
 
 
 	protected static final int DATAFILENUMBER = 0;
@@ -863,9 +863,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			else if (useConstraintTree){
 				//DAVIDCHECK: IQTree does skeletal constraints now, apparently. I commented this stuff oiut, and it worked.
 				//if (constraint.hasPolytomies(constraint.getRoot())){
-					constraintTree = constraint.writeTreeByT0Names(false) + ";";
-					appendToExtraSearchDetails("\nPartial resolution constraint using tree \"" + constraint.getName() + "\"");
-					appendToAddendumToTreeBlockName("Constrained by tree \"" + constraint.getName() + "\"");
+				constraintTree = constraint.writeTreeByT0Names(false) + ";";
+				appendToExtraSearchDetails("\nPartial resolution constraint using tree \"" + constraint.getName() + "\"");
+				appendToAddendumToTreeBlockName("Constrained by tree \"" + constraint.getName() + "\"");
 				/*}
 				else {
 					discreetAlert("Constraint tree cannot be used as a partial resolution constraint because it is strictly dichotomous");
@@ -886,15 +886,15 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		//	String preflightCommand = externalProcRunner.getExecutableCommand()+" --flag-check " + ((MesquiteString)preflightArguments).getValue();
 		String programCommand = externalProcRunner.getExecutableCommand();
 		//programCommand += StringUtil.lineEnding();  
- 
+
 		//	if (preFlightSuccessful(preflightCommand)) {
 		//	}
-		
+
 		if (StringUtil.blank(programCommand)) {
 			MesquiteMessage.discreetNotifyUser("Path to IQ-TREE not specified!");
 			return null;
 		}
-		
+
 
 		if (updateWindow)
 			parametersChanged(); //just a way to ping the coordinator to update the window
@@ -942,7 +942,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
 
 		MesquiteFile.deleteDirectory(tempDir);  //delete temp directory in Support Files
-		
+
 		if (!isDoomed()){
 
 			if (success){  //David: abort here
@@ -1044,7 +1044,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		int count = 1;
 		CharactersGroup group= groups.findGroup(groupName);  
 		while (group!=null) {  // group is not null; therefore this group name already exists.  Have to make a new one because of the way IQTree gives names different groups with the same name.
-										// first step is to find an available name
+			// first step is to find an available name
 			count++;
 			groupName = name + "_" + count;
 			group= groups.findGroup(groupName);  
@@ -1054,7 +1054,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		group.addToFile(file, getProject(), null);
 		if (groups.indexOf(group)<0) 
 			groups.addElement(group, false);
-		
+
 		return group;
 	}
 
@@ -1206,7 +1206,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 						Parser subsubparser = new Parser(remaining);
 						MesquiteInteger startCharT = new MesquiteInteger(0);
 						subsubparser.setPunctuationString("(){}:,;-<>=\\*/\''\"[]");  //// took + out of it
-						
+
 						addCharPartionFromIQTree (remaining, subsubparser.getFirstToken(),  startCharT,  true, bitsArray, charSetNames);
 					}
 				}
@@ -1227,7 +1227,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public void readTreeFileForCurrentMultipleTrees(TreeVector trees, String treeFilePath, MesquiteBoolean readSuccess) {
 		Tree t =readTreeFile(trees, treeFilePath, getProgramName()+" " + getResamplingKindName() + " Tree", readSuccess, false);
 	}
-	
+
 	/*.................................................................................................................*/
 	public TreeVector retrieveCurrentMultipleTrees(Taxa taxa) {
 		return basicRetrieveCurrentMultipleTrees(taxa, OUT_TREEFILE);
@@ -1470,19 +1470,23 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 						numRunsCompleted=StringUtil.getNumberOfLines(s);
 						setTimeOfEarlyRep(numRunsCompleted);
 						currentRun=numRunsCompleted;
-						
+
 						/* DavidQuery TESTING. Debugg.println.
 						 * The following shows the intermediate consensus tree. The method is not yet in the inferer because things known here aren't known there without callbacks, 
 						 * which are not yet arranged.
 						 * There should also be a closeIntermediateConsensus method?
-						* Also, how does this work with remote?*/
+						 * Also, how does this work with remote?*/
 						if (bootstrapOrJackknife() && showIntermediateTrees) {
 							String[] fs = externalProcRunner.getOutputFilePaths();
 							String bootstrapFilePath = fs[OUT_TREEFILE];
 							if (MesquiteFile.fileExists(bootstrapFilePath)) {
-								String treeDescription = MesquiteFile.getFileLastDarkLine(bootstrapFilePath);
-								if (StringUtil.notEmpty(treeDescription))
-									showIntermediateConsensusAddingTree(treeDescription);
+								if (repsInConsensusWindow()== 0 && numRunsCompleted>0) //unharvested ones there
+									showIntermediateConsensusFromFile(bootstrapFilePath);
+								else {
+									String treeDescription = MesquiteFile.getFileLastDarkLine(bootstrapFilePath);
+									if (StringUtil.notEmpty(treeDescription)) 
+										showIntermediateConsensusAddingTree(treeDescription);
+								}
 							}
 						}
 

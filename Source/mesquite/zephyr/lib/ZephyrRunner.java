@@ -104,8 +104,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	//temporarily here? until it can be merged with TreeInferer's version?
 	TWindowMaker tWindowMaker;//Debugg.println this should be fired after the run
 	BasicTreeConsenser majRulesConsenser; //Debugg.println this should be fired after the run
-
-	protected void showIntermediateConsensusAddingTree(String treeDescription) {  //possibly pass boolean to reset?
+	int repsInConsensus = 0;
+	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+	void prepareConsensusWindow() {
 		if (tWindowMaker == null) {
 			tWindowMaker = (TWindowMaker)hireNamedEmployee(TWindowMaker.class, "#ObedientTreeWindow");
 			if (tWindowMaker == null)
@@ -123,14 +124,44 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			MesquiteThread.setCurrentCommandRecord(oldCR);
 			majRulesConsenser.initialize();
 			majRulesConsenser.reset(taxa);
+			repsInConsensus = 0;
 		}
+	}
+	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+	protected void showIntermediateConsensusFromFile(String path) {  //possibly pass boolean to reset?
+		prepareConsensusWindow();
+		if (!MesquiteFile.fileExists(path))
+			return;
+		String[] ds = MesquiteFile.getFileContentsAsStrings(path);
+		if (ds == null)
+			return;
+		for (int i = 0; i<ds.length; i++) {
+			Tree rep = ZephyrUtil.readPhylipTree(ds[i],taxa,false,getTaxonNamer());    
+			majRulesConsenser.addTree(rep);
+			repsInConsensus++;
+		}
+		MesquiteTree consensus = (MesquiteTree)majRulesConsenser.getConsensus();
+		consensus.setName("Consensus of " + repsInConsensus + " trees");
+		tWindowMaker.setTree(consensus, false);
+
+	}
+	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+	protected void showIntermediateConsensusAddingTree(String treeDescription) {  //possibly pass boolean to reset?
+		prepareConsensusWindow();
 		Tree rep = ZephyrUtil.readPhylipTree(treeDescription,taxa,false,getTaxonNamer());    
 		majRulesConsenser.addTree(rep);
+		repsInConsensus++;
 
 		MesquiteTree consensus = (MesquiteTree)majRulesConsenser.getConsensus();
+		consensus.setName("Consensus of " + repsInConsensus + " trees");
 		tWindowMaker.setTree(consensus, false);
 	}
 	
+	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+	protected int repsInConsensusWindow() {
+		return repsInConsensus;
+	}
+
 	/* =================================*/
 
 	public  void setOutputTextListener(OutputTextListener textListener){
