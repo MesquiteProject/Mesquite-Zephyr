@@ -371,6 +371,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		dialog.addHorizontalLine(1);
 		appChooser = new AppChooser(processRequester.getModule(), processRequester.getAppUser(), useDefaultExecutablePath, executablePath);
 		appChooser.addToDialog(dialog);
+		dialog.addAttachment(appChooser);
 		dialog.addHorizontalLine(1);
 	
 		/*

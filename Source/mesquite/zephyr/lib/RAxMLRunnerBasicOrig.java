@@ -169,23 +169,43 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 			threadingRadioButtons.enableRadioButtons();
 			pthreadsLabel.setEnabled(true);
 		}
+		numProcessorsField.getTextField().setEnabled(!usingBuiltInApp && threadingVersion == THREADING_PTHREADS);
+	}
+	public void itemStateChanged(ItemEvent e) {
+		if (threadingRadioButtons.isAButton(e.getItemSelectable())){
+			boolean useBuiltIn = false;
+			if (appChooser !=null)
+					useBuiltIn = appChooser.useBuiltInExecutable();
+			else
+					useBuiltIn = externalProcRunner.useAppInAppFolder();
+			numProcessorsField.getTextField().setEnabled(!useBuiltIn && threadingRadioButtons.getValue() == THREADING_PTHREADS);
+		}
+		super.itemStateChanged(e);
 	}
 	
 	JLabel pthreadsLabel;
+	AppChooser appChooser;
 	/*.................................................................................................................*/
-
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		dialog.addHorizontalLine(1);
+		appChooser = (AppChooser)dialog.findAttachment(AppChooser.class);
+		boolean useBuiltIn = false;
+		if (appChooser !=null)
+				useBuiltIn = appChooser.useBuiltInExecutable();
+		else
+				useBuiltIn = externalProcRunner.useAppInAppFolder();
 		pthreadsLabel = dialog.addLabel("RAxML parallelization style:");
 		boolean requiresPThreads = requiresPThreads();
 		if (requiresPThreads)
 			threadingVersion = THREADING_PTHREADS;
 		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);	
-
+		threadingRadioButtons.addItemListener(this);
+		
 		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, 1, MesquiteInteger.infinite);
 		numProcessorsField.addKeyListener(this);
 		dialog.addHorizontalLine(1);
-		checkOtherEnabled(externalProcRunner.useAppInAppFolder());
+		checkOtherEnabled(useBuiltIn); 
+		//DavidQuery the problem with this was that this got the module's memory of whether to use built in, NOT what the appchooser currently shows. So, I made a way (via attaching things to the dialog) to have access to the app chooser here 
 
 	}
 	/*.................................................................................................................*/
