@@ -13,6 +13,8 @@ import mesquite.io.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.duties.TaxaManager;
 import mesquite.lib.duties.TreesManager;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.tree.TreeVector;
 
 public class ImportRAxMLTrees extends InterpretPhylipTrees {
 	

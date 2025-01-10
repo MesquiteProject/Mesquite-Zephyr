@@ -20,6 +20,8 @@ import org.apache.http.entity.mime.content.FileBody;
 
 import mesquite.lib.*;
 import mesquite.lib.system.SystemUtil;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
 import mesquite.zephyr.lib.*;
 

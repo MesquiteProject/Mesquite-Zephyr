@@ -13,6 +13,7 @@ package mesquite.zephyr.RAxMLScore;
 import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
+import mesquite.lib.tree.Tree;
 import mesquite.zephyr.RAxMLRunnerLocalOrig.*;
 
 

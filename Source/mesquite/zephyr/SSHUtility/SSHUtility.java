@@ -6,6 +6,7 @@ import java.util.*;
 
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
+import mesquite.lib.ui.MesquiteSubmenuSpec;
 import mesquite.zephyr.lib.*;
 
 

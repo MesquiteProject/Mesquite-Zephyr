@@ -22,6 +22,8 @@ import org.apache.http.HttpRequest;
 
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
+import mesquite.lib.ui.AlertDialog;
+import mesquite.lib.ui.MesquiteSubmenuSpec;
 import mesquite.zephyr.lib.*;
 
 import org.dom4j.Document;

@@ -18,6 +18,9 @@ import java.util.Random;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.lib.*;
+import mesquite.lib.ui.DoubleField;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.ProgressIndicator;
 import mesquite.zephyr.lib.*;
 
 public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFileProcessor, ProcessWatcher, OutputFilePathModifier {

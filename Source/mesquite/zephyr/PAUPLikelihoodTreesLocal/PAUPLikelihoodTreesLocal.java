@@ -15,6 +15,7 @@ import java.util.Random;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
+import mesquite.lib.analysis.LikelihoodAnalysis;
 import mesquite.lib.duties.TreeSource;
 import mesquite.zephyr.PAUPLikelihoodRunnerLocal.PAUPLikelihoodRunnerLocal;
 import mesquite.zephyr.lib.*;

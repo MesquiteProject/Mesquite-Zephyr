@@ -13,6 +13,7 @@ import java.util.*;
 
 import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
+import mesquite.lib.analysis.InvariantsAnalysis;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
 import mesquite.zephyr.PAUPSVDRunnerSSH.PAUPSVDRunnerSSH;

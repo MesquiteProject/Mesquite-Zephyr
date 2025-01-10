@@ -14,6 +14,8 @@ package mesquite.zephyr.lib;
 import mesquite.externalCommunication.lib.AppChooser;
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.ProgressIndicator;
 
 public abstract class ExternalProcessRunner extends MesquiteModule {
 	String executableName;

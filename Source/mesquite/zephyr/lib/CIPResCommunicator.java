@@ -17,6 +17,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
+import mesquite.lib.ui.ProgressIndicator;
 import mesquite.externalCommunication.lib.*;
 
 import org.dom4j.Document;

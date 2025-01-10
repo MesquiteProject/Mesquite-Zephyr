@@ -1,6 +1,7 @@
 package mesquite.zephyr.lib;
 
 import mesquite.lib.*;
+import mesquite.lib.ui.ProgressIndicator;
 import mesquite.externalCommunication.lib.*;
 
 import java.io.File;

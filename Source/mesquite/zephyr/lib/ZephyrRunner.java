@@ -26,6 +26,16 @@ import mesquite.lib.duties.FileCoordinator;
 import mesquite.lib.duties.FileInterpreterI;
 import mesquite.lib.duties.TWindowMaker;
 import mesquite.lib.duties.TreeInferer;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.taxa.TaxonNamer;
+import mesquite.lib.tree.MesquiteTree;
+import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeVector;
+import mesquite.lib.ui.AlertDialog;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.MesquiteWindow;
+import mesquite.lib.ui.ProgressIndicator;
 import mesquite.trees.lib.SimpleTreeWindow;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 
@@ -128,8 +138,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 	}
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-	protected void showIntermediateConsensusFromFile(String path) {  //possibly pass boolean to reset?
+	protected void showIntermediateConsensusFromFile(String path) {  //assumes reset to zero
 		prepareConsensusWindow();
+		repsInConsensus = 0;
 		if (!MesquiteFile.fileExists(path))
 			return;
 		String[] ds = MesquiteFile.getFileContentsAsStrings(path);

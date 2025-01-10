@@ -11,6 +11,7 @@ package mesquite.zephyr.GarliScore;
 
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
+import mesquite.lib.tree.Tree;
 import mesquite.zephyr.lib.*;
 
 

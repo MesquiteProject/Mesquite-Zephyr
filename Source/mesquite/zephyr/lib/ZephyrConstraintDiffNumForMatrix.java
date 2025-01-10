@@ -15,6 +15,7 @@ import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.characters.CharacterData;
 import mesquite.lib.duties.*;
+import mesquite.lib.tree.TreeVector;
 import mesquite.zephyr.lib.*;
 
 

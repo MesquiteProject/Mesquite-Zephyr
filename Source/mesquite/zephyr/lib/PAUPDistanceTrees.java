@@ -15,6 +15,7 @@ import java.util.Random;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
+import mesquite.lib.analysis.DistanceAnalysis;
 import mesquite.zephyr.PAUPDistanceRunnerSSH.PAUPDistanceRunnerSSH;
 import mesquite.zephyr.lib.*;
 

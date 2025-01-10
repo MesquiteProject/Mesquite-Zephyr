@@ -13,8 +13,12 @@ import java.util.*;
 
 import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
+import mesquite.lib.analysis.ParsimonyAnalysis;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.taxa.TaxonNamer;
+import mesquite.lib.tree.Tree;
 import mesquite.zephyr.TNTRunnerSSH.TNTRunnerSSH;
 import mesquite.zephyr.lib.*;
 

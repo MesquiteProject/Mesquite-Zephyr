@@ -21,6 +21,17 @@ import mesquite.consensus.lib.BasicTreeConsenser;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.tree.AdjustableTree;
+import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeVector;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.MesquiteDialog;
+import mesquite.lib.ui.MesquiteTabbedPanel;
+import mesquite.lib.ui.RadioButtons;
+import mesquite.lib.ui.SingleLineTextArea;
+import mesquite.lib.ui.SingleLineTextField;
 import mesquite.trees.lib.SimpleTreeWindow;
 import mesquite.io.lib.*;
 import mesquite.zephyr.aZephyrIntro.*;
@@ -1481,10 +1492,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 						 * which are not yet arranged.
 						 * There should also be a closeIntermediateConsensus method to fire employees?
 						 * Also, how does this work with remote?*/
-						if (showIntermediateTrees) {
-							if (repsInConsensusWindow()== 0 && numRunsCompleted>0) //unharvested ones there
+						if (showIntermediateTrees && numRunsCompleted>0) {
+							if (repsInConsensusWindow()== 0 || numRunsCompleted>repsInConsensusWindow()+1) //not yet harvested, or more than one unharvested
 								showIntermediateConsensusFromFile(bootstrapFilePath);
-							else {
+							else if (repsInConsensusWindow() < numRunsCompleted){
 								String treeDescription = MesquiteFile.getFileLastDarkLine(bootstrapFilePath);
 								if (StringUtil.notEmpty(treeDescription)) 
 									showIntermediateConsensusAddingTree(treeDescription);
@@ -1538,7 +1549,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 							if (token.indexOf("likelihood")>=0) {
 								token = subParser.getNextToken();
 
-								numRunsCompleted++;
+								// numRunsCompleted++; //DQ Commented out; see new direct counting above. I'm not sure why this was only with likelihood; OK to use direct counting? 
 								if (bootstrapOrJackknife()){
 									logln("RAxML bootstrap replicate " + numRunsCompleted + " of " + bootstrapreps+" completed");
 								}

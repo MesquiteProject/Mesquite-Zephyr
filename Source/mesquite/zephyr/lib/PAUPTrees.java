@@ -16,6 +16,9 @@ import java.util.Random;
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.duties.TreeSource;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.taxa.TaxonNamer;
+import mesquite.lib.tree.AdjustableTree;
 import mesquite.zephyr.PAUPLikelihoodRunnerSSH.PAUPLikelihoodRunnerSSH;
 import mesquite.zephyr.lib.*;
 

@@ -23,6 +23,8 @@ import java.util.*;
 import mesquite.lib.*;
 import mesquite.zephyr.lib.*;
 import mesquite.lib.duties.*;
+import mesquite.lib.ui.AlertDialog;
+import mesquite.lib.ui.MesquiteHTMLWindow;
 
 /* ======================================================================== */
 /* this hires handlers, which run the tree inferences.  It is a central manager, not detail-oriented.*/

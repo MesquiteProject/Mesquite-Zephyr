@@ -42,6 +42,14 @@ import mesquite.lib.duties.FileCoordinator;
 import mesquite.lib.duties.FileInterpreterI;
 import mesquite.lib.duties.TreeSource;
 import mesquite.lib.duties.TreesManager;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.taxa.Taxon;
+import mesquite.lib.taxa.TaxonNamer;
+import mesquite.lib.tree.AdjustableTree;
+import mesquite.lib.tree.MesquiteTree;
+import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeVector;
 import mesquite.parsimony.ManageTypesets.ManageTypesets;
 import mesquite.parsimony.lib.ParsimonyModelSet;
 

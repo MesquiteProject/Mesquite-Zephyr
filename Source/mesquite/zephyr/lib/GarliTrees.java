@@ -11,8 +11,11 @@ package mesquite.zephyr.lib;
 import java.util.*;
 
 import mesquite.lib.*;
+import mesquite.lib.analysis.LikelihoodAnalysis;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.tree.AdjustableTree;
 import mesquite.zephyr.GarliRunnerLocal.GarliRunnerLocal;
 import mesquite.zephyr.lib.*;
 import mesquite.zephyr.lib.*;
