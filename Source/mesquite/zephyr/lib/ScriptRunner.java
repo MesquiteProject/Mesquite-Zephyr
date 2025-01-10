@@ -82,8 +82,8 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 	}
 	public String getMessageIfCloseFileRequested () { 
 		if (scriptBased)
-			return "\nEven if you let the analysis continue now, you can later stop it by reopening the file in Mesquite (if you save it), or by "
-					+ "using the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop it.";
+			return "\nIf you allow the analysis to continue, it will stop on its own. Or, to force it to stop, you can open the file in Mesquite (if you save it), or use "
+					+ "the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop it.";
 		return "";
 	}
 	

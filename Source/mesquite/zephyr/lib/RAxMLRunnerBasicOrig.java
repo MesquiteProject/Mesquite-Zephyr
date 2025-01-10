@@ -159,17 +159,21 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		if (usingBuiltInApp) {
 			threadingRadioButtons.disableRadioButtons();
 			pthreadsLabel.setEnabled(false);
-			if (appUsesPThreads()) {
+			//ZQ I deleted the following resetting of the radio button values, becuase it used the module's memory, 
+			//NOT what the dialog currently was set as. 
+		/*	
+		 * if (appUsesPThreads()) {  
 				threadingRadioButtons.setValue(THREADING_PTHREADS);
 			} else {
 				threadingRadioButtons.setValue(THREADING_OTHER);
 			}
+			*/
 		}
 		else {
 			threadingRadioButtons.enableRadioButtons();
 			pthreadsLabel.setEnabled(true);
 		}
-		numProcessorsField.getTextField().setEnabled(!usingBuiltInApp && threadingVersion == THREADING_PTHREADS);
+		numProcessorsField.getTextField().setEnabled(usingBuiltInApp || threadingRadioButtons.getValue() == THREADING_PTHREADS);
 	}
 	public void itemStateChanged(ItemEvent e) {
 		if (threadingRadioButtons.isAButton(e.getItemSelectable())){
@@ -178,7 +182,7 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 					useBuiltIn = appChooser.useBuiltInExecutable();
 			else
 					useBuiltIn = externalProcRunner.useAppInAppFolder();
-			numProcessorsField.getTextField().setEnabled(!useBuiltIn && threadingRadioButtons.getValue() == THREADING_PTHREADS);
+			numProcessorsField.getTextField().setEnabled(useBuiltIn || threadingRadioButtons.getValue() == THREADING_PTHREADS);
 		}
 		super.itemStateChanged(e);
 	}
@@ -188,12 +192,6 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		dialog.addHorizontalLine(1);
-		appChooser = (AppChooser)dialog.findAttachment(AppChooser.class);
-		boolean useBuiltIn = false;
-		if (appChooser !=null)
-				useBuiltIn = appChooser.useBuiltInExecutable();
-		else
-				useBuiltIn = externalProcRunner.useAppInAppFolder();
 		pthreadsLabel = dialog.addLabel("RAxML parallelization style:");
 		boolean requiresPThreads = requiresPThreads();
 		if (requiresPThreads)
@@ -204,8 +202,16 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, 1, MesquiteInteger.infinite);
 		numProcessorsField.addKeyListener(this);
 		dialog.addHorizontalLine(1);
+		
+		//ZQ CheckOtherEnabled below had been passed here the module's memory of whether to use built in, 
+		//not what the AppChooser currently shows. So, I made a way (via attaching things to the dialog) to have access to the app chooser here 
+		appChooser = (AppChooser)dialog.findAttachment(AppChooser.class);
+		boolean useBuiltIn = false;
+		if (appChooser !=null)
+				useBuiltIn = appChooser.useBuiltInExecutable();
+		else
+				useBuiltIn = externalProcRunner.useAppInAppFolder();
 		checkOtherEnabled(useBuiltIn); 
-		//DavidQuery the problem with this was that this got the module's memory of whether to use built in, NOT what the appchooser currently shows. So, I made a way (via attaching things to the dialog) to have access to the app chooser here 
 
 	}
 	/*.................................................................................................................*/

@@ -1465,23 +1465,36 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		if (fileNum==OUT_SUMMARYFILE && outputFilePaths.length>OUT_SUMMARYFILE && !StringUtil.blank(outputFilePaths[OUT_SUMMARYFILE])) {   // info file
 			if (MesquiteFile.fileExists(filePath)) {
-				setTimeOfEarlyRep(numRunsCompleted);
 
-				/* DavidQuery TESTING. Debugg.println.
-				 * The following shows the intermediate consensus tree. The method is not yet in the inferer because things known here aren't known there without callbacks, 
-				 * which are not yet arranged.
-				* There should also be a closeIntermediateConsensus method?
-				* Also, how does this work with remote?*/
-				if (bootstrapOrJackknife() && showIntermediateTrees) {
+				/*ZQ: It seems here that filePath here is the info file (whereas in IQTREE it is the trees file???)
+				The reason RAxML didn't retrieve the total runs completed is that it just counts each tree as it comes in, whereas IQT looks into the treefile to count lines
+				 * */
+				if (bootstrapOrJackknife()) {
 					String[] fs = externalProcRunner.getOutputFilePaths();
 					String bootstrapFilePath = fs[OUT_TREEFILE];
 					if (MesquiteFile.fileExists(bootstrapFilePath)) {
-						String treeDescription = MesquiteFile.getFileLastDarkLine(bootstrapFilePath);
-						if (StringUtil.notEmpty(treeDescription))
-							showIntermediateConsensusAddingTree(treeDescription);
+						String[] ds = MesquiteFile.getFileContentsAsStrings(bootstrapFilePath);
+						if (ds != null)
+							numRunsCompleted = ds.length;
+						/* ZQ.
+						 * The following shows the intermediate consensus tree. The methods showIntermediateConsensusX could in the inferer instead, but things known here aren't known there without callbacks, 
+						 * which are not yet arranged.
+						 * There should also be a closeIntermediateConsensus method to fire employees?
+						 * Also, how does this work with remote?*/
+						if (showIntermediateTrees) {
+							if (repsInConsensusWindow()== 0 && numRunsCompleted>0) //unharvested ones there
+								showIntermediateConsensusFromFile(bootstrapFilePath);
+							else {
+								String treeDescription = MesquiteFile.getFileLastDarkLine(bootstrapFilePath);
+								if (StringUtil.notEmpty(treeDescription)) 
+									showIntermediateConsensusAddingTree(treeDescription);
+							}
+
+						}
 					}
-					
 				}
+				setTimeOfEarlyRep(numRunsCompleted);
+
 
 
 				//String s = MesquiteFile.getFileLastContents(filePath,fPOS);

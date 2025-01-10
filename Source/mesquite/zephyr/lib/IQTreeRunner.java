@@ -1471,10 +1471,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 						setTimeOfEarlyRep(numRunsCompleted);
 						currentRun=numRunsCompleted;
 
-						/* DavidQuery TESTING. Debugg.println.
-						 * The following shows the intermediate consensus tree. The method is not yet in the inferer because things known here aren't known there without callbacks, 
+						/* ZQ 
+						 * The following shows the intermediate consensus tree. The methods showIntermediateConsensusX could in the inferer instead, but things known here aren't known there without callbacks, 
 						 * which are not yet arranged.
-						 * There should also be a closeIntermediateConsensus method?
+						 * There should also be a closeIntermediateConsensus method to fire employees?
 						 * Also, how does this work with remote?*/
 						if (bootstrapOrJackknife() && showIntermediateTrees) {
 							String[] fs = externalProcRunner.getOutputFilePaths();

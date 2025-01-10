@@ -141,7 +141,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			repsInConsensus++;
 		}
 		MesquiteTree consensus = (MesquiteTree)majRulesConsenser.getConsensus();
-		consensus.setName("Consensus of " + repsInConsensus + " trees");
+		consensus.setName("Majority Rules Consensus of " + repsInConsensus + " trees");
 		tWindowMaker.setTree(consensus, false);
 
 	}
@@ -153,7 +153,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		repsInConsensus++;
 
 		MesquiteTree consensus = (MesquiteTree)majRulesConsenser.getConsensus();
-		consensus.setName("Consensus of " + repsInConsensus + " trees");
+		consensus.setName("Majority Rules Consensus of " + repsInConsensus + " trees");
 		tWindowMaker.setTree(consensus, false);
 	}
 	
