@@ -567,7 +567,6 @@ class TreeBlockThread extends FillerThread {
 class TreeBlockMonitorThread extends FillerThread {
 	TreeInferer fillTask;
 	CommandRecord comRec = null;
-	//	boolean abortedAccordingToMonitor = true; //ZQUERY: this is never used
 	String taxaIDString = null;
 
 	public TreeBlockMonitorThread (TreeInferenceLiaison ownerModule, String taxaID, TreeInferer fillTask) {
@@ -614,7 +613,6 @@ class TreeBlockMonitorThread extends FillerThread {
 	public void stopFilling(boolean userAborted, boolean saveTrees){
 		if (fillTask != null)
 			fillTask.abortFilling();
-		//		abortedAccordingToMonitor = true;//ZQUERY: this is never used
 
 		if (ownerModule.taxa != null)
 			ownerModule.taxa.decrementEditInhibition();
