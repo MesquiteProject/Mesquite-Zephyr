@@ -424,7 +424,8 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		runner.setConstainedSearchAllowed(false);
 		runner.setConstrainedSearch(true);  
 		runner.resetSOWHOptionsConstrained();
-		if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), constrainedScore)==null){  // find score of constrained tree
+		MesquiteInteger statusResult = new MesquiteInteger(TreeSearcher.NOERROR); //ZQ: this can be used if you want to find details of failure
+		if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), constrainedScore, statusResult)==null){  // find score of constrained tree
 			if (runner.getUserAborted()) {
 				panel.setAborted(true);
 				userAborted = true;
@@ -446,7 +447,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			//runner.setConstainedSearchAllowed(false);
 			runner.setConstrainedSearch(false);
 			runner.resetSOWHOptionsUnconstrained();
-			if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), unconstrainedScore)==null) {
+			if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), unconstrainedScore, statusResult)==null) {
 					if (runner.getUserAborted()) {
 						panel.setAborted(true);
 						userAborted = true;

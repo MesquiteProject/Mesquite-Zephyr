@@ -797,10 +797,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 
 	/*.................................................................................................................*/
-	public synchronized Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
+	public synchronized Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore, MesquiteInteger statusResult) {
 		finalValues=null;
 		optimizedValues =null;
-		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
+		if (!initializeGetTrees(CategoricalData.class, taxa, matrix, statusResult))
 			return null;
 
 		//RAxML setup

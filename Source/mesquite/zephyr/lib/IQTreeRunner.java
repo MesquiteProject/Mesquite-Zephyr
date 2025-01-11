@@ -800,9 +800,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected static final int CONSTRAINTFILENUMBER = 2;
 
 	/*.................................................................................................................*/
-	public synchronized Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
+	public synchronized Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore, MesquiteInteger statusResult) {
 		finalValues=null;
-		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
+		if (!initializeGetTrees(CategoricalData.class, taxa, matrix, statusResult))
 			return null;
 
 		// setup

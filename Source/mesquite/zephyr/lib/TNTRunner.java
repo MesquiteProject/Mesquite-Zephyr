@@ -737,8 +737,8 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 	FileInterpreterI exporter;
 	
 	/*.................................................................................................................*/
-	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
+	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore, MesquiteInteger statusResult) {
+		if (!initializeGetTrees(CategoricalData.class, taxa, matrix, statusResult))
 			return null;
 		setTNTSeed(seed);
 		isProtein = data instanceof ProteinData;

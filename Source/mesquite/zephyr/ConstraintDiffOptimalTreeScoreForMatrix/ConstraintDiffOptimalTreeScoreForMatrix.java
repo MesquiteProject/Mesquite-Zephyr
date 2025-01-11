@@ -69,13 +69,13 @@ public class ConstraintDiffOptimalTreeScoreForMatrix extends OptimalTreeScoreFor
 		
 		runner.setConstainedSearchAllowed(true);
 		runner.setConstrainedSearch(true);  
-		runner.getTrees(trees, taxa, data, rng.nextInt(), constrainedScore);  // find score of constrained trees
+		runner.getTrees(trees, taxa, data, rng.nextInt(), constrainedScore, null);  // find score of constrained trees
 		runner.setRunInProgress(false);
 		
 		
 		runner.setConstainedSearchAllowed(false);
 		runner.setConstrainedSearch(false);
-		runner.getTrees(trees, taxa, data, rng.nextInt(), unconstrainedScore);   // find score of unconstrained trees
+		runner.getTrees(trees, taxa, data, rng.nextInt(), unconstrainedScore, null);   // find score of unconstrained trees
 		runner.setRunInProgress(false);
 		
 		runner.setVerbose(true);

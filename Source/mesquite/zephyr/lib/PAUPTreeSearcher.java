@@ -96,7 +96,7 @@ public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 	}
 
 	/*.................................................................................................................*/
-	private TreeVector getTrees(Taxa taxa) {
+	private TreeVector getTrees(Taxa taxa, MesquiteInteger statusResult) {
 		TreeVector trees = new TreeVector(taxa);
 
 		CommandRecord.tick("PAUP Tree Search in progress " );
@@ -108,7 +108,7 @@ public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 //		((PAUPRunner)runner).setPaupCommander(runner);
 
 
-		runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScore);
+		runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScore, statusResult);
 		runner.setRunInProgress(false);
 		trees.setName(getTreeBlockName(true));  //Debugg.println  no other tree searchers do this; probably shouldn't be done here
 

@@ -189,7 +189,7 @@ public abstract class ZephyrNumberForTree extends NumberForTree implements Recon
 		double bestScore = MesquiteDouble.unassigned;
 		MesquiteDouble finalScores = new MesquiteDouble();
 
-		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
+		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores, null); //ZQ: because the statusResult is passed as null, the kind of failure will not be reported here
 		runner.setRunInProgress(false);
 		if (trees!=null) {
 			if (runner.bootstrapOrJackknife()) {

@@ -922,12 +922,12 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	abstract public Object getProgramArguments(String dataFileName, String configFileName, boolean isPreflight) ;
 
 	/* ================================================= */
-	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
+	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore, MesquiteInteger statusResult) {
 		finalValues=null;
 		screenFile = null;
 		screenFilePos=0;
 		runNumber = 0;
-		if (!initializeGetTrees(MolecularData.class, taxa, matrix))
+		if (!initializeGetTrees(MolecularData.class, taxa, matrix, statusResult))
 			return null;
 		//David: if isDoomed() then module is closing down; abort somehow
 		setGarliSeed(seed);

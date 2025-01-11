@@ -366,7 +366,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	public void newTreeAvailable(String path, TaxaSelectionSet outgroupTaxSet){
 	}
 	/*.................................................................................................................*/
-	private TreeVector getTrees(Taxa taxa) {
+	private TreeVector getTrees(Taxa taxa, MesquiteInteger statusResult) {
 		TreeVector trees = new TreeVector(taxa);
 		MesquiteTree initialTree = new MesquiteTree(taxa);
 		initialTree.setToDefaultBush(2, false);
@@ -382,7 +382,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 		runner.setTreeInferer(getTreeInferer());
 
-		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
+		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores, statusResult);
 		runner.setRunInProgress(false);
 		appendSearchDetails();
 		if (trees!=null) {
@@ -469,19 +469,26 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		getProject().getHomeFile().setDirtiedByCommand(true);
 		taxa = treeList.getTaxa();
 		if (!initialize(taxa))
-			return USERABORTONINITIALIZE;
-
+			return USERCANCELONINITIALIZE;
+		MesquiteInteger statusResult = new MesquiteInteger(TreeSearcher.NOERROR);
+		
+		/*ZQ:
+		 * Trees from Matrices in LoCM/Utilities was cycling with the queryOptions because fillTreeBlock was not returning USERCANCELONINITIALIZE, 
+		 * but just the NULL error. The dialog comes in ZephyrRunner.initialiGetTrees, which just returns a boolean, and which is called by ZephyrTreeSearcher.getTrees, 
+		 * which returns a tree vector. So, I had to add to the signatures the MesquiteInteger statusResult to carry the information back to the caller.
+		 * */
 		//DISCONNECTABLE
-		TreeVector trees = getTrees(taxa);
+		TreeVector trees = getTrees(taxa, statusResult);
+		
 		if (trees == null)
-			return NULLVALUE;
+			return statusResult.getValue();
 		treeList.setName(trees.getName());
 		treeList.setAnnotation (runner.getSearchDetails(), false);
 		if (trees!=null)
 			treeList.addElements(trees, false);
 		trees.dispose();
 		treeBlockID = treeList.getID();
-		return NOERROR;
+		return statusResult.getValue();
 
 	}
 

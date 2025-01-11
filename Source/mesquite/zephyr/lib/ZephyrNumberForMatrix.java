@@ -158,7 +158,7 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 
 		MesquiteDouble finalScores = new MesquiteDouble();
 
-		runner.getTrees(trees, taxa, data, rng.nextInt(), finalScores);
+		runner.getTrees(trees, taxa, data, rng.nextInt(), finalScores, null); //ZQ because statusResult is passed as null, the kind of failure will not be reported here
 		runner.setRunInProgress(false);
 
 		if (result!=null)

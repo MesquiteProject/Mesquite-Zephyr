@@ -63,12 +63,12 @@ public abstract class ZephyrConstraintDiffNumForMatrix extends ZephyrNumberForMa
 		runner.setVerbose(false);
 		
 		runner.setConstrainedSearch(true);  
-		runner.getTrees(trees, taxa, data, rng.nextInt(), constrainedScore);  // find score of constrained trees
+		runner.getTrees(trees, taxa, data, rng.nextInt(), constrainedScore, null);  // find score of constrained trees
 		runner.setRunInProgress(false);
 		
 		
 		runner.setConstrainedSearch(false);
-		runner.getTrees(trees, taxa, data, rng.nextInt(), unconstrainedScore);   // find score of unconstrained trees
+		runner.getTrees(trees, taxa, data, rng.nextInt(), unconstrainedScore, null);   // find score of unconstrained trees
 		runner.setRunInProgress(false);
 		
 		if (unconstrainedScore.isCombinable() && constrainedScore.isCombinable())

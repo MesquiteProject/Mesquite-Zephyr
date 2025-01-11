@@ -26,6 +26,7 @@ import mesquite.lib.duties.FileCoordinator;
 import mesquite.lib.duties.FileInterpreterI;
 import mesquite.lib.duties.TWindowMaker;
 import mesquite.lib.duties.TreeInferer;
+import mesquite.lib.duties.TreeSearcher;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.taxa.TaxonNamer;
@@ -97,7 +98,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected String outgroupTaxSetString = "";
 	protected int outgroupTaxSetNumber = 0;
 
-	public abstract Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore);
+	public abstract Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore, MesquiteInteger statusResult);
 	public  String getVersionAsReportedByProgram(String programCommand) {
 		return "";
 	}
@@ -893,7 +894,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return !optionsHaveBeenSet;
 	}
 	/*.................................................................................................................*/
-	public boolean initializeGetTrees(Class requiredClassOfData, Taxa taxa, MCharactersDistribution matrix) {
+	public boolean initializeGetTrees(Class requiredClassOfData, Taxa taxa, MCharactersDistribution matrix, MesquiteInteger statusResult) {
 
 		if (matrix==null )
 			return false;
@@ -906,19 +907,23 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		CharacterData cData = CharacterData.getData(this,  matrix, taxa);
 		if (!CategoricalData.class.isInstance(cData))	{
 			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " requires categorical data.");
+			MesquiteInteger.setValue(statusResult, TreeSearcher.INCOMPATIBLE_DATA);
 			return false;
 		}
 		data = (CategoricalData)cData;
 		if (!(requiredClassOfData.isInstance(data))){
 			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " works only if given a full "+requiredClassOfData.getName()+" object");
+			MesquiteInteger.setValue(statusResult, TreeSearcher.INCOMPATIBLE_DATA);
 			return false;
 		}
 
-		if (!initializeJustBeforeQueryOptions())
+		if (!initializeJustBeforeQueryOptions()) {
+			MesquiteInteger.setValue(statusResult, TreeSearcher.NULLVALUE);
 			return false;
-
+		}
 		if (doQueryOptions() && !MesquiteThread.isScripting()) 
 			if (!queryOptions()){
+				MesquiteInteger.setValue(statusResult, TreeSearcher.USERCANCELONINITIALIZE);
 				return false;
 			}
 		optionsHaveBeenSet = true;
@@ -930,6 +935,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		suppressProjectPanelReset();
 		if (isVerbose()) 
 			logln(getProgramName() + " analysis using data matrix " + data.getName());
+		MesquiteInteger.setValue(statusResult, TreeSearcher.NOERROR);
 		return true;
 	}
 

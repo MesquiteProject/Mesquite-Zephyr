@@ -167,7 +167,7 @@ public class OptimalTreeScoreForMatrix extends NumberForMatrix implements Reconn
 
 		MesquiteDouble finalScores = new MesquiteDouble();
 
-		runner.getTrees(trees, taxa, data, rng.nextInt(), finalScores);
+		runner.getTrees(trees, taxa, data, rng.nextInt(), finalScores, null);
 		runner.setRunInProgress(false);
 		
 		if (finalScores.isCombinable()) {

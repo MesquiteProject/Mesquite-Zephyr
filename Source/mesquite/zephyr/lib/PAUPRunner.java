@@ -308,8 +308,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 	/*.................................................................................................................*/
 
-	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
+	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore, MesquiteInteger statusResult) {
+		if (!initializeGetTrees(CategoricalData.class, taxa, matrix, statusResult))
 			return null;
 		setPAUPSeed(seed);
 		//David: if isDoomed() then module is closing down; abort somehow
