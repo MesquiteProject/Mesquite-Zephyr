@@ -11,6 +11,7 @@ package mesquite.zephyr.IQTreeRunnerCIPRes;
 
 
 import java.awt.*;
+
 import java.io.*;
 import java.awt.event.*;
 
@@ -18,6 +19,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 
+import mesquite.externalCommunication.lib.RemoteProcessCommunicator;
 import mesquite.lib.*;
 import mesquite.lib.system.SystemUtil;
 import mesquite.lib.ui.ExtensibleDialog;
@@ -25,7 +27,7 @@ import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
 import mesquite.zephyr.lib.*;
 
 
-public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
+public class IQTreeRunnerCIPRes extends IQTreeRunner  implements ActionListener, ItemListener, ExternalProcessRequester, RemoteProcessCommunicator  {
 
 	boolean showIntermediateTrees = true;
 

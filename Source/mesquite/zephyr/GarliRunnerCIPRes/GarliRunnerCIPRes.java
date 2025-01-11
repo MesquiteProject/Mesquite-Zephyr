@@ -10,6 +10,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.GarliRunnerCIPRes;
 
 import java.awt.*;
+
 import java.io.*;
 import java.awt.event.*;
 import java.util.*;
@@ -21,6 +22,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 
 import mesquite.categ.lib.*;
+import mesquite.externalCommunication.lib.*;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -30,7 +32,7 @@ import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
 import mesquite.zephyr.lib.*;
 import mesquite.zephyr.lib.*;
 
-public class GarliRunnerCIPRes extends GarliRunner {
+public class GarliRunnerCIPRes extends GarliRunner implements RemoteProcessCommunicator {
 
 	String ofprefix = "output";
 

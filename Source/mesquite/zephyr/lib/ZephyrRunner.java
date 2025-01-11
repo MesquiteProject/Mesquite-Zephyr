@@ -115,33 +115,41 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	TWindowMaker tWindowMaker;//Debugg.println this should be fired after the run
 	BasicTreeConsenser majRulesConsenser; //Debugg.println this should be fired after the run
 	int repsInConsensus = 0;
+	
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 	void prepareConsensusWindow() {
 		if (tWindowMaker == null) {
 			tWindowMaker = (TWindowMaker)hireNamedEmployee(TWindowMaker.class, "#ObedientTreeWindow");
 			if (tWindowMaker == null)
 				return;
-			MesquiteWindow w = tWindowMaker.getModuleWindow();
-			if (w != null && w instanceof SimpleTreeWindow)
-				((SimpleTreeWindow)w).setWindowTitle("Consensus Tree");
-			tWindowMaker.setWindowVisible(true);
 		}
+		MesquiteWindow w = tWindowMaker.getModuleWindow();
+
+		if (w != null && w instanceof SimpleTreeWindow) 
+			((SimpleTreeWindow)w).setWindowTitle("Consensus tree from Inference in Progress");
+		tWindowMaker.setWindowVisible(true);
+
 		if (majRulesConsenser == null) {
 			CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
 			CommandRecord scr = new CommandRecord(true); //this sets as scriptiong just to tell consenser not to ask about options
 			MesquiteThread.setCurrentCommandRecord(scr);
 			majRulesConsenser = (BasicTreeConsenser)hireNamedEmployee(BasicTreeConsenser.class, "#MajRuleTree");
+			Puppeteer p = new Puppeteer(this);
+			p.execute(majRulesConsenser, "useWeights off; dumpTable off; frequencyLimit 0.5;", new MesquiteInteger(0), "end;", false);
 			MesquiteThread.setCurrentCommandRecord(oldCR);
 			majRulesConsenser.initialize();
 			majRulesConsenser.reset(taxa);
 			repsInConsensus = 0;
 		}
+		tWindowMaker.setWindowVisible(true);
 	}
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 	protected void showIntermediateConsensusFromFile(String path) {  //assumes reset to zero
-		prepareConsensusWindow();
 		repsInConsensus = 0;
-		if (!MesquiteFile.fileExists(path))
+		if (!MesquiteFile.fileExists(path) || taxa == null)
+			return;
+		prepareConsensusWindow();
+		if (majRulesConsenser == null)
 			return;
 		String[] ds = MesquiteFile.getFileContentsAsStrings(path);
 		if (ds == null)
@@ -158,7 +166,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 	protected void showIntermediateConsensusAddingTree(String treeDescription) {  //possibly pass boolean to reset?
+		if (taxa == null)
+			return;
 		prepareConsensusWindow();
+		if (majRulesConsenser == null)
+			return;
 		Tree rep = ZephyrUtil.readPhylipTree(treeDescription,taxa,false,getTaxonNamer());    
 		majRulesConsenser.addTree(rep);
 		repsInConsensus++;
@@ -166,8 +178,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		MesquiteTree consensus = (MesquiteTree)majRulesConsenser.getConsensus();
 		consensus.setName("Majority Rules Consensus of " + repsInConsensus + " trees");
 		tWindowMaker.setTree(consensus, false);
+
 	}
-	
+
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 	protected int repsInConsensusWindow() {
 		return repsInConsensus;
@@ -804,6 +817,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (externalProcRunner!=null)
 			if (externalProcRunner.isScriptBased() && !externalProcRunner.isVisibleTerminal())
 				temp.addLine("scriptBasedNoTerminal");
+		if (tWindowMaker!= null)
+			temp.addLine("getIntermTreeWindowMaker ", tWindowMaker);
+		if (majRulesConsenser!= null)
+			temp.addLine("majRulesConsenser ", majRulesConsenser);
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -811,6 +828,25 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (checker.compare(this.getClass(), "Recovers search details from previous run", "[search details]", commandName, "recoverSearchDetails")) {
 			searchDetails.setLength(0);
 			searchDetails.append(parser.getFirstToken(arguments));
+		}
+		else if (checker.compare(this.getClass(), "returns the window maker", "null", commandName, "getIntermTreeWindowMaker")) {
+			if (this instanceof RemoteProcessCommunicator) { //for some reason when remote, the window doesn's thow properly if not made here
+				if (tWindowMaker == null) 
+				tWindowMaker = (TWindowMaker)hireNamedEmployee(TWindowMaker.class, "#ObedientTreeWindow");
+			if (tWindowMaker != null) {
+				MesquiteWindow w = tWindowMaker.getModuleWindow();
+				if (w != null && w instanceof SimpleTreeWindow) {
+					((SimpleTreeWindow)w).setWindowTitle("Inference in Progress: Consensus Tree");
+					tWindowMaker.setWindowVisible(false);
+			}
+			}
+			return tWindowMaker; }
+			else
+				return new MesquiteCommandAbsorber();
+				
+		}
+		else if (checker.compare(this.getClass(), "Nonfunctional ; eats up consenser", "null", commandName, "majRulesConsenser")) {
+			return new MesquiteCommandAbsorber();
 		}
 		else if (checker.compare(this.getClass(), "Specifies that is scriptBased with no terminal window", "[]", commandName, "scriptBasedNoTerminal")) {
 			setScriptBasedNoTerminal(true);
@@ -821,6 +857,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 		else if (checker.compare(this.getClass(), "Recovers data object when search monitoring resumes", "[matrix id]", commandName, "recoverData")) {
 			data =  (CategoricalData)getProject().getCharacterMatrixByReference((MesquiteFile)null, parser.getFirstToken(arguments), false);
+			if (data != null)
+				taxa = data.getTaxa();
 		}
 		else if (checker.compare(this.getClass(), "Recovers extra search details from previous run", "[search details]", commandName, "recoverExtraSearchDetails")) {
 			extraSearchDetails.setLength(0);
@@ -832,6 +870,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			if (StringUtil.notEmpty(s) && !s.equalsIgnoreCase("null"))
 				addendumToTreeBlockName.append(parser.getFirstToken(arguments));
 		}
+		else return super.doCommand(commandName, arguments, checker);
 		return null;
 	}	
 	public boolean isReconnected() {
@@ -1100,7 +1139,6 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		String taxaID = parser.getFirstToken(callBackArguments);
 		if (taxaID !=null)
 			taxa = getProject().getTaxa(taxaID);
-
 		//	getProject().incrementProjectWindowSuppression();
 
 		initializeMonitoring();

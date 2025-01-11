@@ -18,6 +18,7 @@ import java.util.*;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
+import mesquite.externalCommunication.lib.RemoteProcessCommunicator;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
@@ -31,7 +32,7 @@ import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
 
 
-public class IQTreeRunnerSSH extends IQTreeRunnerBasic  {
+public class IQTreeRunnerSSH extends IQTreeRunnerBasic implements RemoteProcessCommunicator  {
 
 
 	/*.................................................................................................................*/

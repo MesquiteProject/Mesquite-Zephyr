@@ -18,6 +18,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 
+import mesquite.externalCommunication.lib.RemoteProcessCommunicator;
 import mesquite.lib.*;
 import mesquite.lib.system.SystemUtil;
 import mesquite.lib.taxa.TaxaSelectionSet;
@@ -32,7 +33,7 @@ outgroups
 
  */
 
-public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
+public class RAxMLRunnerCIPRes extends RAxMLRunner  implements ActionListener, ItemListener, ExternalProcessRequester, RemoteProcessCommunicator  {
 
 	//boolean RAxML814orLater = false;
 

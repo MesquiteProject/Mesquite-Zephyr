@@ -14,13 +14,13 @@ import java.awt.*;
 import java.io.*;
 import java.awt.event.*;
 
-
+import mesquite.externalCommunication.lib.RemoteProcessCommunicator;
 import mesquite.lib.*;
 import mesquite.zephyr.SSHRunner.SSHRunner;
 import mesquite.zephyr.lib.*;
 
 
-public class RAxMLRunnerSSHNG extends RAxMLRunnerBasicNG  {
+public class RAxMLRunnerSSHNG extends RAxMLRunnerBasicNG implements RemoteProcessCommunicator  {
 
 	/*.................................................................................................................*/
 	public int getProgramNumber() {

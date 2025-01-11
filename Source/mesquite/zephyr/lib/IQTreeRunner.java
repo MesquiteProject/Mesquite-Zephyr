@@ -1491,16 +1491,15 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 							String[] fs = externalProcRunner.getOutputFilePaths();
 							String bootstrapFilePath = fs[OUT_TREEFILE];
 							if (MesquiteFile.fileExists(bootstrapFilePath)) {
-								if (repsInConsensusWindow()== 0 && numRunsCompleted>0) //unharvested ones there
+								if (repsInConsensusWindow()== 0 || numRunsCompleted>repsInConsensusWindow()+1) //not yet harvested, or more than one unharvested
 									showIntermediateConsensusFromFile(bootstrapFilePath);
-								else {
+								else if (repsInConsensusWindow() < numRunsCompleted){
 									String treeDescription = MesquiteFile.getFileLastDarkLine(bootstrapFilePath);
 									if (StringUtil.notEmpty(treeDescription)) 
 										showIntermediateConsensusAddingTree(treeDescription);
 								}
-							}
 						}
-
+						}
 						if (externalProcRunner.canCalculateTimeRemaining(numRunsCompleted)) {
 							double timePerRep = getTimePerRep(numRunsCompleted);   //this is time per rep
 							int timeLeft = 0;

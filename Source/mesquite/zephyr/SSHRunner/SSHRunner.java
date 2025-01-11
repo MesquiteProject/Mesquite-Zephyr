@@ -224,6 +224,8 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Proc
 			if (communicator!=null)
 				communicator.setRemoteWorkingDirectoryName(name);
 		}
+		else
+			return super.doCommand(commandName, arguments, checker);
 		return null;
 	}	
 
@@ -586,7 +588,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Proc
 	}
 	public String getMessageIfCloseFileRequested () { 
 		if (scriptBased)
-			return "If Mesquite closes this file, it will not stop the run on the server.  To stop the other program on the remote server, you will need to "
+			return "\nClosing this file will not stop the run on the server.  To stop the other program on the remote server, you will need to "
 			+ "log into the remote server and stop the program on it.";
 		return "";
 	}

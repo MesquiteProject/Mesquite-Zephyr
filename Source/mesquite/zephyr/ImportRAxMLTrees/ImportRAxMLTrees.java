@@ -53,7 +53,7 @@ public class ImportRAxMLTrees extends InterpretPhylipTrees {
 		Taxa taxa = getProject().chooseTaxa(containerOfModule(), "From what taxa are these trees composed?");
 		if (taxa== null) {
 			TaxaManager taxaTask = (TaxaManager)findElementManager(Taxa.class);
-			taxa = taxaTask.makeNewTaxa("Taxa", 0, false);
+			taxa = taxaTask.makeNewTaxaBlock("Taxa", 0, false);
 			taxa.addToFile(file, getProject(), taxaTask);
 			enlargeTaxaBlock = true;
 		}

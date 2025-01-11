@@ -10,11 +10,12 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.TNTRunnerSSH;
 
 
+import mesquite.externalCommunication.lib.RemoteProcessCommunicator;
 import mesquite.zephyr.SSHRunner.SSHRunner;
 import mesquite.zephyr.lib.*;
 
 
-public class TNTRunnerSSH extends TNTRunner  {
+public class TNTRunnerSSH extends TNTRunner implements RemoteProcessCommunicator  {
 
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
