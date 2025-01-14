@@ -27,6 +27,7 @@ import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.*;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.ProgressIndicator;
+import mesquite.lib.ui.RadioButtons;
 import mesquite.lib.ui.SingleLineTextField;
 import mesquite.zephyr.lib.*;
 
@@ -352,22 +353,25 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	Checkbox defaultExecutablePathCheckBox =  null;
 	Checkbox visibleTerminalCheckBox =  null;
 	Checkbox deleteAnalysisDirectoryCheckBox =  null;
-	Checkbox scriptBasedCheckBox =  null;
+//	Checkbox scriptBasedCheckBox =  null;
+	RadioButtons scriptBasedRadioButtons =  null;
 	Checkbox addExitCommandCheckBox = null;
 	
 	AppChooser appChooser;
 
 	public String getHelpString() {
-		String helpString = "<h3>Reconnectability</h3>With reconnection enabled, the analysis can continue even after you close the file or quit Mesquite."
+		String helpString = "<h3>Direct versus indirect communication</h3>With indirect communication, reconnection is enabled. The analysis can continue even after you close the file or quit Mesquite."
 				+ " As long as you save the file before closing/quitting, you can later reopen it in Mesquite, and it will reconnect with the ongoing analysis."
-				+ " The potential drawback is that if something goes wrong (an error by the user, Mesquite crashes) then Mesquite will not be able to reconnect, "
-				+ "and the analysis program won’t stop until it is finished. If it continues, and if you want to stop it, you can use your computer’s "
+				+ " However, if something goes wrong (an error by the user, Mesquite crashes) then Mesquite will not be able to reconnect, "
+				+ "and the analysis program won’t stop until it is finished OR Mesquite will not know that the program has finished. If it continues, and if you want to stop it, you can use your computer’s "
 				+ " Task Manager (Windows) or Activity Manager (macOS) to force quit the analysis. "
-				+ "(Note: To enable reconnection, Mesquite communicates more loosely with the program via scripts. Otherwise, it connects more directly via Processes.)";
+				+ "(Note: With indirect communication, Mesquite communicates via scripts. Otherwise, it connects more directly via Processes.)";
 
 		return helpString;
 	}
 	/*.................................................................................................................*/
+	
+
 	// given the opportunity to fill in options for user
 	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
 		
@@ -390,8 +394,17 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		
 		
 		if (getDirectProcessConnectionAllowed()) {
-			scriptBasedCheckBox = dialog.addCheckBox("Enable reconnection (see ? button below for details)", scriptBased);
-			scriptBasedCheckBox.addItemListener(this);
+			
+			//ZQ
+			String[] rbStrings = new String[] {"Direct communication. Safe, but analysis stops if file is closed; can't later reopen and reconnect.",
+					"Indirect. Can reconnect, but if there's an error, Mesquite might not stop " + processRequester.getProgramName() + " or recover trees."};
+			scriptBasedRadioButtons = dialog.addRadioButtons(rbStrings, 0);
+			scriptBasedRadioButtons.addItemListener(this);
+			dialog.addLabel("[See help button (?) below for details about these choices.]");
+			dialog.addHorizontalLine(1);
+			
+	//		scriptBasedCheckBox = dialog.addCheckBox("Enable reconnection (see ? button below for details)", scriptBased);
+	//		scriptBasedCheckBox.addItemListener(this);
 		} else
 			scriptBased=true;
 		if (visibleTerminalOptionAllowed()) {
@@ -406,15 +419,25 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		return true;
 
 	}
+	
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent arg0) {
-		if (arg0.getItemSelectable()==scriptBasedCheckBox  && scriptBasedCheckBox!=null){
+		if (arg0.getItemSelectable()==scriptBasedRadioButtons  && scriptBasedRadioButtons!=null){
+			if (visibleTerminalCheckBox!=null)
+				visibleTerminalCheckBox.setEnabled(scriptBasedRadioButtons.getValue()==1);	
+			if (addExitCommandCheckBox!=null)
+				addExitCommandCheckBox.setEnabled(scriptBasedRadioButtons.getValue()==1);	
+		} else {
+		}
+/*
+ * 		if (arg0.getItemSelectable()==scriptBasedCheckBox  && scriptBasedCheckBox!=null){
 			if (visibleTerminalCheckBox!=null)
 				visibleTerminalCheckBox.setEnabled(scriptBasedCheckBox.getState());	
 			if (addExitCommandCheckBox!=null)
 				addExitCommandCheckBox.setEnabled(scriptBasedCheckBox.getState());	
 		} else {
 		}
+		*/
 	}
 
 	/*.................................................................................................................*/
@@ -444,8 +467,10 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			addExitCommand = addExitCommandCheckBox.getState();
 		if (!getDirectProcessConnectionAllowed())
 			scriptBased=true;
-		else if (scriptBasedCheckBox!=null)
-			scriptBased = scriptBasedCheckBox.getState();
+		else if (scriptBasedRadioButtons != null)
+			scriptBased = scriptBasedRadioButtons.getValue()==1;
+		//else if (scriptBasedCheckBox!=null)
+		//	scriptBased = scriptBasedCheckBox.getState();
 		
 		
 		

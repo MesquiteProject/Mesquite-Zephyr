@@ -1124,11 +1124,13 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			if (MesquiteDouble.isCombinable(finalScore.getValue())){
 				MesquiteDouble s = new MesquiteDouble(-finalScore.getValue());
 				s.setName(IOUtil.RAXMLSCORENAME);
+				if (t != null)
 				((Attachable)t).attachIfUniqueName(s);
 			}
 			if (MesquiteDouble.isCombinable(optimizedValue)){
 				MesquiteDouble s = new MesquiteDouble(-optimizedValue);
 				s.setName(IOUtil.RAXMLFINALSCORENAME);
+				if (t != null)
 				((Attachable)t).attachIfUniqueName(s);
 			}
 

@@ -382,6 +382,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return "Runner Text: "+ getName();
 	}
 
+	//ZQ this returns false if it is already reconnected; shoiuld return true if the file was opened and reconnected
 	public boolean getReadyForReconnectionSave() {
 		return  externalProcRunner!=null && externalProcRunner.getReadyForReconnectionSave();
 	}
@@ -435,7 +436,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 				if (sF.getState()) {
 					FileCoordinator fc = getFileCoordinator();
 					fc.saveAllFiles();
-				}
+					}
+				else //here file is dirty, user asked not to save, so hope file should be flagged as quit despite dirtiness
+					getProject().setIgnoreDirtWhenCloseRequested(true);  
+
 			}
 			if (askContinue) {
 				if ( lR.getState())
