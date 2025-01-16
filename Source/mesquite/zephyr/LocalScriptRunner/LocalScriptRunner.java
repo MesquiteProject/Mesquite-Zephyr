@@ -398,7 +398,10 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			//ZQ
 			String[] rbStrings = new String[] {"Direct communication. Safe, but analysis stops if file is closed; can't later reopen and reconnect.",
 					"Indirect. Can reconnect, but if there's an error, Mesquite might not stop " + processRequester.getProgramName() + " or recover trees."};
-			scriptBasedRadioButtons = dialog.addRadioButtons(rbStrings, 0);
+			int current = 0;
+			if (scriptBased)
+			current = 1;
+			scriptBasedRadioButtons = dialog.addRadioButtons(rbStrings, current);
 			scriptBasedRadioButtons.addItemListener(this);
 			dialog.addLabel("[See help button (?) below for details about these choices.]");
 			dialog.addHorizontalLine(1);
@@ -469,6 +472,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			scriptBased=true;
 		else if (scriptBasedRadioButtons != null)
 			scriptBased = scriptBasedRadioButtons.getValue()==1;
+		Debugg.println("!!!!!!!!!scriptBased " + scriptBased);
 		//else if (scriptBasedCheckBox!=null)
 		//	scriptBased = scriptBasedCheckBox.getState();
 		
