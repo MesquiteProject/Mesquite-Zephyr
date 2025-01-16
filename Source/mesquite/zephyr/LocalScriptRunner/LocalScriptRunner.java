@@ -362,7 +362,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public String getHelpString() {
 		String helpString = "<h3>Direct versus indirect communication</h3>With indirect communication, reconnection is enabled. The analysis can continue even after you close the file or quit Mesquite."
 				+ " As long as you save the file before closing/quitting, you can later reopen it in Mesquite, and it will reconnect with the ongoing analysis."
-				+ " However, if something goes wrong (an error by the user, Mesquite crashes) then Mesquite will not be able to reconnect, "
+				+ " However, if something goes wrong (an error by the user, or something crashes) then Mesquite will not be able to reconnect, "
 				+ "and the analysis program won’t stop until it is finished OR Mesquite will not know that the program has finished. If it continues, and if you want to stop it, you can use your computer’s "
 				+ " Task Manager (Windows) or Activity Manager (macOS) to force quit the analysis. "
 				+ "(Note: With indirect communication, Mesquite communicates via scripts. Otherwise, it connects more directly via Processes.)";
