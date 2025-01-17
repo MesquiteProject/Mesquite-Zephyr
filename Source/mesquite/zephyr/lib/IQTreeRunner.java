@@ -480,7 +480,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		tabbedPanel.cleanup();
 		dialog.nullifyAddPanel();
 
-		dialog.addHorizontalLine(1);
+		//dialog.addHorizontalLine(1);
 		//		retainFilescheckBox = dialog.addCheckBox("Retain Files", retainFiles);
 
 		dialog.completeAndShowDialog(true);

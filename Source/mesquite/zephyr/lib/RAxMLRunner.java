@@ -469,7 +469,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		tabbedPanel.cleanup();
 		dialog.nullifyAddPanel();
 
-		dialog.addHorizontalLine(1);
+		//dialog.addHorizontalLine(1);
 		//		retainFilescheckBox = dialog.addCheckBox("Retain Files", retainFiles);
 
 		dialog.completeAndShowDialog(true);

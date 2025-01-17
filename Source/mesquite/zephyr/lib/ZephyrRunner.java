@@ -1129,7 +1129,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 				logln("Total time: " + totalTime  + " seconds");
 			if (!success)
 				if (userAborted)
-					logln("Execution of "+getProgramName()+" aborted by user [1]");
+					logln("Execution of "+getProgramName()+" stopped by user [1]");
 				else
 					logln("Execution of "+getProgramName()+" unsuccessful [1]");
 		}

@@ -477,7 +477,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 				return finalScore;
 			}
 		} else {
-			logln("\nSOWH Test aborted by user.");
+			logln("\nSOWH Test stopped by user.");
 			panel.setAborted(true);
 		}
 		return MesquiteDouble.unassigned;
