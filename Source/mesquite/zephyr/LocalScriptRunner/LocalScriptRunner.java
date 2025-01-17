@@ -472,7 +472,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			scriptBased=true;
 		else if (scriptBasedRadioButtons != null)
 			scriptBased = scriptBasedRadioButtons.getValue()==1;
-		Debugg.println("!!!!!!!!!scriptBased " + scriptBased);
 		//else if (scriptBasedCheckBox!=null)
 		//	scriptBased = scriptBasedCheckBox.getState();
 		
