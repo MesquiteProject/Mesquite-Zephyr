@@ -145,7 +145,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		tWindowMaker.setWindowVisible(true);
 	}
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-	protected void showIntermediateConsensusFromFile(String path) {  //assumes reset to zero
+	protected void showIntermediateConsensusFromFile(String path) {  //assumes reset to zero && that it's a phylip tree file
 		repsInConsensus = 0;
 		if (!MesquiteFile.fileExists(path) || taxa == null)
 			return;

@@ -115,7 +115,9 @@ public class ZephyrUtil {
 		module.decrementMenuResetSuppression();
 		return success;
 	}	
+	
 	/*.................................................................................................................*/
+	/* These should probably be in IOUtil along with other Phylip tree reading */
 	public static boolean validPhylipTree(String line){  // check to see if tree is valid
 		Parser parser = new Parser(line);
 		String s = parser.getFirstToken();
@@ -131,12 +133,17 @@ public class ZephyrUtil {
 
 	/*.................................................................................................................*/
 	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, TaxonNamer namer) {
+		return readPhylipTree(line, taxa, permitTaxaBlockEnlarge, false, namer);
+	}
+	/*.................................................................................................................*/
+	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, boolean permitSpaceUnderscoreEquivalent, TaxonNamer namer) {
 		if (StringUtil.blank(line))
 			return null;
 		if (!validPhylipTree(line))
 			return null;
 		MesquiteTree t = new MesquiteTree(taxa);
 		t.setPermitTaxaBlockEnlargement(permitTaxaBlockEnlarge);
+		t.setPermitSpaceUnderscoreEquivalent(permitSpaceUnderscoreEquivalent);
 		t.readTree(line, namer, null, "():;,[]\'"); //tree reading adjusted to use Newick punctuation rather than NEXUS
 		return t;
 	}
