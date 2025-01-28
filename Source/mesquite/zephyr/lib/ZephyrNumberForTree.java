@@ -230,31 +230,32 @@ public abstract class ZephyrNumberForTree extends NumberForTree implements Recon
 
 
 	}
-	/*.................................................................................................................*/
-	public void fillTreeBlock(TreeVector treeList){
+	/*.................................................................................................................
+	private int fillTreeBlock(TreeVector treeList){
 		if (treeList==null || runner==null)
-			return;
+			return ResultCodes.INPUT_NULL;
 		if (getProject()==null)
-			return;
+			return ResultCodes.INPUT_NULL;
 		if (getProject().getHomeFile()==null)
-			return;
+			return ResultCodes.INPUT_NULL;
 		getProject().getHomeFile().setDirtiedByCommand(true);
 		taxa = treeList.getTaxa();
 		if (!initialize(taxa))
-			return;
+			return ResultCodes.INPUT_NULL;
 
 		//DISCONNECTABLE
 		TreeVector trees = getTrees(taxa);
 		if (trees == null)
-			return;
+			return ResultCodes.NOTHING_RETURNED;
 		treeList.setName(trees.getName());
 		treeList.setAnnotation ("Parameters: "  + getParameters(), false);
 		if (trees!=null)
 			treeList.addElements(trees, false);
 		trees.dispose();
 		treesInferred = treeList.getID();
-		
-	}
+		return ResultCodes.SUCCEEDED;
 
+	}
+*/
 
 }

@@ -10,12 +10,12 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 import java.awt.Button;
+
 import java.awt.Checkbox;
 import java.awt.event.*;
 import java.util.*;
 
 import mesquite.categ.lib.*;
-import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;

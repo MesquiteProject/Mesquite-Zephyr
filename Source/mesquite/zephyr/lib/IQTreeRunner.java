@@ -24,7 +24,9 @@ import mesquite.lib.duties.*;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.tree.AdjustableTree;
+import mesquite.lib.tree.MesquiteTree;
 import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeUtil;
 import mesquite.lib.tree.TreeVector;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.MesquiteDialog;
@@ -676,11 +678,11 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		return sb.toString();
 	}
 
+	/*.................................................................................................................*/
 	public static final NameReference IQTreeALRTUFBoot = NameReference.getNameReference("IQ-TREE SH-aLRT/UF Boot"); 
 	public static final NameReference IQTreeUFBoot = NameReference.getNameReference("IQ-TREE UFBoot"); 
 	public static final NameReference IQTreeALRT = NameReference.getNameReference("IQ-TREE alrt"); 
 
-	/*.................................................................................................................*/
 	private NameReference[] getNameRefsForNodeLabels() {
 		if (searchStyle==ULTRAFASTBOOTSTRAP) {
 			if (doALRT)
@@ -700,7 +702,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			t =  ZephyrUtil.readPhylipTree(s,taxa,false, namer);
 
 			if (t!=null) {
-				ZephyrUtil.reinterpretNodeLabels(t, t.getRoot(), nameReferences, true, 100.0);
+				TreeUtil.reinterpretNodeLabels(t, t.getRoot(), nameReferences, true, 100.0);
 				if (success!=null)
 					success.setValue(true);
 				if (t instanceof AdjustableTree )
@@ -715,12 +717,11 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			Parser parser = new Parser(contents);
 
 			String s = parser.getRawNextDarkLine();
-
 			while (!StringUtil.blank(s)) {
 				t = ZephyrUtil.readPhylipTree(s,taxa,false, namer);
 
 				if (t!=null) {
-					ZephyrUtil.reinterpretNodeLabels(t, t.getRoot(), nameReferences, true, 100.0);
+					TreeUtil.reinterpretNodeLabels(t, t.getRoot(), nameReferences, true, 100.0);
 					if (success!=null)
 						success.setValue(true);
 					if (t instanceof AdjustableTree )
@@ -1317,7 +1318,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 					ZephyrUtil.adjustTree(newTree, outgroupSet);
 					if (MesquiteDouble.isCombinable(finalValues[i])){
 						MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
-						s.setName(IOUtil.IQTREESCORENAME);
+						s.setName(ZephyrUtil.IQTREESCORENAME);
 						((Attachable)newTree).attachIfUniqueName(s);
 					}
 

@@ -25,6 +25,7 @@ import mesquite.lib.taxa.Taxa;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.tree.AdjustableTree;
 import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeUtil;
 import mesquite.lib.tree.TreeVector;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.MesquiteDialog;
@@ -767,10 +768,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			localProteinModel =proteinModelMatrix;
 		if (localPartitionScheme == partitionByCharacterGroups) {
 			if (multipleModelFileAllowed())
-				multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, false, localProteinModel, dnaModel, isRAxMLNG(), specifyPartByPartModels);
+				multipleModelFileContents=ZephyrUtil.getMultipleModelRAxMLString(this, data, false, localProteinModel, dnaModel, isRAxMLNG(), specifyPartByPartModels);
 		}
 		else if (localPartitionScheme == partitionByCodonPosition) {
-			multipleModelFileContents=IOUtil.getMultipleModelRAxMLString(this, data, true,localProteinModel, dnaModel,isRAxMLNG(), specifyPartByPartModels);
+			multipleModelFileContents=ZephyrUtil.getMultipleModelRAxMLString(this, data, true,localProteinModel, dnaModel,isRAxMLNG(), specifyPartByPartModels);
 		} else
 			multipleModelFileContents="";
 
@@ -814,7 +815,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		//		externalProcRunner.setRootDir(tempDir);
 
 		String dataFileName = getDataFileName();   //replace this with actual file name?
-		String translationFileName = IOUtil.translationTableFileName;   
+		String translationFileName = TreeUtil.translationTableFileName;   
 		String dataFilePath = tempDir +  dataFileName;
 
 		FileInterpreterI exporter = null;
@@ -982,12 +983,12 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			ZephyrUtil.adjustTree(newTree, outgroupSet);
 			if (MesquiteDouble.isCombinable(finalValues[i])){
 				MesquiteDouble s = new MesquiteDouble(-finalValues[i]);
-				s.setName(IOUtil.RAXMLSCORENAME);
+				s.setName(ZephyrUtil.RAXMLSCORENAME);
 				((Attachable)newTree).attachIfUniqueName(s);
 			}
 			if (recordOptimizedValues && MesquiteDouble.isCombinable(optimizedValues[i])){
 				MesquiteDouble s = new MesquiteDouble(-optimizedValues[i]);
-				s.setName(IOUtil.RAXMLFINALSCORENAME);
+				s.setName(ZephyrUtil.RAXMLFINALSCORENAME);
 				((Attachable)newTree).attachIfUniqueName(s);
 			}
 
@@ -1123,13 +1124,13 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			}
 			if (MesquiteDouble.isCombinable(finalScore.getValue())){
 				MesquiteDouble s = new MesquiteDouble(-finalScore.getValue());
-				s.setName(IOUtil.RAXMLSCORENAME);
+				s.setName(ZephyrUtil.RAXMLSCORENAME);
 				if (t != null)
 				((Attachable)t).attachIfUniqueName(s);
 			}
 			if (MesquiteDouble.isCombinable(optimizedValue)){
 				MesquiteDouble s = new MesquiteDouble(-optimizedValue);
-				s.setName(IOUtil.RAXMLFINALSCORENAME);
+				s.setName(ZephyrUtil.RAXMLFINALSCORENAME);
 				if (t != null)
 				((Attachable)t).attachIfUniqueName(s);
 			}

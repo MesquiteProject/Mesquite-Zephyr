@@ -22,6 +22,7 @@ import mesquite.lib.duties.*;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeUtil;
 import mesquite.lib.tree.TreeVector;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.MesquiteDialog;
@@ -763,7 +764,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		if (!fileSaved) return null;
 
-		String translationFileName = IOUtil.translationTableFileName;   
+		String translationFileName = TreeUtil.translationTableFileName;   
 		setTaxonTranslation(taxa);
 		taxonNumberTranslation = getTaxonNumberTranslation(taxa);
 		namer.setNumberTranslationTable(taxonNumberTranslation);

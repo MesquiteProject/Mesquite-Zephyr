@@ -15,6 +15,7 @@ package mesquite.zephyr.SOWHTest;
 /*~~  */
 
 import java.awt.*;
+
 import java.util.Random;
 
 import mesquite.lib.*;
@@ -35,7 +36,6 @@ import mesquite.lib.ui.QueryDialogs;
 import mesquite.lib.ui.RadioButtons;
 import mesquite.zephyr.lib.*;
 import mesquite.categ.lib.CategoricalData;
-import mesquite.io.lib.IOUtil;
 import mesquite.zephyr.RAxMLExporter.*;
 import org.apache.commons.math3.stat.interval.*;
 
@@ -424,7 +424,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		runner.setConstainedSearchAllowed(false);
 		runner.setConstrainedSearch(true);  
 		runner.resetSOWHOptionsConstrained();
-		MesquiteInteger statusResult = new MesquiteInteger(TreeSearcher.NOERROR); //ZQ: this can be used if you want to find details of failure
+		MesquiteInteger statusResult = new MesquiteInteger(ResultCodes.NO_ERROR); //ZQ: this can be used if you want to find details of failure
 		if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), constrainedScore, statusResult)==null){  // find score of constrained tree
 			if (runner.getUserAborted()) {
 				panel.setAborted(true);
@@ -584,6 +584,20 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		return s;
 	}
 	/*.................................................................................................................*/
+
+	public void copyCurrentSpecSets(CharacterData sourceData, CharacterData destinationData){
+		CharactersGroup[] parts =null;
+		CharacterPartition characterPartition = (CharacterPartition)sourceData.getCurrentSpecsSet(CharacterPartition.class);
+		if (characterPartition != null) {
+			SpecsSet partitionCopy = characterPartition.cloneSpecsSet();
+			destinationData.setCurrentSpecsSet(partitionCopy, CharacterPartition.class);
+		}
+		CharInclusionSet incl = (CharInclusionSet)sourceData.getCurrentSpecsSet(CharInclusionSet.class);
+		if (incl != null) {
+			destinationData.setCurrentSpecsSet(incl, CharInclusionSet.class);
+		} 
+
+	}
 	public String getReplicateLine(int rep, double delta, double pValue) {
 		return "\n" + (rep+1)+"\t"+ MesquiteDouble.toStringDigitsSpecified(delta, 8) + "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4);
 	}
@@ -679,7 +693,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			CharacterData simulatedData = (CategoricalData)CharacterData.getData(this,  simulatedStates, taxa);
 			if (simulatedData!=null) {
 				((MAdjustableDistribution)simulatedStates).setParentData(simulatedData);
-				IOUtil.copyCurrentSpecSets(data,simulatedData);  // WAYNECHECK: is this ok?
+				copyCurrentSpecSets(data,simulatedData);  // WAYNECHECK: is this ok?
 				if (altererTask!=null && alterData)
 					altererTask.alterData(simulatedData, null, null);
 

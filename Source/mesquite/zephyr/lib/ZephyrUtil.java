@@ -10,6 +10,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 import java.awt.Choice;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,7 +18,6 @@ import java.io.Writer;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import cgrb.eta.remote.api.ETAConnection;
 import mesquite.categ.lib.CategoricalData;
 import mesquite.categ.lib.DNAData;
 import mesquite.categ.lib.MolecularData;
@@ -25,7 +25,6 @@ import mesquite.categ.lib.ProteinData;
 import mesquite.charMatrices.ManageCharInclusion.ManageCharInclusion;
 import mesquite.charMatrices.ManageCharWeights.ManageCharWeights;
 import mesquite.io.InterpretTNT.InterpretTNT;
-import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.characters.CharInclusionSet;
 import mesquite.lib.characters.CharSpecsSet;
@@ -37,7 +36,6 @@ import mesquite.lib.characters.CharacterStates;
 import mesquite.lib.characters.CharactersGroup;
 import mesquite.lib.characters.CodonPositionsSet;
 import mesquite.lib.characters.ModelSet;
-import mesquite.lib.duties.CharSpecsSetManager;
 import mesquite.lib.duties.FileCoordinator;
 import mesquite.lib.duties.FileInterpreterI;
 import mesquite.lib.duties.TreeSource;
@@ -49,7 +47,10 @@ import mesquite.lib.taxa.TaxonNamer;
 import mesquite.lib.tree.AdjustableTree;
 import mesquite.lib.tree.MesquiteTree;
 import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeUtil;
 import mesquite.lib.tree.TreeVector;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.SingleLineTextField;
 import mesquite.parsimony.ManageTypesets.ManageTypesets;
 import mesquite.parsimony.lib.ParsimonyModelSet;
 
@@ -117,8 +118,8 @@ public class ZephyrUtil {
 	}	
 	
 	/*.................................................................................................................*/
-	/* These should probably be in IOUtil along with other Phylip tree reading */
-	public static boolean validPhylipTree(String line){  // check to see if tree is valid
+	/* QZ: MOVE this and next two to MesquiteTree alongside read methods there, or to PhylipUtils in mesquite.io */
+	public static boolean validNewickEnds(String line){  // check to see if tree is valid; used only here
 		Parser parser = new Parser(line);
 		String s = parser.getFirstToken();
 		if (!s.startsWith("(")){
@@ -139,60 +140,283 @@ public class ZephyrUtil {
 	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, boolean permitSpaceUnderscoreEquivalent, TaxonNamer namer) {
 		if (StringUtil.blank(line))
 			return null;
-		if (!validPhylipTree(line))
+		if (!validNewickEnds(line))
 			return null;
 		MesquiteTree t = new MesquiteTree(taxa);
 		t.setPermitTaxaBlockEnlargement(permitTaxaBlockEnlarge);
-		t.setPermitSpaceUnderscoreEquivalent(permitSpaceUnderscoreEquivalent);
 		t.readTree(line, namer, null, "():;,[]\'"); //tree reading adjusted to use Newick punctuation rather than NEXUS
 		return t;
 	}
 	
 	/*.................................................................................................................*/
-	public static void reinterpretNodeLabels(Tree tree, int node, NameReference[] nameRefs, boolean asText, double divisor){
-		if (nameRefs==null)
-			return;
-		MesquiteTree t = null;
-		if (tree instanceof MesquiteTree)
-			t=(MesquiteTree)tree;
-		if (t==null)
-			return;
-		if (divisor==0.0) divisor=1.0;
-		if (t.nodeIsInternal(node)){
-			if (t.nodeHasLabel(node)){
-				String label = t.getNodeLabel(node);
-				if (asText) {
-					t.setAssociatedObject(nameRefs[0], node, label, true);
-				} else {
-					Parser parser = new Parser(label);
-					parser.setWhitespaceString(parser.getWhitespaceString()+"/");
-					double[] support = new double[nameRefs.length];
-					for (int i=0; i<nameRefs.length; i++) {
-						support[i] = MesquiteDouble.fromString(parser.getNextToken());
-						if (MesquiteDouble.isCombinable(support[i]))
-							t.setAssociatedDouble(nameRefs[i], node, support[i]/divisor, true);
-					}
-				}
-				t.setNodeLabel(null, node);
-			}
-			for (int daughter = t.firstDaughterOfNode(node); t.nodeExists(daughter); daughter = t.nextSisterOfNode(daughter)) {
-				reinterpretNodeLabels(t, daughter, nameRefs, asText, divisor);
-			}
-		}
 
+	public static final String RAXMLSCORENAME = "RAxMLScore";
+	public static final String IQTREESCORENAME = "IQTREEScore";
+	public static final String RAXMLFINALSCORENAME = "RAxMLScore (Final Gamma-based)";
+	/*.................................................................................................................*/
+
+	public static String[] getRAxMLRateModels(MesquiteModule mb, String[] partNames, String defaultModel){
+		if (partNames==null || partNames.length==0 || partNames.length>20)
+			return null;
+		String[] rateModels = new String[partNames.length+1];
+		for (int i=0; i<rateModels.length; i++)
+			rateModels[i] = defaultModel;
+
+		if (!MesquiteThread.isScripting()) {
+			MesquiteInteger buttonPressed = new MesquiteInteger(1);
+			ExtensibleDialog dialog = new ExtensibleDialog(mb.containerOfModule(), "Character Models",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
+			dialog.addLabel("Character Rate Models");
+
+			SingleLineTextField[] modelFields = new SingleLineTextField[rateModels.length];
+			for (int i=0; i<rateModels.length; i++)
+				if (i<partNames.length)
+					modelFields[i] = dialog.addTextField(partNames[i]+":", rateModels[i], 20);
+				else
+					modelFields[i] = dialog.addTextField("unassigned:", rateModels[i], 20);
+
+			dialog.completeAndShowDialog(true);
+			if (buttonPressed.getValue()==0)  {
+				for (int i=0; i<rateModels.length; i++)
+					rateModels[i] = modelFields[i].getText();
+			}
+			dialog.dispose();
+			if (buttonPressed.getValue()==0)
+				return rateModels;
+			return null;
+		}
+		return rateModels;
 	}
 
 	/*.................................................................................................................*/
-	public static Tree convertNodeNamesToValues (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, TaxonNamer namer) {
-		if (StringUtil.blank(line))
-			return null;
-		if (!validPhylipTree(line))
-			return null;
-		MesquiteTree t = new MesquiteTree(taxa);
-		t.setPermitTaxaBlockEnlargement(permitTaxaBlockEnlarge);
-		t.readTree(line, namer, null, "():;,[]\'"); //tree reading adjusted to use Newick punctuation rather than NEXUS
-		return t;
+
+	public static String getMultipleModelRAxMLString(MesquiteModule mb, CharacterData data, boolean partByCodPos){
+		return getMultipleModelRAxMLString(mb,data,partByCodPos, "JTT", "DNA", false, true);
 	}
+	/*.................................................................................................................*/
+
+	public static String getMultipleModelRAxMLString(MesquiteModule mb, CharacterData data, boolean partByCodPos, String proteinModel, String dnaModel, boolean isRAxMLNG, boolean specifyPartByPartModels){
+		boolean writeCodPosPartition = false;
+		boolean writeStandardPartition = false;
+		String localDNAModel = "DNA";
+		if (StringUtil.notEmpty(dnaModel) && isRAxMLNG)
+			localDNAModel=dnaModel;
+		CharactersGroup[] parts =null;
+		if (data instanceof DNAData)
+			writeCodPosPartition = ((DNAData)data).someCoding();
+		CharacterPartition characterPartition = (CharacterPartition)data.getCurrentSpecsSet(CharacterPartition.class);
+		if (characterPartition == null && !writeCodPosPartition) {
+			return null;
+		} 
+		if (characterPartition!=null) {
+			parts = characterPartition.getGroups();
+			writeStandardPartition = parts!=null;
+		}
+
+		if (!writeStandardPartition && !writeCodPosPartition) {
+			return null;
+		}
+		StringBuffer sb = new StringBuffer();
+		CharInclusionSet incl = (CharInclusionSet)data.getCurrentSpecsSet(CharInclusionSet.class);
+
+		String codPosPart = "";
+		boolean molecular = (data instanceof MolecularData);
+		boolean nucleotides = (data instanceof DNAData);
+		boolean protein = (data instanceof ProteinData);
+		String defaultModel ="";
+		if (protein) {
+			defaultModel=proteinModel;
+		}
+		else 
+			defaultModel=localDNAModel;
+
+		String standardPart = "";
+		if (writeStandardPartition && !partByCodPos) {
+			String[] partNames= new String[parts.length];
+			for (int i=0; i<parts.length; i++) {
+				partNames[i]=parts[i].getName();
+			}
+			Listable[] partition = (Listable[])characterPartition.getProperties();
+			partition = data.removeExcludedFromListable(partition);
+			partition = data.removeEmptyFromListable(partition, false);
+			if ((nucleotides && !isRAxMLNG) || !specifyPartByPartModels) {
+				String q;
+				for (int i=0; i<parts.length; i++) {
+					q = ListableVector.getListOfMatches(partition, parts[i], CharacterStates.toExternal(0), true, ",");
+					if (q != null) {
+							sb.append(defaultModel + ", " + StringUtil.simplifyIfNeededForOutput(data.getName()+"_"+parts[i].getName(), true) + " = " +  q + "\n");
+					}
+				}
+				q = ListableVector.getListOfMatches(partition, null, CharacterStates.toExternal(0), true, ",");
+				if (q != null) {
+					sb.append(defaultModel + ", " + StringUtil.simplifyIfNeededForOutput(data.getName()+"_unassigned", true) + " = " +  q + "\n");
+				}
+			} else if (protein || isRAxMLNG) {
+				String[] rateModels = getRAxMLRateModels(mb, partNames, defaultModel);
+				String q;
+				if (rateModels!=null) {
+					for (int i=0; i<parts.length; i++) {
+						q = ListableVector.getListOfMatches(partition, parts[i], CharacterStates.toExternal(0), true, ",");
+						if (q != null && i<rateModels.length) {
+							sb.append(rateModels[i]+", " + StringUtil.simplifyIfNeededForOutput(data.getName()+"_"+parts[i].getName(), true) + " = " +  q + "\n");
+						}
+					}
+				}
+				q = ListableVector.getListOfMatches(partition, null, CharacterStates.toExternal(0), true, ",");
+				if (q != null) {
+					sb.append(rateModels[rateModels.length-1]+", " + StringUtil.simplifyIfNeededForOutput(data.getName()+"_unassigned", true) + " = " +  q + "\n");
+				}
+			} else {  // non molecular
+				String q;
+				for (int i=0; i<parts.length; i++) {
+					q = ListableVector.getListOfMatches(partition, parts[i], CharacterStates.toExternal(0), true, ",");
+					if (q != null) {
+						if (nucleotides)
+							sb.append("MULTI, " + StringUtil.simplifyIfNeededForOutput(data.getName()+"_"+parts[i].getName(), true) + " = " +  q + "\n");
+					}
+				}
+				q = ListableVector.getListOfMatches(partition, null, CharacterStates.toExternal(0), true, ",");
+				if (q != null) {
+					sb.append("MULTI, " + StringUtil.simplifyIfNeededForOutput(data.getName()+"_unassigned", true) + " = " +  q + "\n");
+				}
+			} 
+		} else if (writeCodPosPartition && partByCodPos) {   //by codon position
+			//codon positions if nucleotide
+			CodonPositionsSet codSet = (CodonPositionsSet)data.getCurrentSpecsSet(CodonPositionsSet.class);
+			
+			int numberCharSets = 0;
+			boolean[] include = data.getBooleanArrayOfIncludedAndNotEmpty();
+			if (specifyPartByPartModels && isRAxMLNG) {
+				String[] partNames= new String[4];
+				partNames[0] = "non-coding";
+				partNames[1] = "first positions";
+				partNames[2] = "second positions";
+				partNames[3] = "third positions";
+				String[] rateModels = getRAxMLRateModels(mb, partNames, defaultModel);
+				String q;
+				for (int iw = 0; iw<4; iw++){
+					String locs = codSet.getListOfMatches(iw,0, include, true);
+					if (!StringUtil.blank(locs)) {
+						String charSetName = "";
+						if (iw==0) 
+							charSetName = StringUtil.tokenize("nonCoding");
+						else 
+							charSetName = StringUtil.tokenize("codonPos" + iw);			
+						numberCharSets++;
+						sb.append(rateModels[iw] + ", " + StringUtil.simplifyIfNeededForOutput(data.getName()+"_"+charSetName,true) + " = " +  locs + "\n");
+					}
+				}
+			} else {
+				for (int iw = 0; iw<4; iw++){
+					String locs = codSet.getListOfMatches(iw,0, include, true);
+					if (!StringUtil.blank(locs)) {
+						String charSetName = "";
+						if (iw==0) 
+							charSetName = StringUtil.tokenize("nonCoding");
+						else 
+							charSetName = StringUtil.tokenize("codonPos" + iw);			
+						numberCharSets++;
+						sb.append( localDNAModel + ", " + StringUtil.simplifyIfNeededForOutput(data.getName()+"_"+charSetName,true) + " = " +  locs + "\n");
+					}
+				}
+			}
+			//	String codPos = ((DNAData)data).getCodonsAsNexusCharSets(numberCharSets, charSetList); // equivalent to list
+		}
+
+		return sb.toString();
+	}
+
+	/*.................................................................................................................*/
+
+	public static void readRAxMLInfoFile(MesquiteModule mb, String fileContents, boolean verbose, TreeVector trees, DoubleArray finalValues, DoubleArray optimizedValues) {
+		if (finalValues==null) return;
+		Parser parser = new Parser(fileContents);
+		parser.setAllowComments(false);
+		parser.allowComments = false;
+		int count =0;
+
+		String line = parser.getRawNextDarkLine();
+		if (verbose)
+			mb.logln("\nSummary of RAxML Search");
+
+		while (!StringUtil.blank(line) && count < finalValues.getSize()) {
+			if (line.startsWith("Inference[")) {
+				Parser subParser = new Parser();
+				subParser.setString(line);
+				String token = subParser.getFirstToken();
+				while (!StringUtil.blank(token) && ! subParser.atEnd()){
+					if (token.indexOf("likelihood")>=0) {
+						token = subParser.getNextToken();
+						finalValues.setValue(count,-MesquiteDouble.fromString(token));
+						//	finalScore[count].setValue(finalValues[count]);
+						mb.logln("RAxML Run " + (count+1) + " ln L = -" + finalValues.getValue(count));
+					}
+					token = subParser.getNextToken();
+				}
+				count++;
+			}
+			parser.setAllowComments(false);
+			line = parser.getRawNextDarkLine();
+		}
+		
+		count =0;
+
+		if (optimizedValues!=null) {
+			while (!StringUtil.blank(line) && count < optimizedValues.getSize()) {
+				if (line.startsWith("Inference[")) {
+					Parser subParser = new Parser();
+					subParser.setString(line);
+					String token = subParser.getFirstToken();   // should be "Inference"
+					while (!StringUtil.blank(token) && ! subParser.atEnd()){
+						if (token.indexOf("Likelihood")>=0) {
+							token = subParser.getNextToken(); // :
+							token = subParser.getNextToken(); // -
+							optimizedValues.setValue(count,-MesquiteDouble.fromString(token));
+						}
+						token = subParser.getNextToken();
+					}
+					count++;
+				}
+				parser.setAllowComments(false);
+				line = parser.getRawNextDarkLine();
+			}
+		}
+
+
+		double bestScore =MesquiteDouble.unassigned;
+		int bestRun = MesquiteInteger.unassigned;
+		for (int i=0; i<trees.getNumberOfTrees(); i++) {
+			Tree newTree = trees.getTree(i);
+			if (MesquiteDouble.isCombinable(finalValues.getValue(i))){
+				MesquiteDouble s = new MesquiteDouble(-finalValues.getValue(i));
+				s.setName(RAXMLSCORENAME);
+				((Attachable)newTree).attachIfUniqueName(s);
+			}
+			if (MesquiteDouble.isCombinable(optimizedValues.getValue(i))){
+				MesquiteDouble s = new MesquiteDouble(-optimizedValues.getValue(i));
+				s.setName(RAXMLFINALSCORENAME);
+				((Attachable)newTree).attachIfUniqueName(s);
+			}
+
+			if (MesquiteDouble.isCombinable(finalValues.getValue(i)))
+				if (MesquiteDouble.isUnassigned(bestScore)) {
+					bestScore = finalValues.getValue(i);
+					bestRun = i;
+				}
+				else if (bestScore>finalValues.getValue(i)) {
+					bestScore = finalValues.getValue(i);
+					bestRun = i;
+				}
+		}
+		if (MesquiteInteger.isCombinable(bestRun)) {
+			Tree t = trees.getTree(bestRun);
+
+			String newName = t.getName() + " BEST";
+			if (t instanceof AdjustableTree )
+				((AdjustableTree)t).setName(newName);
+		}
+
+	}
+	
 	/*.................................................................................................................*/
 	public  static Tree readTNTTrees(MesquiteModule module, TreeVector trees, String path, String contents, String treeName, int firstTreeNumber, Taxa taxa, boolean firstTree, boolean onlyLastTree, NameReference valuesAtNodes, TaxonNamer namer) {
 		FileCoordinator coord = module.getFileCoordinator();
@@ -202,7 +426,7 @@ public class ZephyrUtil {
 		MesquiteModule.incrementMenuResetSuppression();
 
 		String translationFile = null;
-		String translationTablePath = MesquiteFile.getDirectoryPathFromFilePath(path)+IOUtil.translationTableFileName;
+		String translationTablePath = MesquiteFile.getDirectoryPathFromFilePath(path)+ TreeUtil.translationTableFileName;
 		translationFile = MesquiteFile.getFileContentsAsString(translationTablePath);
 		if (StringUtil.notEmpty(translationFile)){
 			if (namer==null)

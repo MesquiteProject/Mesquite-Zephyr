@@ -10,6 +10,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 import java.awt.*;
+
 import java.io.*;
 import java.awt.event.*;
 import java.util.*;
@@ -20,7 +21,6 @@ import javax.swing.event.*;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
-import mesquite.io.lib.IOUtil;
 import mesquite.lib.*;
 import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;

@@ -911,23 +911,23 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		CharacterData cData = CharacterData.getData(this,  matrix, taxa);
 		if (!CategoricalData.class.isInstance(cData))	{
 			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " requires categorical data.");
-			MesquiteInteger.setValue(statusResult, TreeSearcher.INCOMPATIBLE_DATA);
+			MesquiteInteger.setValue(statusResult, ResultCodes.INCOMPATIBLE_DATA);
 			return false;
 		}
 		data = (CategoricalData)cData;
 		if (!(requiredClassOfData.isInstance(data))){
 			MesquiteMessage.discreetNotifyUser("Sorry, " + getProgramName() + " works only if given a full "+requiredClassOfData.getName()+" object");
-			MesquiteInteger.setValue(statusResult, TreeSearcher.INCOMPATIBLE_DATA);
+			MesquiteInteger.setValue(statusResult, ResultCodes.INCOMPATIBLE_DATA);
 			return false;
 		}
 
 		if (!initializeJustBeforeQueryOptions()) {
-			MesquiteInteger.setValue(statusResult, TreeSearcher.NULLVALUE);
+			MesquiteInteger.setValue(statusResult, ResultCodes.ERROR);
 			return false;
 		}
 		if (doQueryOptions() && !MesquiteThread.isScripting()) 
 			if (!queryOptions()){
-				MesquiteInteger.setValue(statusResult, TreeSearcher.USERCANCELONINITIALIZE);
+				MesquiteInteger.setValue(statusResult, ResultCodes.USERCANCELONINITIALIZE);
 				return false;
 			}
 		optionsHaveBeenSet = true;
@@ -939,7 +939,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		suppressProjectPanelReset();
 		if (isVerbose()) 
 			logln(getProgramName() + " analysis using data matrix " + data.getName());
-		MesquiteInteger.setValue(statusResult, TreeSearcher.NOERROR);
+		MesquiteInteger.setValue(statusResult, ResultCodes.NO_ERROR);
 		return true;
 	}
 

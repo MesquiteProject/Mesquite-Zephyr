@@ -463,14 +463,14 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	/*.................................................................................................................*/
 	public int fillTreeBlock(TreeVector treeList){
 		if (treeList==null || runner==null || getProject()==null)
-			return NULLVALUE;
+			return ResultCodes.INPUT_NULL;
 		if (getProject().getHomeFile()==null)
-			return NULLVALUE;
+			return ResultCodes.INPUT_NULL;
 		getProject().getHomeFile().setDirtiedByCommand(true);
 		taxa = treeList.getTaxa();
 		if (!initialize(taxa))
-			return USERCANCELONINITIALIZE;
-		MesquiteInteger statusResult = new MesquiteInteger(TreeSearcher.NOERROR);
+			return ResultCodes.USERCANCELONINITIALIZE;
+		MesquiteInteger statusResult = new MesquiteInteger(ResultCodes.NO_ERROR);
 		
 		/*ZQ:
 		 * Trees from Matrices in LoCM/Utilities was cycling with the queryOptions because fillTreeBlock was not returning USERCANCELONINITIALIZE, 

@@ -10,10 +10,11 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.IQTreeScore;
 
 
-import mesquite.io.lib.IOUtil;
+
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
 import mesquite.lib.tree.Tree;
+import mesquite.zephyr.lib.ZephyrUtil;
 
 
 public class IQTreeScore extends NumberForTree {
@@ -35,7 +36,7 @@ public class IQTreeScore extends NumberForTree {
             return;
 	   	clearResultAndLastResult(result);
        if (tree instanceof Attachable){
-        	Object obj = ((Attachable)tree).getAttachment(IOUtil.IQTREESCORENAME);
+        	Object obj = ((Attachable)tree).getAttachment(ZephyrUtil.IQTREESCORENAME);
         	if (obj == null){
         			if (resultString != null)
         				resultString.setValue("No IQ-TREE score is associated with this tree.  To obtain a score, use as tree source \"IQ-TREE Trees\".");

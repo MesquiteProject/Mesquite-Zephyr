@@ -499,7 +499,7 @@ class TreeBlockThread extends FillerThread {
 			Taxa taxa = ownerModule.taxa;
 			if (taxa != null)
 				taxa.incrementEditInhibition();
-			inferenceTask.fillTreeBlock(trees, howManyTrees);
+			int resultCode = inferenceTask.fillTreeBlock(trees, howManyTrees);
 			if (taxa != null)
 				taxa.decrementEditInhibition();
 			MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(false);
@@ -513,8 +513,9 @@ class TreeBlockThread extends FillerThread {
 					//If "Save" had been hit, the storeLatestTree/storeMultipleCurrentTrees will handle showing the saveAndPresentTrees. 
 				}
 				else {
-					if (trees.size()==before) //no trees returned
-						ownerModule.alert("Sorry, no trees were returned by " + inferenceTask.getName());
+					if (trees.size()==before){ //no trees returned
+						ownerModule.alert("Sorry, no trees were returned by " + inferenceTask.getName() + " [error code " + resultCode + "]");
+					}
 					else {
 						trees.addToFile(file, ownerModule.getProject(), (TreesManager)ownerModule.findElementManager(TreeVector.class));
 						okToSave = true; 

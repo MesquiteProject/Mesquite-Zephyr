@@ -10,10 +10,11 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.RAxMLFinalGammaScore;
 
 
-import mesquite.io.lib.IOUtil;
+
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
 import mesquite.lib.tree.Tree;
+import mesquite.zephyr.lib.ZephyrUtil;
 
 
 public class RAxMLFinalGammaScore extends NumberForTree {
@@ -35,7 +36,7 @@ public class RAxMLFinalGammaScore extends NumberForTree {
             return;
 	   	clearResultAndLastResult(result);
        if (tree instanceof Attachable){
-        	Object obj = ((Attachable)tree).getAttachment(IOUtil.RAXMLFINALSCORENAME);
+        	Object obj = ((Attachable)tree).getAttachment(ZephyrUtil.RAXMLFINALSCORENAME);
         	if (obj == null){
         			if (resultString != null)
         				resultString.setValue("No RAxML Final Gamma-based score is associated with this tree.  To obtain a score, use as tree source \"RAxML Trees\".");

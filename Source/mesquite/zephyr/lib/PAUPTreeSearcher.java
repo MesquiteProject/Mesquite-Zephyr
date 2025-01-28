@@ -116,46 +116,7 @@ public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 	}
 
 
-	/*.................................................................................................................*
-	public void fillTreeBlock(TreeVector treeList){
-		if (treeList==null || paupRunner==null)
-			return;
-		taxa = treeList.getTaxa();
-		if (!initialize(taxa)) 
-			return;
-
-
-		if (!queryOptions())
-			return;
-		
-		if (paupRunner!=null)
-			paupRunner.setWriteOnlySelectedTaxa(writeOnlySelectedTaxa);
-		boolean pleaseStorePref = false;
-		if (!preferencesSet)
-			pleaseStorePref = true;
-		if (StringUtil.blank(PAUPPath)) {
-			MesquiteString directoryName = new MesquiteString();
-			MesquiteString fileName = new MesquiteString();
-			PAUPPath = MesquiteFile.openFileDialog("Choose PAUP", directoryName, fileName);
-			if (StringUtil.blank(PAUPPath))
-				return;
-			PAUPPath= directoryName.getValue();
-			if (!PAUPPath.endsWith(MesquiteFile.fileSeparator))
-				PAUPPath+=MesquiteFile.fileSeparator;
-			PAUPPath+=MesquiteFile.fileSeparator+fileName.getValue();
-			pleaseStorePref = true;
-		}
-		if (pleaseStorePref)
-			storePreferences();
-
-		TreeVector trees = getTrees(taxa);
-		treeList.setName(getTreeBlockName());
-		treeList.setAnnotation ("Parameters: "  + getParameters(), false);
-		if (trees!=null)
-			treeList.addElements(trees, false);
-		paupRunner=null;
-	}
-*/
+	
 
 
 }

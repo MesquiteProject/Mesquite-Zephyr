@@ -11,7 +11,7 @@ package mesquite.zephyr.lib;
 
 import java.util.*;
 
-import mesquite.io.lib.IOUtil;
+
 import mesquite.lib.*;
 import mesquite.lib.analysis.ParsimonyAnalysis;
 import mesquite.lib.characters.*;
