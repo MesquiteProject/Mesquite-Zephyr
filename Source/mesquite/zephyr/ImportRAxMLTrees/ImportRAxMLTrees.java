@@ -71,7 +71,7 @@ public class ImportRAxMLTrees extends InterpretPhylipTrees {
 			if (treeFile.openReading()) {
 
 				MesquiteMessage.println("Reading file " + treeFile.getName());
-				TreeVector newTrees = TreeUtil.readNewickTreeFile(treeFile, null, taxa, enlargeTaxaBlock, taxonNamer,getTreeNameBase());
+				TreeVector newTrees = TreeUtil.readNewickTreeFile(treeFile, null, taxa, enlargeTaxaBlock, taxonNamer, null, getTreeNameBase());
 				trees.addElements(newTrees, false);
 				if (trees != null && count==0){
 					trees.setName("RAxML Trees");
