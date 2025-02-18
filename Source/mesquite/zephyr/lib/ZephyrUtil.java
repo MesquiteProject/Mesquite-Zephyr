@@ -986,13 +986,13 @@ public class ZephyrUtil {
 		}
 	
 		commands += "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
-		commands += "setTreeDrawer  #mesquite.trees.SquareLineTree.SquareLineTree; tell It; orientRight; showEdgeLines off; ";
+		commands += "setTreeDrawer  #mesquite.trees.SquareLineTree.SquareLineTree; tell It; showEdgeLines off; ";
 		
 		
-		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;";
+		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;  tell It; orientRight; ";
 		if (!isBootstrap && branchLengthsProportional)
-			commands += " tell It; branchLengthsToggle on; endTell; ";
-		commands += " setEdgeWidth 3; endTell; ";  // endTell is for SquareLineTree
+			commands += " branchLengthsToggle on; ";
+		commands += " endTell; setEdgeWidth 3; endTell; ";  // endTell is for SquareLineTree
 		if (isBootstrap){
 			commands += "labelBranchLengths off;";
 		}

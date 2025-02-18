@@ -116,15 +116,30 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	TWindowMaker tWindowMaker;//Debugg.println this should be fired after the run
 	BasicTreeConsenser majRulesConsenser; //Debugg.println this should be fired after the run
 	int repsInConsensus = 0;
-	
+
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 	void prepareConsensusWindow() {
+		MesquiteWindow w;
 		if (tWindowMaker == null) {
 			tWindowMaker = (TWindowMaker)hireNamedEmployee(TWindowMaker.class, "#ObedientTreeWindow");
 			if (tWindowMaker == null)
 				return;
+			w = tWindowMaker.getModuleWindow();
+			String commands = "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
+			commands += "setTreeDrawer  #mesquite.trees.SquareLineTree.SquareLineTree; tell It; showEdgeLines off; ";
+			commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;  tell It; orientRight; inhibitStretchToggle off; branchLengthsDisplay 0; ";
+			commands += " endTell; setEdgeWidth 3; endTell; endTell;";  
+			commands += "getEmployee #DrawQuickAssociateOnTree;\ntell It; showAssociate consensusFrequency 2; endTell;";
+			CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
+			CommandRecord scr = new CommandRecord(true); //this sets as scriptiong just to tell consenser not to ask about options
+			MesquiteThread.setCurrentCommandRecord(scr);
+			Puppeteer p = new Puppeteer(this);
+			p.execute(tWindowMaker, commands, new MesquiteInteger(0), "end;", false);
+			MesquiteThread.setCurrentCommandRecord(oldCR);
 		}
-		MesquiteWindow w = tWindowMaker.getModuleWindow();
+		else
+			w = tWindowMaker.getModuleWindow();
+
 
 		if (w != null && w instanceof SimpleTreeWindow) 
 			((SimpleTreeWindow)w).setWindowTitle("Consensus tree from Inference in Progress");
@@ -436,7 +451,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 				if (sF.getState()) {
 					FileCoordinator fc = getFileCoordinator();
 					fc.saveAllFiles();
-					}
+				}
 				else //here file is dirty, user asked not to save, so hope file should be flagged as quit despite dirtiness
 					getProject().setIgnoreDirtWhenCloseRequested(true);  
 
@@ -837,18 +852,18 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		else if (checker.compare(this.getClass(), "returns the window maker", "null", commandName, "getIntermTreeWindowMaker")) {
 			if (this instanceof RemoteProcessCommunicator) { //for some reason when remote, the window doesn's thow properly if not made here
 				if (tWindowMaker == null) 
-				tWindowMaker = (TWindowMaker)hireNamedEmployee(TWindowMaker.class, "#ObedientTreeWindow");
-			if (tWindowMaker != null) {
-				MesquiteWindow w = tWindowMaker.getModuleWindow();
-				if (w != null && w instanceof SimpleTreeWindow) {
-					((SimpleTreeWindow)w).setWindowTitle("Inference in Progress: Consensus Tree");
-					tWindowMaker.setWindowVisible(false);
-			}
-			}
-			return tWindowMaker; }
+					tWindowMaker = (TWindowMaker)hireNamedEmployee(TWindowMaker.class, "#ObedientTreeWindow");
+				if (tWindowMaker != null) {
+					MesquiteWindow w = tWindowMaker.getModuleWindow();
+					if (w != null && w instanceof SimpleTreeWindow) {
+						((SimpleTreeWindow)w).setWindowTitle("Inference in Progress: Consensus Tree");
+						tWindowMaker.setWindowVisible(false);
+					}
+				}
+				return tWindowMaker; }
 			else
 				return new MesquiteCommandAbsorber();
-				
+
 		}
 		else if (checker.compare(this.getClass(), "Nonfunctional ; eats up consenser", "null", commandName, "majRulesConsenser")) {
 			return new MesquiteCommandAbsorber();
