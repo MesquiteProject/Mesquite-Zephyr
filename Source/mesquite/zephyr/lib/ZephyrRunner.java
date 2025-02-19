@@ -1067,7 +1067,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	/*.................................................................................................................*/
 	public boolean runVersionQueryOnExternalProcess (String programCommand, Object arguments, String versionFileName) {  // TODO:  need to override, temporarily,  StdOutFilename, as that's were it will go
-		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, null, null, -1);
+		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, null, null, null, -1);
 		if (!success){
 			if (!beanWritten)
 				postBean("failed, externalProcRunner.runVersionQueryOnExternalProcess | "+externalProcRunner.getDefaultProgramLocation());
@@ -1081,11 +1081,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	}
 	/*.................................................................................................................*/
-	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String[] fileContents, String[] fileNames, String progTitle, int runInfoFileNumber) {
+	public boolean runProgramOnExternalProcess (String programCommand, Object arguments, String presetDirectory, String[] fileContents, String[] fileNames, String progTitle, int runInfoFileNumber) {
 		runInProgress=true;
 
 		/*  ============ SETTING UP THE RUN ============  */
-		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, fileContents, fileNames, runInfoFileNumber);
+		boolean success  = externalProcRunner.setProgramArgumentsAndInputFiles(programCommand,arguments, presetDirectory, fileContents, fileNames, runInfoFileNumber);
 		if (!success){
 			// give message about failure
 			if (!beanWritten)

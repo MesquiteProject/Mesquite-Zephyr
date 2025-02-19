@@ -179,6 +179,14 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		return localRootDir!=null; 
 	}
 	/*.................................................................................................................*/
+	public boolean setRootDirectory(String presetDirectory) {
+		if (StringUtil.notEmpty(presetDirectory))
+			localRootDir= presetDirectory;
+		else if (StringUtil.blank(localRootDir)) 
+			localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		return localRootDir!=null; 
+	}
+	/*.................................................................................................................*/
 	public void setRootDir(String localRootDir) {
 		this.localRootDir = localRootDir;
 	}
@@ -204,7 +212,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 
 	// the actual data & scripts.  
 	public abstract boolean setPreflightInputFiles(String script);
-	public abstract boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames, int runInfoFileNumber);  //assumes for now that all input files are in the same directory
+	public abstract boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String presetDirectory, String[] fileContents, String[] fileNames, int runInfoFileNumber);  //assumes for now that all input files are in the same directory
 	public abstract void setOutputFileNamesToWatch(String[] fileNames);
 	public abstract void setOutputFileNameToWatch(int index, String fileName);
 	public abstract String getOutputFilePath(String fileName);

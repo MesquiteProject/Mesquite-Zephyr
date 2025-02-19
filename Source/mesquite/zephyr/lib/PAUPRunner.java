@@ -403,7 +403,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, null, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
 
 		if (!isDoomed()){
 			if (success){

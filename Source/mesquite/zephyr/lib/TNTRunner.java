@@ -815,7 +815,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		int runInformationFileNumber = 3;
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(),runInformationFileNumber);
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, null, fileContents, fileNames,  ownerModule.getName(),runInformationFileNumber);
 
 		MesquiteFile.deleteDirectory(tempDir);  //delete directory in Support Files
 

@@ -258,7 +258,7 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 	
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
-	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames, int runInfoFileNumber){  //assumes for now that all input files are in the same directory
+	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String presetDirectory, String[] fileContents, String[] fileNames, int runInfoFileNumber){  //assumes for now that all input files are in the same directory
 		executableRemoteName= programCommand;
 		if (!(arguments instanceof MultipartEntityBuilder))
 			return false;

@@ -947,7 +947,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		 */
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), RUNINFORMATIONFILENUMBER);
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, null, fileContents, fileNames,  ownerModule.getName(), RUNINFORMATIONFILENUMBER);
 
 		MesquiteFile.deleteDirectory(tempDir);
 		if (!isDoomed()){  // not Doomed - i.e., file/modulee not being closed
