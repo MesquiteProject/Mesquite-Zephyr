@@ -162,6 +162,9 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		if (usingBuiltInApp) {
 			threadingRadioButtons.disableRadioButtons();
 			pthreadsLabel.setEnabled(false);
+			//QZ1 The point of this was that if an app is being used, then we have to overrule what the dialog is set as, and force it to
+			// match that of the app.  Did you see a problem with this?
+			
 			//ZQ I deleted the following resetting of the radio button values, becuase it used the module's memory, 
 			//NOT what the dialog currently was set as. 
 		/*	
