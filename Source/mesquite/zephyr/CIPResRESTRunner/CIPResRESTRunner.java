@@ -86,9 +86,6 @@ public class CIPResRESTRunner extends ExternalProcessRunner implements OutputFil
 		return false;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
 
 	public  boolean isWindows() {
 		return false;

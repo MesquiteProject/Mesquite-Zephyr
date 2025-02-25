@@ -54,10 +54,6 @@ public abstract class IQTreeTrees extends ZephyrTreeSearcher implements Likeliho
 		return false;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return true;
 	}

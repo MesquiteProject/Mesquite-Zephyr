@@ -53,6 +53,8 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		runner.setUpdateWindow(true);
 		return true;
 	}
+	
+	
 	/*.................................................................................................................*/
 	 public void setMatrixSource(MatrixSourceCoord msource) {
 		 super.setMatrixSource(msource);
@@ -328,10 +330,6 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
 		return false;
-	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
 	}
 	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){

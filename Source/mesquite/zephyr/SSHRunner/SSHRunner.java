@@ -101,9 +101,6 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Proc
 		return false;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
 
 	public  boolean isWindows() {
 		if (sshServerProfile==null)

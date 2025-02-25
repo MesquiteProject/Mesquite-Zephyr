@@ -156,10 +156,6 @@ public abstract class ZephyrNumberForTree extends NumberForTree implements Recon
 		return false;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return true;
 	}

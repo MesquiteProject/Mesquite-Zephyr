@@ -170,10 +170,6 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		return true;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-
 	public  boolean isWindows() {
 		return MesquiteTrunk.isWindows();
 	}

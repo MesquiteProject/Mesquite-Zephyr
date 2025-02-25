@@ -29,5 +29,8 @@ public class IQTreeTreesLocal extends IQTreeTrees {
 		 return "Local";
 	}
 
+		public boolean requestPrimaryChoice(){
+			return true;
+		}
 
 }

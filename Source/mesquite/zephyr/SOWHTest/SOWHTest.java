@@ -196,11 +196,6 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		return false;
 	}
 	/*.................................................................................................................*/
-	/** returns whether this module is requesting to appear as a primary choice */
-	public boolean requestPrimaryChoice(){
-		return true;  
-	}
-	/*.................................................................................................................*/
 	/*.................................................................................................................*/
 	public void windowGoAway(MesquiteWindow whichWindow) {
 		if (whichWindow == null)

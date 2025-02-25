@@ -48,10 +48,6 @@ public abstract class RAxMLTreesOrig extends RAxMLTrees {
 		return false;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return true;
 	}

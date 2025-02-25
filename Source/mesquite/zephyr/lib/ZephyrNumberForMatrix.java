@@ -136,10 +136,6 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 		return true;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return false;
 	}

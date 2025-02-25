@@ -145,10 +145,6 @@ public class OptimalTreeScoreForMatrix extends NumberForMatrix implements Reconn
 		return true;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return false;
 	}

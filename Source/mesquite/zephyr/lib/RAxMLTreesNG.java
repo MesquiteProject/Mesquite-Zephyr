@@ -49,10 +49,6 @@ public abstract class RAxMLTreesNG extends RAxMLTrees {
 			return false;
 		}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return true;
 	}

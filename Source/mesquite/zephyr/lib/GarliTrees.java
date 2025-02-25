@@ -52,10 +52,6 @@ public abstract class GarliTrees extends ZephyrTreeSearcher implements Likelihoo
 		return false;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return true;
 	}

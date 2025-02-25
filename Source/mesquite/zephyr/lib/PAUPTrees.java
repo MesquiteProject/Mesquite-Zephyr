@@ -44,11 +44,6 @@ public abstract class PAUPTrees extends ZephyrTreeSearcher  {
 		return true;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	
-	/*.................................................................................................................*/
 	public boolean showBranchLengthsProportional(boolean bootstrap, boolean finalTree){
 		return !bootstrap && finalTree;
 	}

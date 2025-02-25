@@ -23,6 +23,9 @@ public class RAxMLTreesLocalNG extends RAxMLTreesNG {
 	public Class getRunnerClass() {
 		return RAxMLRunnerLocalNG.class;
 	}
+	public boolean requestPrimaryChoice(){
+		return true;
+	}
 
 	/*.................................................................................................................*/
 	 public String getProgramLocation(){

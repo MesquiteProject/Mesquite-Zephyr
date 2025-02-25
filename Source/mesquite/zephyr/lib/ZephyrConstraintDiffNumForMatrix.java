@@ -38,10 +38,6 @@ public abstract class ZephyrConstraintDiffNumForMatrix extends ZephyrNumberForMa
 		return true;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	/*.................................................................................................................*/
 
 	public void calculateNumber(MCharactersDistribution data, MesquiteNumber result, MesquiteString resultString) {
 		if (taxa==null) 

@@ -24,6 +24,9 @@ public class RAxMLTreesLocalOrig extends RAxMLTreesOrig {
 		return RAxMLRunnerLocalOrig.class;
 	}
 
+	public boolean requestPrimaryChoice(){
+		return true;
+	}
 	/*.................................................................................................................*/
 	 public String getProgramLocation(){
 		 return "Local";
