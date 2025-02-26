@@ -45,10 +45,7 @@ public abstract class PAUPSVDTrees extends ZephyrTreeSearcher implements Invaria
 	 public boolean isPrerelease(){
 		return false;
 	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
+
 	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return false;

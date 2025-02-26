@@ -58,10 +58,7 @@ public abstract class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAn
 	 public boolean isPrerelease(){
 		return false;
 	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
+	
 	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return true;
