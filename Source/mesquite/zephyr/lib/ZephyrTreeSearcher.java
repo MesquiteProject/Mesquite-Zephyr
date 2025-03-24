@@ -356,6 +356,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (trees !=null) {
 			trees.setName(getTreeBlockName(false));
 			trees.setAnnotation (runner.getSearchDetails(), false);
+			stampTreesWithMatrixSource(trees, observedStates.getParentData());
 		}
 		return trees;
 	}
@@ -392,10 +393,19 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 				bestScore = finalScores.getValue();
 			}
 			treeBlockID = trees.getID();
+			stampTreesWithMatrixSource(trees, observedStates.getParentData());
 		}
 		return trees;
 	}
-
+	/*.................................................................................................................*/
+	public void stampTreesWithMatrixSource(TreeVector trees, CharacterData data){
+		if (data != null && trees != null){
+			for (int i = 0; i<trees.size(); i++){
+				MesquiteTree tree = (MesquiteTree)trees.getTree(i);
+				tree.attach(new MesquiteString("fromMatrix", data.getName()));
+			}
+		}
+	}
 	/*.................................................................................................................*/
 	public String getMethodNameForMenu() {
 		return "";

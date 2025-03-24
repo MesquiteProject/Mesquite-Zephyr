@@ -127,8 +127,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			w = tWindowMaker.getModuleWindow();
 			String commands = "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";
 			commands += "setTreeDrawer  #mesquite.trees.SquareLineTree.SquareLineTree; tell It; showEdgeLines off; ";
-			commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;  tell It; orientRight; inhibitStretchToggle off; branchLengthsDisplay 0; ";
-			commands += " endTell; setEdgeWidth 3; endTell; endTell;";  
+			commands +=	 "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;  tell It; orientRight; inhibitStretchToggle off; branchLengthsDisplay 0;  endTell; ";
+			commands += "setEdgeWidth 3; endTell;";  
+			commands += "getEmployee #mesquite.trees.BasicDrawTaxonNames.BasicDrawTaxonNames; tell It; setTaxonNameStyler  #mesquite.trees.ColorTaxonByPartition.ColorTaxonByPartition; endTell; ";		
+			commands += " endTell;";  
+			commands += "getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell;";
 			commands += "getEmployee #DrawQuickAssociateOnTree;\ntell It; showAssociate consensusFrequency 2; endTell;";
 			CommandRecord oldCR = MesquiteThread.getCurrentCommandRecord();
 			CommandRecord scr = new CommandRecord(true); //this sets as scriptiong just to tell consenser not to ask about options
