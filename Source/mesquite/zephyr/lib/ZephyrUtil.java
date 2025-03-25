@@ -1002,10 +1002,10 @@ public class ZephyrUtil {
 		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
 //QZ Debugg.println shift to new system; 
 		if (isBootstrap){
-			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocDoubles.DrawTreeAssocDoubles; tell It; setOn on; setDigits 0; writeAsPercentage on; toggleWhiteEdges off; setOffset 0  9; endTell; endTell; ";
+			commands += "getOwnerModule; tell It; getEmployee #NodePropertyDisplayControl; tell It; showAssociate consensusFrequency; endTell; endTell; ";
 		}		
 		if (nodeValuesAsText){
-			commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.DrawTreeAssocStrings.DrawTreeAssocStrings; tell It; setOn on; toggleShow " + nodeValueNameRef+ "; setOffset 0  9; endTell; endTell; ";
+			commands += "getOwnerModule; tell It; getEmployee #NodePropertyDisplayControl; tell It; showAssociate  " + nodeValueNameRef+ "; endTell; endTell; ";
 		
 		}		
 
