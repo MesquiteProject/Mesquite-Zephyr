@@ -797,10 +797,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean initializeTaxa (Taxa taxa) {
 		Taxa currentTaxa = this.taxa;
 		this.taxa = taxa;
-		if (taxa!=currentTaxa && taxa!=null) {
+	/*	if (taxa!=currentTaxa && taxa!=null) {
 			if (!MesquiteThread.isScripting() && !queryTaxaOptions(taxa))
 				return false;
 		}
+		*/
 		return initalizeTaxonNamer(taxa);
 	}
 
@@ -1193,8 +1194,44 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 		return null;
 	}	
-
+	Choice taxonSetChoice;
+	Checkbox specifyOutgroupBox;
+	Checkbox selectedOnlyBox;
 	/*.................................................................................................................*/
+	public void addTaxaOptions(ExtensibleDialog dialog, Taxa taxa) {
+		taxonSetChoice = null;
+		 specifyOutgroupBox = null;
+		if (taxa==null)
+			return;
+		SpecsSetVector ssv  = taxa.getSpecSetsVector(TaxaSelectionSet.class);
+		if (!taxa.anySelected())
+			if (ssv==null || ssv.size()<=0)
+				return;
+		if (ssv!=null && ssv.size()>0){
+			taxonSetChoice = dialog.addPopUpMenu ("Outgroups: ", ssv, 0);
+			specifyOutgroupBox = dialog.addCheckBox("specify outgroup", false);
+		}
+		 selectedOnlyBox = null;
+		if (taxa.anySelected())
+			selectedOnlyBox = dialog.addCheckBox("selected taxa only", selectedTaxaOnly);
+		else
+			selectedTaxaOnly = false;
+
+	}
+	/*.................................................................................................................*/
+	public void processTaxaOptions() {
+		boolean specifyOutgroup = false;
+		if (specifyOutgroupBox!=null) 
+			specifyOutgroup = specifyOutgroupBox.getState();
+		if (taxonSetChoice !=null) 
+			outgroupTaxSetString = taxonSetChoice.getSelectedItem();
+		if (!specifyOutgroup)
+			outgroupTaxSetString="";
+		if (selectedOnlyBox!=null)
+			selectedTaxaOnly = selectedOnlyBox.getState();
+	}
+
+	/*.................................................................................................................*
 	public boolean queryTaxaOptions(Taxa taxa) {
 		if (taxa==null)
 			return true;
@@ -1207,38 +1244,17 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(), getProgramName()+" Taxon Options",buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 		dialog.addLabel(getProgramName()+" Taxon Options");
 
-		boolean specifyOutgroup = false;
-
-		Choice taxonSetChoice = null;
-		Checkbox specifyOutgroupBox = null;
-
-		if (ssv!=null && ssv.size()>0){
-			taxonSetChoice = dialog.addPopUpMenu ("Outgroups: ", ssv, 0);
-			specifyOutgroupBox = dialog.addCheckBox("specify outgroup", specifyOutgroup);
-		}
-
-		Checkbox selectedOnlyBox = null;
-
-		if (taxa.anySelected())
-			selectedOnlyBox = dialog.addCheckBox("selected taxa only", selectedTaxaOnly);
-		else
-			selectedTaxaOnly = false;
+		addTaxaOptions(dialog, taxa);
 
 
 		dialog.completeAndShowDialog(true);
 		if (buttonPressed.getValue()==0)  {
-			if (specifyOutgroupBox!=null) 
-				specifyOutgroup = specifyOutgroupBox.getState();
-			if (taxonSetChoice !=null) 
-				outgroupTaxSetString = taxonSetChoice.getSelectedItem();
-			if (!specifyOutgroup)
-				outgroupTaxSetString="";
-			if (selectedOnlyBox!=null)
-				selectedTaxaOnly = selectedOnlyBox.getState();
+			processTaxaOptions();
 		}
 		dialog.dispose();
 		return (buttonPressed.getValue()==0);
 	}
+	/*.................................................................................................................*/
 
 	public void runFilesAvailable(int fileNum) {
 	}

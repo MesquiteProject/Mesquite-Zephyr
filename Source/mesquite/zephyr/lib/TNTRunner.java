@@ -487,6 +487,9 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		useDefaultsButton = queryOptionsDialog.addAListenedButton("Set to Defaults", null, this);
 		useDefaultsButton.setActionCommand("setToDefaults");
 
+		tabbedPanel.addPanel("Taxa & Outgroups", true);
+		addTaxaOptions(queryOptionsDialog,taxa);
+
 		tabbedPanel.addPanel("Other Options", true);
 		convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
 		queryOptionsDialog.addHorizontalLine(1);
@@ -522,6 +525,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 				otherOptions = otherOptionsField.getText();
 				preLogReadOptions = preLogReadOptionsField.getText();
 				convertGapsToMissing = convertGapsBox.getState();
+				processTaxaOptions();
 				parallel = parallelCheckBox.getState();
 				//				doBootstrap = doBootstrapBox.getState();
 				searchArguments = searchField.getText();
