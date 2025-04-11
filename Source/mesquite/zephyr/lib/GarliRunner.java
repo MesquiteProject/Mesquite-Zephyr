@@ -815,6 +815,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		rateHetChoice = dialog.addPopUpMenu("Gamma Site-to-Site Rate Model",new String[] { "none", "Estimate Shape Parameter" }, 1);
 		numRateCatField = dialog.addIntegerField("Number of Rate Categories for Gamma", numratecats, 4, 1, 20);
 
+		tabbedPanel.addPanel("Taxa & Outgroups", true);
+		addTaxaOptions(dialog,taxa);
+
 
 		tabbedPanel.addPanel("Other options", true);
 		Checkbox showConfigDetailsBox = dialog.addCheckBox("show config file",
@@ -849,6 +852,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				// garliOptions = garliOptionsField.getText();
 
 				processCharacterModels();
+				processTaxaOptions();
 
 				storeRunnerPreferences();
 				acceptableOptions=true;

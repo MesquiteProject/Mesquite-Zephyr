@@ -458,6 +458,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		/*		dialog.addHorizontalLine(1);
 		MPISetupField = dialog.addTextField("MPI setup command: ", MPIsetupCommand, 20);
 		 */
+		tabbedPanel.addPanel("Taxa & Outgroups", true);
+		addTaxaOptions(dialog,taxa);
+
 
 		if (getConstrainedSearchAllowed())
 			tabbedPanel.addPanel("Constraints & Other options", true);
@@ -496,6 +499,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				substitutionModel = substitutionModelField.getText();
 				partitionLinkage = partitionLinkageChoice.getSelectedIndex();
 				numSearchRuns = numSearchRunsField.getValue();
+				processTaxaOptions();
 				if (bootstrapAllowed) {
 					searchStyle = searchStyleButtons.getValue();
 					randomIntSeed = seedField.getValue();

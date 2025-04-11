@@ -453,6 +453,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		MPISetupField = dialog.addTextField("MPI setup command: ", MPIsetupCommand, 20);
 		 */
 
+		tabbedPanel.addPanel("Taxa & Outgroups", true);
+		addTaxaOptions(dialog,taxa);
+		
+		
 		tabbedPanel.addPanel("Other options", true);
 		if (!isRAxMLNG())
 			nobfgsCheckBox = dialog.addCheckBox("no bfgs option", nobfgs);
@@ -504,6 +508,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 					if (useConstraintTree!=NOCONSTRAINT)
 						setConstrainedSearch(true);
 				}
+				processTaxaOptions();
 				otherOptions = otherOptionsField.getText();
 				processRunnerOptions();
 				processExtraBootstrapOptions();

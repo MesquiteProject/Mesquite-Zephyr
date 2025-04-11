@@ -748,6 +748,11 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Monophyly", "Backbone"}, useConstraintTree);
 			constraintButtons.addItemListener(this);
 		}
+		
+		
+		tabbedPanel.addPanel("Taxa & Outgroups", true);
+		addTaxaOptions(dialog,taxa);
+
 
 		//TextArea PAUPOptionsField = queryFilesDialog.addTextArea(PAUPOptions, 20);
 		tabbedPanel.cleanup();
@@ -764,6 +769,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 				else
 					setConstrainedSearch(false);
 			}
+			processTaxaOptions();
 			if (externalProcRunner.optionsChosen() && infererOK) {
 				queryOptionsProcess(dialog);
 				//				writeOnlySelectedTaxa = selectedOnlyBox.getState();
