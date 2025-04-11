@@ -991,7 +991,7 @@ public class ZephyrUtil {
 		
 		commands += "setNodeLocs #mesquite.trees.NodeLocsStandard.NodeLocsStandard;  tell It; orientRight; ";
 		if (!isBootstrap && branchLengthsProportional)
-			commands += " branchLengthsToggle on; ";
+			commands += " branchLengthsDisplay 1; ";
 		commands += " endTell; setEdgeWidth 3; endTell; ";  // endTell is for SquareLineTree
 		if (isBootstrap){
 			commands += "labelBranchLengths off;";
