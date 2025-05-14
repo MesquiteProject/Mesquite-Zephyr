@@ -905,6 +905,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		//	String preflightCommand = externalProcRunner.getExecutableCommand()+" --flag-check " + ((MesquiteString)preflightArguments).getValue();
 		String programCommand = externalProcRunner.getExecutableCommand();
 		//programCommand += StringUtil.lineEnding();  
+		if (externalProcRunner instanceof ScriptRunner){
+			String path =((ScriptRunner)externalProcRunner).getExecutablePath();	
+			if (path != null)
+				logln("Running RAxML version at " + path);
+		}
 
 		//	if (preFlightSuccessful(preflightCommand)) {
 		//	}
