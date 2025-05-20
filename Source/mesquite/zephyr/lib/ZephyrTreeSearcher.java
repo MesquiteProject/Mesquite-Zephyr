@@ -487,7 +487,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		 * */
 		//DISCONNECTABLE
 		TreeVector trees = getTrees(taxa, statusResult);
-		
+
 		if (trees == null)
 			return statusResult.getValue();
 		treeList.setName(trees.getName());

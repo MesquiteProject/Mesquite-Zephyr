@@ -984,13 +984,16 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return success;
 	}
 	/*.................................................................................................................*/
-	protected void reportStdError() {
+	protected void reportStdError(MesquiteInteger statusResult) {
 		if (externalProcRunner==null)
 			return;
 		String s = externalProcRunner.getStdErr();
 		if (stdErrIsTrueError(s)){
 			logln("\n*** ERROR REPORTED ***  \n");
 			logln(s + "\n");
+		}
+		if (statusResult!= null){
+		statusResult.setValue(ResultCodes.ERROR);  //Debugg.println -- give more informative error
 		}
 	}
 	/*.................................................................................................................*/

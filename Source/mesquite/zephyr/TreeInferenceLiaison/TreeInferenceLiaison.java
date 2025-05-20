@@ -322,11 +322,11 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			//int whichTreeBlock = manager.getTreeBlockNumber(taxa, trees);
 			long treeBlockID =  trees.getID();
 			String extraWindowCommands = fillTask.getExtraTreeWindowCommands(true, treeBlockID);
-			if (StringUtil.blank(extraWindowCommands))
+			if (StringUtil.blank(extraWindowCommands))  
 				extraWindowCommands="";
 			String commands = "makeTreeWindow " + getProject().getTaxaReferenceInternal(taxa) + "  #BasicTreeWindowMaker; tell It; setTreeSource  #StoredTrees;";  
 
-			commands += " tell It; setTaxa " + getProject().getTaxaReferenceInternal(taxa) + " ;  setTreeBlockByID " + treeBlockID + "; endTell;  getWindow; tell It; setSize 400 300; " + extraWindowCommands + " setTreeNumber 1;  endTell; showWindowForce; endTell; ";
+			commands += " tell It; setTaxa " + getProject().getTaxaReferenceInternal(taxa) + " ;  setTreeBlockByID " + treeBlockID + "; endTell;  getWindow; tell It; setSize 400 300; " + extraWindowCommands + " setTreeNumber 1; endTell; showWindowForce; endTell; ";
 			if (MesquiteTrunk.debugMode)
 				logln(commands);
 			MesquiteInteger pos = new MesquiteInteger(0);

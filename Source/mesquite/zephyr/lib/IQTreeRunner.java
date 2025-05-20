@@ -972,7 +972,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				desuppressProjectPanelReset();
 				return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 			} else {
-				reportStdError();
+				reportStdError(statusResult);
 			}
 		}
 		desuppressProjectPanelReset();
@@ -1410,7 +1410,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			beanWritten=true;
 			return t;
 		}
-		reportStdError();
+		reportStdError(null);
 		if (!beanWritten)
 			postBean("failed, retrieveTreeBlock | "+externalProcRunner.getDefaultProgramLocation());
 		beanWritten = true;

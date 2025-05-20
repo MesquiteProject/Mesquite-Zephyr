@@ -833,6 +833,8 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 				desuppressProjectPanelReset();
 				return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 			} else {
+				if (statusResult != null)
+				statusResult.setValue(ResultCodes.ERROR);
 				if (!beanWritten)
 					postBean("unsuccessful [1] | "+externalProcRunner.getDefaultProgramLocation());
 				beanWritten=true;

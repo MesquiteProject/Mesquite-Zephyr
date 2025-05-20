@@ -414,8 +414,9 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			if (success){
 				desuppressProjectPanelReset();
 				return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
-			} else
-				reportStdError();
+			} else {
+				reportStdError(statusResult);
+			}
 			if (!beanWritten)
 				postBean("unsuccessful [1] | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
@@ -444,7 +445,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		String treeFilePath = outputFilePaths[OUT_TREEFILE];
 		if (!MesquiteFile.fileExists(treeFilePath)) {
 			logln("PAUP tree file not found");
-			reportStdError();
+			reportStdError(null);
 			if (!beanWritten)
 				postBean("failed - no tree file found | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
@@ -518,7 +519,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			beanWritten=true;
 			return t;
 		} else {
-			reportStdError();
+			reportStdError(null);
 			if (!beanWritten)
 				postBean("failed | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;

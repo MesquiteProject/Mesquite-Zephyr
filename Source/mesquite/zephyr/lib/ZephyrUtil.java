@@ -980,9 +980,10 @@ public class ZephyrUtil {
 	public static String getStandardExtraTreeWindowCommands (boolean doMajRule, boolean isBootstrap, boolean nodeValuesAsText, String nodeValueNameRef, long treeBlockID, boolean branchLengthsProportional){
 		String commands = "";//"setSize 400 600;  ";
 		if (doMajRule){  //DAVIDCHECK:  Temporary tree window can't handle this doMajRule, so an error is given when file reread.
-			commands += "getOwnerModule; tell It; setTreeSource  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";  
+			commands += "getOwnerModule; tell It; setTreeSourceSuppressed  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";  
 			commands += " setTreeBlockByID " + treeBlockID + ";";
-			commands += " toggleUseWeights off; endTell; setConsenser  #mesquite.consensus.MajRuleTree.MajRuleTree; endTell; endTell; setTreeNumber 1;";
+			commands += " toggleUseWeights off; endTell; setConsenser  #mesquite.consensus.MajRuleTree.MajRuleTree; endTell;  endTell;   setTreeNumber 1; ";
+			commands += "getOwnerModule; tell It; desuppressTreeSource; endTell;  ";  
 		}
 	
 		commands += "getTreeDrawCoordinator #mesquite.trees.BasicTreeDrawCoordinator.BasicTreeDrawCoordinator;\ntell It; ";

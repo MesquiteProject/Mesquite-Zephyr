@@ -1036,6 +1036,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				desuppressProjectPanelReset();
 				return retrieveTreeBlock(trees, finalScore); // here's where we actually process everything
 			}
+			else
+				if (statusResult != null)
+				statusResult.setValue(ResultCodes.ERROR);
+
 		}
 
 		desuppressProjectPanelReset();
