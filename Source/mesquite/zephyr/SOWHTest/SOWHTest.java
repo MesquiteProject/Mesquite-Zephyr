@@ -29,6 +29,7 @@ import mesquite.lib.ui.AlertDialog;
 import mesquite.lib.ui.ColorDistribution;
 import mesquite.lib.ui.DoubleField;
 import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.MQTextArea;
 import mesquite.lib.ui.MesquiteMenuSpec;
 import mesquite.lib.ui.MesquiteWindow;
 import mesquite.lib.ui.MousePanel;
@@ -805,7 +806,7 @@ class SOWHPanel extends MousePanel{
 	int numRowsInTitle = 3;
 	int titleHeight = 56;
 	int pValueHeight = 30;
-	TextArea text;
+	MQTextArea text;
 	StringBuffer initialText;
 	Font df = new Font("Dialog", Font.BOLD, 14);
 	boolean calculating = false;
@@ -818,7 +819,7 @@ class SOWHPanel extends MousePanel{
 	
 	public SOWHPanel(){
 		super();
-		text = new TextArea(" ", 50, 50, TextArea.SCROLLBARS_VERTICAL_ONLY);
+		text = new MQTextArea(" ", 50, 50, TextArea.SCROLLBARS_VERTICAL_ONLY);
 		setLayout(null);
 		add(text);
 		text.setLocation(0,topOfText);
