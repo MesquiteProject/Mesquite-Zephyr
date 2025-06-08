@@ -42,9 +42,9 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		loadPreferences();
 		if (!(condition instanceof String && ((String)condition).equals("acceptImposedMatrixSource"))) {
 			matrixSourceTask = (MatrixSourceCoord)hireCompatibleEmployee(MatrixSourceCoord.class, getCharacterClass(), "Source of matrix (for " + getName() + ")");
-			matrixSourceTask.setMenuToUse(new MesquiteMenuSpec(null, null, null));
 			if (matrixSourceTask == null)
 				return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
+			matrixSourceTask.setMenuToUse(new MesquiteMenuSpec(null, null, null));
 		}
 		runner = (ZephyrRunner)hireNamedEmployee(getRunnerClass(), getRunnerModuleName());
 		if (runner ==null)
@@ -356,7 +356,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		if (trees !=null) {
 			trees.setName(getTreeBlockName(false));
 			trees.setAnnotation (runner.getSearchDetails(), false);
-			stampTreesWithMatrixSource(trees, observedStates.getParentData());
+		//	stampTreesWithMatrixSource(trees, observedStates.getParentData());
 		}
 		return trees;
 	}
@@ -393,11 +393,11 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 				bestScore = finalScores.getValue();
 			}
 			treeBlockID = trees.getID();
-			stampTreesWithMatrixSource(trees, observedStates.getParentData());
+			//stampTreesWithMatrixSource(trees, observedStates.getParentData());
 		}
 		return trees;
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public void stampTreesWithMatrixSource(TreeVector trees, CharacterData data){
 		if (data != null && trees != null){
 			for (int i = 0; i<trees.size(); i++){
