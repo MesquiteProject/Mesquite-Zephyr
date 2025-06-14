@@ -1106,7 +1106,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		logln("Analysis on: " + externalProcRunner.getProgramLocation());
 
 
-		if (!MesquiteThread.pleaseSuppressProgressIndicatorsCurrentThread())
+		if (!MesquiteThread.getHintToSuppressProgressIndicatorsCurrentThread())
 			progIndicator = new ProgressIndicator(getProject(),progTitle, getProgramName() + " Search", 0, true);
 		if (progIndicator!=null){
 			progIndicator.start();
