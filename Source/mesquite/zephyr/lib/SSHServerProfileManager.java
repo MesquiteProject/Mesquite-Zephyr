@@ -18,7 +18,6 @@ import mesquite.lib.*;
 import mesquite.lib.duties.*;
 import java.awt.*;
 
-/* Modules of this duty class are responsible for being able to supply the sample code and primer name given the chromatogram file name */
 public abstract class SSHServerProfileManager extends MesquiteInit {
 	public Choice choice;
 	protected SSHServerProfile sshServerProfile=null;

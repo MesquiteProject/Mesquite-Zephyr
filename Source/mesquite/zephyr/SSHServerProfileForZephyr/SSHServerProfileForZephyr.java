@@ -26,7 +26,6 @@ import mesquite.lib.*;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.ExtensibleListDialog;
 
-/* This module supplies the sample code and primer name given the chromatogram file name, for chromatogram file names that contain the sample code and primer name directly */
 
 public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 	public ListableVector sshServerProfileVector;
