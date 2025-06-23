@@ -15,13 +15,13 @@ public class SSHUtility extends UtilitiesAssistant {
 	MesquiteString xmlPrefs= new MesquiteString();
 	String xmlPrefsString = null;
 	StringBuffer extraPreferences;
-	SSHServerProfileManager sshServerProfileManager;
+	SSHServerProfileManager sshServerProfileManager;  //ZQ static issue
 
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences(xmlPrefs);
 		if (sshServerProfileManager == null)
-			sshServerProfileManager= (SSHServerProfileManager)MesquiteTrunk.mesquiteTrunk.hireEmployee(SSHServerProfileManager.class, "Supplier of SSH server specifications.");
+			sshServerProfileManager= (SSHServerProfileManager)MesquiteTrunk.mesquiteTrunk.findEmployeeWithDuty(SSHServerProfileManager.class);
 		if (sshServerProfileManager == null) {
 			return false;
 		} 

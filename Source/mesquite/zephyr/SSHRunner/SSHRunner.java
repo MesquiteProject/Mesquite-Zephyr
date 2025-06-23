@@ -28,7 +28,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Proc
 	MesquiteString xmlPrefs= new MesquiteString();
 	String xmlPrefsString = null;
 	StringBuffer extraPreferences;
-	SSHServerProfileManager sshServerProfileManager;
+	SSHServerProfileManager sshServerProfileManager;  //ZQ static issue
 	SSHServerProfile sshServerProfile = null;
 
 	boolean verbose = true;
@@ -40,8 +40,8 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Proc
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		MesquiteModule mm = getEmployer();
 		loadPreferences(xmlPrefs);
-		if (sshServerProfileManager == null)
-			sshServerProfileManager= (SSHServerProfileManager)MesquiteTrunk.mesquiteTrunk.hireEmployee(SSHServerProfileManager.class, "Supplier of SSH server specifications.");
+			sshServerProfileManager= (SSHServerProfileManager)MesquiteTrunk.mesquiteTrunk.findEmployeeWithDuty(SSHServerProfileManager.class);
+
 		if (sshServerProfileManager == null) {
 			return false;
 		} 

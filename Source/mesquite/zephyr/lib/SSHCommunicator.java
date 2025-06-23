@@ -1,6 +1,7 @@
 package mesquite.zephyr.lib;
 
 import mesquite.lib.*;
+
 import mesquite.lib.ui.ProgressIndicator;
 
 import java.io.ByteArrayInputStream;
@@ -62,6 +63,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 			config.put("StrictHostKeyChecking", "no"); //TODO: have options
 			config.put( "PreferredAuthentications", "publickey,keyboard-interactive,password");
 			JSch jsch = new JSch();
+			if (verbose) System.err.println("@#####Connecting to " + host +", user " + sshServerProfile.getUsername());
 			Session session=jsch.getSession(sshServerProfile.getUsername(), host, 22);
 			session.setPassword(sshServerProfile.getPassword());
 			session.setConfig(config);
@@ -70,6 +72,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 				ownerModule.logln("Successfully created session to " + host);
 				ownerModule.logln("    "+sessionsCreated +  " sessions created [" + methodName+"]");
 			}
+			if (verbose) System.err.println("@#####Connected to " + host +", user " + sshServerProfile.getUsername());
 			return session;
 		} catch (Exception e) {
 			ownerModule.logln("WARNING: could not create Session: " + e.getMessage());
@@ -167,17 +170,24 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 	}	
 
 
-
 	public  boolean checkForUniqueRemoteWorkingDirectoryName (String executableName) {
 		boolean connected = false;
 		String proposedName="";
+		verbose = true;
 		try {
+			if (verbose) System.err.println("@###################cFURWDN: 1 " +Thread.currentThread());
 			Session session=createSession("checkForUniqueRemoteWorkingDirectoryName");
+			if (verbose) System.err.println("cFURWDN: 2");
+			
 			session.connect();
+			if (verbose) System.err.println("cFURWDN: 3");
 
 			ChannelSftp channel=(ChannelSftp)session.openChannel("sftp");
+			if (verbose) System.err.println("cFURWDN: 4");
 			channel.connect();
+			if (verbose) System.err.println("cFURWDN: 5");
 			String remoteDir = getRemoteWorkingDirectoryPath();
+			if (verbose) System.err.println("cFURWDN: 6");
 			ownerModule.logln("Checking for remote working directory: " + remoteDir);
 			channel.cd(remoteDir);		
 			ownerModule.logln("[Directory found]\n");

@@ -894,7 +894,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			}
 		}
 
-
+		System.err.println("@ RAxMLRunner.getTrees before setRootNameForDirectoryInProcRunner");
 		setRootNameForDirectoryInProcRunner();
 		//now establish the commands for invoking RAxML
 
@@ -957,8 +957,10 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		 */
 
 		//----------//
+		System.err.println("@ RAxMLRunner.getTrees before runProgramOnExternalProcess");
 		boolean success = runProgramOnExternalProcess (programCommand, arguments, null, fileContents, fileNames,  ownerModule.getName(), RUNINFORMATIONFILENUMBER);
 
+		System.err.println("@ RAxMLRunner.getTrees AFTER runProgramOnExternalProcess " + success);
 		MesquiteFile.deleteDirectory(tempDir);
 		if (!isDoomed()){  // not Doomed - i.e., file/modulee not being closed
 

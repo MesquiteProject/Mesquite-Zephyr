@@ -294,7 +294,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		}
 		//DW: put the burden of the autosave query onto the inferenceTask, and add a method to TreeInferer to ask it if autosave
 		//	MesquiteBoolean autoSave = new MesquiteBoolean(true);
-		inferenceThread = new TreeBlockThread(this, inferenceTask, trees, howManyTrees, file);
+		inferenceThread = new ZephryTreeBlockThread(this, inferenceTask, trees, howManyTrees, file);
 		inferenceThread.start();
 
 	}
@@ -441,14 +441,14 @@ class InferenceLogger implements Logger {
 
 }
 /* ======================================================================== */
-class TreeBlockThread extends FillerThread {
+class ZephryTreeBlockThread extends FillerThread {
 	TreeInferer inferenceTask;
 	TreeVector trees;
 	MesquiteFile file;
 	int howManyTrees;
 	CommandRecord comRec = null;
 	//MesquiteBoolean autoSave = null;
-	public TreeBlockThread (TreeInferenceLiaison ownerModule, TreeInferer fillTask, TreeVector trees, int howManyTrees, MesquiteFile file) {
+	public ZephryTreeBlockThread (TreeInferenceLiaison ownerModule, TreeInferer fillTask, TreeVector trees, int howManyTrees, MesquiteFile file) {
 		super(ownerModule);
 		this.inferenceTask = fillTask;
 		this.trees = trees;
@@ -494,7 +494,9 @@ class TreeBlockThread extends FillerThread {
 			Taxa taxa = ownerModule.taxa;
 			if (taxa != null)
 				taxa.incrementEditInhibition();
+			System.err.println("@ running thread ==========");
 			int resultCode = inferenceTask.fillTreeBlock(trees, howManyTrees);
+			System.err.println(" result " + resultCode);
 			if (taxa != null)
 				taxa.decrementEditInhibition();
 			MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(false);
