@@ -84,8 +84,9 @@ public class SSHServerProfileDialog extends ExtensibleDialog {
 				sshServerProfile = (SSHServerProfile)(sshServerProfileManager.sshServerProfileVector.elementAt(sL));
 			}
 		}
-		if (sshServerProfile==null)
-			sshServerProfile = new SSHServerProfile();  //make default one	}
+		 	if (sshServerProfile==null){ 
+				sshServerProfile = new SSHServerProfile();  //make default one	}
+		 	}
 	}
 
 	public SSHServerProfile getNameParsingRule() {

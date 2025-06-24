@@ -27,6 +27,7 @@ import mesquite.externalCommunication.lib.*;
 public class SSHServerProfile implements Listable, Explainable, UsernamePasswordKeeper {
 
 	public String name = "SSH Server";
+	public boolean isDefault = false; //if true, then can't rename or edit;
 	public String host = "";   
 	static String macOS = "MacOS X";
 	static String linuxOS = "Linux";
@@ -46,7 +47,6 @@ public class SSHServerProfile implements Listable, Explainable, UsernamePassword
 	public static int TNT = 4;
 	public String[] programNames = new String[]{"RAxML", "IQ-TREE", "GARLI", "PAUP*", "TNT"};
 	public String[] programPaths;
-
 	public String RAxMLpath = "";
 	
 	private String password = "";  // for temporary storage
