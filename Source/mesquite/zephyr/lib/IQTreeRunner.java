@@ -424,26 +424,27 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		checkEnabled(searchStyle);
 
 		tabbedPanel.addPanel("Character Models", true);
-		if (!data.hasCharacterGroups()) {
+		
+		
+		if (!data.hasCharacterGroups() && !alwaysAllowAllGroupingOptions()) {
 			if (partitionScheme == partitionByCharacterGroups)
 				partitionScheme = noPartition;
 		}
-		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
+		if (!(data instanceof DNAData && ((DNAData) data).someCoding()) && !alwaysAllowAllGroupingOptions()) {
 			if (partitionScheme == partitionByCodonPosition)
 				partitionScheme = noPartition;
 		}
-		if (data instanceof ProteinData)
+		if (data instanceof ProteinData) {
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups" }, partitionScheme);
-		else
+		}
+		else {
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
-
+			charPartitionButtons.setEnabled(2, (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysAllowAllGroupingOptions());
+		}
+		charPartitionButtons.setEnabled(1, data.hasCharacterGroups() || alwaysAllowAllGroupingOptions());
+		
 		charPartitionButtons.addItemListener(this);
-		if (!data.hasCharacterGroups()) {
-			charPartitionButtons.setEnabled(1, false);
-		}
-		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
-			charPartitionButtons.setEnabled(2, false);
-		}
+
 		partitionLinkageChoice = dialog.addPopUpMenu("Partition linkages", partitionLinkageStrings(), partitionLinkage); 
 
 		dialog.addHorizontalLine(1);

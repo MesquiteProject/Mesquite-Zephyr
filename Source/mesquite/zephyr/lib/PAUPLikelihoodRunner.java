@@ -84,26 +84,26 @@ public abstract class PAUPLikelihoodRunner extends PAUPSearchRunner implements I
 	/*.................................................................................................................*/
 	public void queryExtraPanelsSetup(ExtensibleDialog dialog, MesquiteTabbedPanel tabbedPanel) {
 		tabbedPanel.addPanel("Character Models", true);
-		if (!data.hasCharacterGroups()) {
+		
+		if (!data.hasCharacterGroups() && !alwaysAllowAllGroupingOptions()) {
 			if (partitionScheme == partitionByCharacterGroups)
 				partitionScheme = noPartition;
 		}
-		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
+		if (!(data instanceof DNAData && ((DNAData) data).someCoding()) && !alwaysAllowAllGroupingOptions()) {
 			if (partitionScheme == partitionByCodonPosition)
 				partitionScheme = noPartition;
 		}
-		if (data instanceof ProteinData)
+		if (data instanceof ProteinData) {
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups" }, partitionScheme);
-		else
+		}
+		else {
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
-
+			charPartitionButtons.setEnabled(2, (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysAllowAllGroupingOptions());
+		}
+		charPartitionButtons.setEnabled(1, data.hasCharacterGroups() || alwaysAllowAllGroupingOptions());
+		
+		
 		charPartitionButtons.addItemListener(this);
-		if (!data.hasCharacterGroups()) {
-			charPartitionButtons.setEnabled(1, false);
-		}
-		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
-			charPartitionButtons.setEnabled(2, false);
-		}
 		if (partitionScheme  == noPartition)
 			autoModelsCheckBox = dialog.addCheckBox("Infer best character evolution models", autoModels);
 		else 

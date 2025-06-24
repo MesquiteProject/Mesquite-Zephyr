@@ -333,7 +333,14 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			}
 		return super.getCitation() + addendum;
 	}
+	/*.................................................................................................................*/
+	protected boolean alwaysAllowAllGroupingOptions() {
+		if (treeInferer !=null)
+			return treeInferer.getAlwaysAllowAllGroupingOptions();
+		return true;
+	}
 
+	/*.................................................................................................................*/
 	protected String getHelpString() {
 		//can add more if needed!
 		if (externalProcRunner!= null)

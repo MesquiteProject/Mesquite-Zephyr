@@ -767,26 +767,24 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 
 		tabbedPanel.addPanel("Character Models", true);
-		if (!data.hasCharacterGroups()) {
+		if (!data.hasCharacterGroups() && !alwaysAllowAllGroupingOptions()) {
 			if (partitionScheme == partitionByCharacterGroups)
 				partitionScheme = noPartition;
 		}
-		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
+		if (!(data instanceof DNAData && ((DNAData) data).someCoding()) && !alwaysAllowAllGroupingOptions()) {
 			if (partitionScheme == partitionByCodonPosition)
 				partitionScheme = noPartition;
 		}
+
 		if (data instanceof ProteinData)
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups" }, partitionScheme);
-		else
+		else {
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
+			charPartitionButtons.setEnabled(2, (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysAllowAllGroupingOptions());
+		}
+		charPartitionButtons.setEnabled(1, data.hasCharacterGroups() || alwaysAllowAllGroupingOptions());
 
 		charPartitionButtons.addItemListener(this);
-		if (!data.hasCharacterGroups()) {
-			charPartitionButtons.setEnabled(1, false);
-		}
-		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
-			charPartitionButtons.setEnabled(2, false);
-		}
 
 		Checkbox linkModelsBox = dialog.addCheckBox("use same set of model parameters for all partition subsets",linkModels);
 		Checkbox subsetSpecificRatesBox = dialog.addCheckBox("infer overall rate multipliers for each partition subset",subsetSpecificRates);

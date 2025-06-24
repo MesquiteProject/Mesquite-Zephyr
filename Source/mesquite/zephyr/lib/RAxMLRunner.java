@@ -414,29 +414,29 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			tabbedPanel.addPanel("Character Models & Constraints", true);
 		else
 			tabbedPanel.addPanel("Character Models", true);
-		if (!data.hasCharacterGroups()) {
+		if (!data.hasCharacterGroups() && !alwaysAllowAllGroupingOptions()) {
 			if (partitionScheme == partitionByCharacterGroups)
 				partitionScheme = noPartition;
 		}
-		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
+		if (!(data instanceof DNAData && ((DNAData) data).someCoding()) && !alwaysAllowAllGroupingOptions()) {
 			if (partitionScheme == partitionByCodonPosition)
 				partitionScheme = noPartition;
 		}
-		if (data instanceof ProteinData)
+		if (data instanceof ProteinData) {
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups" }, partitionScheme);
-		else
+		}
+		else {
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
+			charPartitionButtons.setEnabled(2, (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysAllowAllGroupingOptions());
+		}
+		charPartitionButtons.setEnabled(1, data.hasCharacterGroups() || alwaysAllowAllGroupingOptions());
+		
 		//	charPartitionButtons.addItemListener(this);
 		dialog.addHorizontalLine(1);
 		addModelOptions(dialog);
+		
 		specifyPartByPartModelsBox = dialog.addCheckBox("specify different models for each part", specifyPartByPartModels);
-		if (!data.hasCharacterGroups()) {
-			charPartitionButtons.setEnabled(1, false);
-		}
-		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
-			charPartitionButtons.setEnabled(2, false);
-		}
-		if (data.hasCharacterGroups() || (data instanceof DNAData && ((DNAData) data).someCoding())) 
+		if (data.hasCharacterGroups() || (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysAllowAllGroupingOptions()) 
 			specifyPartByPartModelsBox.setEnabled(true);
 		else
 			specifyPartByPartModelsBox.setEnabled(false);
