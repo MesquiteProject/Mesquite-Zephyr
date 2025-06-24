@@ -2,12 +2,6 @@ package mesquite.zephyr.lib;
 
 import mesquite.lib.*;
 
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.*;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
-
 
 
 public abstract class RESTCommunicator extends RemoteCommunicator {

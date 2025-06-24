@@ -15,7 +15,7 @@ import java.io.*;
 import java.awt.event.*;
 import java.util.*;
 
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+//import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;

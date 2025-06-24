@@ -24,7 +24,7 @@ public class RAxMLRunnerSSHNG extends RAxMLRunnerBasicNG implements RemoteProces
 
 	/*.................................................................................................................*/
 	public int getProgramNumber() {
-		return SSHServerProfile.RAxML;
+		return SSHServerProfile.RAxMLNG;
 	}
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){

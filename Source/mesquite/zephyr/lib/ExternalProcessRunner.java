@@ -92,6 +92,10 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		return MesquiteInteger.infinite;
 	}
 	
+	public void updateOptionsChosenFromDialog() {
+	}
+
+	
 	public String getMessageIfUserAbortRequested () {
 		return "";
 	}

@@ -6,13 +6,14 @@ import mesquite.externalCommunication.lib.*;
 
 import java.io.File;
 
+/*
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.*;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 
-
+*/
 
 public abstract class RemoteCommunicator  {
 	protected int minPollIntervalSeconds =getDefaultMinPollIntervalSeconds();
@@ -253,7 +254,7 @@ public abstract class RemoteCommunicator  {
 
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public HttpClient getHttpClient(){
 		// from http://www.artima.com/forums/flat.jsp?forum=121&thread=357685
 		CredentialsProvider provider = new BasicCredentialsProvider();

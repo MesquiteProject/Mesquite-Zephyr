@@ -15,7 +15,7 @@ import java.io.*;
 import java.awt.event.*;
 import java.util.*;
 
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+//import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
 import mesquite.externalCommunication.lib.RemoteProcessCommunicator;
@@ -24,7 +24,6 @@ import mesquite.lib.characters.*;
 import mesquite.lib.duties.*;
 import mesquite.lib.system.SystemUtil;
 import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 import mesquite.zephyr.RAxMLRunnerSSHOrig.RAxMLRunnerSSHOrig;
 import mesquite.zephyr.SSHRunner.SSHRunner;

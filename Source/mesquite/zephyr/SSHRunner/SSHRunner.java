@@ -107,6 +107,11 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Proc
 			return false;
 		return sshServerProfile.isWindows();
 	}
+	
+	public void updateOptionsChosenFromDialog() {
+		optionsChosen();
+	}
+
 	public  boolean isLinux() {
 		if (sshServerProfile==null)
 			return true;

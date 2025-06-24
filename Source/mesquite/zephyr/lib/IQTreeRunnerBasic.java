@@ -15,7 +15,7 @@ import java.io.*;
 import java.awt.event.*;
 import java.util.*;
 
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+//import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;
@@ -27,7 +27,6 @@ import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.RadioButtons;
 import mesquite.lib.ui.SingleLineTextField;
 import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 import mesquite.zephyr.lib.*;
 import mesquite.io.lib.*;
