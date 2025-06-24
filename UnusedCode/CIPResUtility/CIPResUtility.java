@@ -1,7 +1,6 @@
 package mesquite.zephyr.CIPResUtility;
-/*
-import java.io.*;
 
+import java.io.*;
 import java.util.*;
 
 import org.apache.http.HttpEntity;
@@ -20,16 +19,16 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.HttpRequest;
-*/
+
 import mesquite.lib.*;
 import mesquite.lib.duties.*;
 import mesquite.lib.ui.AlertDialog;
 import mesquite.lib.ui.MesquiteSubmenuSpec;
 import mesquite.zephyr.lib.*;
-/*
+
 import org.dom4j.Document;
 import org.dom4j.Element;
-*/
+
 
 public class CIPResUtility extends UtilitiesAssistant {
 

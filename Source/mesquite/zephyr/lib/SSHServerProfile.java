@@ -39,13 +39,14 @@ public class SSHServerProfile implements Listable, Explainable, UsernamePassword
 	public int pollingInterval = 30;
 	public int maxCores = 2;
 
-	public static int numProgramsSupported = 5;
-	public static int RAxML = 0;
-	public static int IQTREE = 1;
-	public static int GARLI = 2;
-	public static int PAUP = 3;
-	public static int TNT = 4;
-	public String[] programNames = new String[]{"RAxML", "IQ-TREE", "GARLI", "PAUP*", "TNT"};
+	public static int numProgramsSupported = 6;
+	public static int IQTREE = 0;
+	public static int RAxML = 1;
+	public static int RAxMLNG = 2;
+	public static int GARLI = 3;
+	public static int PAUP = 4;
+	public static int TNT = 5;
+	public String[] programNames = new String[]{"IQ-TREE", "RAxML", "RAxML-NG", "GARLI", "PAUP*", "TNT"};
 	public String[] programPaths;
 	public String RAxMLpath = "";
 	

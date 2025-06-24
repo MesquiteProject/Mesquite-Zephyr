@@ -18,7 +18,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+//import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
 import mesquite.lib.*;

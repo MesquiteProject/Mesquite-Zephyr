@@ -17,7 +17,7 @@ import java.util.*;
 
 import javax.swing.JLabel;
 
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+//import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import mesquite.categ.lib.*;
 import mesquite.externalCommunication.AppHarvester.AppHarvester;
@@ -31,7 +31,6 @@ import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.RadioButtons;
 import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 import mesquite.zephyr.RAxMLTreesLocalOrig.*;
 import mesquite.zephyr.lib.*;

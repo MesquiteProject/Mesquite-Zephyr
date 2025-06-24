@@ -68,6 +68,7 @@ public class RAxMLRunnerSSHOrig extends RAxMLRunnerBasicOrig implements RemotePr
 		return MesquiteInteger.infinite ;
 	}
 	public void checkFields() {
+		
 		int max = getMaxCores();
 		if (MesquiteInteger.isCombinable(max) && numProcessorsField.isValidInteger() && numProcessorsField.getValue()>max) {
 			MesquiteMessage.notifyUser("Number of processor cores used cannot exceed "+max +", as that is the maximum specified in the SSH Server Profile");			

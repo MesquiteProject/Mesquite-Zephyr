@@ -24,7 +24,7 @@ public class RAxMLRunnerSSHNG extends RAxMLRunnerBasicNG implements RemoteProces
 
 	/*.................................................................................................................*/
 	public int getProgramNumber() {
-		return SSHServerProfile.RAxML;
+		return SSHServerProfile.RAxMLNG;
 	}
 	/*.................................................................................................................*/
 	public String getExternalProcessRunnerModuleName(){
@@ -105,7 +105,7 @@ public class RAxMLRunnerSSHNG extends RAxMLRunnerBasicNG implements RemoteProces
 	 * then the number refers to the Mesquite version.  This should be used only by modules part of the core release of Mesquite.
 	 * If a NEGATIVE integer, then the number refers to the local version of the package, e.g. a third party package*/
 	public int getVersionOfFirstRelease(){
-		return -3000;  
+		return NEXTRELEASE;  
 	}
 
 	public String getName() {
