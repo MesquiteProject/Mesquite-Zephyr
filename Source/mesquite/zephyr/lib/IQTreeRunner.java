@@ -118,6 +118,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 
 	protected RadioButtons charPartitionButtons = null;
+	static final int partitionNone = 0;
+	static final int partitionGroups = 1;
+	static final int partitionCodonPositions = 2;
+	
 
 	protected boolean importBestPartitionScheme = true;
 
@@ -376,6 +380,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public abstract String queryOptionsDialogTitle();
 
 
+	
+	boolean partitionLinkageAllowed = true;
+
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
 		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
@@ -465,16 +472,16 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		}
 		else {
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
-			charPartitionButtons.setEnabled(2, (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysPrepareForAnyMatrices());
+			charPartitionButtons.setEnabled(partitionCodonPositions, (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysPrepareForAnyMatrices());
 		}
-		charPartitionButtons.setEnabled(1, data.hasCharacterGroups() || alwaysPrepareForAnyMatrices());
+		charPartitionButtons.setEnabled(partitionGroups, data.hasCharacterGroups() || alwaysPrepareForAnyMatrices());
 		
 		charPartitionButtons.addItemListener(this);
 
 		partitionLinkageChoice = dialog.addPopUpMenu("Partition linkages", partitionLinkageStrings(), partitionLinkage); 
 		
-		boolean findPartionAllowed = (data.hasCharacterGroups() || (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysPrepareForAnyMatrices()) ;
-		partitionLinkageChoice.setEnabled(findPartionAllowed);
+		partitionLinkageAllowed = (data.hasCharacterGroups() || (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysPrepareForAnyMatrices()) ;
+		partitionLinkageChoice.setEnabled(partitionLinkageAllowed);
 
 
 		dialog.addHorizontalLine(1);
@@ -657,6 +664,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		importBestPartitionSchemeCheckbox.setEnabled(expectSchemeFile(modelFieldText));
 	}
 
+	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getItemSelectable() == modelOptionChoice){
 			int selected = modelOptionChoice.getSelectedIndex();
@@ -670,6 +678,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			getConstraintTreeSource();
 
 		} 
+		else if (charPartitionButtons.isAButton(e.getItemSelectable())) {
+			int selected = charPartitionButtons.getValue();
+			partitionLinkageChoice.setEnabled(partitionLinkageAllowed && (selected!=partitionNone));
+		}
 		else if (e.getItemSelectable() == alrtBox){
 			alrtRepsField.setEnabled(alrtBox.getState());
 		}
