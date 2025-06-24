@@ -83,11 +83,11 @@ public abstract class PAUPLikelihoodRunner extends PAUPSearchRunner implements I
 	public void queryExtraPanelsSetup(ExtensibleDialog dialog, MesquiteTabbedPanel tabbedPanel) {
 		tabbedPanel.addPanel("Character Models", true);
 		
-		if (!data.hasCharacterGroups() && !alwaysAllowAllGroupingOptions()) {
+		if (!data.hasCharacterGroups() && !alwaysPrepareForAnyMatrices()) {
 			if (partitionScheme == partitionByCharacterGroups)
 				partitionScheme = noPartition;
 		}
-		if (!(data instanceof DNAData && ((DNAData) data).someCoding()) && !alwaysAllowAllGroupingOptions()) {
+		if (!(data instanceof DNAData && ((DNAData) data).someCoding()) && !alwaysPrepareForAnyMatrices()) {
 			if (partitionScheme == partitionByCodonPosition)
 				partitionScheme = noPartition;
 		}
@@ -96,9 +96,9 @@ public abstract class PAUPLikelihoodRunner extends PAUPSearchRunner implements I
 		}
 		else {
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
-			charPartitionButtons.setEnabled(2, (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysAllowAllGroupingOptions());
+			charPartitionButtons.setEnabled(2, (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysPrepareForAnyMatrices());
 		}
-		charPartitionButtons.setEnabled(1, data.hasCharacterGroups() || alwaysAllowAllGroupingOptions());
+		charPartitionButtons.setEnabled(1, data.hasCharacterGroups() || alwaysPrepareForAnyMatrices());
 		
 		
 		charPartitionButtons.addItemListener(this);

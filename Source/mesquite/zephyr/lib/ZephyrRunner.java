@@ -356,9 +356,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return super.getCitation() + addendum;
 	}
 	/*.................................................................................................................*/
-	protected boolean alwaysAllowAllGroupingOptions() {
+	protected boolean alwaysPrepareForAnyMatrices() {
 		if (treeInferer !=null)
-			return treeInferer.getAlwaysAllowAllGroupingOptions();
+			return treeInferer.getAlwaysPrepareForAnyMatrices();
 		return true;
 	}
 
