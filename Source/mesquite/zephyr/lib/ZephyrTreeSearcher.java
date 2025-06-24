@@ -77,6 +77,8 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	 public void setMatrixSource(MatrixSourceCoord msource) {
 		 super.setMatrixSource(msource);
 		 this.matrixSourceTask = getMatrixSource();
+		 if (matrixSourceTask!= null)
+			 matrixSourceTask.setHiringCondition(getCharacterClass());
 	 }
 	public  void setOutputTextListener(OutputTextListener textListener){
 		if (runner != null)
