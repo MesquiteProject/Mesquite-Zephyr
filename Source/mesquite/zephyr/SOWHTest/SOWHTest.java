@@ -654,6 +654,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			return;
 		}
 
+		postBean(" begin SOWH test");
 		double[] simulatedDeltas = new double[totalReps];
 		for (int rep = 0; rep<totalReps; rep++) {
 			simulatedDeltas[rep] = MesquiteDouble.unassigned;
@@ -810,6 +811,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		panel.setCalculating(false);
 		panel.repaint();
 		
+		postBean(" completed SOWH test");
 		logln("SOWH Test completed.");
 		fireAllEmployees();
 		//		window.append("\n\n  " + rs);
