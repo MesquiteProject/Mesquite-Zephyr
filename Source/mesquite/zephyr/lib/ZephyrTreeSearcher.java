@@ -22,6 +22,7 @@ import mesquite.lib.MesquiteFile;
 import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteModule;
 import mesquite.lib.MesquiteNumber;
+import mesquite.lib.MesquiteProject;
 import mesquite.lib.MesquiteString;
 import mesquite.lib.MesquiteThread;
 import mesquite.lib.OutputTextListener;
@@ -41,6 +42,7 @@ import mesquite.lib.tree.MesquiteTree;
 import mesquite.lib.tree.Tree;
 import mesquite.lib.tree.TreeVector;
 import mesquite.lib.ui.MesquiteMenuSpec;
+import mesquite.lib.ListableVector;
 
 
 public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements Reconnectable, CanRetrieveTreeBlock, ZephyrRunnerEmployer, NewTreeProcessor {
@@ -463,6 +465,13 @@ System.err.println("@ ZephyrTreeSearcher.getTrees ========== runner " + runner.g
 					s+= " INCOMPLETE SEARCH";
 		}
 		else s +=  " Trees";
+		MesquiteProject project = getProject();
+		if (project!=null) {
+			ListableVector treeBlockVector = project.getTreeVectors();
+			if (treeBlockVector!=null) 
+				s = treeBlockVector.getUniqueName(s,".");
+		}
+		
 		return s;
 	}
 
