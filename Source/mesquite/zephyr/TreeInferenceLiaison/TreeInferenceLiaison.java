@@ -295,7 +295,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		//DW: put the burden of the autosave query onto the inferenceTask, and add a method to TreeInferer to ask it if autosave
 		//	MesquiteBoolean autoSave = new MesquiteBoolean(true);
 		inferenceThread = new ZephryTreeBlockThread(this, inferenceTask, trees, howManyTrees, file);
-		inferenceThread.start();
+		inferenceThread.start(); 
 
 	}
 	/*.................................................................................................................*/
