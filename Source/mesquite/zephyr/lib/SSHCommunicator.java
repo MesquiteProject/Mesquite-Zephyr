@@ -222,7 +222,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 				remoteWorkingDirectoryName = proposedName;
 			}
 			else {
-				ownerModule.logln("WARNING: could not communicate with SSH server to identify working directory folder: " + e.getMessage());
+				ownerModule.logln("\nWARNING: could not communicate with SSH server to identify working directory folder: " + e.getMessage());
 				return false;
 			}
 		}
