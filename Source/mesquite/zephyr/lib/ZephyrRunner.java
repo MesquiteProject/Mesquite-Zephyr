@@ -1143,10 +1143,16 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		externalProcRunner.setProgressIndicator(progIndicator);
 		setSearchDetails();
 		appendToSearchDetails(getExtraSearchDetails().toString());
+		String version = getProgramVersion();
+		if (version!=null)
+			version = " [version "+version+"]";
+		else
+			version="";
+
 		if (constrainedSearch) 
-			MesquiteMessage.logCurrentTime("\nStart of constrained "+getProgramName()+" analysis: ");
+			MesquiteMessage.logCurrentTime("\nStart of constrained "+getProgramName()+version+" analysis: ");
 		else 
-			MesquiteMessage.logCurrentTime("\nStart of unconstrained "+getProgramName()+" analysis: ");
+			MesquiteMessage.logCurrentTime("\nStart of unconstrained "+getProgramName()+version+" analysis: ");
 
 		timer.start();
 		timer.fullReset();
