@@ -446,6 +446,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		charPartitionButtons.addItemListener(this);
 
 		partitionLinkageChoice = dialog.addPopUpMenu("Partition linkages", partitionLinkageStrings(), partitionLinkage); 
+		
+		boolean findPartionAllowed = (data.hasCharacterGroups() || (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysAllowAllGroupingOptions()) ;
+		partitionLinkageChoice.setEnabled(findPartionAllowed);
+
 
 		dialog.addHorizontalLine(1);
 
@@ -595,6 +599,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		};
 
 	}
+	
+ 	
 	private String getModel(int index) {
 		switch (index) {
 		case 0: 
