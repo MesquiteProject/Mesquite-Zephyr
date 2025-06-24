@@ -9,27 +9,38 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.LocalScriptRunner;
 
-import java.awt.Button;
 import java.awt.Checkbox;
-import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.File;
 import java.util.Random;
-
-import org.dom4j.Document;
-import org.dom4j.Element;
 
 import mesquite.externalCommunication.lib.AppChooser;
 import mesquite.externalCommunication.lib.AppInformationFile;
-import mesquite.lib.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.ExternalProcessManager;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteFileUtil;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.OutputFileProcessor;
+import mesquite.lib.OutputTextListener;
+import mesquite.lib.ParseUtil;
+import mesquite.lib.ProcessWatcher;
+import mesquite.lib.ShellScriptRunner;
+import mesquite.lib.ShellScriptUtil;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringArray;
+import mesquite.lib.StringUtil;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.ProgressIndicator;
 import mesquite.lib.ui.RadioButtons;
 import mesquite.lib.ui.SingleLineTextField;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.ExternalProcessRequester;
+import mesquite.zephyr.lib.ScriptRunner;
 
 public class LocalScriptRunner extends ScriptRunner implements ActionListener, ItemListener, OutputFileProcessor, ProcessWatcher {
 

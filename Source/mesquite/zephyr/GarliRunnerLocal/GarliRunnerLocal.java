@@ -9,24 +9,13 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.GarliRunnerLocal;
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
-
-import javax.swing.*;
-import javax.swing.event.*;
-
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
+import mesquite.lib.IntegerField;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.StringUtil;
 import mesquite.lib.ui.ExtensibleDialog;
-import mesquite.molec.lib.Blaster;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.lib.*;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.GarliRunner;
 
 public class GarliRunnerLocal extends GarliRunner {
 

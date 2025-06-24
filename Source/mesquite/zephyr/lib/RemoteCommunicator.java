@@ -1,10 +1,25 @@
 package mesquite.zephyr.lib;
 
-import mesquite.lib.*;
-import mesquite.lib.ui.ProgressIndicator;
-import mesquite.externalCommunication.lib.*;
-
 import java.io.File;
+
+import mesquite.externalCommunication.lib.RemoteJobFile;
+import mesquite.externalCommunication.lib.UsernamePasswordKeeper;
+import mesquite.lib.LongArray;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteLong;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteTimer;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.OutputFileProcessor;
+import mesquite.lib.Parser;
+import mesquite.lib.ProcessWatcher;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringUtil;
+import mesquite.lib.UserNamePasswordDialog;
+import mesquite.lib.ui.ProgressIndicator;
 
 /*
 import org.apache.http.auth.AuthScope;

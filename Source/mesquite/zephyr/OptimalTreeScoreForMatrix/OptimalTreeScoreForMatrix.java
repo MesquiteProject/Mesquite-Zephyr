@@ -9,15 +9,26 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.OptimalTreeScoreForMatrix;
 
-import java.util.*;
+import java.util.Random;
 
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.characters.CharacterData;
-import mesquite.lib.duties.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.EmployeeNeed;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteNumber;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.Reconnectable;
+import mesquite.lib.Snapshot;
+import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.duties.NumberForMatrix;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.tree.TreeVector;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.ZephyrRunner;
 
 
 public class OptimalTreeScoreForMatrix extends NumberForMatrix implements Reconnectable {

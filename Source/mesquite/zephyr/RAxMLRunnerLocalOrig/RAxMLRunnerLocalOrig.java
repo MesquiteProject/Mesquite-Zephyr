@@ -10,16 +10,11 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.RAxMLRunnerLocalOrig;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
-
 import mesquite.externalCommunication.AppHarvester.AppHarvester;
 import mesquite.externalCommunication.lib.AppInformationFile;
-import mesquite.lib.*;
+import mesquite.lib.StringUtil;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.RAxMLRunnerBasicOrig;
 
 
 public class RAxMLRunnerLocalOrig extends RAxMLRunnerBasicOrig  {

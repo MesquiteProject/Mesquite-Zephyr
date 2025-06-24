@@ -10,31 +10,24 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyListener;
 
 import javax.swing.JLabel;
 
 //import org.apache.http.entity.mime.MultipartEntityBuilder;
-
-import mesquite.categ.lib.*;
+import mesquite.categ.lib.ProteinData;
 import mesquite.externalCommunication.AppHarvester.AppHarvester;
 import mesquite.externalCommunication.lib.AppChooser;
 import mesquite.externalCommunication.lib.AppInformationFile;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.lib.system.SystemUtil;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.ShellScriptUtil;
+import mesquite.lib.StringUtil;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.RadioButtons;
-import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.RAxMLTreesLocalOrig.*;
-import mesquite.zephyr.lib.*;
-import mesquite.io.lib.*;
 
 /* TODO:
 -b bootstrapRandomNumberSeed  // allow user to set seed

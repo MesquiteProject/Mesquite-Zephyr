@@ -1,13 +1,11 @@
 package mesquite.zephyr.SSHUtility;
 
-import java.awt.event.ActionEvent;
-import java.io.*;
-import java.util.*;
-
-import mesquite.lib.*;
-import mesquite.lib.duties.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.duties.UtilitiesAssistant;
 import mesquite.lib.ui.MesquiteSubmenuSpec;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.SSHServerProfileManager;
 
 
 public class SSHUtility extends UtilitiesAssistant {

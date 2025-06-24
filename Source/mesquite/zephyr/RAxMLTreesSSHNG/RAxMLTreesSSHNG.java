@@ -9,10 +9,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.RAxMLTreesSSHNG;
 
-import java.util.*;
-
 import mesquite.zephyr.RAxMLRunnerSSHNG.RAxMLRunnerSSHNG;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.RAxMLTreesNG;
 
 
 public class RAxMLTreesSSHNG extends RAxMLTreesNG {

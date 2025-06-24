@@ -1,6 +1,6 @@
 package mesquite.zephyr.lib;
 
-import mesquite.lib.*;
+import mesquite.lib.MesquiteModule;
 
 
 

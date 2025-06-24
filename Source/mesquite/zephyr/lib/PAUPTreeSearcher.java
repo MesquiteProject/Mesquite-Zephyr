@@ -9,16 +9,13 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.util.Random;
 
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteInteger;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.tree.TreeVector;
-import mesquite.zephyr.lib.*;
 
 public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 //	Taxa taxa;

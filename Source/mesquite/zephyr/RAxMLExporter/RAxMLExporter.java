@@ -9,13 +9,30 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.RAxMLExporter;
 
-import java.awt.*;
+import java.awt.Button;
 import java.awt.event.ActionEvent;
 
-import mesquite.categ.lib.*;
+import mesquite.categ.lib.DNAData;
+import mesquite.categ.lib.MolecularData;
+import mesquite.categ.lib.ProteinData;
 import mesquite.io.lib.InterpretPhylip;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
+import mesquite.lib.IntegerField;
+import mesquite.lib.Listable;
+import mesquite.lib.ListableVector;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.StringUtil;
+import mesquite.lib.characters.CharInclusionSet;
+import mesquite.lib.characters.CharacterData;
+import mesquite.lib.characters.CharacterPartition;
+import mesquite.lib.characters.CharacterStates;
+import mesquite.lib.characters.CharactersGroup;
+import mesquite.lib.characters.CodonPositionsSet;
+import mesquite.lib.characters.MCharactersDistribution;
 import mesquite.lib.duties.FileInterpreterI;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.taxa.TaxaSelectionSet;
@@ -25,8 +42,9 @@ import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.RadioButtons;
 import mesquite.lib.ui.SingleLineTextArea;
 import mesquite.lib.ui.SingleLineTextField;
-import mesquite.zephyr.RAxMLRunnerLocalOrig.*;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.RAxMLRunnerLocalOrig.RAxMLRunnerLocalOrig;
+import mesquite.zephyr.lib.TaxonNameShortener;
+import mesquite.zephyr.lib.ZephyrUtil;
 
 /*TODO: Eventually will become a module to run RAxML on a remote cluster.
  * To accomplish this, perhaps RAxMLRunner would become an abstract superclass for two modules,

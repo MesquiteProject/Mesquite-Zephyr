@@ -10,24 +10,10 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.RAxMLRunnerLocalNG;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
-
-
-import mesquite.categ.lib.*;
 import mesquite.externalCommunication.AppHarvester.AppHarvester;
 import mesquite.externalCommunication.lib.AppInformationFile;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.lib.system.SystemUtil;
-import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.RAxMLTreesLocalOrig.*;
-import mesquite.zephyr.lib.*;
-import mesquite.io.lib.*;
+import mesquite.zephyr.lib.RAxMLRunnerBasicNG;
 
 
 public class RAxMLRunnerLocalNG extends RAxMLRunnerBasicNG  {

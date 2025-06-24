@@ -10,14 +10,14 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.RAxMLRunnerSSHOrig;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-
 import mesquite.externalCommunication.lib.RemoteProcessCommunicator;
-import mesquite.lib.*;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.StringUtil;
 import mesquite.zephyr.SSHRunner.SSHRunner;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.RAxMLRunnerBasicOrig;
+import mesquite.zephyr.lib.SSHServerProfile;
 
 
 public class RAxMLRunnerSSHOrig extends RAxMLRunnerBasicOrig implements RemoteProcessCommunicator {

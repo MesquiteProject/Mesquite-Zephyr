@@ -10,7 +10,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.PAUPSVDTreesSSH;
 
 import mesquite.zephyr.PAUPSVDRunnerSSH.PAUPSVDRunnerSSH;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.PAUPSVDTrees;
 
 
 public class PAUPSVDTreesSSH extends PAUPSVDTrees {

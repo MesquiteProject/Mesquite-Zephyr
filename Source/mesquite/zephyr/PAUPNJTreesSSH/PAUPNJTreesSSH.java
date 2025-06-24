@@ -9,14 +9,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.PAUPNJTreesSSH;
 
-import java.awt.*;
-
-import mesquite.lib.*;
 import mesquite.zephyr.PAUPNJRunnerSSH.PAUPNJRunnerSSH;
-import mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal;
-import mesquite.zephyr.PAUPParsimonyRunnerSSH.PAUPParsimonyRunnerSSH;
-import mesquite.zephyr.lib.*;
-import mesquite.categ.lib.*;
+import mesquite.zephyr.lib.PAUPNJTrees;
 
 public class PAUPNJTreesSSH extends PAUPNJTrees {
 

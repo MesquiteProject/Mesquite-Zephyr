@@ -10,9 +10,9 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.IQTreeRunnerSSHqsub;
 
 
-import mesquite.zephyr.SSHqsubRunner.SSHqsubRunner;
 import mesquite.zephyr.IQTreeRunnerSSH.IQTreeRunnerSSH;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.SSHqsubRunner.SSHqsubRunner;
+import mesquite.zephyr.lib.SSHServerProfile;
 
 
 public class IQTreeRunnerSSHqsub extends IQTreeRunnerSSH  {

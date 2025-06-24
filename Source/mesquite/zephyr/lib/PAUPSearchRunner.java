@@ -9,21 +9,25 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.Checkbox;
+import java.awt.CheckboxGroup;
+import java.awt.Color;
+import java.awt.Label;
+import java.awt.TextArea;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
-import javax.swing.*;
+import javax.swing.JLabel;
 
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
+import mesquite.categ.lib.CategoricalData;
+import mesquite.lib.IntegerField;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.StringUtil;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.MesquiteTabbedPanel;
 import mesquite.lib.ui.RadioButtons;
-import mesquite.zephyr.lib.*;
 
 /* TODO:
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each

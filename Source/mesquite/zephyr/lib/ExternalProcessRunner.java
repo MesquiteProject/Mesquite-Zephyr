@@ -12,8 +12,12 @@ package mesquite.zephyr.lib;
 
 
 import mesquite.externalCommunication.lib.AppChooser;
-import mesquite.lib.*;
-import mesquite.lib.duties.*;
+import mesquite.lib.MesquiteFileUtil;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.OutputTextListener;
+import mesquite.lib.StringUtil;
+import mesquite.lib.duties.TreeInferer;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.ProgressIndicator;
 

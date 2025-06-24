@@ -9,17 +9,28 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.util.*;
+import java.util.Random;
 
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteNumber;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.Reconnectable;
+import mesquite.lib.Snapshot;
+import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.duties.MatrixSourceCoord;
+import mesquite.lib.duties.NumberForTree;
+import mesquite.lib.duties.TreeSource;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.tree.MesquiteTree;
 import mesquite.lib.tree.Tree;
 import mesquite.lib.tree.TreeVector;
-import mesquite.zephyr.lib.*;
 
 
 public abstract class ZephyrNumberForTree extends NumberForTree implements Reconnectable {

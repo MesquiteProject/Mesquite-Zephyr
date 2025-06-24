@@ -11,7 +11,7 @@ package mesquite.zephyr.lib;
 
 import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.externalCommunication.lib.AppUser;
-import mesquite.lib.*;
+import mesquite.lib.MesquiteModule;
 
 public interface ExternalProcessRequester {
 	

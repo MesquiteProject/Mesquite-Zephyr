@@ -14,14 +14,48 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.SOWHTest;
 /*~~  */
 
-import java.awt.*;
-
+import java.awt.Checkbox;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.TextArea;
 import java.util.Random;
 
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
+import org.apache.commons.math3.stat.interval.ClopperPearsonInterval;
+import org.apache.commons.math3.stat.interval.ConfidenceInterval;
+
+import mesquite.categ.lib.CategoricalData;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.DoubleArray;
+import mesquite.lib.EmployeeNeed;
+import mesquite.lib.IntegerField;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteLong;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.MesquiteTimer;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.ResultCodes;
+import mesquite.lib.Snapshot;
+import mesquite.lib.SpecsSet;
+import mesquite.lib.StringUtil;
+import mesquite.lib.characters.CharInclusionSet;
 import mesquite.lib.characters.CharacterData;
-import mesquite.lib.duties.*;
+import mesquite.lib.characters.CharacterDistribution;
+import mesquite.lib.characters.CharacterPartition;
+import mesquite.lib.characters.CharacterState;
+import mesquite.lib.characters.CharactersGroup;
+import mesquite.lib.characters.MAdjustableDistribution;
+import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.duties.CharacterSimulator;
+import mesquite.lib.duties.DataAlterer;
+import mesquite.lib.duties.MatrixSourceCoord;
+import mesquite.lib.duties.TreeWindowAssistantA;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.tree.Tree;
 import mesquite.lib.tree.TreeVector;
@@ -35,10 +69,10 @@ import mesquite.lib.ui.MesquiteWindow;
 import mesquite.lib.ui.MousePanel;
 import mesquite.lib.ui.QueryDialogs;
 import mesquite.lib.ui.RadioButtons;
-import mesquite.zephyr.lib.*;
-import mesquite.categ.lib.CategoricalData;
-import mesquite.zephyr.RAxMLExporter.*;
-import org.apache.commons.math3.stat.interval.*;
+import mesquite.zephyr.RAxMLExporter.RAxMLExporter;
+import mesquite.zephyr.lib.ConstrainedSearcher;
+import mesquite.zephyr.lib.ConstrainedSearcherTreeScoreProvider;
+import mesquite.zephyr.lib.ZephyrRunner;
 
 // see SimMatricesOnTrees for CharacterSimulator bookkeeping
 

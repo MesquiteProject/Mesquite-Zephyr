@@ -16,14 +16,32 @@ package mesquite.zephyr.TreeInferenceLiaison;
 
 import java.util.Vector;
 
-import mesquite.lib.*;
-import mesquite.lib.duties.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.ListableVector;
+import mesquite.lib.Logger;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteProject;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.OutputTextListener;
+import mesquite.lib.Puppeteer;
+import mesquite.lib.Reconnectable;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringUtil;
+import mesquite.lib.duties.FileCoordinator;
+import mesquite.lib.duties.TreeInferer;
+import mesquite.lib.duties.TreesManager;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.tree.Tree;
 import mesquite.lib.tree.TreeVector;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.ListDialog;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.TreeInferenceHandler;
 
 /* ======================================================================== */
 /* Manages an individual tree inference attempt */

@@ -9,7 +9,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import mesquite.lib.*;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.StringUtil;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.taxa.Taxon;
 import mesquite.lib.taxa.TaxonNamer;;

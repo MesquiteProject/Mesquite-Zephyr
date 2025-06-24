@@ -10,7 +10,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.RAxMLTreesLocalNG;
 
 import mesquite.zephyr.RAxMLRunnerLocalNG.RAxMLRunnerLocalNG;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.RAxMLTreesNG;
 
 
 public class RAxMLTreesLocalNG extends RAxMLTreesNG {

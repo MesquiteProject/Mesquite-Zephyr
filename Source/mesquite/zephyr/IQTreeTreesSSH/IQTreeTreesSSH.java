@@ -10,7 +10,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.IQTreeTreesSSH;
 
 import mesquite.zephyr.IQTreeRunnerSSH.IQTreeRunnerSSH;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.IQTreeTrees;
 
 
 public class IQTreeTreesSSH extends IQTreeTrees {

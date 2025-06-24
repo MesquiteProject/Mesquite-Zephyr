@@ -1,11 +1,8 @@
 package mesquite.zephyr.lib;
 
-import mesquite.lib.MesquiteTrunk;
 import mesquite.lib.ShellScriptRunner;
 import mesquite.lib.ShellScriptUtil;
 import mesquite.lib.StringUtil;
-import mesquite.lib.ui.ExtensibleDialog;
-import mesquite.lib.ui.ProgressIndicator;
 
 public abstract class ScriptRunner extends ExternalProcessRunner {
 

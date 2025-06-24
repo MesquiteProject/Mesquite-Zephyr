@@ -14,15 +14,31 @@ import java.awt.Checkbox;
 import java.awt.Choice;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.Random;
 
-import mesquite.externalCommunication.lib.*;
-import mesquite.lib.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteFileUtil;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.OutputFilePathModifier;
+import mesquite.lib.OutputFileProcessor;
+import mesquite.lib.ParseUtil;
+import mesquite.lib.Parser;
+import mesquite.lib.ProcessWatcher;
+import mesquite.lib.ShellScriptUtil;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringArray;
+import mesquite.lib.StringUtil;
 import mesquite.lib.ui.DoubleField;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.ProgressIndicator;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.ExternalProcessRequester;
+import mesquite.zephyr.lib.SSHCommunicator;
+import mesquite.zephyr.lib.SSHServerProfile;
+import mesquite.zephyr.lib.SSHServerProfileManager;
+import mesquite.zephyr.lib.ScriptRunner;
 
 public class SSHRunner extends ScriptRunner implements OutputFileProcessor, ProcessWatcher, OutputFilePathModifier, ActionListener {
 	MesquiteString xmlPrefs= new MesquiteString();

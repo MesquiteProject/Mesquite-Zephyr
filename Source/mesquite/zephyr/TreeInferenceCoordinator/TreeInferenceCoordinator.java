@@ -14,17 +14,26 @@
 package mesquite.zephyr.TreeInferenceCoordinator;
 /*~~  */
 
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.*;
+import java.util.Vector;
 
-import mesquite.lib.*;
-import mesquite.zephyr.lib.*;
-import mesquite.lib.duties.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteLong;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.Notification;
+import mesquite.lib.Parser;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringUtil;
+import mesquite.lib.duties.FileInit;
+import mesquite.lib.duties.TreeInferer;
 import mesquite.lib.ui.AlertDialog;
 import mesquite.lib.ui.MesquiteHTMLWindow;
+import mesquite.zephyr.lib.TreeInferenceHandler;
 
 /* ======================================================================== */
 /* this hires handlers, which run the tree inferences.  It is a central manager, not detail-oriented.*/

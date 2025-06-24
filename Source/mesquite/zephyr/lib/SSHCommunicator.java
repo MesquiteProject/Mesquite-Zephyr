@@ -1,20 +1,33 @@
 package mesquite.zephyr.lib;
 
-import mesquite.lib.*;
-
-import mesquite.lib.ui.ProgressIndicator;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Vector;
-import mesquite.externalCommunication.lib.*;
-import java.net.*;
 
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpATTRS;
 
-import com.jcraft.jsch.*;
+import mesquite.externalCommunication.lib.RemoteJobFile;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.Commandable;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteTimer;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.ParseUtil;
+import mesquite.lib.Parser;
+import mesquite.lib.ShellScriptUtil;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringArray;
+import mesquite.lib.StringUtil;
+import mesquite.lib.ui.ProgressIndicator;
 
 
 public  class SSHCommunicator extends RemoteCommunicator implements Commandable {

@@ -9,19 +9,9 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.PAUPLikelihoodRunnerSSH;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-
-import javax.swing.*;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
 import mesquite.zephyr.SSHRunner.SSHRunner;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.PAUPLikelihoodRunner;
+import mesquite.zephyr.lib.SSHServerProfile;
 
 
 

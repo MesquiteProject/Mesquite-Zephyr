@@ -9,15 +9,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.util.Random;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
 import mesquite.lib.analysis.DistanceAnalysis;
-import mesquite.zephyr.PAUPDistanceRunnerSSH.PAUPDistanceRunnerSSH;
-import mesquite.zephyr.lib.*;
 
 public abstract class PAUPDistanceTrees extends PAUPTrees implements DistanceAnalysis {
 

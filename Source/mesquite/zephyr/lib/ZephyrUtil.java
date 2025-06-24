@@ -10,7 +10,6 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 import java.awt.Choice;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,7 +24,22 @@ import mesquite.categ.lib.ProteinData;
 import mesquite.charMatrices.ManageCharInclusion.ManageCharInclusion;
 import mesquite.charMatrices.ManageCharWeights.ManageCharWeights;
 import mesquite.io.InterpretTNT.InterpretTNT;
-import mesquite.lib.*;
+import mesquite.lib.Attachable;
+import mesquite.lib.DoubleArray;
+import mesquite.lib.Listable;
+import mesquite.lib.ListableVector;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.NameReference;
+import mesquite.lib.NexusBlock;
+import mesquite.lib.Parser;
+import mesquite.lib.SimpleNamesTaxonNamer;
+import mesquite.lib.StringUtil;
 import mesquite.lib.characters.CharInclusionSet;
 import mesquite.lib.characters.CharSpecsSet;
 import mesquite.lib.characters.CharWeightSet;

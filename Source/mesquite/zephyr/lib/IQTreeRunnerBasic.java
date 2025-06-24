@@ -10,26 +10,21 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
-//import org.apache.http.entity.mime.MultipartEntityBuilder;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.lib.system.SystemUtil;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.IntegerField;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.StringUtil;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.RadioButtons;
 import mesquite.lib.ui.SingleLineTextField;
-import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.lib.*;
-import mesquite.io.lib.*;
 
 
 

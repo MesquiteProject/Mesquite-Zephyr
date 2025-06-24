@@ -8,14 +8,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 package mesquite.zephyr.GarliTreesLocal;
 
-import java.util.*;
-
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
 import mesquite.zephyr.GarliRunnerLocal.GarliRunnerLocal;
-import mesquite.zephyr.lib.*;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.GarliTrees;
 
 
 public class GarliTreesLocal extends GarliTrees {

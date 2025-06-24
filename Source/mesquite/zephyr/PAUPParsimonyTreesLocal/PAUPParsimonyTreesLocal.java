@@ -9,14 +9,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.PAUPParsimonyTreesLocal;
 
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.util.Random;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
 import mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.PAUPParsimonyTrees;
 
 public class PAUPParsimonyTreesLocal extends PAUPParsimonyTrees  {
 

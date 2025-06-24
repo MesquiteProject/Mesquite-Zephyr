@@ -9,12 +9,14 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import mesquite.lib.*;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteThread;
 import mesquite.lib.analysis.LikelihoodAnalysis;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.taxa.TaxonNamer;
 import mesquite.lib.tree.AdjustableTree;
-import mesquite.search.lib.*;
 
 public abstract class IQTreeTrees extends ZephyrTreeSearcher implements LikelihoodAnalysis {
 	int rerootNode = 0;

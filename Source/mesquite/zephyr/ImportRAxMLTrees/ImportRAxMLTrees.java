@@ -9,8 +9,14 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.ImportRAxMLTrees;
 
-import mesquite.io.lib.*;
-import mesquite.lib.*;
+import mesquite.io.lib.InterpretPhylipTrees;
+import mesquite.lib.DoubleArray;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.MesquiteProject;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.SimpleNamesTaxonNamer;
+import mesquite.lib.StringUtil;
 import mesquite.lib.duties.TaxaManager;
 import mesquite.lib.duties.TreesManager;
 import mesquite.lib.taxa.Taxa;

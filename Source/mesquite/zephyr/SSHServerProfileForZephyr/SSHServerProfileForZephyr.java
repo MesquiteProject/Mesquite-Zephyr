@@ -13,18 +13,23 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.SSHServerProfileForZephyr;
 
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.Choice;
-import java.awt.GridBagConstraints;
-import java.awt.Panel;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.event.WindowEvent;
+import java.io.File;
 
-import mesquite.zephyr.lib.*;
-import mesquite.lib.*;
+import mesquite.lib.Listable;
+import mesquite.lib.ListableVector;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.StringArray;
+import mesquite.lib.StringUtil;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.ExtensibleListDialog;
+import mesquite.zephyr.lib.SSHServerProfile;
+import mesquite.zephyr.lib.SSHServerProfileManager;
 
 
 public class SSHServerProfileForZephyr extends SSHServerProfileManager {

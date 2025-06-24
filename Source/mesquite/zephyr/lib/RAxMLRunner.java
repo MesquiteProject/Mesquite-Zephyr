@@ -10,17 +10,39 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.Button;
+import java.awt.Checkbox;
+import java.awt.Choice;
+import java.awt.Label;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
-
-import mesquite.categ.lib.*;
-import mesquite.consensus.lib.BasicTreeConsenser;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
+import mesquite.categ.lib.CategoricalData;
+import mesquite.categ.lib.DNAData;
+import mesquite.categ.lib.ProteinData;
+import mesquite.io.lib.InterpretPhylip;
+import mesquite.lib.Attachable;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.DoubleArray;
+import mesquite.lib.IntegerField;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteFileUtil;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.Parser;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringUtil;
+import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.duties.FileInterpreterI;
+import mesquite.lib.duties.OneTreeSource;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.tree.AdjustableTree;
@@ -33,9 +55,6 @@ import mesquite.lib.ui.MesquiteTabbedPanel;
 import mesquite.lib.ui.RadioButtons;
 import mesquite.lib.ui.SingleLineTextArea;
 import mesquite.lib.ui.SingleLineTextField;
-import mesquite.trees.lib.SimpleTreeWindow;
-import mesquite.io.lib.*;
-import mesquite.zephyr.aZephyrIntro.*;
 
 /* TODO:
 -b bootstrapRandomNumberSeed  // allow user to set seed

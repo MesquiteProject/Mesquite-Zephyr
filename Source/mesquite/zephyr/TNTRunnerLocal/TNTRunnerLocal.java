@@ -10,22 +10,10 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.TNTRunnerLocal;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
-
-import mesquite.categ.lib.*;
 import mesquite.externalCommunication.AppHarvester.AppHarvester;
 import mesquite.externalCommunication.lib.AppInformationFile;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.SSHRunner.SSHRunner;
-import mesquite.zephyr.TNTTreesSSH.*;
-import mesquite.zephyr.lib.*;
-import mesquite.io.lib.*;
+import mesquite.zephyr.lib.TNTRunner;
 
 
 public class TNTRunnerLocal extends TNTRunner  {

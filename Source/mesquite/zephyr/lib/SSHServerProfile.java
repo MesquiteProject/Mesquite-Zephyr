@@ -14,15 +14,24 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.awt.*;
-import java.util.regex.*;
+import java.awt.Choice;
 
-import org.dom4j.*;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 
-import mesquite.lib.*;
+import mesquite.externalCommunication.lib.UsernamePasswordKeeper;
+import mesquite.lib.Explainable;
+import mesquite.lib.IntegerField;
+import mesquite.lib.Listable;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.StringArray;
+import mesquite.lib.StringUtil;
+import mesquite.lib.XMLUtil;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.SingleLineTextField;
-import mesquite.externalCommunication.lib.*;
 
 public class SSHServerProfile implements Listable, Explainable, UsernamePasswordKeeper {
 
