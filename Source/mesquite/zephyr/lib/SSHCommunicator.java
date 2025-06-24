@@ -76,7 +76,6 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 			config.put("StrictHostKeyChecking", "no"); //TODO: have options
 			config.put( "PreferredAuthentications", "publickey,keyboard-interactive,password");
 			JSch jsch = new JSch();
-			if (verbose) System.err.println("@#####Connecting to " + host +", user " + sshServerProfile.getUsername());
 			Session session=jsch.getSession(sshServerProfile.getUsername(), host, 22);
 			session.setPassword(sshServerProfile.getPassword());
 			session.setConfig(config);
@@ -85,7 +84,6 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 				ownerModule.logln("Successfully created session to " + host);
 				ownerModule.logln("    "+sessionsCreated +  " sessions created [" + methodName+"]");
 			}
-			if (verbose) System.err.println("@#####Connected to " + host +", user " + sshServerProfile.getUsername());
 			return session;
 		} catch (Exception e) {
 			ownerModule.logln("WARNING: could not create Session: " + e.getMessage());
@@ -188,19 +186,13 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 		String proposedName="";
 		verbose = true;
 		try {
-			if (verbose) System.err.println("@###################cFURWDN: 1 " +Thread.currentThread());
 			Session session=createSession("checkForUniqueRemoteWorkingDirectoryName");
-			if (verbose) System.err.println("cFURWDN: 2");
 			
 			session.connect();
-			if (verbose) System.err.println("cFURWDN: 3");
 
 			ChannelSftp channel=(ChannelSftp)session.openChannel("sftp");
-			if (verbose) System.err.println("cFURWDN: 4");
 			channel.connect();
-			if (verbose) System.err.println("cFURWDN: 5");
 			String remoteDir = getRemoteWorkingDirectoryPath();
-			if (verbose) System.err.println("cFURWDN: 6");
 			ownerModule.logln("Checking for remote working directory: " + remoteDir);
 			channel.cd(remoteDir);		
 			ownerModule.logln("[Directory found]\n");
@@ -589,7 +581,7 @@ public  class SSHCommunicator extends RemoteCommunicator implements Commandable 
 
 	private boolean ConnectionOrAuthorizationFailure(Exception e) {
 		if (e!=null && e instanceof JSchException) {
-			if ("Auth fail".equalsIgnoreCase(e.getMessage())) {
+			if (e.getMessage().contains("Auth fail")) {
 				ownerModule.discreetAlert("\n*********\nAuthentication failure.  Make sure you are using the correct username and password for the SSH server, and that you have appropriate access to the SSH server.\n*********");
 				forgetPassword();
 				setAuthorizationFailure(true);
