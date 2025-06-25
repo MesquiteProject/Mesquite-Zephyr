@@ -178,7 +178,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
+		return false;
 	}
 	/*.................................................................................................................*/
 	public  boolean isWindows() {
