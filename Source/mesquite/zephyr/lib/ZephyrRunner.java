@@ -355,11 +355,15 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			}
 		return super.getCitation() + addendum;
 	}
+	
+	boolean placeAllAnalysisFilesInSubdirectory = false;
 	/*.................................................................................................................*/
-	protected boolean getPlaceAllAnalysisFilesInSubdirectory() {
-		if (treeInferer !=null)
-			return treeInferer.getPlaceAllAnalysisFilesInSubdirectory();
-		return false;
+	public void setPlaceAllAnalysisFilesInSubdirectory(boolean placeIn) {
+		placeAllAnalysisFilesInSubdirectory = placeIn;
+	}
+	/*.................................................................................................................*/
+	public boolean getPlaceAllAnalysisFilesInSubdirectory() {
+		return placeAllAnalysisFilesInSubdirectory;
 	}
 	/*.................................................................................................................*/
 	protected boolean alwaysPrepareForAnyMatrices() {
@@ -786,7 +790,6 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean hireExternalProcessRunner() {
 		if (externalProcRunner ==null) {
 			externalProcRunner = (ExternalProcessRunner)hireNamedEmployee(getExternalProcessRunnerClass(), getExternalProcessRunnerModuleName());
-			externalProcRunner.setPlaceAllAnalysisFilesInSubdirectory(getPlaceAllAnalysisFilesInSubdirectory());
 			if (externalProcRunner==null)
 				return false;
 		}
@@ -833,6 +836,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean initializeTaxa (Taxa taxa) {
 		Taxa currentTaxa = this.taxa;
 		this.taxa = taxa;
+		if (externalProcRunner!= null)
+			externalProcRunner.setPlaceAllAnalysisFilesInSubdirectory(getPlaceAllAnalysisFilesInSubdirectory());
 	/*	if (taxa!=currentTaxa && taxa!=null) {
 			if (!MesquiteThread.isScripting() && !queryTaxaOptions(taxa))
 				return false;

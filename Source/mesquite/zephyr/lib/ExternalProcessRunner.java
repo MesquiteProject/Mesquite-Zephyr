@@ -12,6 +12,7 @@ package mesquite.zephyr.lib;
 
 
 import mesquite.externalCommunication.lib.AppChooser;
+import mesquite.lib.Debugg;
 import mesquite.lib.MesquiteFileUtil;
 import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteModule;
@@ -34,7 +35,6 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	protected boolean leaveAnalysisDirectoryIntact = false;
 	protected boolean scriptBased = false;
 	protected boolean visibleTerminal = false;
-	protected boolean placeAllAnalysisFilesInSubdirectory = false;
 
 
 	public Class getDutyClass() {
@@ -182,9 +182,10 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		this.additionalShellScriptCommands = additionalShellScriptCommands;
 	}
 	/*.................................................................................................................*/
+	protected boolean placeAllAnalysisFilesInSubdirectory = false;
 	public boolean getPlaceAllAnalysisFilesInSubdirectory() {
 		return placeAllAnalysisFilesInSubdirectory;
-	}
+	} 
 	/*.................................................................................................................*/
 	public void setPlaceAllAnalysisFilesInSubdirectory(boolean placeAllAnalysisFilesInSubdirectory) {
 		this.placeAllAnalysisFilesInSubdirectory = placeAllAnalysisFilesInSubdirectory;
