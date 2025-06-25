@@ -191,7 +191,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	}
 	/*.................................................................................................................*/
 	public String analysisSubdirectoryName() {
-		return "Directory for Mesquite Analyses";
+		return "Directory for Mesquite Zephyr Analyses";
 	}
 	
 
