@@ -356,6 +356,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return super.getCitation() + addendum;
 	}
 	/*.................................................................................................................*/
+	protected boolean getPlaceAllAnalysisFilesInSubdirectory() {
+		if (treeInferer !=null)
+			return treeInferer.getPlaceAllAnalysisFilesInSubdirectory();
+		return true;
+	}
+	/*.................................................................................................................*/
 	protected boolean alwaysPrepareForAnyMatrices() {
 		if (treeInferer !=null)
 			return treeInferer.getAlwaysPrepareForAnyMatrices();
@@ -780,6 +786,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean hireExternalProcessRunner() {
 		if (externalProcRunner ==null) {
 			externalProcRunner = (ExternalProcessRunner)hireNamedEmployee(getExternalProcessRunnerClass(), getExternalProcessRunnerModuleName());
+			externalProcRunner.setPlaceAllAnalysisFilesInSubdirectory(getPlaceAllAnalysisFilesInSubdirectory());
 			if (externalProcRunner==null)
 				return false;
 		}

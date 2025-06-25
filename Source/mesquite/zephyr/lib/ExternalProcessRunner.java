@@ -34,6 +34,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	protected boolean leaveAnalysisDirectoryIntact = false;
 	protected boolean scriptBased = false;
 	protected boolean visibleTerminal = false;
+	protected boolean placeAllAnalysisFilesInSubdirectory = false;
 
 
 	public Class getDutyClass() {
@@ -181,17 +182,39 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		this.additionalShellScriptCommands = additionalShellScriptCommands;
 	}
 	/*.................................................................................................................*/
+	public boolean getPlaceAllAnalysisFilesInSubdirectory() {
+		return placeAllAnalysisFilesInSubdirectory;
+	}
+	/*.................................................................................................................*/
+	public void setPlaceAllAnalysisFilesInSubdirectory(boolean placeAllAnalysisFilesInSubdirectory) {
+		this.placeAllAnalysisFilesInSubdirectory = placeAllAnalysisFilesInSubdirectory;
+	}
+	/*.................................................................................................................*/
+	public String analysisSubdirectoryName() {
+		return "Directory for Mesquite Analyses";
+	}
+	
+
+	/*.................................................................................................................*/
 	public boolean setRootDir() {
-		if (StringUtil.blank(localRootDir)) 
-			localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		if (StringUtil.blank(localRootDir)) {
+			if (getPlaceAllAnalysisFilesInSubdirectory())
+				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUBDIRECTORY_BESIDE_HOME_FILE, analysisSubdirectoryName(), getExecutableName(), "-Run.");
+			else
+				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		}
 		return localRootDir!=null; 
 	}
 	/*.................................................................................................................*/
 	public boolean setRootDirectory(String presetDirectory) {
 		if (StringUtil.notEmpty(presetDirectory))
 			localRootDir= presetDirectory;
-		else if (StringUtil.blank(localRootDir)) 
-			localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		else if (StringUtil.blank(localRootDir)) {
+			if (getPlaceAllAnalysisFilesInSubdirectory())
+				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUBDIRECTORY_BESIDE_HOME_FILE, analysisSubdirectoryName(), getExecutableName(), "-Run.");
+			else
+				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		}
 		return localRootDir!=null; 
 	}
 	/*.................................................................................................................*/

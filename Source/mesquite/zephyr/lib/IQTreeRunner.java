@@ -481,7 +481,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		partitionLinkageChoice = dialog.addPopUpMenu("Partition linkages", partitionLinkageStrings(), partitionLinkage); 
 		
 		partitionLinkageAllowed = (data.hasCharacterGroups() || (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysPrepareForAnyMatrices()) ;
-		partitionLinkageChoice.setEnabled(partitionLinkageAllowed);
+		partitionLinkageChoice.setEnabled(partitionLinkageAllowed && (partitionScheme!=partitionNone));
 
 
 		dialog.addHorizontalLine(1);
