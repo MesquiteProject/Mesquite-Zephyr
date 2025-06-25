@@ -398,9 +398,8 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		MesquiteDouble finalScores = new MesquiteDouble();
 
 		runner.setTreeInferer(getTreeInferer());
-System.err.println("@ ZephyrTreeSearcher.getTrees ========== runner " + runner.getName());
 		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores, statusResult);
-		System.err.println(" ~~~~~~~ after runner.getTrees " + trees);
+
 		runner.setRunInProgress(false);
 		appendSearchDetails();
 		if (trees!=null) {
@@ -512,10 +511,8 @@ System.err.println("@ ZephyrTreeSearcher.getTrees ========== runner " + runner.g
 		 * which returns a tree vector. So, I had to add to the signatures the MesquiteInteger statusResult to carry the information back to the caller.
 		 * */
 		
-		System.err.println("@ ZephyrTreeSearcher.fillTreeBlock, getTrees %%%%%%%%%%%%%");
 		//DISCONNECTABLE
 		TreeVector trees = getTrees(taxa, statusResult);
-		System.err.println("   ~~~~~after ZephyrTreeSearcher.fillTreeBlock");
 
 		if (trees == null)
 			return statusResult.getValue();

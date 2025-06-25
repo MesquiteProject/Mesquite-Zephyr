@@ -356,6 +356,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return super.getCitation() + addendum;
 	}
 	/*.................................................................................................................*/
+	protected boolean getPlaceAllAnalysisFilesInSubdirectory() {
+		if (treeInferer !=null)
+			return treeInferer.getPlaceAllAnalysisFilesInSubdirectory();
+		return true;
+	}
+	/*.................................................................................................................*/
 	protected boolean alwaysPrepareForAnyMatrices() {
 		if (treeInferer !=null)
 			return treeInferer.getAlwaysPrepareForAnyMatrices();
@@ -780,6 +786,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean hireExternalProcessRunner() {
 		if (externalProcRunner ==null) {
 			externalProcRunner = (ExternalProcessRunner)hireNamedEmployee(getExternalProcessRunnerClass(), getExternalProcessRunnerModuleName());
+			externalProcRunner.setPlaceAllAnalysisFilesInSubdirectory(getPlaceAllAnalysisFilesInSubdirectory());
 			if (externalProcRunner==null)
 				return false;
 		}
@@ -1143,10 +1150,16 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		externalProcRunner.setProgressIndicator(progIndicator);
 		setSearchDetails();
 		appendToSearchDetails(getExtraSearchDetails().toString());
+		String version = getProgramVersion();
+		if (version!=null)
+			version = " [version "+version+"]";
+		else
+			version="";
+
 		if (constrainedSearch) 
-			MesquiteMessage.logCurrentTime("\nStart of constrained "+getProgramName()+" analysis: ");
+			MesquiteMessage.logCurrentTime("\nStart of constrained "+getProgramName()+version+" analysis: ");
 		else 
-			MesquiteMessage.logCurrentTime("\nStart of unconstrained "+getProgramName()+" analysis: ");
+			MesquiteMessage.logCurrentTime("\nStart of unconstrained "+getProgramName()+version+" analysis: ");
 
 		timer.start();
 		timer.fullReset();

@@ -512,9 +512,7 @@ class ZephryTreeBlockThread extends FillerThread {
 			Taxa taxa = ownerModule.taxa;
 			if (taxa != null)
 				taxa.incrementEditInhibition();
-			System.err.println("@ running thread ==========");
 			int resultCode = inferenceTask.fillTreeBlock(trees, howManyTrees);
-			System.err.println(" result " + resultCode);
 			if (taxa != null)
 				taxa.decrementEditInhibition();
 			MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(false);

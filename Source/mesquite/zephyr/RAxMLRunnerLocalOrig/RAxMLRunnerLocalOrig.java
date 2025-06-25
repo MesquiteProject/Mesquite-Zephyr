@@ -75,7 +75,7 @@ public class RAxMLRunnerLocalOrig extends RAxMLRunnerBasicOrig  {
 	}
 
 	public String getName() {
-		return "RAxML Likelihood (LocalX)";
+		return "RAxML Likelihood (Local)";
 	}
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
