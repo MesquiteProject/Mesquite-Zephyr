@@ -359,7 +359,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean getPlaceAllAnalysisFilesInSubdirectory() {
 		if (treeInferer !=null)
 			return treeInferer.getPlaceAllAnalysisFilesInSubdirectory();
-		return true;
+		return false;
 	}
 	/*.................................................................................................................*/
 	protected boolean alwaysPrepareForAnyMatrices() {
