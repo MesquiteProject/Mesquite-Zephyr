@@ -26,6 +26,7 @@ import mesquite.lib.MesquiteLong;
 import mesquite.lib.MesquiteModule;
 import mesquite.lib.MesquiteTrunk;
 import mesquite.lib.Notification;
+import mesquite.lib.ParseUtil;
 import mesquite.lib.Parser;
 import mesquite.lib.Snapshot;
 import mesquite.lib.StringUtil;
@@ -82,27 +83,6 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 	//DW: currently ALWAYS on separate thread; therefore LOCK taxa block to editing?
 	//DW: add window snapshot
 	//DW: move to Analysis menu?
-	/*.................................................................................................................*/
-	public Snapshot getSnapshot(MesquiteFile file) { 
-		Snapshot temp = new Snapshot();
-		boolean anyToReconnect = false;
-		if (file == null || file == getProject().getHomeFile()){
-
-			for (int i = 0; i<handlers.size(); i++) {
-				TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(i);
-				if (e.isReconnectable()){
-					temp.addLine("restoreInference ", e); 
-					anyToReconnect = true;
-				}
-				else
-					temp.suppressCommandsToEmployee(e); 
-			}
-		}
-		if (anyToReconnect && handlers.size() >0)
-			temp.addLine("resetWindow");
-		return temp;
-	}
-
 	/*.................................................................................................................*/
 	TreeInferenceHandler findHandlerByID(int id){
 		for (int i = 0; i<handlers.size(); i++) {
@@ -249,6 +229,35 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 		resetWindow();
 	}
 	/*.................................................................................................................*/
+	public Snapshot getSnapshot(MesquiteFile file) { 
+		Snapshot temp = new Snapshot();
+		
+		boolean anyToReconnect = false;
+		if (file == null || file == getProject().getHomeFile()){
+
+			for (int i = 0; i<handlers.size(); i++) {
+				TreeInferenceHandler e=(TreeInferenceHandler)handlers.elementAt(i);
+				if (e.isReconnectable()){
+					if (!anyToReconnect){ // first one, initiate window
+						Snapshot fromWindow = window.getSnapshot(file);
+						temp.addLine("initiateWindow");
+						temp.addLine("tell It");
+						temp.incorporate(fromWindow, true);
+						temp.addLine("endTell"); 
+					}
+					temp.addLine("restoreInference ", e); 
+					anyToReconnect = true;
+				}
+				else
+					temp.suppressCommandsToEmployee(e); 
+			}
+		}
+		if (anyToReconnect && handlers.size() >0)
+			temp.addLine("resetWindow");
+		return temp;
+	}
+
+	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
 		if (checker.compare(this.getClass(), "Hires a tree inferer and infers trees", null, commandName, "inferTrees")) {
 			initiateWindow();
@@ -260,6 +269,10 @@ public class TreeInferenceCoordinator extends FileInit implements MouseListener 
 				redoMenu();
 				return handler;
 			}
+		}
+		else if (checker.compare(this.getClass(), "Initiates the window for a reconnection ", null, commandName, "initiateWindow")) {
+			initiateWindow();
+			return window;
 		}
 		else if (checker.compare(this.getClass(), "Reconnects to a tree inferer ", null, commandName, "restoreInference")) {
 			initiateWindow();
