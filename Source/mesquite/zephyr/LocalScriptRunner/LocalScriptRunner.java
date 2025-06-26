@@ -318,6 +318,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			scriptRunner.setOutputProcessor(this);
 			scriptRunner.setWatcher(this);
 			scriptRunner.pleaseReconnectToExternalProcess();
+			reconnectionDetailsSaved = true;
 			if (visibleTerminalOptionAllowed())
 				scriptRunner.setVisibleTerminal(visibleTerminal);
 			return scriptRunner;

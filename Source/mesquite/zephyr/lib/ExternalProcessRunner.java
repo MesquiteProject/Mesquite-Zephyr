@@ -35,6 +35,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	protected boolean leaveAnalysisDirectoryIntact = false;
 	protected boolean scriptBased = false;
 	protected boolean visibleTerminal = false;
+	protected boolean reconnectionDetailsSaved=false;
 
 
 	public Class getDutyClass() {
@@ -57,6 +58,12 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	}
 	public boolean isScriptBased() {
 		return scriptBased;
+	}
+	public boolean getReconnectionDetailsSaved() {
+		return reconnectionDetailsSaved;
+	}
+	public void setReconnectionDetailsSaved(boolean reconnectionDetailsSaved) {
+		this.reconnectionDetailsSaved = reconnectionDetailsSaved;
 	}
 	public String getHelpString() {
 		//override for more!

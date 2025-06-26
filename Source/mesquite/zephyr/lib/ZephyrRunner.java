@@ -21,6 +21,7 @@ import mesquite.externalCommunication.lib.AppUser;
 import mesquite.externalCommunication.lib.RemoteProcessCommunicator;
 import mesquite.lib.CommandChecker;
 import mesquite.lib.CommandRecord;
+import mesquite.lib.Debugg;
 import mesquite.lib.MesquiteBoolean;
 import mesquite.lib.MesquiteCommand;
 import mesquite.lib.MesquiteCommandAbsorber;
@@ -449,17 +450,28 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		boolean farEnoughAlongToReconnect = (externalProcRunner!=null && externalProcRunner.getReadyForReconnectionSave());
 		if (!isReconnectable()) {
 			return ("If you close the file now, the search will be stopped and you will be NOT able to reconnect to it through Mesquite later. (If you want reconnectability in future runs, use the \"Enable reconnection\" option.)");
+		} 
+		else if (reconnectionDetailsSaved()) {
+			return ("As you have already saved this file with the analysis running, you will be able to later reconnect to the analysis by reopening this file, "
+					+ "as long as you haven't moved the file or those files involved in the "+ getProgramName() 
+					+ " search. \n\nHowever, you may wish to save the file for any more recent changes you have made.\n" + getMessageIfCloseFileRequested());
 		}
 		else if (!farEnoughAlongToReconnect)
 			return ("If you close the file now (even if you save it), the search will not "
 					+ "be successful and you will be NOT able to reconnect to it through Mesquite later, as the process has not proceeded far enough to be reconnectible.  If you wish it to be reconnectible,"
 					+ "then press cancel, and try again a bit later.");
 		else if (fileIsDirty)
-			return ("If you save the file now and permit the analysis to continue, you will be able to close the file and then later reconnect to the analysis by reopening this file, as long as you haven't moved the file or those files involved in the "+ getProgramName() 
-			+ " search. \n" + getMessageIfCloseFileRequested());
+			return ("If you choose \"Save File Before Closing\" and choose to save the file, Mesquite will save the file before closing. "
+					+ "If you also permit the analysis to continue, you will be able to close the file and then later reconnect to the analysis by reopening this file, "
+					+ "as long as you haven't moved the file or those files involved in the "+ getProgramName() 
+					+ " search. \n\nIf you choose to close the file but not save it, then you will not be able to reconnect to the analysis later.\n" + getMessageIfCloseFileRequested());
 		else
 			return ("If you permit the analysis to continue, you will be able to close the file and later reconnect to the analysis by re-opening the file, as long as you haven't moved the file or those files involved in the "+ getProgramName() 
 			+ " search. \n" + getMessageIfCloseFileRequested());
+	}
+	/*-----------------------------------------------------------------------------------*/
+	boolean reconnectionDetailsSaved() {
+		return externalProcRunner!=null && externalProcRunner.getReconnectionDetailsSaved();
 	}
 
 	/*-----------------------------------------------------------------------------------*/
@@ -473,14 +485,17 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (askContinue)
 			title += " Let Analysis Continue?";
 		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(),  title ,buttonPressed); 
-
-		dialog.addLabel("You have asked to close the file, but there is a run of "+ getProgramName() + " underway.");
+		
+		if (reconnectionDetailsSaved())
+			dialog.addLabel("You have asked to close the file, and there is a run of "+ getProgramName() + " underway.");
+		else
+			dialog.addLabel("You have asked to close the file, but there is a run of "+ getProgramName() + " underway.");
 		dialog.addBlankLine();
 		dialog.addLargeOrSmallTextLabel(getFileCloseNotification(fileIsDirty));
 		Checkbox sF = null;
 		dialog.addBlankLine();
 		if (fileIsDirty && askContinue)
-			sF = dialog.addCheckBox("Save File Before Closing", true);
+			sF = dialog.addCheckBox("Save File Before Closing", !reconnectionDetailsSaved());
 		Checkbox lR = null;
 		if (askContinue)
 			lR = dialog.addCheckBox("Let Analysis Continue", true);

@@ -79,8 +79,9 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 	}
 	public String getMessageIfCloseFileRequested () { 
 		if (scriptBased)
-			return "\nIf you allow the analysis to continue, it will stop on its own. Or, to force it to stop, you can open the file in Mesquite (if you save it), or use "
-					+ "the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop it.";
+			return "\nIf you choose \"Let Analysis Continue\", the analysis will continue outside of Mesquite, and presumably run until completion, and then stop on it own, without your intervention. "
+					+ "However, if you want to stop it before completion, then you can open the file in Mesquite (if you save it) and stop the analysis within Mesquite, or use "
+					+ "the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop it.\n\nIf you choose to not let the analysis continue, Mesquite will stop the external analysis now.";
 		return "";
 	}
 	
