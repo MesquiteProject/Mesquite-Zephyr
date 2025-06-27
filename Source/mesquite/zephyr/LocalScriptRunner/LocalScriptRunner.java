@@ -23,6 +23,7 @@ import mesquite.lib.ExternalProcessManager;
 import mesquite.lib.MesquiteBoolean;
 import mesquite.lib.MesquiteFile;
 import mesquite.lib.MesquiteFileUtil;
+import mesquite.lib.MesquiteMessage;
 import mesquite.lib.MesquiteModule;
 import mesquite.lib.MesquiteString;
 import mesquite.lib.MesquiteTrunk;
@@ -461,6 +462,16 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public boolean optionsChosen(){
 		executablePath = appChooser.getManualPath(); //for preference writing
 		useDefaultExecutablePath = appChooser.useBuiltInExecutable(); //for preference writing
+		if (StringUtil.blank(executablePath) && !useDefaultExecutablePath) {
+			MesquiteMessage.discreetNotifyUser("You must specify the path of " + processRequester.getProgramName() + " in order for Mesquite to be able to use it." );
+			return false;
+		}
+		if (useDefaultExecutablePath && !appChooser.builtInAppAvailableForUse()) {
+			MesquiteMessage.discreetNotifyUser("There is no built in version of " + processRequester.getProgramName() + " available for use."
+					+ "  In the previous dialog box, press the \"App...\" button and specify the path to a copy of the program." );
+			return false;
+		}
+				
 	//	builtInVersion = appChooser.getVersion(); //for informing user; only if built-in
 
 		/*		if (defaultExecutablePathCheckBox!=null)
