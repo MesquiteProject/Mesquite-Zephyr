@@ -186,7 +186,7 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 	}
 	
 	JLabel pthreadsLabel;
-	AppChooser appChooser;
+	AppChooser appChooser;   // this is here so that Mesquite can disable the PTHREADS options
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		dialog.addHorizontalLine(1);
