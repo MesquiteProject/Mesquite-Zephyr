@@ -406,11 +406,14 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			//ZQ
 			String[] rbStrings = new String[] {"Direct communication. Safe, but analysis stops if file is closed; can't later reopen and reconnect.",
 					"Indirect. Can reconnect, but if there's an error, Mesquite might not stop " + processRequester.getProgramName() + " or recover trees."};
+			if (getMultipleMatrixMode())
+				scriptBased=false;
 			int current = 0;
 			if (scriptBased)
-			current = 1;
+				current = 1;
 			scriptBasedRadioButtons = dialog.addRadioButtons(rbStrings, current);
 			scriptBasedRadioButtons.addItemListener(this);
+			scriptBasedRadioButtons.setEnabled(1, !getMultipleMatrixMode());
 			dialog.addLabel("[See help button (?) below for details about these choices.]");
 			dialog.addHorizontalLine(1);
 			
@@ -427,6 +430,8 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 			addExitCommandCheckBox.setEnabled(scriptBased);	
 		} 
 		deleteAnalysisDirectoryCheckBox = dialog.addCheckBox("Delete analysis folder after completion", deleteAnalysisDirectory);
+		deleteAnalysisDirectoryCheckBox.setEnabled(!getMultipleMatrixMode());
+
 		return true;
 
 	}

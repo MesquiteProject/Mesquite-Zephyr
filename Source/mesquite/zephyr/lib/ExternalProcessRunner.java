@@ -189,13 +189,13 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		this.additionalShellScriptCommands = additionalShellScriptCommands;
 	}
 	/*.................................................................................................................*/
-	protected boolean placeAllAnalysisFilesInSubdirectory = false;
-	public boolean getPlaceAllAnalysisFilesInSubdirectory() {
-		return placeAllAnalysisFilesInSubdirectory;
+	protected boolean multipleMatrixMode = false;
+	public boolean getMultipleMatrixMode() {
+		return multipleMatrixMode;
 	} 
 	/*.................................................................................................................*/
-	public void setPlaceAllAnalysisFilesInSubdirectory(boolean placeAllAnalysisFilesInSubdirectory) {
-		this.placeAllAnalysisFilesInSubdirectory = placeAllAnalysisFilesInSubdirectory;
+	public void setMultipleMatrixMode(boolean multipleMatrixMode) {
+		this.multipleMatrixMode = multipleMatrixMode;
 	}
 	/*.................................................................................................................*/
 	public String analysisSubdirectoryName() {
@@ -206,7 +206,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	/*.................................................................................................................*/
 	public boolean setRootDir() {
 		if (StringUtil.blank(localRootDir)) {
-			if (getPlaceAllAnalysisFilesInSubdirectory())
+			if (getMultipleMatrixMode())
 				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUBDIRECTORY_BESIDE_HOME_FILE, analysisSubdirectoryName(), getExecutableName(), "-Run.");
 			else
 				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
@@ -218,7 +218,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		if (StringUtil.notEmpty(presetDirectory))
 			localRootDir= presetDirectory;
 		else if (StringUtil.blank(localRootDir)) {
-			if (getPlaceAllAnalysisFilesInSubdirectory())
+			if (getMultipleMatrixMode())
 				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUBDIRECTORY_BESIDE_HOME_FILE, analysisSubdirectoryName(), getExecutableName(), "-Run.");
 			else
 				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");

@@ -357,14 +357,14 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return super.getCitation() + addendum;
 	}
 	
-	boolean placeAllAnalysisFilesInSubdirectory = false;
+	boolean multipleMatrixMode = false;
 	/*.................................................................................................................*/
-	public void setPlaceAllAnalysisFilesInSubdirectory(boolean placeIn) {
-		placeAllAnalysisFilesInSubdirectory = placeIn;
+	public void setMultipleMatrixMode(boolean multipleMatrixMode) {
+		this.multipleMatrixMode = multipleMatrixMode;
 	}
 	/*.................................................................................................................*/
-	public boolean getPlaceAllAnalysisFilesInSubdirectory() {
-		return placeAllAnalysisFilesInSubdirectory;
+	public boolean setMultipleMatrixMode() {
+		return multipleMatrixMode;
 	}
 	/*.................................................................................................................*/
 	protected boolean alwaysPrepareForAnyMatrices() {
@@ -852,7 +852,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		Taxa currentTaxa = this.taxa;
 		this.taxa = taxa;
 		if (externalProcRunner!= null)
-			externalProcRunner.setPlaceAllAnalysisFilesInSubdirectory(getPlaceAllAnalysisFilesInSubdirectory());
+			externalProcRunner.setMultipleMatrixMode(setMultipleMatrixMode());
 	/*	if (taxa!=currentTaxa && taxa!=null) {
 			if (!MesquiteThread.isScripting() && !queryTaxaOptions(taxa))
 				return false;
