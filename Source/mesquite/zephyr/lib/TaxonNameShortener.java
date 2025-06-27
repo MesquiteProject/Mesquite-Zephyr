@@ -9,7 +9,11 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import mesquite.lib.*;;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.StringUtil;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.taxa.Taxon;
+import mesquite.lib.taxa.TaxonNamer;;
 
 /**For making more informative shortened names.  Uses the first four characters of a taxon name and the taxon number.  Compare with SimpleTaxonNamer*/
 public class TaxonNameShortener extends TaxonNamer {

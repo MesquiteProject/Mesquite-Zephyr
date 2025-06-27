@@ -10,19 +10,55 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.Button;
+import java.awt.Checkbox;
+import java.awt.Choice;
+import java.awt.TextArea;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.TNTTreesSSH.*;
-import mesquite.zephyr.lib.*;
-import mesquite.io.lib.*;
+import mesquite.categ.lib.CategoricalData;
+import mesquite.categ.lib.ProteinData;
+import mesquite.io.lib.InterpretHennig86Base;
+import mesquite.lib.Associable;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.EmployeeNeed;
+import mesquite.lib.IntegerField;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteFileUtil;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteLong;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.NameReference;
+import mesquite.lib.ResultCodes;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringUtil;
+import mesquite.lib.characters.CharacterData;
+import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.characters.TaxaInfo;
+import mesquite.lib.duties.FileInterpreterI;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeUtil;
+import mesquite.lib.tree.TreeVector;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.MesquiteDialog;
+import mesquite.lib.ui.MesquiteTabbedPanel;
+import mesquite.lib.ui.SingleLineTextField;
 
 /* TODO:
 
@@ -54,6 +90,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 	long bootstrapSeed = System.currentTimeMillis();
 	//	boolean doBootstrap= false;
 	String otherOptions = "";
+	String preLogReadOptions = "";
 
 	boolean parallel = false;
 	int numSlaves = 6;
@@ -79,6 +116,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 			return sorry("Couldn't hire an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
+		setUpRunner();
 
 		return true;
 	}
@@ -176,6 +214,8 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 			searchArguments = StringUtil.cleanXMLEscapeCharacters(content);
 		if ("bootstrapSearchArguments".equalsIgnoreCase(tag))
 			bootstrapSearchArguments = StringUtil.cleanXMLEscapeCharacters(content);
+		if ("preLogReadOptions".equalsIgnoreCase(tag))
+			preLogReadOptions = StringUtil.cleanXMLEscapeCharacters(content);
 		if ("otherOptions".equalsIgnoreCase(tag))
 			otherOptions = StringUtil.cleanXMLEscapeCharacters(content);
 
@@ -194,6 +234,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		StringUtil.appendXMLTag(buffer, 2, "bootstrapSearchArguments", bootstrapSearchArguments);  
 		StringUtil.appendXMLTag(buffer, 2, "searchStyle", searchStyle);  
 		StringUtil.appendXMLTag(buffer, 2, "otherOptions", otherOptions);  
+		StringUtil.appendXMLTag(buffer, 2, "preLogReadOptions", preLogReadOptions);  
 
 		preferencesSet = true;
 		return buffer.toString();
@@ -227,10 +268,11 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 	}
 	public void setDefaultTNTCommandsOtherOptions(){
 		otherOptions = "";   
+		preLogReadOptions = "";   
 		convertGapsToMissing = true;
 	}
 	public boolean localScriptRunsRequireTerminalWindow(){
-		return true;
+		return false;
 	}
 
 	public boolean vversionAllowed(){
@@ -245,6 +287,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		commands += getTNTCommand("mxram " + mxram);
 
 		commands += getTNTCommand("report+0/1/0");
+		commands += preLogReadOptions;
 		commands += getTNTCommand("log "+logFileName) ; 
 		commands += getTNTCommand("p " + dataFileName);
 		if (vversionAllowed())
@@ -253,7 +296,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 			commands += getTNTCommand("outgroup " + firstOutgroup);
 		if (bootstrapOrJackknife()) {
 			if (parallel) {
-				commands += indentTNTCommand("ptnt begin parallelRun " + numSlaves + "/ram x 2 = ");
+				commands += indentTNTCommand("ptnt begin demo " + numSlaves + "/ram x 2 = ");
 			}
 			if (StringUtil.notEmpty(bootSearchScriptPath)) {
 				String script = MesquiteFile.getFileContentsAsString(bootSearchScriptPath);
@@ -286,6 +329,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 					commands +=  getTNTCommand("macro=");				
 					commands +=  getTNTCommand("ttags =");		
 				}
+				commands +=  getTNTCommand("taxname =");			// added 20 May 2024 to ensure proper behavior on reconnect	
 				commands +=  getTNTCommand("tsave *" + treeFileName);				
 				if (bootstrapAllowed) {
 					if (searchStyle==BOOTSTRAPSEARCH)
@@ -389,6 +433,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 	TextArea searchField = null;
 	TextArea bootstrapSearchField = null;
 	TextArea otherOptionsField = null;
+	TextArea preLogReadOptionsField = null;
 	SingleLineTextField searchScriptPathField=null;
 	SingleLineTextField bootSearchScriptPathField=null;
 	Checkbox convertGapsBox=null;
@@ -426,7 +471,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 				+ "Mesquite will read in the trees found by TNT. ";
 
 		queryOptionsDialog.appendToHelpString(helpString);
-		queryOptionsDialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
+		queryOptionsDialog.setHelpURL(getHelpURL(zephyrRunnerEmployer));
 
 		MesquiteTabbedPanel tabbedPanel = queryOptionsDialog.addMesquiteTabbedPanel();
 		String extraLabel = getLabelForQueryOptions();
@@ -469,10 +514,15 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		useDefaultsButton = queryOptionsDialog.addAListenedButton("Set to Defaults", null, this);
 		useDefaultsButton.setActionCommand("setToDefaults");
 
+		tabbedPanel.addPanel("Taxa & Outgroups", true);
+		addTaxaOptions(queryOptionsDialog,taxa);
+
 		tabbedPanel.addPanel("Other Options", true);
 		convertGapsBox = queryOptionsDialog.addCheckBox("convert gaps to missing (to avoid gap=extra state)", convertGapsToMissing);
 		queryOptionsDialog.addHorizontalLine(1);
-		queryOptionsDialog.addLabel("Post-Search TNT Commands");
+		queryOptionsDialog.addLabel("Pre-Log, Pre-Read TNT Commands:");
+		preLogReadOptionsField = queryOptionsDialog.addTextAreaSmallFont(preLogReadOptions, 4, 80);
+		queryOptionsDialog.addLabel("Post-Search TNT Commands:");
 		otherOptionsField = queryOptionsDialog.addTextAreaSmallFont(otherOptions, 7, 80);
 		queryOptionsDialog.addHorizontalLine(1);
 		queryOptionsDialog.addNewDialogPanel();
@@ -500,7 +550,9 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 				}
 				numSlaves = slavesField.getValue();
 				otherOptions = otherOptionsField.getText();
+				preLogReadOptions = preLogReadOptionsField.getText();
 				convertGapsToMissing = convertGapsBox.getState();
+				processTaxaOptions();
 				parallel = parallelCheckBox.getState();
 				//				doBootstrap = doBootstrapBox.getState();
 				searchArguments = searchField.getText();
@@ -558,6 +610,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		} else if (e.getActionCommand().equalsIgnoreCase("setToDefaultsOtherOptions")) {
 			setDefaultTNTCommandsOtherOptions();
 			otherOptionsField.setText(otherOptions);
+			preLogReadOptionsField.setText(preLogReadOptions);
 			convertGapsBox.setState(convertGapsToMissing);
 		} else if (e.getActionCommand().equalsIgnoreCase("browseSearchScript") && searchScriptPathField!=null) {
 			MesquiteString directoryName = new MesquiteString();
@@ -716,22 +769,23 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 	FileInterpreterI exporter;
 	
 	/*.................................................................................................................*/
-	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
+	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore, MesquiteInteger statusResult) {
+		if (!initializeGetTrees(CategoricalData.class, taxa, matrix, statusResult))
 			return null;
 		setTNTSeed(seed);
 		isProtein = data instanceof ProteinData;
 
 		//David: if isDoomed() then module is closing down; abort somehow
 
-		//write data file
+// create local version of data file; this will then be copied over to the running location		
 		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "TNT","-Run.");  
 		if (tempDir==null)
 			return null;
+
 		String dataFileName = "data.ss";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 
-		exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretTNT");
+		exporter = getFileInterpreter(this,"#InterpretTNT");
 		if (exporter==null)
 			return null;
 		boolean fileSaved = false;
@@ -741,7 +795,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		if (!fileSaved) return null;
 
-		String translationFileName = IOUtil.translationTableFileName;   
+		String translationFileName = TreeUtil.translationTableFileName;   
 		setTaxonTranslation(taxa);
 		taxonNumberTranslation = getTaxonNumberTranslation(taxa);
 		namer.setNumberTranslationTable(taxonNumberTranslation);
@@ -759,10 +813,18 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		logln("");
 
 		MesquiteString arguments = new MesquiteString();
-		arguments.setValue(" proc " + commandsFileName);
+		if (MesquiteTrunk.isMacOSX())
+			arguments.setValue(" bground proc " + commandsFileName);  //19 May 2024 - added bground
+		else
+			arguments.setValue(" proc " + commandsFileName);  
 
 		String programCommand = getExecutableCommand();
 
+		if (externalProcRunner instanceof ScriptRunner){
+			String path =((ScriptRunner)externalProcRunner).getExecutablePath();	//programCommand += StringUtil.lineEnding();  
+			if (path != null)
+				logln("Running TNT version at " + path);
+		}
 		if (StringUtil.blank(programCommand)) {
 			MesquiteMessage.discreetNotifyUser("Path to TNT not specified!");
 			((InterpretHennig86Base)exporter).setTaxonNamer(null);
@@ -789,13 +851,17 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 		int runInformationFileNumber = 3;
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(),runInformationFileNumber);
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, null, fileContents, fileNames,  ownerModule.getName(),runInformationFileNumber);
+
+		MesquiteFile.deleteDirectory(tempDir);  //delete directory in Support Files
 
 		if (!isDoomed()){
 			if (success){
 				desuppressProjectPanelReset();
 				return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
 			} else {
+				if (statusResult != null)
+				statusResult.setValue(ResultCodes.ERROR);
 				if (!beanWritten)
 					postBean("unsuccessful [1] | "+externalProcRunner.getDefaultProgramLocation());
 				beanWritten=true;

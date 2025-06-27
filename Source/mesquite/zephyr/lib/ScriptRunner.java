@@ -1,8 +1,5 @@
 package mesquite.zephyr.lib;
 
-import mesquite.lib.ExtensibleDialog;
-import mesquite.lib.MesquiteTrunk;
-import mesquite.lib.ProgressIndicator;
 import mesquite.lib.ShellScriptRunner;
 import mesquite.lib.ShellScriptUtil;
 import mesquite.lib.StringUtil;
@@ -18,6 +15,11 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 	/*.................................................................................................................*/
 	public void setRunningFilePath() {
 		runningFilePath = localRootDir + ShellScriptUtil.runningFileName;//+ MesquiteFile.massageStringToFilePathSafe(unique);
+
+	}
+	/*.................................................................................................................*/
+	public ExternalProcessRequester getExternalProcessRequester() {
+		return processRequester;
 
 	}
 
@@ -41,15 +43,16 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 		suffix+= processRequester.getSuffixForProgramCommand();
 			
 		
-		if (!processRequester.allowStdErrRedirect())
-			shellScript.append(programCommand + " " + args);
-		else {
-			if (visibleTerminal && isMacOSX()) {
-				shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName);
-			}
-			else
-				shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName);
+		if (visibleTerminal && isMacOSX()) {
+			 if (!processRequester.allowStdErrRedirect())
+				 shellScript.append(programCommand + " " + args+ " >/dev/tty ");
+			 else 
+				 shellScript.append(programCommand + " " + args+ " >/dev/tty   2> " + ShellScriptRunner.stErrorFileName);
 		}
+		else if (!processRequester.allowStdErrRedirect())
+			shellScript.append(programCommand + " " + args);
+		else 
+				shellScript.append(programCommand + " " + args+ " > " + ShellScriptRunner.stOutFileName+ " 2> " + ShellScriptRunner.stErrorFileName);
 		
 		if (!processRequester.removeCommandSameCommandLineAsProgramCommand()) {
 			shellScript.append(suffix + StringUtil.lineEnding(isWindows()));
@@ -70,14 +73,15 @@ public abstract class ScriptRunner extends ExternalProcessRunner {
 
 	public String getMessageIfUserAbortRequested () {
 		if (scriptBased)
-			return "Mesquite will stop its monitoring of the analysis, but it will not be able to directly stop the other program.  To stop the other program, you will need to "
+			return "\nIf you choose to stop, Mesquite will attempt to stop the analysis program. Normally this will work, but if there is an error, you may need to  "
 					+ "use either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
 		return "";
 	}
 	public String getMessageIfCloseFileRequested () { 
 		if (scriptBased)
-			return "If Mesquite closes this file, it will not directly stop the other program.  To stop the other program, you will need to "
-					+ "use either the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop the other process.";
+			return "\nIf you choose \"Let Analysis Continue\", the analysis will continue outside of Mesquite, and presumably run until completion, and then stop on it own, without your intervention. "
+					+ "However, if you want to stop it before completion, then you can open the file in Mesquite (if you save it) and stop the analysis within Mesquite, or use "
+					+ "the Task Manager (Windows) or the Activity Monitor (MacOS) or the equivalent to stop it.\n\nIf you choose to not let the analysis continue, Mesquite will stop the external analysis now.";
 		return "";
 	}
 	

@@ -9,22 +9,33 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import mesquite.lib.*;
-import mesquite.lib.duties.*;
+
+
+import mesquite.externalCommunication.lib.AppChooser;
+import mesquite.lib.Debugg;
+import mesquite.lib.MesquiteFileUtil;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.OutputTextListener;
+import mesquite.lib.StringUtil;
+import mesquite.lib.duties.TreeInferer;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.ProgressIndicator;
 
 public abstract class ExternalProcessRunner extends MesquiteModule {
 	String executableName;
 	int executableNumber;
 	String rootNameForDirectory;
 	TreeInferer treeInferrer;
-	boolean aborted = false;
+	boolean userAborted = false;
 	protected ProgressIndicator progressIndicator;
 	protected String localRootDir = null;  // local directory for storing files on local machine
 	protected boolean readyForReconnectionSave = false;
 	protected boolean onlySetUpRun = false;
 	protected boolean leaveAnalysisDirectoryIntact = false;
-	public boolean scriptBased = false;
+	protected boolean scriptBased = false;
 	protected boolean visibleTerminal = false;
+	protected boolean reconnectionDetailsSaved=false;
 
 
 	public Class getDutyClass() {
@@ -48,11 +59,36 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public boolean isScriptBased() {
 		return scriptBased;
 	}
+	public boolean getReconnectionDetailsSaved() {
+		return reconnectionDetailsSaved;
+	}
+	public void setReconnectionDetailsSaved(boolean reconnectionDetailsSaved) {
+		this.reconnectionDetailsSaved = reconnectionDetailsSaved;
+	}
+	public String getHelpString() {
+		//override for more!
+		return "";
+	}
 
 	public void setScriptBased(boolean scriptBased) {
 		this.scriptBased = scriptBased;
 	}
+	
+	public boolean useAppInAppFolder() {
+		return false;
+	}
 
+	public String getAppOtherProperties() {
+		return "";
+	}
+
+	public void appChooserDialogBoxEntryChanged() {
+		
+	}
+
+	public AppChooser getAppChooser() {
+		return null;
+	}
 
 	public String[] getDefaultModule() {
 		return new String[] {""};
@@ -68,8 +104,19 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		return MesquiteInteger.infinite;
 	}
 	
+	public void updateOptionsChosenFromDialog() {
+	}
+
+	
 	public String getMessageIfUserAbortRequested () {
 		return "";
+	}
+	/** If file close has been requested, here say whether or not to ask about killing the. After deciding, the caller should call setDontKill below!!!!.*/
+	public boolean askAboutKillingRun() {
+		return false;
+	}
+	/** To be called after askAboutKillingRun.*/
+	public void setDontKill (boolean letRun) {
 	}
 
 	public void storeRunnerPreferences() {
@@ -79,10 +126,10 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		return "";
 	}
 	public boolean userAborted(){
-		return aborted;
+		return userAborted;
 	}
-	public void setAborted(boolean aborted){
-		this.aborted = aborted;
+	public void setUserAborted(boolean aborted){
+		this.userAborted = aborted;
 	}
 
 	public void setReadyForReconnectionSave(boolean readyForReconnectionSave){
@@ -142,10 +189,45 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		this.additionalShellScriptCommands = additionalShellScriptCommands;
 	}
 	/*.................................................................................................................*/
+	protected boolean multipleMatrixMode = false;
+	public boolean getMultipleMatrixMode() {
+		return multipleMatrixMode;
+	} 
+	/*.................................................................................................................*/
+	public void setMultipleMatrixMode(boolean multipleMatrixMode) {
+		this.multipleMatrixMode = multipleMatrixMode;
+	}
+	/*.................................................................................................................*/
+	public String analysisSubdirectoryName() {
+		return "Directory for Mesquite Zephyr Analyses";
+	}
+	
+
+	/*.................................................................................................................*/
 	public boolean setRootDir() {
-		if (localRootDir==null) 
-			localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		if (StringUtil.blank(localRootDir)) {
+			if (getMultipleMatrixMode())
+				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUBDIRECTORY_BESIDE_HOME_FILE, analysisSubdirectoryName(), getExecutableName(), "-Run.");
+			else
+				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		}
 		return localRootDir!=null; 
+	}
+	/*.................................................................................................................*/
+	public boolean setRootDirectory(String presetDirectory) {
+		if (StringUtil.notEmpty(presetDirectory))
+			localRootDir= presetDirectory;
+		else if (StringUtil.blank(localRootDir)) {
+			if (getMultipleMatrixMode())
+				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUBDIRECTORY_BESIDE_HOME_FILE, analysisSubdirectoryName(), getExecutableName(), "-Run.");
+			else
+				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+		}
+		return localRootDir!=null; 
+	}
+	/*.................................................................................................................*/
+	public void setRootDir(String localRootDir) {
+		this.localRootDir = localRootDir;
 	}
 
 	/*.................................................................................................................*/
@@ -169,7 +251,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 
 	// the actual data & scripts.  
 	public abstract boolean setPreflightInputFiles(String script);
-	public abstract boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames, int runInfoFileNumber);  //assumes for now that all input files are in the same directory
+	public abstract boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String presetDirectory, String[] fileContents, String[] fileNames, int runInfoFileNumber);  //assumes for now that all input files are in the same directory
 	public abstract void setOutputFileNamesToWatch(String[] fileNames);
 	public abstract void setOutputFileNameToWatch(int index, String fileName);
 	public abstract String getOutputFilePath(String fileName);

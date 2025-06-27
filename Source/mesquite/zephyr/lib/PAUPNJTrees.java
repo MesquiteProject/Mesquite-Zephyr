@@ -9,13 +9,9 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.awt.*;
-
-import mesquite.lib.*;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.analysis.DistanceAnalysis;
 import mesquite.zephyr.PAUPNJRunnerSSH.PAUPNJRunnerSSH;
-import mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal;
-import mesquite.zephyr.lib.*;
-import mesquite.categ.lib.*;
 
 public abstract class PAUPNJTrees extends ZephyrTreeSearcher implements DistanceAnalysis {
 
@@ -69,10 +65,6 @@ public abstract class PAUPNJTrees extends ZephyrTreeSearcher implements Distance
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
 		return false;
-	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
 	}
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer

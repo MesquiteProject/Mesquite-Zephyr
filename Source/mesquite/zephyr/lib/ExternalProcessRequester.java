@@ -8,7 +8,10 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 package mesquite.zephyr.lib;
 
-import mesquite.lib.*;
+
+import mesquite.externalCommunication.lib.AppInformationFile;
+import mesquite.externalCommunication.lib.AppUser;
+import mesquite.lib.MesquiteModule;
 
 public interface ExternalProcessRequester {
 	
@@ -36,6 +39,16 @@ public interface ExternalProcessRequester {
 	
 	public String getExecutableName();
 	
+	public boolean getBuiltInExecutableAllowed();
+	
+	public AppInformationFile getAppInfoFile();
+	
+	public AppUser getAppUser();
+	
+	public void appChooserDialogBoxEntryChanged() ;
+
+	public MesquiteModule getModule();
+	
 	public void prepareRunnerObject(Object obj);
 	
 	public String[] modifyOutputPaths(String[] outputFilePaths);
@@ -43,6 +56,9 @@ public interface ExternalProcessRequester {
 	public boolean localScriptRunsRequireTerminalWindow();
 
 	public boolean errorsAreFatal();
+	
+	public boolean stdErrIsTrueError(String stdErr);
+
 	
 	public boolean allowStdErrRedirect();
 
@@ -53,6 +69,8 @@ public interface ExternalProcessRequester {
 	public boolean removeCommandSameCommandLineAsProgramCommand();
 
 	public String getRunDetailsForHelp() ;
+	
+	
 
 
 }

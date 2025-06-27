@@ -10,7 +10,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.TNTTreesLocal;
 
 import mesquite.zephyr.TNTRunnerLocal.TNTRunnerLocal;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.TNTTrees;
 
 
 public class TNTTreesLocal extends TNTTrees {

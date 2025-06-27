@@ -9,19 +9,40 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Random;
 
-import mesquite.categ.lib.*;
-import mesquite.io.lib.IOUtil;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.meristic.lib.MeristicData;
-import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.lib.*;
+import mesquite.categ.lib.CategoricalData;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.EmployeeNeed;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteFileUtil;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.Parser;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringUtil;
+import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.duties.FileCoordinator;
+import mesquite.lib.duties.OneTreeSource;
+import mesquite.lib.duties.TreesManager;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.tree.MesquiteTree;
+import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeVector;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.MesquiteDialog;
+import mesquite.lib.ui.MesquiteTabbedPanel;
+import mesquite.lib.ui.RadioButtons;
+import mesquite.lib.ui.SingleLineTextField;
 
 /* TODO:
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
@@ -74,6 +95,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		externalProcRunner.setProcessRequester(this);
 		rng = new Random(System.currentTimeMillis());
 		loadPreferences();
+		setUpRunner();
 
 		return true;
 	}
@@ -81,6 +103,16 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	public int getProgramNumber() {
 		return -1;
 	}
+	/*.................................................................................................................*/
+	public boolean canUseLocalApp() {
+		return true;
+	}
+
+	/*.................................................................................................................*/
+	public String getAppOfficialName() {
+		return "PAUP";
+	}
+
 
 	public String getLogText() {
 		return externalProcRunner.getStdOut();
@@ -287,20 +319,25 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 	/*.................................................................................................................*/
 
-	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
-		if (!initializeGetTrees(CategoricalData.class, taxa, matrix))
+	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore, MesquiteInteger statusResult) {
+		if (!initializeGetTrees(CategoricalData.class, taxa, matrix, statusResult))
 			return null;
 		setPAUPSeed(seed);
 		//David: if isDoomed() then module is closing down; abort somehow
 
 		//write data file
-		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "PAUP","-Run.");  
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, "PAUP","-Run.");  
 		if (tempDir==null)
 			return null;
 		dataFileName = "dataFile.nex";   //replace this with actual file name?
 		String dataFilePath = tempDir +  dataFileName;
 		boolean fileSaved = false;
-		fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, true, true, true, true);
+		if (partitionScheme == partitionByCharacterGroups)
+			fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, true, true, false, true);
+		else if (partitionScheme == partitionByCodonPosition)
+			fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, true, true, true, true);
+		else
+			fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, false, true, false, true);  // no partition
 		if (!fileSaved) return null;
 
 		setFileNames();
@@ -353,6 +390,11 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 		String programCommand = externalProcRunner.getExecutableCommand();
 		//+ " " + arguments + StringUtil.lineEnding();  
+		if (externalProcRunner instanceof ScriptRunner){
+			String path =((ScriptRunner)externalProcRunner).getExecutablePath();	//programCommand += StringUtil.lineEnding();  
+			if (path != null)
+				logln("Running PAUP version at " + path);
+		}
 
 		if (StringUtil.blank(programCommand)) {
 			MesquiteMessage.discreetNotifyUser("Path to PAUP* not specified!");
@@ -377,14 +419,15 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, null, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
 
 		if (!isDoomed()){
 			if (success){
 				desuppressProjectPanelReset();
 				return retrieveTreeBlock(trees, finalScore);   // here's where we actually process everything.
-			} else
-				reportStdError();
+			} else {
+				reportStdError(statusResult);
+			}
 			if (!beanWritten)
 				postBean("unsuccessful [1] | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
@@ -413,7 +456,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		String treeFilePath = outputFilePaths[OUT_TREEFILE];
 		if (!MesquiteFile.fileExists(treeFilePath)) {
 			logln("PAUP tree file not found");
-			reportStdError();
+			reportStdError(null);
 			if (!beanWritten)
 				postBean("failed - no tree file found | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
@@ -487,7 +530,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			beanWritten=true;
 			return t;
 		} else {
-			reportStdError();
+			reportStdError(null);
 			if (!beanWritten)
 				postBean("failed | "+externalProcRunner.getDefaultProgramLocation());
 			beanWritten=true;
@@ -697,10 +740,9 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			titleExtra += " ("+extra+")";
 		dialog = new ExtensibleDialog(containerOfModule(), getName() + " Options"+titleExtra,buttonPressed);  //MesquiteTrunk.mesquiteTrunk.containerOfModule()
 		//		dialog.addLabel(getName() + " Options and Location");
-		String helpString = "This module will prepare a matrix for PAUP, and ask PAUP do to an analysis.  A command-line version of PAUP must be installed. ";
+		String helpString = "This module will prepare a matrix for PAUP, and ask PAUP do to an analysis.  A command-line version of PAUP must be installed. " + getHelpString();
 		dialog.appendToHelpString(helpString);
-
-		dialog.setHelpURL("http://zephyr.mesquiteproject.org/PAUPOverview.html");
+		dialog.setHelpURL(getHelpURL(zephyrRunnerEmployer));
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 		String extraLabel = getLabelForQueryOptions();
@@ -723,6 +765,11 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 			constraintButtons = dialog.addRadioButtons (new String[]{"No Constraint", "Monophyly", "Backbone"}, useConstraintTree);
 			constraintButtons.addItemListener(this);
 		}
+		
+		
+		tabbedPanel.addPanel("Taxa & Outgroups", true);
+		addTaxaOptions(dialog,taxa);
+
 
 		//TextArea PAUPOptionsField = queryFilesDialog.addTextArea(PAUPOptions, 20);
 		tabbedPanel.cleanup();
@@ -739,13 +786,16 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 				else
 					setConstrainedSearch(false);
 			}
+			processTaxaOptions();
 			if (externalProcRunner.optionsChosen() && infererOK) {
 				queryOptionsProcess(dialog);
 				//				writeOnlySelectedTaxa = selectedOnlyBox.getState();
 				storeRunnerPreferences();
 				acceptableOptions = true;
 			}
-		}
+		} else
+			if (treeInferer!=null)
+				treeInferer.setUserCancelled();
 		dialog.dispose();
 		return (acceptableOptions);
 	}
@@ -758,9 +808,10 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		return "Bootstrap";
 	}
 
-	public boolean errorsAreFatal(){
+	public boolean errorsAreFatal(){  // this was causing failure if BandB or exhaustive search was done with likelihood, as in this case PAUP wrote to StdError March 2024.  Not sure why this was set to true.
 		return true;
 	}
+
 
 	public boolean allowStdErrRedirect() {
 		return true;
@@ -784,6 +835,18 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 	public String getMethodNameForTreeBlock() {
 		return "";
 	}
+	/*.................................................................................................................*/
+	public boolean stdErrIsTrueError(String stdErr) {
+		if (StringUtil.notEmpty(stdErr)) {
+			stdErr = StringUtil.stripBoundingWhitespace(stdErr);
+			if (StringUtil.containsIgnoreCase(stdErr,  "Error"))
+				return true;
+			else
+				return false;
+		}
+		return false;
+	}
+
 	/*.................................................................................................................*/
 
 	public String getName() {

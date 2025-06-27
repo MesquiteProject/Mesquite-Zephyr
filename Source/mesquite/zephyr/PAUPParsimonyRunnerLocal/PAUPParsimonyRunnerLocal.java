@@ -9,18 +9,10 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.PAUPParsimonyRunnerLocal;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-
-import javax.swing.*;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
+import mesquite.externalCommunication.AppHarvester.AppHarvester;
+import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.PAUPParsimonyRunnerBasic;
 
 
 
@@ -38,6 +30,17 @@ public class PAUPParsimonyRunnerLocal extends PAUPParsimonyRunnerBasic {
 
 	public String getName() {
 		return getProgramName() + " Trees (Parsimony) [Local] Runner";
+	}
+
+	/*.................................................................................................................*/
+	public void setUpRunner() { 
+		super.setUpRunner();
+		hasApp = AppHarvester.builtinAppExists(getAppOfficialName());
+	}
+
+	/*.................................................................................................................*/
+	public AppInformationFile getAppInfoFile() {
+		return AppHarvester.getAppInfoFileForProgram(this);
 	}
 
 	/*.................................................................................................................*/

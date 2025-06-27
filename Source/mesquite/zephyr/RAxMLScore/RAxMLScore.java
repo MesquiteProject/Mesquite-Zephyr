@@ -10,10 +10,14 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.RAxMLScore;
 
 
-import mesquite.io.lib.IOUtil;
-import mesquite.lib.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.RAxMLRunnerLocalOld.*;
+
+import mesquite.lib.Attachable;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteNumber;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.duties.NumberForTree;
+import mesquite.lib.tree.Tree;
+import mesquite.zephyr.lib.ZephyrUtil;
 
 
 public class RAxMLScore extends NumberForTree {
@@ -35,7 +39,7 @@ public class RAxMLScore extends NumberForTree {
             return;
 	   	clearResultAndLastResult(result);
        if (tree instanceof Attachable){
-        	Object obj = ((Attachable)tree).getAttachment(IOUtil.RAXMLSCORENAME);
+        	Object obj = ((Attachable)tree).getAttachment(ZephyrUtil.RAXMLSCORENAME);
         	if (obj == null){
         			if (resultString != null)
         				resultString.setValue("No RAxML score is associated with this tree.  To obtain a score, use as tree source \"RAxML Trees\".");

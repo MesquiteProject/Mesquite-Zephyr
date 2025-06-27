@@ -8,14 +8,15 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 package mesquite.zephyr.lib;
 
-import java.util.*;
-
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.GarliRunnerLocal.GarliRunnerLocal;
-import mesquite.zephyr.lib.*;
-import mesquite.zephyr.lib.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.StringUtil;
+import mesquite.lib.analysis.LikelihoodAnalysis;
+import mesquite.lib.duties.TreeSource;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.tree.AdjustableTree;
 
 
 public abstract class GarliTrees extends ZephyrTreeSearcher implements LikelihoodAnalysis {
@@ -47,10 +48,6 @@ public abstract class GarliTrees extends ZephyrTreeSearcher implements Likelihoo
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
 		return false;
-	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
 	}
 	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){

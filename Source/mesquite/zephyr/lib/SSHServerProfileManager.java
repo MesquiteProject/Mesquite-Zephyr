@@ -14,11 +14,10 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 
-import mesquite.lib.*;
-import mesquite.lib.duties.*;
-import java.awt.*;
+import java.awt.Choice;
 
-/* Modules of this duty class are responsible for being able to supply the sample code and primer name given the chromatogram file name */
+import mesquite.lib.duties.MesquiteInit;
+
 public abstract class SSHServerProfileManager extends MesquiteInit {
 	public Choice choice;
 	protected SSHServerProfile sshServerProfile=null;

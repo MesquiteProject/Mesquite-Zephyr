@@ -10,24 +10,10 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.RAxMLRunnerLocalNG;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
-
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.lib.system.SystemUtil;
-import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
+import mesquite.externalCommunication.AppHarvester.AppHarvester;
+import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.RAxMLTreesLocalOld.*;
-import mesquite.zephyr.lib.*;
-import mesquite.io.lib.*;
+import mesquite.zephyr.lib.RAxMLRunnerBasicNG;
 
 
 public class RAxMLRunnerLocalNG extends RAxMLRunnerBasicNG  {
@@ -48,6 +34,24 @@ public class RAxMLRunnerLocalNG extends RAxMLRunnerBasicNG  {
 		return true;
 	}
 
+	/*.................................................................................................................*/
+	public void setUpRunner() { 
+		super.setUpRunner();
+		hasApp = AppHarvester.builtinAppExists(getAppOfficialName());
+	}
+
+	/*.................................................................................................................*/
+	public AppInformationFile getAppInfoFile() {
+		return AppHarvester.getAppInfoFileForProgram(this);
+	}
+	/*.................................................................................................................*/
+	public String getAppOfficialName() {
+		return "RAxML-NG";
+	}
+	/*.................................................................................................................*/
+	public boolean canUseLocalApp() {
+		return true;
+	}
 
 	/*.................................................................................................................*/
 	/** returns the version number at which this module was first released.  If 0, then no version number is claimed.  If a POSITIVE integer

@@ -10,23 +10,21 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.lib.system.SystemUtil;
-import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
-import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.lib.*;
-import mesquite.io.lib.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.IntegerField;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.StringUtil;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.RadioButtons;
+import mesquite.lib.ui.SingleLineTextField;
 
 
 
@@ -42,7 +40,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 	protected SingleLineTextField MPISetupField;
 	protected IntegerField numProcessorsField;
-	protected Checkbox autoNumProcessorsCheckBox;
+	RadioButtons numProcessorsRadioButtons;
 
 
 	public String getExecutableName() {
@@ -103,7 +101,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.4-1.6.12, 2.2.0";
+		return "1.6.4-1.6.12, 2.2.0–2.3.6";
 	}
 
 	/*.................................................................................................................*/
@@ -150,24 +148,26 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 	/*.................................................................................................................*/
 	public void addRunnerOptions(ExtensibleDialog dialog) {
 		dialog.addHorizontalLine(1);
-		autoNumProcessorsCheckBox = dialog.addCheckBox("Let IQ-TREE choose number of processor cores", autoNumProcessors);
-		autoNumProcessorsCheckBox.addItemListener(this);
-		numProcessorsField = dialog.addIntegerField("Specify number of processor cores", numProcessors, 8, 1, MesquiteInteger.infinite);
+		int defNumProc = 0;
+		if (!autoNumProcessors)
+			defNumProc = 1;
+		numProcessorsRadioButtons = dialog.addRadioButtons(new String[] {"Let IQ-TREE choose number of processor cores", "Specify number of processor cores"}, defNumProc);
+		numProcessorsRadioButtons.addItemListener(this);
+		numProcessorsField = dialog.addIntegerField("Number of cores", numProcessors, 8, 1, MesquiteInteger.infinite);
+		numProcessorsField.getTextField().setEnabled(numProcessorsRadioButtons.getValue() == 1);
 		dialog.addHorizontalLine(1);
 
-		dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());
+	//	dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());
 	}
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent e) {
-		if (e.getItemSelectable() == autoNumProcessorsCheckBox){
-			numProcessorsField.getTextField().setEnabled(!autoNumProcessorsCheckBox.getState());
-		} else
+			numProcessorsField.getTextField().setEnabled(numProcessorsRadioButtons.getValue() == 1);
 			super.itemStateChanged(e);
 	}
 
 	/*.................................................................................................................*/
 	public void processRunnerOptions() {
-		autoNumProcessors = autoNumProcessorsCheckBox.getState();
+		autoNumProcessors = numProcessorsRadioButtons.getValue() == 0;
 		numProcessors = numProcessorsField.getValue(); //
 	}
 	/*.................................................................................................................*/

@@ -9,17 +9,11 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.PAUPLikelihoodTreesSSH;
 
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.util.Random;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.duties.TreeSource;
+import mesquite.lib.analysis.LikelihoodAnalysis;
 import mesquite.zephyr.PAUPLikelihoodRunnerSSH.PAUPLikelihoodRunnerSSH;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.PAUPLikelihoodTrees;
 
-public class PAUPLikelihoodTreesSSH extends PAUPTrees implements LikelihoodAnalysis {
+public class PAUPLikelihoodTreesSSH extends PAUPLikelihoodTrees implements LikelihoodAnalysis {
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
@@ -53,6 +47,11 @@ public class PAUPLikelihoodTreesSSH extends PAUPTrees implements LikelihoodAnaly
 			 return runner.getProgramLocation();
 		 return "SSH Server";
 	}
+		/*.................................................................................................................*/
+		public String getMethodNameForTreeBlock() {
+			return "ML";
+		}
+
 	/*.................................................................................................................*/
 
 	public String getName() {

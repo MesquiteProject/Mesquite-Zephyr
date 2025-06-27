@@ -9,12 +9,28 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.util.*;
+import java.util.Random;
 
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.lib.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteNumber;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.Reconnectable;
+import mesquite.lib.Snapshot;
+import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.duties.MatrixSourceCoord;
+import mesquite.lib.duties.NumberForTree;
+import mesquite.lib.duties.TreeSource;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.tree.MesquiteTree;
+import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeVector;
 
 
 public abstract class ZephyrNumberForTree extends NumberForTree implements Reconnectable {
@@ -52,11 +68,11 @@ public abstract class ZephyrNumberForTree extends NumberForTree implements Recon
 
 	/*.................................................................................................................*/
 	/** Notifies all employees that a file is about to be closed.*/
-	public void fileCloseRequested () {
+	public boolean fileCloseRequested () {
 		if (!MesquiteThread.isScripting()){
 			discreetAlert(runner.getFileCloseNotification(getProject().getHomeFile().isDirty()));
 		}
-		super.fileCloseRequested();
+		return super.fileCloseRequested();
 	}
 	MesquiteBoolean runSucceeded = new MesquiteBoolean(true);
 	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
@@ -151,10 +167,6 @@ public abstract class ZephyrNumberForTree extends NumberForTree implements Recon
 		return false;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return true;
 	}
@@ -184,7 +196,7 @@ public abstract class ZephyrNumberForTree extends NumberForTree implements Recon
 		double bestScore = MesquiteDouble.unassigned;
 		MesquiteDouble finalScores = new MesquiteDouble();
 
-		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores);
+		tree = runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScores, null); //ZQ: because the statusResult is passed as null, the kind of failure will not be reported here
 		runner.setRunInProgress(false);
 		if (trees!=null) {
 			if (runner.bootstrapOrJackknife()) {
@@ -225,31 +237,32 @@ public abstract class ZephyrNumberForTree extends NumberForTree implements Recon
 
 
 	}
-	/*.................................................................................................................*/
-	public void fillTreeBlock(TreeVector treeList){
+	/*.................................................................................................................
+	private int fillTreeBlock(TreeVector treeList){
 		if (treeList==null || runner==null)
-			return;
+			return ResultCodes.INPUT_NULL;
 		if (getProject()==null)
-			return;
+			return ResultCodes.INPUT_NULL;
 		if (getProject().getHomeFile()==null)
-			return;
+			return ResultCodes.INPUT_NULL;
 		getProject().getHomeFile().setDirtiedByCommand(true);
 		taxa = treeList.getTaxa();
 		if (!initialize(taxa))
-			return;
+			return ResultCodes.INPUT_NULL;
 
 		//DISCONNECTABLE
 		TreeVector trees = getTrees(taxa);
 		if (trees == null)
-			return;
+			return ResultCodes.NOTHING_RETURNED;
 		treeList.setName(trees.getName());
 		treeList.setAnnotation ("Parameters: "  + getParameters(), false);
 		if (trees!=null)
 			treeList.addElements(trees, false);
 		trees.dispose();
 		treesInferred = treeList.getID();
-		
-	}
+		return ResultCodes.SUCCEEDED;
 
+	}
+*/
 
 }

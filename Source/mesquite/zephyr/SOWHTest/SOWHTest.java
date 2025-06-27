@@ -14,18 +14,65 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.SOWHTest;
 /*~~  */
 
-import java.awt.*;
+import java.awt.Checkbox;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.TextArea;
 import java.util.Random;
 
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.characters.CharacterData;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.lib.*;
+import org.apache.commons.math3.stat.interval.ClopperPearsonInterval;
+import org.apache.commons.math3.stat.interval.ConfidenceInterval;
+
 import mesquite.categ.lib.CategoricalData;
-import mesquite.io.lib.IOUtil;
-import mesquite.zephyr.RAxMLExporter.*;
-import org.apache.commons.math3.stat.interval.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.DoubleArray;
+import mesquite.lib.EmployeeNeed;
+import mesquite.lib.IntegerField;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteLong;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.MesquiteTimer;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.ResultCodes;
+import mesquite.lib.Snapshot;
+import mesquite.lib.SpecsSet;
+import mesquite.lib.StringUtil;
+import mesquite.lib.characters.CharInclusionSet;
+import mesquite.lib.characters.CharacterData;
+import mesquite.lib.characters.CharacterDistribution;
+import mesquite.lib.characters.CharacterPartition;
+import mesquite.lib.characters.CharacterState;
+import mesquite.lib.characters.CharactersGroup;
+import mesquite.lib.characters.MAdjustableDistribution;
+import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.duties.CharacterSimulator;
+import mesquite.lib.duties.DataAlterer;
+import mesquite.lib.duties.MatrixSourceCoord;
+import mesquite.lib.duties.TreeWindowAssistantA;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeVector;
+import mesquite.lib.ui.AlertDialog;
+import mesquite.lib.ui.ColorDistribution;
+import mesquite.lib.ui.DoubleField;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.MQTextArea;
+import mesquite.lib.ui.MesquiteMenuSpec;
+import mesquite.lib.ui.MesquiteWindow;
+import mesquite.lib.ui.MousePanel;
+import mesquite.lib.ui.QueryDialogs;
+import mesquite.lib.ui.RadioButtons;
+import mesquite.zephyr.RAxMLExporter.RAxMLExporter;
+import mesquite.zephyr.lib.ConstrainedSearcher;
+import mesquite.zephyr.lib.ConstrainedSearcherTreeScoreProvider;
+import mesquite.zephyr.lib.ZephyrRunner;
 
 // see SimMatricesOnTrees for CharacterSimulator bookkeeping
 
@@ -174,6 +221,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		return -2000;  
 	}
 	/*.................................................................................................................*/
+	//This should be the subclass of CharacterState, not CharacterData
 	public Class getCharacterClass() {
 		return null;
 	}
@@ -181,11 +229,6 @@ public class SOWHTest extends TreeWindowAssistantA      {
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
 		return false;
-	}
-	/*.................................................................................................................*/
-	/** returns whether this module is requesting to appear as a primary choice */
-	public boolean requestPrimaryChoice(){
-		return true;  
 	}
 	/*.................................................................................................................*/
 	/*.................................................................................................................*/
@@ -411,7 +454,8 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		runner.setConstainedSearchAllowed(false);
 		runner.setConstrainedSearch(true);  
 		runner.resetSOWHOptionsConstrained();
-		if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), constrainedScore)==null){  // find score of constrained tree
+		MesquiteInteger statusResult = new MesquiteInteger(ResultCodes.NO_ERROR); //ZQ: this can be used if you want to find details of failure
+		if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), constrainedScore, statusResult)==null){  // find score of constrained tree
 			if (runner.getUserAborted()) {
 				panel.setAborted(true);
 				userAborted = true;
@@ -433,7 +477,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			//runner.setConstainedSearchAllowed(false);
 			runner.setConstrainedSearch(false);
 			runner.resetSOWHOptionsUnconstrained();
-			if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), unconstrainedScore)==null) {
+			if (runner.getTrees(trees, taxa, matrix, rng.nextInt(), unconstrainedScore, statusResult)==null) {
 					if (runner.getUserAborted()) {
 						panel.setAborted(true);
 						userAborted = true;
@@ -463,7 +507,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 				return finalScore;
 			}
 		} else {
-			logln("\nSOWH Test aborted by user.");
+			logln("\nSOWH Test stopped by user.");
 			panel.setAborted(true);
 		}
 		return MesquiteDouble.unassigned;
@@ -570,6 +614,21 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		return s;
 	}
 	/*.................................................................................................................*/
+
+	public void copyCurrentSpecSets(CharacterData sourceData, CharacterData destinationData){
+		CharactersGroup[] parts =null;
+		CharacterPartition characterPartition = (CharacterPartition)sourceData.getCurrentSpecsSet(CharacterPartition.class);
+		if (characterPartition != null) {
+			SpecsSet partitionCopy = characterPartition.cloneSpecsSet();
+			destinationData.setCurrentSpecsSet(partitionCopy, CharacterPartition.class);
+		}
+		CharInclusionSet incl = (CharInclusionSet)sourceData.getCurrentSpecsSet(CharInclusionSet.class);
+		if (incl != null) {
+			SpecsSet inclCopy = incl.cloneSpecsSet();
+			destinationData.setCurrentSpecsSet(inclCopy, CharInclusionSet.class);
+		} 
+
+	}
 	public String getReplicateLine(int rep, double delta, double pValue) {
 		return "\n" + (rep+1)+"\t"+ MesquiteDouble.toStringDigitsSpecified(delta, 8) + "\t"+MesquiteDouble.toStringDigitsSpecified(pValue, 4);
 	}
@@ -596,6 +655,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			return;
 		}
 
+		postBean(" begin SOWH test");
 		double[] simulatedDeltas = new double[totalReps];
 		for (int rep = 0; rep<totalReps; rep++) {
 			simulatedDeltas[rep] = MesquiteDouble.unassigned;
@@ -665,7 +725,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			CharacterData simulatedData = (CategoricalData)CharacterData.getData(this,  simulatedStates, taxa);
 			if (simulatedData!=null) {
 				((MAdjustableDistribution)simulatedStates).setParentData(simulatedData);
-				IOUtil.copyCurrentSpecSets(data,simulatedData);  // WAYNECHECK: is this ok?
+				copyCurrentSpecSets(data,simulatedData); 
 				if (altererTask!=null && alterData)
 					altererTask.alterData(simulatedData, null, null);
 
@@ -752,6 +812,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		panel.setCalculating(false);
 		panel.repaint();
 		
+		postBean(" completed SOWH test");
 		logln("SOWH Test completed.");
 		fireAllEmployees();
 		//		window.append("\n\n  " + rs);
@@ -782,7 +843,7 @@ class SOWHPanel extends MousePanel{
 	int numRowsInTitle = 3;
 	int titleHeight = 56;
 	int pValueHeight = 30;
-	TextArea text;
+	MQTextArea text;
 	StringBuffer initialText;
 	Font df = new Font("Dialog", Font.BOLD, 14);
 	boolean calculating = false;
@@ -795,7 +856,7 @@ class SOWHPanel extends MousePanel{
 	
 	public SOWHPanel(){
 		super();
-		text = new TextArea(" ", 50, 50, TextArea.SCROLLBARS_VERTICAL_ONLY);
+		text = new MQTextArea(" ", 50, 50, TextArea.SCROLLBARS_VERTICAL_ONLY);
 		setLayout(null);
 		add(text);
 		text.setLocation(0,topOfText);

@@ -10,7 +10,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.IQTreeTreesLocal;
 
 import mesquite.zephyr.IQTreeRunnerLocal.IQTreeRunnerLocal;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.IQTreeTrees;
 
 
 public class IQTreeTreesLocal extends IQTreeTrees {
@@ -29,5 +29,8 @@ public class IQTreeTreesLocal extends IQTreeTrees {
 		 return "Local";
 	}
 
+		public boolean requestPrimaryChoice(){
+			return true;
+		}
 
 }

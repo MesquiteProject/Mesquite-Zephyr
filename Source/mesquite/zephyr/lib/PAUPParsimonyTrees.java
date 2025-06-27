@@ -9,9 +9,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.awt.*;
-
-import mesquite.lib.*;
+import mesquite.lib.analysis.ParsimonyAnalysis;
 import mesquite.zephyr.PAUPParsimonyRunnerLocal.PAUPParsimonyRunnerLocal;
 
 public abstract class PAUPParsimonyTrees extends PAUPTrees implements ParsimonyAnalysis {

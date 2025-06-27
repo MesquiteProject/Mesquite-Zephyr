@@ -9,13 +9,14 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.util.*;
+import java.util.Random;
 
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.characters.CharacterData;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.lib.*;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteNumber;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.tree.TreeVector;
 
 
 public abstract class ZephyrConstraintDiffNumForMatrix extends ZephyrNumberForMatrix  {
@@ -34,10 +35,6 @@ public abstract class ZephyrConstraintDiffNumForMatrix extends ZephyrNumberForMa
 
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
-		return true;
-	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
 		return true;
 	}
 	/*.................................................................................................................*/
@@ -62,12 +59,12 @@ public abstract class ZephyrConstraintDiffNumForMatrix extends ZephyrNumberForMa
 		runner.setVerbose(false);
 		
 		runner.setConstrainedSearch(true);  
-		runner.getTrees(trees, taxa, data, rng.nextInt(), constrainedScore);  // find score of constrained trees
+		runner.getTrees(trees, taxa, data, rng.nextInt(), constrainedScore, null);  // find score of constrained trees
 		runner.setRunInProgress(false);
 		
 		
 		runner.setConstrainedSearch(false);
-		runner.getTrees(trees, taxa, data, rng.nextInt(), unconstrainedScore);   // find score of unconstrained trees
+		runner.getTrees(trees, taxa, data, rng.nextInt(), unconstrainedScore, null);   // find score of unconstrained trees
 		runner.setRunInProgress(false);
 		
 		if (unconstrainedScore.isCombinable() && constrainedScore.isCombinable())

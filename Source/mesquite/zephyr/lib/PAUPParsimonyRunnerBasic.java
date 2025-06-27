@@ -9,18 +9,6 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-
-import javax.swing.*;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.lib.*;
-
 /* TODO:
  * 	- get it so that either the shell doesn't pop to the foreground, or the runs are all done in one shell script, rather than a shell script for each
  */
@@ -29,7 +17,7 @@ public abstract class PAUPParsimonyRunnerBasic extends PAUPSearchRunner {
 
 
 	public String getCriterionSetCommand() {
-		return "set criterion=parsimony;";
+		return "set criterion=parsimony; pset msTaxa=variable;";
 	}
 
 	public String getCriterionScoreCommand() {

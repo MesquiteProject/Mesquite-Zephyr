@@ -1,17 +1,34 @@
 package mesquite.zephyr.lib;
 
-import mesquite.lib.*;
-import mesquite.externalCommunication.lib.*;
-
 import java.io.File;
 
+import mesquite.externalCommunication.lib.RemoteJobFile;
+import mesquite.externalCommunication.lib.UsernamePasswordKeeper;
+import mesquite.lib.LongArray;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteLong;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteTimer;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.OutputFileProcessor;
+import mesquite.lib.Parser;
+import mesquite.lib.ProcessWatcher;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringUtil;
+import mesquite.lib.UserNamePasswordDialog;
+import mesquite.lib.ui.ProgressIndicator;
+
+/*
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.*;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 
-
+*/
 
 public abstract class RemoteCommunicator  {
 	protected int minPollIntervalSeconds =getDefaultMinPollIntervalSeconds();
@@ -29,7 +46,7 @@ public abstract class RemoteCommunicator  {
 	protected RemoteJobFile[] previousRemoteJobFiles;
 
 	protected OutputFileProcessor outputFileProcessor; // for reconnection
-	protected ShellScriptWatcher watcher; // for reconnection
+	protected ProcessWatcher watcher; // for reconnection
 	protected UsernamePasswordKeeper usernamePasswordKeeper;
 	protected boolean hasBeenReconnected = false;
 	protected boolean authorizationFailure = false;
@@ -123,7 +140,7 @@ public abstract class RemoteCommunicator  {
 	public void setOutputProcessor(OutputFileProcessor outputFileProcessor){
 		this.outputFileProcessor = outputFileProcessor;
 	}
-	public void setWatcher(ShellScriptWatcher watcher){
+	public void setWatcher(ProcessWatcher watcher){
 		this.watcher = watcher;
 	}
 
@@ -252,7 +269,7 @@ public abstract class RemoteCommunicator  {
 
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public HttpClient getHttpClient(){
 		// from http://www.artima.com/forums/flat.jsp?forum=121&thread=357685
 		CredentialsProvider provider = new BasicCredentialsProvider();
@@ -381,7 +398,7 @@ public abstract class RemoteCommunicator  {
 				return false;
 			}
 
-			stillGoing = watcher == null || watcher.continueShellProcess(null);
+			stillGoing = watcher == null || watcher.continueProcess(null);
 			String newStatus = getJobStatus(location, onceThrough && submittedReportedToUser); 
 			if (StringUtil.notEmpty(newStatus) && !newStatus.equalsIgnoreCase(status) && !submittedReportedToUser) {
 				if (hasBeenReconnected() && newStatus.equalsIgnoreCase(submitted))
@@ -416,6 +433,9 @@ public abstract class RemoteCommunicator  {
 		}
 		if (aborted || isAuthorizationFailure())
 			return false;
+		return true;
+	}
+	public boolean warnIfError() {
 		return true;
 	}
 

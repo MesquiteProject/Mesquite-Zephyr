@@ -16,9 +16,32 @@ package mesquite.zephyr.TreeInferenceLiaison;
 
 import java.util.Vector;
 
-import mesquite.lib.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.lib.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.ListableVector;
+import mesquite.lib.Logger;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteProject;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.OutputTextListener;
+import mesquite.lib.Puppeteer;
+import mesquite.lib.Reconnectable;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringUtil;
+import mesquite.lib.duties.FileCoordinator;
+import mesquite.lib.duties.TreeInferer;
+import mesquite.lib.duties.TreesManager;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeVector;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.ListDialog;
+import mesquite.zephyr.lib.TreeInferenceHandler;
 
 /* ======================================================================== */
 /* Manages an individual tree inference attempt */
@@ -30,7 +53,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 	FillerThread inferenceThread = null;
 	Taxa taxa = null;
 	static int maximumLogLines = 20;
-	
+
 	//MesquiteBoolean autoSave = new MesquiteBoolean(true);
 
 	/*.................................................................................................................*/
@@ -41,16 +64,16 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 	public  void setUserAborted(){
 		userAborted=true;
 		if (inferenceTask != null)
-		 inferenceTask.setUserAborted();
+			inferenceTask.setUserAborted();
 	}
 	public String getMessageIfUserAbortRequested (){
 		if (inferenceTask != null)
-			 return inferenceTask.getMessageIfUserAbortRequested();
+			return inferenceTask.getMessageIfUserAbortRequested();
 		return null;
 	}
 	public String getMessageIfCloseFileRequested (){
 		if (inferenceTask != null)
-			 return inferenceTask.getMessageIfCloseFileRequested();
+			return inferenceTask.getMessageIfCloseFileRequested();
 		return null;
 	}
 	/*.................................................................................................................*/
@@ -147,25 +170,25 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 				if (taxa == null)
 					taxa = getProject().getTaxa(0);
 				TreeVector trees = new TreeVector(taxa); 
-				
-			//	boolean okToSave = false;
+
+				//	boolean okToSave = false;
 
 				MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(true);
 				inferenceTask.retrieveTreeBlock(trees, 100);
 				if (trees.size() >0){
 					trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));
-			//		okToSave = true;
-					saveAndPresentTrees(inferenceTask, trees.getTaxa(), trees);
+					//		okToSave = true;
+					showInferredTrees(inferenceTask, trees.getTaxa(), trees);
 				}
 				if (taxa != null)
 					taxa.decrementEditInhibition();
 				MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(false);
 				fireTreeFiller();
-			/*	if (okToSave && autoSave != null && autoSave.getValue()){
+				/*	if (okToSave && autoSave != null && autoSave.getValue()){
 					FileCoordinator fCoord = getFileCoordinator();
 					fCoord.writeFile(getProject().getHomeFile());
 				}
-				*/
+				 */
 
 				resetAllMenuBars();
 				iQuit();
@@ -201,10 +224,10 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 	trees.addElement(latestTree, true);
 	return false;
 }
-*/
+	 */
 	/*-----------------------------------------------------------------*/
 
-	public boolean storeLatestTree(){
+	public boolean storeLatestTreeAfterAbort(){
 		if (inferenceTask==null)
 			return false;
 		Tree latestTree = inferenceTask.getLatestTree(null, null, null);
@@ -216,15 +239,45 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		TreesManager manager = (TreesManager)findElementManager(TreeVector.class);
 		TreeVector trees = manager.makeNewTreeBlock(latestTree.getTaxa(), inferenceTask.getTreeBlockName(false), proj.getHomeFile());
 		trees.addElement(latestTree, true);
-		if (trees.size() >0){
+		if (trees.size() >0){  
 			trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));
-			saveAndPresentTrees(inferenceTask, latestTree.getTaxa(),  trees);
+			trees.setAnnotation (inferenceTask.getInferenceDetails(), false);
+			/*This method has the responsibility for presenting the trees, because it's a new trees block that no one knows else about*/
+			showInferredTrees(inferenceTask, latestTree.getTaxa(),  trees); 
+			
 		}
 		return true;
 	}
+	/*-----------------------------------------------------------------*/
 	public boolean canStoreLatestTree(){
 		if (inferenceTask!=null)
 			return inferenceTask.canStoreLatestTree();
+		else return false;
+	}
+	/*-----------------------------------------------------------------*/
+
+	public boolean storeMultipleCurrentTreesAfterAbort(){
+		if (inferenceTask==null)
+			return false;
+		TreeVector trees = inferenceTask.getCurrentMultipleTrees(null, null);		
+		if (trees==null) 
+			return false;
+		MesquiteProject proj = getProject();
+		if (proj==null)
+			return false;
+		trees.addToFile(getProject().getHomeFile(), getProject(), findElementManager(TreeVector.class));
+		if (trees.size() >0){
+			trees.addToFile(getProject().getHomeFile(), getProject(), (TreesManager)findElementManager(TreeVector.class));
+			/*This method has the responsibility for presenting the trees, because it's a new trees block that no one knows else about*/
+			showInferredTrees(inferenceTask, trees.getTaxa(),  trees); 
+		}
+		return true;
+	}
+
+	/*-----------------------------------------------------------------*/
+	public boolean canStoreMultipleCurrentTrees(){
+		if (inferenceTask!=null)
+			return inferenceTask.canStoreMultipleCurrentTrees();
 		else return false;
 	}
 	/*-----------------------------------------------------------------*/
@@ -259,21 +312,21 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		}
 		//DW: put the burden of the autosave query onto the inferenceTask, and add a method to TreeInferer to ask it if autosave
 		//	MesquiteBoolean autoSave = new MesquiteBoolean(true);
-		inferenceThread = new TreeBlockThread(this, inferenceTask, trees, howManyTrees, file);
-		inferenceThread.start();
+		inferenceThread = new ZephryTreeBlockThread(this, inferenceTask, trees, howManyTrees, file);
+		inferenceThread.start(); 
 
 	}
 	/*.................................................................................................................*/
-	public boolean stopInference(){
+	public boolean stopInference(boolean userAborted, boolean saveTrees){
 		if (inferenceThread!= null)
-			inferenceThread.stopFilling();
+			inferenceThread.stopFilling( userAborted,  saveTrees);
 		fireTreeFiller();
 
 		iQuit();
 		return true;
 	}
 	/*.................................................................................................................*/
-	void saveAndPresentTrees(TreeInferer fillTask, Taxa taxa, TreeVector trees){
+	void showInferredTrees(TreeInferer fillTask, Taxa taxa, TreeVector trees){
 		MesquiteModule fCoord = getFileCoordinator();
 		MesquiteModule treeWindowCoord = null;
 		if (fCoord!=null)
@@ -284,13 +337,14 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 		if (treeWindowCoord!=null){
 			//send script to tree window coord to makeTreeWindow with set of taxa and then set to stored trees and this tree vector
 			TreesManager manager = (TreesManager)findElementManager(TreeVector.class);
-			int whichTreeBlock = manager.getTreeBlockNumber(taxa, trees);
+			//int whichTreeBlock = manager.getTreeBlockNumber(taxa, trees);
 			long treeBlockID =  trees.getID();
 			String extraWindowCommands = fillTask.getExtraTreeWindowCommands(true, treeBlockID);
-			if (StringUtil.blank(extraWindowCommands))
+			if (StringUtil.blank(extraWindowCommands))  
 				extraWindowCommands="";
 			String commands = "makeTreeWindow " + getProject().getTaxaReferenceInternal(taxa) + "  #BasicTreeWindowMaker; tell It; setTreeSource  #StoredTrees;";  
-			commands += " tell It; setTaxa " + getProject().getTaxaReferenceInternal(taxa) + " ;  setTreeBlockByID " + treeBlockID + "; endTell;  getWindow; tell It; setSize 400 300; " + extraWindowCommands + " endTell; showWindowForce; endTell; ";
+
+			commands += " tell It; setTaxa " + getProject().getTaxaReferenceInternal(taxa) + " ;  setTreeBlockByID " + treeBlockID + "; endTell;  getWindow; tell It; setSize 400 300; " + extraWindowCommands + " setTreeNumber 1; endTell; showWindowForce; endTell; ";
 			if (MesquiteTrunk.debugMode)
 				logln(commands);
 			MesquiteInteger pos = new MesquiteInteger(0);
@@ -300,7 +354,7 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 			MesquiteThread.setCurrentCommandRecord(cRec);
 			p.execute(treeWindowCoord, commands, pos, null, false, null, null);
 			MesquiteThread.setCurrentCommandRecord(prev);
-	}
+		}
 	}
 	/*.................................................................................................................*/
 	void fireTreeFiller(){
@@ -335,21 +389,21 @@ public class TreeInferenceLiaison extends TreeInferenceHandler {
 /* ======================================================================== */
 abstract class FillerThread extends MesquiteThread {
 	TreeInferenceLiaison ownerModule;
-	
+
 	public FillerThread (TreeInferenceLiaison ownerModule) {
 		super();
 		resetUIOnMe = false;
 		this.ownerModule = ownerModule;
 		setSpontaneousIndicator(false);
 	}
-	public abstract void stopFilling();
+	public abstract void stopFilling(boolean userAborted, boolean saveTrees);
 }
 
 /* ======================================================================== */
 class InferenceLogger implements Logger {
 	Vector strings = new Vector();
 	int maxNumStrings=10;
-	
+
 	TreeInferenceLiaison ownerModule;
 	public InferenceLogger(TreeInferenceLiaison owner){
 		ownerModule = owner;
@@ -364,10 +418,10 @@ class InferenceLogger implements Logger {
 		int start = 0;
 		if (maxNumLines!= maxNumStrings)
 			maxNumStrings = maxNumLines;
-		
+
 		if (getNumStrings()> maxNumStrings)
 			start = getNumStrings()-maxNumStrings;
-		
+
 		StringBuffer sb = new StringBuffer();
 		for (int i =start; i<getNumStrings(); i++){
 			String s = getString(i);
@@ -391,35 +445,34 @@ class InferenceLogger implements Logger {
 		strings.addElement(s);
 		ownerModule.stringLogged();
 	}
-		public synchronized void log(String s){
+	public synchronized void log(String s){
 		if (strings.size()== 0)
 			strings.addElement(s);
 		else {
 			String last = (String)strings.elementAt(strings.size()-1);
 			strings.removeElementAt(strings.size()-1);
 			strings.addElement(last + s);
-					
+
 		}
 		ownerModule.stringLogged();
 	}
 
 }
 /* ======================================================================== */
-class TreeBlockThread extends FillerThread {
+class ZephryTreeBlockThread extends FillerThread {
 	TreeInferer inferenceTask;
 	TreeVector trees;
 	MesquiteFile file;
 	int howManyTrees;
 	CommandRecord comRec = null;
 	//MesquiteBoolean autoSave = null;
-	boolean aborted = false;
-	public TreeBlockThread (TreeInferenceLiaison ownerModule, TreeInferer fillTask, TreeVector trees, int howManyTrees, MesquiteFile file) {
+	public ZephryTreeBlockThread (TreeInferenceLiaison ownerModule, TreeInferer fillTask, TreeVector trees, int howManyTrees, MesquiteFile file) {
 		super(ownerModule);
 		this.inferenceTask = fillTask;
 		this.trees = trees;
 		this.howManyTrees = howManyTrees;
 		this.file = file;
-//		this.autoSave = autoSave;
+		//		this.autoSave = autoSave;
 		setCurrent(1);
 		CommandRecord cr = MesquiteThread.getCurrentCommandRecord();
 		boolean sc;
@@ -429,7 +482,6 @@ class TreeBlockThread extends FillerThread {
 			sc = cr.recordIsScripting();
 		comRec = new CommandRecord(sc);
 		setCommandRecord(comRec);
-
 	}
 
 	public String getCurrentCommandName(){
@@ -438,48 +490,52 @@ class TreeBlockThread extends FillerThread {
 	public String getCurrentCommandExplanation(){
 		return null;
 	}
-	
+
 	public  void addItemsToDialogPanel(ExtensibleDialog dialog){
 	}
 	public  boolean optionsChosen(){
 		return false;
 	}
-boolean userAborted = false;
+
+	//boolean abortedAccordingToFillerThread = false; //this used to be just "aborted", but I renamed it, but it was true iff userAborted was true, so redundant
+	boolean userAborted = false;
+	boolean saveTreesAfterAbort = false;
 	/*.............................................*/
 	public void run() {
 		//MesquiteTrunk.mesquiteTrunk.incrementMenuResetSuppression();
 		long s = System.currentTimeMillis();
 		int before = trees.size();
-			boolean okToSave = false;
+		boolean okToSave = false;
 		try {
 			MesquiteThread.setLoggerCurrentThread(ownerModule.getLogger());
 			MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(true);
 			Taxa taxa = ownerModule.taxa;
 			if (taxa != null)
 				taxa.incrementEditInhibition();
-			inferenceTask.fillTreeBlock(trees, howManyTrees);
+			int resultCode = inferenceTask.fillTreeBlock(trees, howManyTrees);
 			if (taxa != null)
 				taxa.decrementEditInhibition();
 			MesquiteThread.setHintToSuppressProgressIndicatorCurrentThread(false);
 
 			if (!ownerModule.isDoomed()){
-				if (!aborted){
-					if (trees.size()==before) {
-						if (userAborted)
-							ownerModule.logln(inferenceTask.getName() + " aborted by the user.");
-						else
-							ownerModule.alert("Sorry, no trees were returned by " + inferenceTask.getName());
-						userAborted=false;
-						ownerModule.fireTreeFiller();
-
+				
+				if (inferenceTask.getUserCancelled())  //cancelled even before inference started
+					ownerModule.logln(inferenceTask.getName() + " cancelled by the user.");
+				else if (userAborted) {
+					ownerModule.logln(inferenceTask.getName() + " aborted by the user.");					
+					//If "Save" had been hit, the storeLatestTree/storeMultipleCurrentTrees will handle showing the saveAndPresentTrees. 
+				}
+				else {
+					if (trees.size()==before){ //no trees returned
+						ownerModule.alert("Sorry, no trees were returned by " + inferenceTask.getName() + " [error code " + resultCode + "]");
 					}
 					else {
-						trees.addToFile(file, ownerModule.getProject(), 		(TreesManager)ownerModule.findElementManager(TreeVector.class));
-						okToSave = true;
+						trees.addToFile(file, ownerModule.getProject(), (TreesManager)ownerModule.findElementManager(TreeVector.class));
+						okToSave = true; 
+						ownerModule.showInferredTrees(inferenceTask, trees.getTaxa(), trees); 
 					}
 				}
-				if (trees.size()!=before)
-					ownerModule.saveAndPresentTrees(inferenceTask, trees.getTaxa(), trees);
+								
 				ownerModule.fireTreeFiller();
 			}
 			ownerModule.resetAllMenuBars();
@@ -505,11 +561,14 @@ boolean userAborted = false;
 		//MesquiteTrunk.mesquiteTrunk.decrementMenuResetSuppression();
 		threadGoodbye();
 	}
-	public void stopFilling(){
+
+	/* Signature changed to receive news of why it's stoping*/
+	public void stopFilling(boolean userAborted, boolean saveTreesRegardless){ 
+		this.userAborted = userAborted;
+		saveTreesAfterAbort = saveTreesRegardless;
+		//abortedAccordingToFillerThread = true;
 		if (inferenceTask != null)
 			inferenceTask.abortFilling();
-		userAborted = true;
-		aborted = true;
 		if (ownerModule.taxa != null)
 			ownerModule.taxa.decrementEditInhibition();
 	}
@@ -527,7 +586,6 @@ boolean userAborted = false;
 class TreeBlockMonitorThread extends FillerThread {
 	TreeInferer fillTask;
 	CommandRecord comRec = null;
-	boolean aborted = true;
 	String taxaIDString = null;
 
 	public TreeBlockMonitorThread (TreeInferenceLiaison ownerModule, String taxaID, TreeInferer fillTask) {
@@ -559,7 +617,7 @@ class TreeBlockMonitorThread extends FillerThread {
 		if (taxa != null){
 			taxa.incrementEditInhibition();
 		}
-		
+
 		Reconnectable reconnectable = fillTask.getReconnectable();
 		if (reconnectable != null){
 			MesquiteThread.setLoggerCurrentThread(ownerModule.getLogger());
@@ -567,14 +625,14 @@ class TreeBlockMonitorThread extends FillerThread {
 			command.setSupplementalLogger(ownerModule.getLogger());
 			reconnectable.reconnectToRequester(command);
 			if (!reconnectable.successfulReconnect())
-				ownerModule.stopInference();
+				ownerModule.stopInference(false, false);
 		}
 		threadGoodbye();
 	}
-	public void stopFilling(){
+	public void stopFilling(boolean userAborted, boolean saveTrees){
 		if (fillTask != null)
 			fillTask.abortFilling();
-		aborted = true;
+
 		if (ownerModule.taxa != null)
 			ownerModule.taxa.decrementEditInhibition();
 	}

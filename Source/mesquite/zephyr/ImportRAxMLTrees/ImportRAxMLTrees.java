@@ -9,10 +9,20 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.ImportRAxMLTrees;
 
-import mesquite.io.lib.*;
-import mesquite.lib.*;
+import mesquite.io.lib.InterpretPhylipTrees;
+import mesquite.lib.DoubleArray;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.MesquiteProject;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.SimpleNamesTaxonNamer;
+import mesquite.lib.StringUtil;
 import mesquite.lib.duties.TaxaManager;
 import mesquite.lib.duties.TreesManager;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.tree.TreeUtil;
+import mesquite.lib.tree.TreeVector;
+import mesquite.zephyr.lib.ZephyrUtil;
 
 public class ImportRAxMLTrees extends InterpretPhylipTrees {
 	
@@ -21,7 +31,7 @@ public class ImportRAxMLTrees extends InterpretPhylipTrees {
 	public boolean initializeTreeImport(MesquiteFile file, Taxa taxa) {  
 		 String translationFile = null;
 		 String directoryPath = file.getDirectoryName();
-		 String translationTablePath = directoryPath+IOUtil.translationTableFileName;
+		 String translationTablePath = directoryPath+ TreeUtil.translationTableFileName;
 		 translationFile = MesquiteFile.getFileContentsAsString(translationTablePath);
 		 if (StringUtil.notEmpty(translationFile)){
 			 taxonNamer = new SimpleNamesTaxonNamer();
@@ -41,7 +51,7 @@ public class ImportRAxMLTrees extends InterpretPhylipTrees {
 		if (StringUtil.notEmpty(summary)) {
 			DoubleArray finalValues = new DoubleArray(trees.size());
 			DoubleArray optimizedValues = new DoubleArray(trees.size());
-			IOUtil.readRAxMLInfoFile(this, summary, true, trees, finalValues, optimizedValues);
+			ZephyrUtil.readRAxMLInfoFile(this, summary, true, trees, finalValues, optimizedValues);
 		}
 		return true;
 	}
@@ -51,7 +61,7 @@ public class ImportRAxMLTrees extends InterpretPhylipTrees {
 		Taxa taxa = getProject().chooseTaxa(containerOfModule(), "From what taxa are these trees composed?");
 		if (taxa== null) {
 			TaxaManager taxaTask = (TaxaManager)findElementManager(Taxa.class);
-			taxa = taxaTask.makeNewTaxa("Taxa", 0, false);
+			taxa = taxaTask.makeNewTaxaBlock("Taxa", 0, false);
 			taxa.addToFile(file, getProject(), taxaTask);
 			enlargeTaxaBlock = true;
 		}
@@ -67,7 +77,7 @@ public class ImportRAxMLTrees extends InterpretPhylipTrees {
 			if (treeFile.openReading()) {
 
 				MesquiteMessage.println("Reading file " + treeFile.getName());
-				TreeVector newTrees = IOUtil.readPhylipTrees(this,mf, treeFile, null, null, taxa, enlargeTaxaBlock, taxonNamer,getTreeNameBase(), false);
+				TreeVector newTrees = TreeUtil.readNewickTreeFile(treeFile, null, taxa, enlargeTaxaBlock, taxonNamer, null, getTreeNameBase());
 				trees.addElements(newTrees, false);
 				if (trees != null && count==0){
 					trees.setName("RAxML Trees");

@@ -9,15 +9,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.TNTTreesSSH;
 
-import java.util.*;
-
-import mesquite.io.lib.IOUtil;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.PAUPParsimonyRunnerSSH.PAUPParsimonyRunnerSSH;
 import mesquite.zephyr.TNTRunnerSSH.TNTRunnerSSH;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.TNTTrees;
 
 
 public class TNTTreesSSH extends TNTTrees {

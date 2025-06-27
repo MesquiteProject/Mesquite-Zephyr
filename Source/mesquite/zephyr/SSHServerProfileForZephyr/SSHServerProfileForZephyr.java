@@ -13,23 +13,29 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.SSHServerProfileForZephyr;
 
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.Choice;
-import java.awt.GridBagConstraints;
-import java.awt.Panel;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.event.WindowEvent;
+import java.io.File;
 
-import mesquite.zephyr.lib.*;
-import mesquite.lib.*;
+import mesquite.lib.Listable;
+import mesquite.lib.ListableVector;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.StringArray;
+import mesquite.lib.StringUtil;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.ExtensibleListDialog;
+import mesquite.zephyr.lib.SSHServerProfile;
+import mesquite.zephyr.lib.SSHServerProfileManager;
 
-/* This module supplies the sample code and primer name given the chromatogram file name, for chromatogram file names that contain the sample code and primer name directly */
 
 public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 	public ListableVector sshServerProfileVector;
 	public String prefDirectoryName = "SSHServerProfilesForZephyr";
-	ManageGeneProfileDLOG chooseSSHServerProfileDialog;
+	ManageServerProfileDLOG chooseSSHServerProfileDialog;
 
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
@@ -38,8 +44,10 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 		sshServerProfileVector = new ListableVector();
 		loadServerProfiles();
 		if (getNumRules()<=0) {
-			SSHServerProfile defaultRule = new SSHServerProfile();
-			sshServerProfileVector.addElement(defaultRule, false);
+			SSHServerProfile defaultRule = new SSHServerProfile();  
+			sshServerProfileVector.addElement(defaultRule, false); 
+			defaultRule.name ="Make New Server Profile";
+			defaultRule.isDefault = true;
 		}
 		int ruleNumber = sshServerProfileVector.indexOfByNameIgnoreCase(sshServerProfileName);
 		if (ruleNumber>=0)
@@ -156,7 +164,7 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 
 		SSHServerProfile serverProfile = spec;
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		chooseSSHServerProfileDialog = new ManageGeneProfileDLOG(this, sshServerProfileName, buttonPressed);
+		chooseSSHServerProfileDialog = new ManageServerProfileDLOG(this, sshServerProfileName, buttonPressed);
 		boolean ok = (buttonPressed.getValue()==0);
 
 		if (ok && choice !=null) {
@@ -175,7 +183,7 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 	public boolean manageSSHServerProfiles() {
 
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
-		chooseSSHServerProfileDialog = new ManageGeneProfileDLOG(this, sshServerProfileName, buttonPressed);
+		chooseSSHServerProfileDialog = new ManageServerProfileDLOG(this, sshServerProfileName, buttonPressed);
 
 		if (choice !=null) {
 			sshServerProfileName = choice.getSelectedItem();
@@ -260,6 +268,8 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 		if (choice!=null)
 			choice.add(name);
 		sshServerProfileName = name;
+		
+
 		//	return s;
 	}
 	/*.................................................................................................................*/
@@ -298,6 +308,12 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 			sshServerProfileVector.removeElement(specification, false);  //deletes it from the vector
 			if (choice!=null)
 				choice.remove(i);
+			if (sshServerProfileVector.size() == 0){
+				SSHServerProfile defaultRule = new SSHServerProfile();  
+				sshServerProfileVector.addElement(defaultRule, false); 
+				defaultRule.name ="Make New Server Profile";
+				defaultRule.isDefault = true;
+		}
 		}
 	}
 	/*.................................................................................................................*/
@@ -310,11 +326,11 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 
 
 /*=======================================================================*/
-class ManageGeneProfileDLOG extends ExtensibleListDialog {
+class ManageServerProfileDLOG extends ExtensibleListDialog {
 	SSHServerProfileForZephyr ownerModule;
 	boolean editLastItem = false;
 
-	public ManageGeneProfileDLOG (SSHServerProfileForZephyr ownerModule, String nameParsingRulesName, MesquiteInteger buttonPressed){
+	public ManageServerProfileDLOG (SSHServerProfileForZephyr ownerModule, String nameParsingRulesName, MesquiteInteger buttonPressed){
 		super(ownerModule.containerOfModule(), "Server Profile Manager", "Server Profile", buttonPressed, ownerModule.sshServerProfileVector);
 		this.ownerModule = ownerModule;
 		completeAndShowDialog("Done", null, true, null);
@@ -346,6 +362,17 @@ class ManageGeneProfileDLOG extends ExtensibleListDialog {
 			addNewElement(serverProfile,name);  //add name to list
 			ownerModule.addProfile(serverProfile, name);
 			if (success!=null) success.setValue(true);
+			if (ownerModule.sshServerProfileVector.size()>1){
+				SSHServerProfile firstProfile = (SSHServerProfile)ownerModule.sshServerProfileVector.elementAt(0);
+				if (firstProfile.isDefault) {
+					ownerModule.sshServerProfileVector.removeElement(firstProfile, false);  //deletes it from the vector
+					if (ownerModule.choice!=null) {
+						ownerModule.choice.remove(0);
+					}
+				}
+					
+			}
+		
 			setVisible(true);
 			return serverProfile;
 
@@ -356,15 +383,38 @@ class ManageGeneProfileDLOG extends ExtensibleListDialog {
 			return null;
 		}
 	}
+	
+	protected boolean okToDeleteElement(Listable element){
+		if (((SSHServerProfile)element).isDefault){
+			ownerModule.alert("This server profile is just a placeholder. You can't delete it, although it will go away after you create a new one and you reopen the dialog.");
+			return false;
+		}
+		return true;
+	}
 	/*.................................................................................................................*/
 	public void deleteElement(int item, int newSelectedItem){
 		hide();
 		ownerModule.deleteProfile(item);
 		setVisible(true);
 	}
+	protected boolean okToRenameElement(Listable element){
+		if (((SSHServerProfile)element).isDefault){
+			ownerModule.alert("This server profile is just a placeholder. You can't rename it. To create your server profile, hit the New button");
+			return false;
+		}
+		return true;
+	}
 	/*.................................................................................................................*/
 	public void renameElement(int item, Listable element, String newName){
 		ownerModule.renameProfile(item,newName);
+	}
+	protected boolean okToDuplicateElement(Listable element){
+		if (((SSHServerProfile)element).isDefault){
+			ownerModule.alert("This server profile is just a placeholder with nothing in it. You can't duplicate it. To create a new server profile, hit the New button");
+				
+			return false;
+		}
+		return true;
 	}
 	/*.................................................................................................................*/
 	public Listable duplicateElement(String name){
@@ -379,6 +429,10 @@ class ManageGeneProfileDLOG extends ExtensibleListDialog {
 	public void editElement(int item){
 		//hide();
 		SSHServerProfile serverProfile = ((SSHServerProfile)ownerModule.sshServerProfileVector.elementAt(item));
+		if (serverProfile.isDefault){
+			ownerModule.alert("This server profile is just a placeholder. You can't edit it. To create a new server profile, hit the New button");
+			return;
+		}
 		if (serverProfile.queryOptions(serverProfile.getName()))
 			serverProfile.save();
 		setVisible(true);

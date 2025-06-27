@@ -9,14 +9,13 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+import java.util.Random;
 
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.lib.*;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.tree.TreeVector;
 
 public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 //	Taxa taxa;
@@ -63,6 +62,7 @@ public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 	}
 
 	/*.................................................................................................................*/
+	//This should be the subclass of CharacterState, not CharacterData
 	public Class getCharacterClass() {
 		return null;
 	}
@@ -93,7 +93,7 @@ public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 	}
 
 	/*.................................................................................................................*/
-	private TreeVector getTrees(Taxa taxa) {
+	private TreeVector getTrees(Taxa taxa, MesquiteInteger statusResult) {
 		TreeVector trees = new TreeVector(taxa);
 
 		CommandRecord.tick("PAUP Tree Search in progress " );
@@ -105,54 +105,16 @@ public abstract class PAUPTreeSearcher extends ZephyrTreeSearcher   {
 //		((PAUPRunner)runner).setPaupCommander(runner);
 
 
-		runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScore);
+		runner.getTrees(trees, taxa, observedStates, rng.nextInt(), finalScore, statusResult);
 		runner.setRunInProgress(false);
 		trees.setName(getTreeBlockName(true));  //Debugg.println  no other tree searchers do this; probably shouldn't be done here
+		//stampTreesWithMatrixSource(trees, observedStates.getParentData());
 
 		return trees;
 	}
 
 
-	/*.................................................................................................................*
-	public void fillTreeBlock(TreeVector treeList){
-		if (treeList==null || paupRunner==null)
-			return;
-		taxa = treeList.getTaxa();
-		if (!initialize(taxa)) 
-			return;
-
-
-		if (!queryOptions())
-			return;
-		
-		if (paupRunner!=null)
-			paupRunner.setWriteOnlySelectedTaxa(writeOnlySelectedTaxa);
-		boolean pleaseStorePref = false;
-		if (!preferencesSet)
-			pleaseStorePref = true;
-		if (StringUtil.blank(PAUPPath)) {
-			MesquiteString directoryName = new MesquiteString();
-			MesquiteString fileName = new MesquiteString();
-			PAUPPath = MesquiteFile.openFileDialog("Choose PAUP", directoryName, fileName);
-			if (StringUtil.blank(PAUPPath))
-				return;
-			PAUPPath= directoryName.getValue();
-			if (!PAUPPath.endsWith(MesquiteFile.fileSeparator))
-				PAUPPath+=MesquiteFile.fileSeparator;
-			PAUPPath+=MesquiteFile.fileSeparator+fileName.getValue();
-			pleaseStorePref = true;
-		}
-		if (pleaseStorePref)
-			storePreferences();
-
-		TreeVector trees = getTrees(taxa);
-		treeList.setName(getTreeBlockName());
-		treeList.setAnnotation ("Parameters: "  + getParameters(), false);
-		if (trees!=null)
-			treeList.addElements(trees, false);
-		paupRunner=null;
-	}
-*/
+	
 
 
 }

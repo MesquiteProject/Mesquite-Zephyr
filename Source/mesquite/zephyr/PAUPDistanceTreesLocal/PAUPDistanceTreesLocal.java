@@ -9,14 +9,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.PAUPDistanceTreesLocal;
 
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.util.Random;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
 import mesquite.zephyr.PAUPDistanceRunnerLocal.PAUPDistanceRunnerLocal;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.PAUPDistanceTrees;
 
 public class PAUPDistanceTreesLocal extends PAUPDistanceTrees {
 

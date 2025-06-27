@@ -9,16 +9,42 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.RAxMLExporter;
 
-import java.awt.*;
+import java.awt.Button;
 import java.awt.event.ActionEvent;
 
-import mesquite.categ.lib.*;
+import mesquite.categ.lib.DNAData;
+import mesquite.categ.lib.MolecularData;
+import mesquite.categ.lib.ProteinData;
 import mesquite.io.lib.InterpretPhylip;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
+import mesquite.lib.IntegerField;
+import mesquite.lib.Listable;
+import mesquite.lib.ListableVector;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.StringUtil;
+import mesquite.lib.characters.CharInclusionSet;
+import mesquite.lib.characters.CharacterData;
+import mesquite.lib.characters.CharacterPartition;
+import mesquite.lib.characters.CharacterStates;
+import mesquite.lib.characters.CharactersGroup;
+import mesquite.lib.characters.CodonPositionsSet;
+import mesquite.lib.characters.MCharactersDistribution;
 import mesquite.lib.duties.FileInterpreterI;
-import mesquite.zephyr.RAxMLRunnerLocalOld.*;
-import mesquite.zephyr.lib.*;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeVector;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.RadioButtons;
+import mesquite.lib.ui.SingleLineTextArea;
+import mesquite.lib.ui.SingleLineTextField;
+import mesquite.zephyr.RAxMLRunnerLocalOrig.RAxMLRunnerLocalOrig;
+import mesquite.zephyr.lib.TaxonNameShortener;
+import mesquite.zephyr.lib.ZephyrUtil;
 
 /*TODO: Eventually will become a module to run RAxML on a remote cluster.
  * To accomplish this, perhaps RAxMLRunner would become an abstract superclass for two modules,
@@ -27,7 +53,7 @@ import mesquite.zephyr.lib.*;
 
 //TODO: add functionality to commandField
 
-public class RAxMLExporter extends RAxMLRunnerLocalOld {
+public class RAxMLExporter extends RAxMLRunnerLocalOrig {
 	String baseFileName = "untitled";
 	String directoryPath;
 	static final int threadingOther =0;
@@ -126,9 +152,9 @@ public class RAxMLExporter extends RAxMLRunnerLocalOld {
 			directoryPath = MesquiteFile.chooseDirectory("Where to save .phy and .config files?");
 			if(StringUtil.blank(directoryPath)){
 				if(!MesquiteThread.isScripting()){
-					logln("Directory not accessable as entered (could not find /'" + directoryPath + "/'); files will be saved to " + MesquiteTrunk.suggestedDirectory + ".");
+					logln("Directory not accessable as entered (could not find /'" + directoryPath + "/'); files will be saved to " + MesquiteTrunk.getSuggestedDirectory() + ".");
 				}
-				directoryPath = MesquiteTrunk.suggestedDirectory;
+				directoryPath = MesquiteTrunk.getSuggestedDirectory();
 			}
 			//Check to make sure directoryPath ends with file separator character.  If it doesn't, append it.
 			String endOfPath = directoryPath.substring(directoryPath.length());
@@ -355,9 +381,9 @@ public class RAxMLExporter extends RAxMLRunnerLocalOld {
 		
 		FileInterpreterI exporter = null;
 		if (data instanceof DNAData)
-			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipDNA");
+			exporter = getFileInterpreter(this,"#InterpretPhylipDNA");
 		else if (data instanceof ProteinData)
-			exporter = ZephyrUtil.getFileInterpreter(this,"#InterpretPhylipProtein");
+			exporter = getFileInterpreter(this,"#InterpretPhylipProtein");
 		if (exporter==null){
 			desuppressProjectPanelReset();
 			return null;
@@ -365,6 +391,7 @@ public class RAxMLExporter extends RAxMLRunnerLocalOld {
 		prepareExportFile(exporter);
 
 		boolean fileSaved = false;
+		//DANGER Debugg.println: Since the file interpreter here is the coordinator's, reentrancy could make a mess of things, including with writing hints
 		if (data instanceof DNAData)
 			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		else if (data instanceof ProteinData)

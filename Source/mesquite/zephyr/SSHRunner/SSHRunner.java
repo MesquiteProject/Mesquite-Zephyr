@@ -14,18 +14,37 @@ import java.awt.Checkbox;
 import java.awt.Choice;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.Random;
 
-import mesquite.externalCommunication.lib.*;
-import mesquite.lib.*;
-import mesquite.zephyr.lib.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteFileUtil;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.OutputFilePathModifier;
+import mesquite.lib.OutputFileProcessor;
+import mesquite.lib.ParseUtil;
+import mesquite.lib.Parser;
+import mesquite.lib.ProcessWatcher;
+import mesquite.lib.ShellScriptUtil;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringArray;
+import mesquite.lib.StringUtil;
+import mesquite.lib.ui.DoubleField;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.ProgressIndicator;
+import mesquite.zephyr.lib.ExternalProcessRequester;
+import mesquite.zephyr.lib.SSHCommunicator;
+import mesquite.zephyr.lib.SSHServerProfile;
+import mesquite.zephyr.lib.SSHServerProfileManager;
+import mesquite.zephyr.lib.ScriptRunner;
 
-public class SSHRunner extends ScriptRunner implements OutputFileProcessor, ShellScriptWatcher, OutputFilePathModifier, ActionListener {
+public class SSHRunner extends ScriptRunner implements OutputFileProcessor, ProcessWatcher, OutputFilePathModifier, ActionListener {
 	MesquiteString xmlPrefs= new MesquiteString();
 	String xmlPrefsString = null;
 	StringBuffer extraPreferences;
-	SSHServerProfileManager sshServerProfileManager;
+	SSHServerProfileManager sshServerProfileManager;  //ZQ static issue
 	SSHServerProfile sshServerProfile = null;
 
 	boolean verbose = true;
@@ -37,8 +56,8 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		MesquiteModule mm = getEmployer();
 		loadPreferences(xmlPrefs);
-		if (sshServerProfileManager == null)
-			sshServerProfileManager= (SSHServerProfileManager)MesquiteTrunk.mesquiteTrunk.hireEmployee(SSHServerProfileManager.class, "Supplier of SSH server specifications.");
+			sshServerProfileManager= (SSHServerProfileManager)MesquiteTrunk.mesquiteTrunk.findEmployeeWithDuty(SSHServerProfileManager.class);
+
 		if (sshServerProfileManager == null) {
 			return false;
 		} 
@@ -98,15 +117,17 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		return false;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
 
 	public  boolean isWindows() {
 		if (sshServerProfile==null)
 			return false;
 		return sshServerProfile.isWindows();
 	}
+	
+	public void updateOptionsChosenFromDialog() {
+		optionsChosen();
+	}
+
 	public  boolean isLinux() {
 		if (sshServerProfile==null)
 			return true;
@@ -221,6 +242,8 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 			if (communicator!=null)
 				communicator.setRemoteWorkingDirectoryName(name);
 		}
+		else
+			return super.doCommand(commandName, arguments, checker);
 		return null;
 	}	
 
@@ -385,7 +408,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 
 	/*.................................................................................................................*/
 	// the actual data & scripts.  
-	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String[] fileContents, String[] fileNames, int runInfoFileNumber){  //assumes for now that all input files are in the same directory
+	public boolean setProgramArgumentsAndInputFiles(String programCommand, Object arguments, String presetDirectory, String[] fileContents, String[] fileNames, int runInfoFileNumber){  //assumes for now that all input files are in the same directory
 		executableRemoteName= programCommand;
 		String args = null;
 		if (arguments instanceof MesquiteString)
@@ -583,7 +606,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	}
 	public String getMessageIfCloseFileRequested () { 
 		if (scriptBased)
-			return "If Mesquite closes this file, it will not stop the run on the server.  To stop the other program on the remote server, you will need to "
+			return "\nClosing this file will not stop the run on the server.  To stop the other program on the remote server, you will need to "
 			+ "log into the remote server and stop the program on it.";
 		return "";
 	}
@@ -658,7 +681,7 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 	public String[] modifyOutputPaths(String[] outputFilePaths){
 		return processRequester.modifyOutputPaths(outputFilePaths);
 	}
-	public boolean continueShellProcess(Process proc) {
+	public boolean continueProcess(Process proc) {
 		return true;
 	}
 	public boolean fatalErrorDetected() {
@@ -666,6 +689,9 @@ public class SSHRunner extends ScriptRunner implements OutputFileProcessor, Shel
 		if (StringUtil.notEmpty(stdErr))
 			return true;
 		return false;
+	}
+	public boolean warnIfError() {
+		return true;
 	}
 
 

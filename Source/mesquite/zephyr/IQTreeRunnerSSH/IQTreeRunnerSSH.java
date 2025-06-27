@@ -10,28 +10,14 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.IQTreeRunnerSSH;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
-
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.lib.system.SystemUtil;
-import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
-import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.RAxMLRunnerSSHOld.RAxMLRunnerSSHOld;
+import mesquite.externalCommunication.lib.RemoteProcessCommunicator;
+import mesquite.lib.StringUtil;
 import mesquite.zephyr.SSHRunner.SSHRunner;
-import mesquite.zephyr.lib.*;
-import mesquite.io.lib.*;
+import mesquite.zephyr.lib.IQTreeRunnerBasic;
+import mesquite.zephyr.lib.SSHServerProfile;
 
 
-public class IQTreeRunnerSSH extends IQTreeRunnerBasic  {
+public class IQTreeRunnerSSH extends IQTreeRunnerBasic implements RemoteProcessCommunicator  {
 
 
 	/*.................................................................................................................*/

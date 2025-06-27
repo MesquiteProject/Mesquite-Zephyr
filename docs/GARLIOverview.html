@@ -41,8 +41,8 @@
     <td width="51%"><img src="images/zephyrBannerNarrow.jpg" width="628" height="110" /></td>
     <td width="33%" align="right"><div id="subtitle"><!-- InstanceBeginEditable name="subtitle" -->GARLI<!-- InstanceEndEditable --></div></td>
     <td width="2%">&nbsp;</td>
-    <td width="14%">Version 3.31<br />      
-    April 2023<br /></td>
+    <td width="14%">Version 4.0<br />      
+    June 2025<br /></td>
   </tr>
 </table>
 
@@ -91,7 +91,6 @@
     <div class="CollapsiblePanelContent" style="display: block">
   		<table width="100%" border="0" cellpadding="1">
   			<tr><td><a href="javascript:pageLink('localanalyses.html');">Local Analyses</a></td></tr>
-  			<tr><td><a href="javascript:pageLink('cipresanalyses.html');">CIPRes Analyses</a></td></tr>
   			<tr><td><a href="javascript:pageLink('sshanalyses.html');">SSH Server Analyses</a></td></tr>
 		</table>
     </div>
@@ -153,9 +152,9 @@
     <h1 id="toc0"><a name="GARLI"></a>GARLI</h1>
  GARLI is a program for finding maximum-likelihood phylogenies. It is written by Derrick Zwickl; more details can be found on the <a class="wiki_link_ext" href="https://code.google.com/p/garli/" rel="nofollow">GARLI home page</a>. Zephyr requires version 2.0 or later of GARLI. If you use GARLI, please cite it appropriately as recommended in the program's documentation.<br />
 <br />
-The GARLI dialog box within Zephyr has four panels. The first panel (&quot;GARLI Program Details&quot;) differs depending upon whether you are doing a <a class="wiki_link" href="Local%20Analyses.html">local analysis</a> (left) or a <a class="wiki_link" href="CIPRes%20Analyses.html">CIPRes analysis</a> (right):<br />
+The GARLI dialog box within Zephyr has four panels. The first panel (&quot;GARLI Program Details&quot;)  looks like this:<br />
 <br />
-<span style="display: block; text-align: center;"><img src="files/GARLILocalRedo.jpg" alt="GARLILocalRedo.jpg" title="GARLILocalRedo.jpg" style="height: 467px; width: 480px;" /><img src="files/GARLICIPRes.jpg" alt="GARLICIPRes.jpg" title="GARLICIPRes.jpg" style="height: 471px; width: 391px;" /></span><br />
+<span style="display: block; text-align: center;"><img src="files/GARLILocalRedo.jpg" alt="GARLILocalRedo.jpg" title="GARLILocalRedo.jpg" style="height: 467px; width: 480px;" /></span><br />
 <strong>GARLI Likelihood [Local]</strong>: If running GARLI on the same computer that has Mesquite on it, then in this panel you will need to first specify where on your computer's hard disk your copy of GARLI resides. The next few options (script-based, terminal, delete analysis directory) are discussed in the <a class="wiki_link" href="localanalyses.html">Local Analyses</a> page. In this panel you will also need to specify the amount of memory you wish to give to GARLI, and the number of processors you would like it to use. Note as well the version number of GARLI that is needed for the particular installation of Zephyr that you have running; it should be stated in this panel.<br />
 <br />
 Whether you are running GARLI locally or not, you have the option to automatically save the Mesquite file after the inference in completed and the phylogenetic trees moved into the file.<br />
@@ -172,7 +171,7 @@ In choosing the model to use for a partition, you can choose the rate matrix, st
 In the final panel (&quot;Other options&quot;) you can choose to have the GARLI config file shown. If you choose this option, then Zephyr will present the config file to you before the run starts:<br />
 <br />
 <div style="text-align: center"><img src="files/GarliConfigFile.jpg" alt="GarliConfigFile.jpg" title="GarliConfigFile.jpg" /></div><br />
-Once you press OK, either the run will start (if local) or you may be asked to log in to CIPRes. The run will start, and GARLI will start searching for trees, writing the intermediate trees found to a file on the disk. Zephyr reads in the contents of that tree file, and will show you the current tree. At the end of the search, Zephyr will harvest the final tree or trees and present them to you in a tree window:<br />
+Once you press OK, either the run will start . The run will start, and GARLI will start searching for trees, writing the intermediate trees found to a file on the disk. Zephyr reads in the contents of that tree file, and will show you the current tree. At the end of the search, Zephyr will harvest the final tree or trees and present them to you in a tree window:<br />
 <br />
 <div style="text-align: center"><img src="files/GarliEndResult.jpg" alt="GarliEndResult.jpg" title="GarliEndResult.jpg" /></div><br />
 If you have done a non-bootstrap analysis, then Zephyr will read in the final likelihood score of each of the GARLI trees. These scores can be seen by choosing Taxa&amp;Trees&gt;List of Trees&gt;[name of GARLI tree block], and once the window listing the trees is visible, choosing Columns&gt;Number for Tree&gt;GARLI Score.

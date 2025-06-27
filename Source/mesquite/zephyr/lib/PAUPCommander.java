@@ -9,7 +9,7 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import mesquite.categ.lib.*;
+import mesquite.categ.lib.CategoricalData;
 
 public interface PAUPCommander {
 

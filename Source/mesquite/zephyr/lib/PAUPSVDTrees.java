@@ -9,14 +9,10 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.util.*;
-
-import mesquite.io.lib.IOUtil;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.analysis.InvariantsAnalysis;
+import mesquite.lib.duties.TreeSource;
 import mesquite.zephyr.PAUPSVDRunnerSSH.PAUPSVDRunnerSSH;
-import mesquite.zephyr.lib.*;
 
 
 public abstract class PAUPSVDTrees extends ZephyrTreeSearcher implements InvariantsAnalysis {
@@ -44,10 +40,7 @@ public abstract class PAUPSVDTrees extends ZephyrTreeSearcher implements Invaria
 	 public boolean isPrerelease(){
 		return false;
 	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
+
 	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return false;

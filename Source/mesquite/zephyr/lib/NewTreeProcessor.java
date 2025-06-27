@@ -1,6 +1,6 @@
 package mesquite.zephyr.lib;
 
-import mesquite.lib.TaxaSelectionSet;
+import mesquite.lib.taxa.TaxaSelectionSet;
 
 public interface NewTreeProcessor {
 

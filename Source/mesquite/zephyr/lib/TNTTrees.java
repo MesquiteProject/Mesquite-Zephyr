@@ -9,14 +9,16 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.util.*;
-
-import mesquite.io.lib.IOUtil;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.analysis.ParsimonyAnalysis;
+import mesquite.lib.duties.TreeSource;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.taxa.TaxonNamer;
+import mesquite.lib.tree.Tree;
 import mesquite.zephyr.TNTRunnerSSH.TNTRunnerSSH;
-import mesquite.zephyr.lib.*;
 
 
 public abstract class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAnalysis {
@@ -54,10 +56,7 @@ public abstract class TNTTrees extends ZephyrTreeSearcher implements ParsimonyAn
 	 public boolean isPrerelease(){
 		return false;
 	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
+	
 	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return true;

@@ -9,24 +9,61 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.Button;
+import java.awt.Checkbox;
+import java.awt.Choice;
+import java.awt.Color;
+import java.awt.Label;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
-import javax.swing.*;
-import javax.swing.event.*;
-
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-
-import mesquite.categ.lib.*;
-import mesquite.io.lib.IOUtil;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.molec.lib.Blaster;
-import mesquite.zephyr.lib.*;
-import mesquite.zephyr.lib.*;
+//import org.apache.http.entity.mime.MultipartEntityBuilder;
+import mesquite.categ.lib.CategoricalData;
+import mesquite.categ.lib.DNAData;
+import mesquite.categ.lib.MolecularData;
+import mesquite.categ.lib.ProteinData;
+import mesquite.lib.Attachable;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.DoubleArray;
+import mesquite.lib.EmployeeNeed;
+import mesquite.lib.IntegerField;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteFileUtil;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteLong;
+import mesquite.lib.MesquiteMessage;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.ResultCodes;
+import mesquite.lib.Snapshot;
+import mesquite.lib.StringUtil;
+import mesquite.lib.characters.CharacterData;
+import mesquite.lib.characters.CharacterPartition;
+import mesquite.lib.characters.CharactersGroup;
+import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.duties.FileCoordinator;
+import mesquite.lib.duties.OneTreeSource;
+import mesquite.lib.duties.TreesManager;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.tree.MesquiteTree;
+import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeVector;
+import mesquite.lib.ui.ColorDistribution;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.MesquiteDialog;
+import mesquite.lib.ui.MesquiteTabbedPanel;
+import mesquite.lib.ui.QueryDialogs;
+import mesquite.lib.ui.RadioButtons;
+import mesquite.lib.ui.SingleLineTextField;
 
 public abstract class GarliRunner extends ZephyrRunner implements ItemListener, ActionListener, ExternalProcessRequester, ConstrainedSearcherTreeScoreProvider {
 	public static final String SCORENAME = "GARLIScore";
@@ -594,10 +631,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public String getTestedProgramVersions() {
 		return "2.0";
 	}
+	/*.................................................................................................................*/
 	public  boolean smallerIsBetter (){
 		return false;
 	}
@@ -708,11 +746,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				+ "You can ask it to do multiple searches for optimal trees, OR to do a bootstrap analysis (but not both). "
 				+ "Mesquite will read in the trees found by GARLI, and, for non-bootstrap analyses, also read in the value of the GARLI score (-ln L) of the tree. "
 				+ "You can see the GARLI score by choosing Taxa&Trees>List of Trees, and then in the List of Trees for that trees block, choose "
-				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose GARLI Score.";
+				+ "Columns>Number for Tree>Other Choices, and then in the Other Choices dialog, choose GARLI Score." + super.getHelpString();
 
 		dialog.appendToHelpString(helpString);
-		if (zephyrRunnerEmployer!=null)
-			dialog.setHelpURL(zephyrRunnerEmployer.getProgramURL());
+		dialog.setHelpURL(getHelpURL(zephyrRunnerEmployer));
 
 		MesquiteTabbedPanel tabbedPanel = dialog.addMesquiteTabbedPanel();
 		String extraLabel = getLabelForQueryOptions();
@@ -720,10 +757,10 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 			dialog.addLabel(extraLabel);
 
 		tabbedPanel.addPanel("GARLI Program Details", true);
-		addRunnerOptions(dialog);
-		dialog.addLabelSmallText("This version of Zephyr tested on the following GARLI version(s): " + getTestedProgramVersions());
 		if (treeInferer!=null) 
 			treeInferer.addItemsToDialogPanel(dialog);
+		addRunnerOptions(dialog);
+	//	dialog.addLabelSmallText("This version of Zephyr tested on the following GARLI version(s): " + getTestedProgramVersions());
 		
 		externalProcRunner.addNoteToBottomOfDialog(dialog);
 		
@@ -755,26 +792,24 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		}
 
 		tabbedPanel.addPanel("Character Models", true);
-		if (!data.hasCharacterGroups()) {
+		if (!data.hasCharacterGroups() && !alwaysPrepareForAnyMatrices()) {
 			if (partitionScheme == partitionByCharacterGroups)
 				partitionScheme = noPartition;
 		}
-		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
+		if (!(data instanceof DNAData && ((DNAData) data).someCoding()) && !alwaysPrepareForAnyMatrices()) {
 			if (partitionScheme == partitionByCodonPosition)
 				partitionScheme = noPartition;
 		}
+
 		if (data instanceof ProteinData)
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups" }, partitionScheme);
-		else
+		else {
 			charPartitionButtons = dialog.addRadioButtons(new String[] {"don't partition", "use character groups","use codon positions" }, partitionScheme);
+			charPartitionButtons.setEnabled(2, (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysPrepareForAnyMatrices());
+		}
+		charPartitionButtons.setEnabled(1, data.hasCharacterGroups() || alwaysPrepareForAnyMatrices());
 
 		charPartitionButtons.addItemListener(this);
-		if (!data.hasCharacterGroups()) {
-			charPartitionButtons.setEnabled(1, false);
-		}
-		if (!(data instanceof DNAData && ((DNAData) data).someCoding())) {
-			charPartitionButtons.setEnabled(2, false);
-		}
 
 		Checkbox linkModelsBox = dialog.addCheckBox("use same set of model parameters for all partition subsets",linkModels);
 		Checkbox subsetSpecificRatesBox = dialog.addCheckBox("infer overall rate multipliers for each partition subset",subsetSpecificRates);
@@ -802,6 +837,9 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		invarSitesChoice = dialog.addPopUpMenu("Invariable Sites", new String[] {"none", "Estimate Proportion" }, 1);
 		rateHetChoice = dialog.addPopUpMenu("Gamma Site-to-Site Rate Model",new String[] { "none", "Estimate Shape Parameter" }, 1);
 		numRateCatField = dialog.addIntegerField("Number of Rate Categories for Gamma", numratecats, 4, 1, 20);
+
+		tabbedPanel.addPanel("Taxa & Outgroups", true);
+		addTaxaOptions(dialog,taxa);
 
 
 		tabbedPanel.addPanel("Other options", true);
@@ -837,11 +875,14 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				// garliOptions = garliOptionsField.getText();
 
 				processCharacterModels();
+				processTaxaOptions();
 
 				storeRunnerPreferences();
 				acceptableOptions=true;
 			}
-		}
+		} else
+			if (treeInferer!=null)
+				treeInferer.setUserCancelled();
 		dialog.dispose();
 		if (closeWizard)
 			MesquiteDialog.closeWizard();
@@ -908,18 +949,18 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	abstract public Object getProgramArguments(String dataFileName, String configFileName, boolean isPreflight) ;
 
 	/* ================================================= */
-	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore) {
+	public Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore, MesquiteInteger statusResult) {
 		finalValues=null;
 		screenFile = null;
 		screenFilePos=0;
 		runNumber = 0;
-		if (!initializeGetTrees(MolecularData.class, taxa, matrix))
+		if (!initializeGetTrees(MolecularData.class, taxa, matrix, statusResult))
 			return null;
 		//David: if isDoomed() then module is closing down; abort somehow
 		setGarliSeed(seed);
 
 		// create the data file
-		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this,MesquiteFileUtil.IN_SUPPORT_DIR, "GARLI", "-Run.");
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this,MesquiteFileUtil.BESIDE_HOME_FILE, "GARLI", "-Run.");
 		if (tempDir == null)
 			return null;
 
@@ -1011,13 +1052,17 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		if (updateWindow)
 			parametersChanged(); //just a way to ping the coordinator to update the window
 		
-		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, fileContents, fileNames, ownerModule.getName(), runInformationFileNumber);
+		boolean success = runProgramOnExternalProcess(GARLIcommand, arguments, null, fileContents, fileNames, ownerModule.getName(), runInformationFileNumber);
 
 		if (!isDoomed()){
 			if (success) {
 				desuppressProjectPanelReset();
 				return retrieveTreeBlock(trees, finalScore); // here's where we actually process everything
 			}
+			else
+				if (statusResult != null)
+				statusResult.setValue(ResultCodes.ERROR);
+
 		}
 
 		desuppressProjectPanelReset();
@@ -1148,6 +1193,8 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		String[] outputFilePaths = new String[logFileNames.length];
 		outputFilePaths[fileNum] = externalProcRunner.getOutputFilePath(logFileNames[fileNum]);
 		String filePath = outputFilePaths[fileNum];
+		setTimeOfEarlyRep(numRunsCompleted);
+
 
 		/*
 		 * if (fileNum==1) filePath =
@@ -1219,14 +1266,18 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 						}
 						runNumber++;
 						numRunsCompleted++;
-						double timePerRep = timer.timeSinceVeryStartInSeconds()/ numRunsCompleted; // this is time per rep
-						int timeLeft = 0;
-						if (bootstrapOrJackknife()) {
-							timeLeft = (int) ((bootstrapreps - numRunsCompleted) * timePerRep);
-						} else {
-							timeLeft = (int) ((numRuns - numRunsCompleted) * timePerRep);
+						setTimeOfEarlyRep(numRunsCompleted);
+						double timePerRep = getTimePerRep(numRunsCompleted);   //this is time per rep
+						if (timePerRep>0 && numRunsCompleted>1) {
+							int timeLeft = 0;
+							if (bootstrapOrJackknife()) {
+								timeLeft = (int) ((bootstrapreps - numRunsCompleted) * timePerRep);
+							} else {
+								timeLeft = (int) ((numRuns - numRunsCompleted) * timePerRep);
+							}
+							logln("  Running time so far " + StringUtil.secondsToHHMMSS((int) timer.timeSinceVeryStartInSeconds()) + ", approximate time remaining "+ StringUtil.secondsToHHMMSS(timeLeft));
+							logln("  Estimated time of completion: " + getTimeOfCompletion(timeLeft));
 						}
-						logln("  Running time so far " + StringUtil.secondsToHHMMSS((int) timer.timeSinceVeryStartInSeconds()) + ", approximate time remaining "+ StringUtil.secondsToHHMMSS(timeLeft));
 
 					} else if (s.startsWith("ERROR:")) {
 						MesquiteMessage.discreetNotifyUser("GARLI " + s);

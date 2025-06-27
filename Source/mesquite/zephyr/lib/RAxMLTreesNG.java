@@ -9,8 +9,14 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import mesquite.lib.*;
-import mesquite.search.lib.*;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.taxa.TaxonNamer;
+import mesquite.lib.tree.AdjustableTree;
+import mesquite.lib.ui.ExtensibleDialog;
 
 public abstract class RAxMLTreesNG extends RAxMLTrees {
 	int rerootNode = 0;
@@ -44,10 +50,6 @@ public abstract class RAxMLTreesNG extends RAxMLTrees {
 		public boolean isPrerelease(){
 			return false;
 		}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
 	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return true;

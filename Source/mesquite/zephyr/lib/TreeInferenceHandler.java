@@ -13,9 +13,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 */
 package mesquite.zephyr.lib;
 
-import java.awt.*;
-
-import mesquite.lib.*;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.OutputTextListener;
 
 
 /* ======================================================================== */
@@ -41,7 +40,7 @@ public abstract class TreeInferenceHandler extends MesquiteModule  {
 	/*.................................................................................................................*/
 	public abstract String getInferenceName();
 	/*.................................................................................................................*/
-	public abstract boolean stopInference();
+	public abstract boolean stopInference(boolean userAborted, boolean saveTrees);
 	/*.................................................................................................................*/
 	public abstract String getTitleOfTextCommandLink();
 	/*.................................................................................................................*/
@@ -49,9 +48,13 @@ public abstract class TreeInferenceHandler extends MesquiteModule  {
 	/*.................................................................................................................*/
 	public abstract void processUserClickingOnTextCommandLink(String command);
 	/*.................................................................................................................*/
-	public abstract boolean storeLatestTree();
+	public abstract boolean storeLatestTreeAfterAbort();
 	/*.................................................................................................................*/
 	public abstract boolean canStoreLatestTree();
+	/*.................................................................................................................*/
+	public abstract boolean storeMultipleCurrentTreesAfterAbort();
+	/*.................................................................................................................*/
+	public abstract boolean canStoreMultipleCurrentTrees();
 	/*.................................................................................................................*/
 	public abstract void setUserAborted();
 	/*.................................................................................................................*/

@@ -14,17 +14,29 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.awt.*;
-import java.util.regex.*;
+import java.awt.Choice;
 
-import org.dom4j.*;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 
-import mesquite.lib.*;
-import mesquite.externalCommunication.lib.*;
+import mesquite.externalCommunication.lib.UsernamePasswordKeeper;
+import mesquite.lib.Explainable;
+import mesquite.lib.IntegerField;
+import mesquite.lib.Listable;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.StringArray;
+import mesquite.lib.StringUtil;
+import mesquite.lib.XMLUtil;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.SingleLineTextField;
 
 public class SSHServerProfile implements Listable, Explainable, UsernamePasswordKeeper {
 
 	public String name = "SSH Server";
+	public boolean isDefault = false; //if true, then can't rename or edit;
 	public String host = "";   
 	static String macOS = "MacOS X";
 	static String linuxOS = "Linux";
@@ -36,15 +48,15 @@ public class SSHServerProfile implements Listable, Explainable, UsernamePassword
 	public int pollingInterval = 30;
 	public int maxCores = 2;
 
-	public static int numProgramsSupported = 5;
-	public static int RAxML = 0;
-	public static int IQTREE = 1;
-	public static int GARLI = 2;
-	public static int PAUP = 3;
-	public static int TNT = 4;
-	public String[] programNames = new String[]{"RAxML", "IQ-TREE", "GARLI", "PAUP*", "TNT"};
+	public static int numProgramsSupported = 6;
+	public static int IQTREE = 0;
+	public static int RAxML = 1;
+	public static int RAxMLNG = 2;
+	public static int GARLI = 3;
+	public static int PAUP = 4;
+	public static int TNT = 5;
+	public String[] programNames = new String[]{"IQ-TREE", "RAxML", "RAxML-NG", "GARLI", "PAUP*", "TNT"};
 	public String[] programPaths;
-
 	public String RAxMLpath = "";
 	
 	private String password = "";  // for temporary storage

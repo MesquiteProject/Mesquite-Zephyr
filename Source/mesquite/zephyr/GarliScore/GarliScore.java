@@ -9,9 +9,13 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.GarliScore;
 
 
-import mesquite.lib.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.lib.*;
+import mesquite.lib.Attachable;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteNumber;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.duties.NumberForTree;
+import mesquite.lib.tree.Tree;
+import mesquite.zephyr.lib.GarliRunner;
 
 
 public class GarliScore extends NumberForTree {

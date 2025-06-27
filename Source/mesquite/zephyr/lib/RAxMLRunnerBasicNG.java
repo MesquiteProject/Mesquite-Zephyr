@@ -10,24 +10,23 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 
-import java.awt.*;
-import java.io.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.Checkbox;
+import java.awt.Choice;
+import java.awt.event.ItemEvent;
+import java.awt.event.KeyListener;
 
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-
-import mesquite.categ.lib.*;
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.duties.*;
-import mesquite.lib.system.SystemUtil;
-import mesquite.io.ExportFusedPhylip.ExportFusedPhylip;
-import mesquite.zephyr.CIPResRESTRunner.CIPResRESTRunner;
-import mesquite.zephyr.LocalScriptRunner.LocalScriptRunner;
-import mesquite.zephyr.RAxMLTreesLocalOld.*;
-import mesquite.zephyr.lib.*;
-import mesquite.io.lib.*;
+//import org.apache.http.entity.mime.MultipartEntityBuilder;
+import mesquite.categ.lib.ProteinData;
+import mesquite.lib.IntegerField;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.ShellScriptUtil;
+import mesquite.lib.StringUtil;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.ui.ExtensibleDialog;
+import mesquite.lib.ui.RadioButtons;
+import mesquite.lib.ui.SingleLineTextField;
 
 /* TODO:
 -b bootstrapRandomNumberSeed  // allow user to set seed
@@ -205,7 +204,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		numProcessorsField = dialog.addIntegerField("Specify number of processor cores", numProcessors, 8, 1, MesquiteInteger.infinite);
 		dialog.addHorizontalLine(1);
 
-		dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s) of "+ getProgramName() + ": " + getTestedProgramVersions());
+		//dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s) of "+ getProgramName() + ": " + getTestedProgramVersions());
 	}
 	
 	
@@ -275,7 +274,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	protected String getHelpString() {
 		return "This module will prepare a matrix for RAxML-NG, and ask RAxM-NG do to an analysis.  A command-line version of RAxML-NG must be installed. "
 				+ "You can ask it to do multiple searches for optimal trees, OR to do a bootstrap analysis (but not both). "
-				+ "Mesquite will read in the trees found by RAxML-NG, and, for non-bootstrap analyses.";
+				+ "Mesquite will read in the trees found by RAxML-NG, and, for non-bootstrap analyses." + super.getHelpString();
 	}
 
 	/*.................................................................................................................*/

@@ -1,12 +1,11 @@
 package mesquite.zephyr.SSHUtility;
 
-import java.awt.event.ActionEvent;
-import java.io.*;
-import java.util.*;
-
-import mesquite.lib.*;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.lib.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.duties.UtilitiesAssistant;
+import mesquite.lib.ui.MesquiteSubmenuSpec;
+import mesquite.zephyr.lib.SSHServerProfileManager;
 
 
 public class SSHUtility extends UtilitiesAssistant {
@@ -14,13 +13,13 @@ public class SSHUtility extends UtilitiesAssistant {
 	MesquiteString xmlPrefs= new MesquiteString();
 	String xmlPrefsString = null;
 	StringBuffer extraPreferences;
-	SSHServerProfileManager sshServerProfileManager;
+	SSHServerProfileManager sshServerProfileManager;  //ZQ static issue
 
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences(xmlPrefs);
 		if (sshServerProfileManager == null)
-			sshServerProfileManager= (SSHServerProfileManager)MesquiteTrunk.mesquiteTrunk.hireEmployee(SSHServerProfileManager.class, "Supplier of SSH server specifications.");
+			sshServerProfileManager= (SSHServerProfileManager)MesquiteTrunk.mesquiteTrunk.findEmployeeWithDuty(SSHServerProfileManager.class);
 		if (sshServerProfileManager == null) {
 			return false;
 		} 

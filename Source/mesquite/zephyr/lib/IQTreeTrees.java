@@ -9,8 +9,14 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import mesquite.lib.*;
-import mesquite.search.lib.*;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteInteger;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.analysis.LikelihoodAnalysis;
+import mesquite.lib.taxa.TaxaSelectionSet;
+import mesquite.lib.taxa.TaxonNamer;
+import mesquite.lib.tree.AdjustableTree;
 
 public abstract class IQTreeTrees extends ZephyrTreeSearcher implements LikelihoodAnalysis {
 	int rerootNode = 0;
@@ -27,7 +33,6 @@ public abstract class IQTreeTrees extends ZephyrTreeSearcher implements Likeliho
 
 	public String getExtraTreeWindowCommands (boolean finalTree, long treeBlockID){
 		this.treeBlockID = treeBlockID;
-		
 		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), runner.showAssocStrings(),runner.getNameRefForAssocStrings(), treeBlockID, !runner.bootstrapOrJackknife())+ eachTreeCommands();
 	}
 
@@ -48,10 +53,6 @@ public abstract class IQTreeTrees extends ZephyrTreeSearcher implements Likeliho
 	/*.................................................................................................................*/
 	public boolean isPrerelease(){
 		return false;
-	}
-	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
 	}
 	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){

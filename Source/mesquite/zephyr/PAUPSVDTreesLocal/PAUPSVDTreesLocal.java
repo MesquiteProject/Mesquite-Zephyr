@@ -9,10 +9,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.PAUPSVDTreesLocal;
 
-import java.util.*;
-
 import mesquite.zephyr.PAUPSVDRunnerLocal.PAUPSVDRunnerLocal;
-import mesquite.zephyr.lib.*;
+import mesquite.zephyr.lib.PAUPSVDTrees;
 
 
 public class PAUPSVDTreesLocal extends PAUPSVDTrees {

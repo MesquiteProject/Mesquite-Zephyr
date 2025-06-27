@@ -9,13 +9,24 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.lib;
 
-import java.util.*;
+import java.util.Random;
 
-import mesquite.lib.*;
-import mesquite.lib.characters.*;
-import mesquite.lib.characters.CharacterData;
-import mesquite.lib.duties.*;
-import mesquite.zephyr.lib.*;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.CommandRecord;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteCommand;
+import mesquite.lib.MesquiteDouble;
+import mesquite.lib.MesquiteFile;
+import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteNumber;
+import mesquite.lib.MesquiteString;
+import mesquite.lib.MesquiteThread;
+import mesquite.lib.Reconnectable;
+import mesquite.lib.Snapshot;
+import mesquite.lib.characters.MCharactersDistribution;
+import mesquite.lib.duties.NumberForMatrix;
+import mesquite.lib.taxa.Taxa;
+import mesquite.lib.tree.TreeVector;
 
 
 public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements Reconnectable, ZephyrRunnerEmployer {
@@ -54,11 +65,11 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 
 	/*.................................................................................................................*/
 	/** Notifies all employees that a file is about to be closed.*/
-	public void fileCloseRequested () {
+	public boolean fileCloseRequested () {
 		if (!MesquiteThread.isScripting()) {
 			discreetAlert(runner.getFileCloseNotification(getProject().getHomeFile().isDirty()));
 		}
-		super.fileCloseRequested();
+		return super.fileCloseRequested();
 	}
 	MesquiteBoolean runSucceeded = new MesquiteBoolean(true);
 	/** Called when Mesquite re-reads a file that had had unfinished tree filling, e.g. by an external process, to pass along the command that should be executed on the main thread when trees are ready.*/
@@ -134,10 +145,6 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 		return true;
 	}
 	/*.................................................................................................................*/
-	public boolean requestPrimaryChoice(){
-		return true;
-	}
-	/*.................................................................................................................*/
 	public boolean canGiveIntermediateResults(){
 		return false;
 	}
@@ -156,7 +163,7 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 
 		MesquiteDouble finalScores = new MesquiteDouble();
 
-		runner.getTrees(trees, taxa, data, rng.nextInt(), finalScores);
+		runner.getTrees(trees, taxa, data, rng.nextInt(), finalScores, null); //ZQ because statusResult is passed as null, the kind of failure will not be reported here
 		runner.setRunInProgress(false);
 
 		if (result!=null)
