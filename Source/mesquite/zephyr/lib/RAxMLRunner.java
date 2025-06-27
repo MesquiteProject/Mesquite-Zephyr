@@ -893,7 +893,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 					discreetAlert("Constraint tree cannot be used as a skeletal constraint because it has polytomies");
 					constraint=null;
 					if (constraintTreeTask != null)
-						constraintTreeTask.reset();  //WAYNECHECK: added reset as otherwise you got into an infinite loop as it never allowed you to reset the context tree
+						constraintTreeTask.reset(); 
 					return null;
 				}
 			}

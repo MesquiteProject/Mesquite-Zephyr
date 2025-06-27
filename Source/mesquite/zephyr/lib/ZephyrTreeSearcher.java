@@ -250,7 +250,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		else if (checker.compare(this.getClass(), "Gets the matrix source", "[module]", commandName, "getMatrixSource")) {
 			if (matrixSourceTask!=null && observedStates ==null) {
 				if (getData()!=null)
-					observedStates = getData().getMCharactersDistribution();   //WAYNECHECK: if we have just reconnected, we can't use the matrixSource to get the current matrix - we need to get the matrix that was recorded on save (but is that necessarily stored???)
+					observedStates = getData().getMCharactersDistribution();  
 				else
 					observedStates = matrixSourceTask.getCurrentMatrix(taxa);
 			}

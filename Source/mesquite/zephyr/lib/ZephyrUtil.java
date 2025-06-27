@@ -1015,7 +1015,7 @@ public class ZephyrUtil {
 
 		commands += " endTell; resetTitle;"; //endTell for BasicTreeDrawCoordinator
 		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
-//QZ Debugg.println shift to new system; 
+
 //ZQ: the followign many not work in intermediatebecuase SimpleTreeWindow may not employ BranchPropertyDisplayControl
 		if (isBootstrap){
 			commands += "getOwnerModule; tell It; getEmployee #BranchPropertyDisplayControl; tell It; showAssociate consensusFrequency; endTell; endTell; ";

@@ -624,7 +624,8 @@ public class SOWHTest extends TreeWindowAssistantA      {
 		}
 		CharInclusionSet incl = (CharInclusionSet)sourceData.getCurrentSpecsSet(CharInclusionSet.class);
 		if (incl != null) {
-			destinationData.setCurrentSpecsSet(incl, CharInclusionSet.class);
+			SpecsSet inclCopy = incl.cloneSpecsSet();
+			destinationData.setCurrentSpecsSet(inclCopy, CharInclusionSet.class);
 		} 
 
 	}
@@ -724,7 +725,7 @@ public class SOWHTest extends TreeWindowAssistantA      {
 			CharacterData simulatedData = (CategoricalData)CharacterData.getData(this,  simulatedStates, taxa);
 			if (simulatedData!=null) {
 				((MAdjustableDistribution)simulatedStates).setParentData(simulatedData);
-				copyCurrentSpecSets(data,simulatedData);  // WAYNECHECK: is this ok?
+				copyCurrentSpecSets(data,simulatedData); 
 				if (altererTask!=null && alterData)
 					altererTask.alterData(simulatedData, null, null);
 
