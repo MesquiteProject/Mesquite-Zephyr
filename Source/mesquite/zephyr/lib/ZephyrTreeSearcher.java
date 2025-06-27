@@ -173,16 +173,16 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		return getName();
 	}
 	
-	boolean placeAllAnalysisFilesInSubdirectory = false;
+	boolean multipleMatrixMode = false;
 	/*.................................................................................................................*/
-	public boolean getPlaceAllAnalysisFilesInSubdirectory() {
-		return placeAllAnalysisFilesInSubdirectory;
+	public boolean getMultipleMatrixMode() {
+		return multipleMatrixMode;
 	}
 	/*.................................................................................................................*/
-	public void setPlaceAllAnalysisFilesInSubdirectory(boolean placeAllAnalysisFilesInSubdirectory) {
+	public void setMultipleMatrixMode(boolean multipleMatrixMode) {
 		if (runner != null)
-			runner.setPlaceAllAnalysisFilesInSubdirectory(placeAllAnalysisFilesInSubdirectory);
-		this.placeAllAnalysisFilesInSubdirectory = placeAllAnalysisFilesInSubdirectory;
+			runner.setMultipleMatrixMode(multipleMatrixMode);
+		this.multipleMatrixMode = multipleMatrixMode;
 	}
 
 	/*.................................................................................................................*/
