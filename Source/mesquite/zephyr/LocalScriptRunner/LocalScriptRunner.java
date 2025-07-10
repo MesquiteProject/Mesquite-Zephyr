@@ -385,7 +385,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public  boolean addItemsToDialogPanel(ExtensibleDialog dialog){
 		
 		dialog.addHorizontalLine(1);
-		appChooser = new AppChooser(processRequester.getModule(), processRequester.getAppUser(), useDefaultExecutablePath, executablePath);
+		appChooser = new AppChooser(processRequester.getModule(), processRequester.getAppUser(), useAppInAppFolder(), executablePath);
 		appChooser.addToDialog(dialog);
 		dialog.addAttachment(appChooser);
 		dialog.addHorizontalLine(1);
