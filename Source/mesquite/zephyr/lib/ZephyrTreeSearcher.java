@@ -209,6 +209,8 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 				if (taxa != null)
 					taxa.setDirty(true);
 			}
+			if (runner==null)
+				return true;
 			return runner.queryWhetherToCloseFile(getProject().getHomeFile().isDirty());
 
 		}

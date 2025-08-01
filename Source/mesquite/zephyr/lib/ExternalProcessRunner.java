@@ -111,6 +111,10 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public String getMessageIfUserAbortRequested () {
 		return "";
 	}
+	/** responds as to whether or not the run can be killed*/
+	public boolean canRunBeKilled() {
+		return false;
+	}
 	/** If file close has been requested, here say whether or not to ask about killing the. After deciding, the caller should call setDontKill below!!!!.*/
 	public boolean askAboutKillingRun() {
 		return false;
