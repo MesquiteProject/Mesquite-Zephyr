@@ -101,7 +101,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.4-1.6.12, 2.2.0–2.3.6";
+		return "1.6.4-1.6.12, 2.2.0–2.3.6, 3.01";
 	}
 
 	/*.................................................................................................................*/
@@ -317,9 +317,9 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, null, doALRT, alrtReps, true);
 		}
 		if (autoNumProcessors)
-			arguments.append(" -nt AUTO ");   
+			arguments.append(" -T AUTO ");   
 		else
-			arguments.append(" -nt "+ MesquiteInteger.maximum(numProcessors, 1) + " ");   // have to ensure that there are at least two threads requested
+			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, 1) + " ");   // have to ensure that there are at least two threads requested
 
 		if (!isPreflight && isVerbose())
 			logln(getExecutableName() + " arguments: \n" + arguments.getValue() + "\n");
