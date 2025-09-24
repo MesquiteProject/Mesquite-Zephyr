@@ -55,6 +55,7 @@ import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.taxa.TaxonNamer;
 import mesquite.lib.tree.MesquiteTree;
 import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeDisplay;
 import mesquite.lib.tree.TreeVector;
 import mesquite.lib.ui.AlertDialog;
 import mesquite.lib.ui.ExtensibleDialog;
@@ -135,12 +136,16 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract boolean showMultipleRuns();
 
 	/* =================================*/
+	
+	
 	//temporarily here? until it can be merged with TreeInferer's version?
 	TWindowMaker tWindowMaker;//Debugg.println this should be fired after the run
 	BasicTreeConsenser majRulesConsenser; //Debugg.println this should be fired after the run
 	int repsInConsensus = 0;
 
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+	//FOR NON-CONSENSUS intermediate tree window, see TreeInferer.newResultsAvailable and ZephyrUtil.getStandardExtraTreeWindowCommands
+
 	void prepareConsensusWindow() {
 		MesquiteWindow w;
 		if (tWindowMaker == null) {
@@ -185,6 +190,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 		tWindowMaker.setWindowVisible(true);
 	}
+
+	int numTaxaInConsensusTree = -1;
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 	protected void showIntermediateConsensusFromFile(String path) {  //assumes reset to zero && that it's a phylip tree file
 		repsInConsensus = 0;
@@ -202,6 +209,24 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			repsInConsensus++;
 		}
 		MesquiteTree consensus = (MesquiteTree)majRulesConsenser.getConsensus();
+
+		int numTaxaInTree = consensus.numberOfTerminalsInClade(consensus.getRoot());
+		if (numTaxaInConsensusTree != numTaxaInTree){
+			MesquiteWindow w = tWindowMaker.getModuleWindow();
+			if (w != null && w instanceof SimpleTreeWindow){
+				int taxonSpacing = 14;
+				SimpleTreeWindow stw = (SimpleTreeWindow)w;
+				int orientation = stw.getOrientation();
+				if (orientation == TreeDisplay.RIGHT || orientation == TreeDisplay.LEFT)
+					stw.setMinimumFieldSize(-1, numTaxaInTree*taxonSpacing); 
+				else if (orientation == TreeDisplay.UP || orientation == TreeDisplay.DOWN)
+					stw.setMinimumFieldSize(numTaxaInTree*taxonSpacing, -1);  
+				else 
+					stw.setMinimumFieldSize(-1, -1); 		
+				stw.sizeDisplays(false);
+			}
+			numTaxaInConsensusTree = numTaxaInTree;
+		}
 		consensus.setName("Majority Rules Consensus of " + repsInConsensus + " trees");
 		tWindowMaker.setTree(consensus, false);
 
@@ -356,7 +381,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			}
 		return super.getCitation() + addendum;
 	}
-	
+
 	boolean multipleMatrixMode = false;
 	/*.................................................................................................................*/
 	public void setMultipleMatrixMode(boolean multipleMatrixMode) {
@@ -497,7 +522,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (askLetAnalysisContinue)
 			title += " Let Analysis Continue?";
 		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(),  title ,buttonPressed); 
-		
+
 		if (reconnectionDetailsSaved())
 			dialog.addLabel("You have asked to close the file, and there is a run of "+ getProgramName() + " underway.");
 		else
@@ -865,11 +890,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		this.taxa = taxa;
 		if (externalProcRunner!= null)
 			externalProcRunner.setMultipleMatrixMode(setMultipleMatrixMode());
-	/*	if (taxa!=currentTaxa && taxa!=null) {
+		/*	if (taxa!=currentTaxa && taxa!=null) {
 			if (!MesquiteThread.isScripting() && !queryTaxaOptions(taxa))
 				return false;
 		}
-		*/
+		 */
 		return initalizeTaxonNamer(taxa);
 	}
 
@@ -1061,7 +1086,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			logln(s + "\n");
 		}
 		if (statusResult!= null){
-		statusResult.setValue(ResultCodes.ERROR);  //Debugg.println -- give more informative error
+			statusResult.setValue(ResultCodes.ERROR);  //Debugg.println -- give more informative error
 		}
 	}
 	/*.................................................................................................................*/
@@ -1277,7 +1302,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public void addTaxaOptions(ExtensibleDialog dialog, Taxa taxa) {
 		taxonSetChoice = null;
-		 specifyOutgroupBox = null;
+		specifyOutgroupBox = null;
 		if (taxa==null)
 			return;
 		SpecsSetVector ssv  = taxa.getSpecSetsVector(TaxaSelectionSet.class);
@@ -1288,7 +1313,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			taxonSetChoice = dialog.addPopUpMenu ("Outgroups: ", ssv, 0);
 			specifyOutgroupBox = dialog.addCheckBox("specify outgroup", false);
 		}
-		 selectedOnlyBox = null;
+		selectedOnlyBox = null;
 		if (taxa.anySelected())
 			selectedOnlyBox = dialog.addCheckBox("selected taxa only", selectedTaxaOnly);
 		else

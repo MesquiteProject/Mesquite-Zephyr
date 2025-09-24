@@ -991,6 +991,8 @@ public class ZephyrUtil {
 		return getStandardExtraTreeWindowCommands(doMajRule, isBootstrap, false, null, treeBlockID, branchLengthsProportional);
 	}
 
+	//FOR CONSENSUS intermediate tree window, see ZephyrRunner.prepareConsensusWindow
+
 	public static String getStandardExtraTreeWindowCommands (boolean doMajRule, boolean isBootstrap, boolean nodeValuesAsText, String nodeValueNameRef, long treeBlockID, boolean branchLengthsProportional){
 		String commands = "";//"setSize 400 600;  ";
 		if (doMajRule){  //DAVIDCHECK:  Temporary tree window can't handle this doMajRule, so an error is given when file reread.
