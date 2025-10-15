@@ -13,6 +13,7 @@ package mesquite.zephyr.lib;
 
 import mesquite.externalCommunication.lib.AppChooser;
 import mesquite.lib.Debugg;
+import mesquite.lib.MesquiteFile;
 import mesquite.lib.MesquiteFileUtil;
 import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteModule;
@@ -201,11 +202,26 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public void setMultipleMatrixMode(boolean multipleMatrixMode) {
 		this.multipleMatrixMode = multipleMatrixMode;
 	}
-	/*.................................................................................................................*/
-	public String analysisSubdirectoryName() {
-		return "Directory for Mesquite Zephyr Analyses";
-	}
 	
+	/*.................................................................................................................*/
+	String myDirectory = null;
+	
+	private String analysisSubdirectoryName() {
+		if (myDirectory != null)
+			return myDirectory;
+		String dir = module.getProject().getHomeFile().getDirectoryName();
+		String base = "Directory for Mesquite Zephyr Analyses";
+		if (!MesquiteFile.fileOrDirectoryExists(dir + base)) {
+			myDirectory = base;
+			return myDirectory;
+		}
+		int count = 1;
+		while (MesquiteFile.fileOrDirectoryExists(dir + base+count)) {
+			count++;
+		}
+		myDirectory = base + count;
+		return myDirectory;
+	}
 
 	/*.................................................................................................................*/
 	public boolean setRootDir() {

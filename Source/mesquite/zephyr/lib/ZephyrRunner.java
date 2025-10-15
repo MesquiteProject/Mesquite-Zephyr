@@ -172,8 +172,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			w = tWindowMaker.getModuleWindow();
 
 
-		if (w != null && w instanceof SimpleTreeWindow) 
-			((SimpleTreeWindow)w).setWindowTitle("Consensus tree from Inference in Progress");
+		if (w != null && w instanceof SimpleTreeWindow) {
+			String t = "Consensus tree from Inference in Progress";
+			if (data != null)
+				t += " [" + data.getName() + "]";
+			((SimpleTreeWindow)w).setWindowTitle(t);
+		}
 		tWindowMaker.setWindowVisible(true);
 
 		if (majRulesConsenser == null) {
