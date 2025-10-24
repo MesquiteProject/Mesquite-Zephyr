@@ -741,7 +741,17 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		return false;
 	}
 	
-	
+	/** responds as to whether or not the run can be killed*/
+	public boolean canRunBeKilled() {
+		if (scriptBased) {
+			if (scriptRunner!=null) {
+				return true;
+			}
+			
+		} 
+		return false;
+	}
+
 	/*.................................................................................................................*/
 	/** If file close has been requested, here say whether or not to ask about killing the. After deciding, the caller should call setDontKill below!!!!.*/
 	public boolean askAboutKillingRun() {

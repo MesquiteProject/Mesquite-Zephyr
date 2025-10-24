@@ -33,7 +33,20 @@ public abstract class IQTreeTrees extends ZephyrTreeSearcher implements Likeliho
 
 	public String getExtraTreeWindowCommands (boolean finalTree, long treeBlockID){
 		this.treeBlockID = treeBlockID;
-		return ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), runner.showAssocStrings(),runner.getNameRefForAssocStrings(), treeBlockID, !runner.bootstrapOrJackknife())+ eachTreeCommands();
+		String script = ZephyrUtil.getStandardExtraTreeWindowCommands(runner.doMajRuleConsensusOfResults(), runner.bootstrapOrJackknife(), runner.showAssocStrings(),runner.getNameRefForAssocStrings(), treeBlockID, !runner.bootstrapOrJackknife())+ eachTreeCommands();
+
+		
+		if (((IQTreeRunner)runner).isUFBootAndALRT()) {
+			script += "getOwnerModule; tell It; getEmployee #BranchPropertyDisplayControl; tell It; "
+					+ "showAssociate 'IQ-TREE SH-aLRT/UF Boot' 4 true; setBooleans 'IQ-TREE SH-aLRT/UF Boot' 4  false false false false false false false true; setNumbers 'IQ-TREE SH-aLRT/UF Boot' 4  12 0 0 4 0 ?;"
+					+ "; endTell; endTell; ";
+		} else if (((IQTreeRunner)runner).isUFBoot()) {
+			script += "getOwnerModule; tell It; getEmployee #BranchPropertyDisplayControl; tell It; "
+					+ "showAssociate 'IQ-TREE UFBoot' 4 true; setBooleans 'IQ-TREE UFBoot' 4  false false false false false false false true; setNumbers 'IQ-TREE UFBoot' 4  12 0 0 4 0 ?;"
+					+ "; endTell; endTell; ";
+		}
+		
+		return script;
 	}
 
 	/*.................................................................................................................*/

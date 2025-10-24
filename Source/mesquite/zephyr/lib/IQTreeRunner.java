@@ -288,6 +288,14 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		return STANDARDSEARCH;
 	}
 
+	/*.................................................................................................................*/
+	public boolean isUFBoot() {
+		return bootstrapOrJackknife() && searchStyle == ULTRAFASTBOOTSTRAP;
+	}
+	/*.................................................................................................................*/
+	public boolean isUFBootAndALRT() {
+		return bootstrapOrJackknife() && searchStyle == ULTRAFASTBOOTSTRAP && doALRT;
+	}
 
 	/*.................................................................................................................*/
 	public String getNameRefForAssocStrings() {

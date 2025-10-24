@@ -55,6 +55,7 @@ import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.taxa.TaxonNamer;
 import mesquite.lib.tree.MesquiteTree;
 import mesquite.lib.tree.Tree;
+import mesquite.lib.tree.TreeDisplay;
 import mesquite.lib.tree.TreeVector;
 import mesquite.lib.ui.AlertDialog;
 import mesquite.lib.ui.ExtensibleDialog;
@@ -135,12 +136,16 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public abstract boolean showMultipleRuns();
 
 	/* =================================*/
+	
+	
 	//temporarily here? until it can be merged with TreeInferer's version?
 	TWindowMaker tWindowMaker;//Debugg.println this should be fired after the run
 	BasicTreeConsenser majRulesConsenser; //Debugg.println this should be fired after the run
 	int repsInConsensus = 0;
 
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+	//FOR NON-CONSENSUS intermediate tree window, see TreeInferer.newResultsAvailable and ZephyrUtil.getStandardExtraTreeWindowCommands
+
 	void prepareConsensusWindow() {
 		MesquiteWindow w;
 		if (tWindowMaker == null) {
@@ -167,8 +172,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			w = tWindowMaker.getModuleWindow();
 
 
-		if (w != null && w instanceof SimpleTreeWindow) 
-			((SimpleTreeWindow)w).setWindowTitle("Consensus tree from Inference in Progress");
+		if (w != null && w instanceof SimpleTreeWindow) {
+			String t = "Consensus tree from Inference in Progress";
+			if (data != null)
+				t += " [" + data.getName() + "]";
+			((SimpleTreeWindow)w).setWindowTitle(t);
+		}
 		tWindowMaker.setWindowVisible(true);
 
 		if (majRulesConsenser == null) {
@@ -185,6 +194,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		}
 		tWindowMaker.setWindowVisible(true);
 	}
+
+	int numTaxaInConsensusTree = -1;
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 	protected void showIntermediateConsensusFromFile(String path) {  //assumes reset to zero && that it's a phylip tree file
 		repsInConsensus = 0;
@@ -202,6 +213,24 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			repsInConsensus++;
 		}
 		MesquiteTree consensus = (MesquiteTree)majRulesConsenser.getConsensus();
+
+		int numTaxaInTree = consensus.numberOfTerminalsInClade(consensus.getRoot());
+		if (numTaxaInConsensusTree != numTaxaInTree){
+			MesquiteWindow w = tWindowMaker.getModuleWindow();
+			if (w != null && w instanceof SimpleTreeWindow){
+				int taxonSpacing = 14;
+				SimpleTreeWindow stw = (SimpleTreeWindow)w;
+				int orientation = stw.getOrientation();
+				if (orientation == TreeDisplay.RIGHT || orientation == TreeDisplay.LEFT)
+					stw.setMinimumFieldSize(-1, numTaxaInTree*taxonSpacing); 
+				else if (orientation == TreeDisplay.UP || orientation == TreeDisplay.DOWN)
+					stw.setMinimumFieldSize(numTaxaInTree*taxonSpacing, -1);  
+				else 
+					stw.setMinimumFieldSize(-1, -1); 		
+				stw.sizeDisplays(false);
+			}
+			numTaxaInConsensusTree = numTaxaInTree;
+		}
 		consensus.setName("Majority Rules Consensus of " + repsInConsensus + " trees");
 		tWindowMaker.setTree(consensus, false);
 
@@ -356,7 +385,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			}
 		return super.getCitation() + addendum;
 	}
-	
+
 	boolean multipleMatrixMode = false;
 	/*.................................................................................................................*/
 	public void setMultipleMatrixMode(boolean multipleMatrixMode) {
@@ -460,14 +489,26 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			return ("If you close the file now (even if you save it), the search will not "
 					+ "be successful and you will be NOT able to reconnect to it through Mesquite later, as the process has not proceeded far enough to be reconnectible.  If you wish it to be reconnectible,"
 					+ "then press cancel, and try again a bit later.");
-		else if (fileIsDirty)
-			return ("If you choose \"Save File Before Closing\" and choose to save the file, Mesquite will save the file before closing. "
-					+ "If you also permit the analysis to continue, you will be able to close the file and then later reconnect to the analysis by reopening this file, "
+		else if (fileIsDirty){
+			String message = "If you choose \"Save File Before Closing\" and choose to save the file, Mesquite will save the file before closing. ";
+			if (externalProcRunner.canRunBeKilled())
+				message +=  "If you also permit the analysis to continue, you will then ";
+			else 
+				message +=  "You will then ";
+
+			message += "be able to close the file and later reconnect to the analysis by reopening this file, "
 					+ "as long as you haven't moved the file or those files involved in the "+ getProgramName() 
-					+ " search. \n\nIf you choose to close the file but not save it, then you will not be able to reconnect to the analysis later.\n" + getMessageIfCloseFileRequested());
+					+ " search. \n\nIf you choose to close the file but not save it, then you will not be able to reconnect to the analysis later.\n" + getMessageIfCloseFileRequested();
+			return message;
+		}
 		else
-			return ("If you permit the analysis to continue, you will be able to close the file and later reconnect to the analysis by re-opening the file, as long as you haven't moved the file or those files involved in the "+ getProgramName() 
-			+ " search. \n" + getMessageIfCloseFileRequested());
+			if (externalProcRunner.canRunBeKilled())
+				return ("If you permit the analysis to continue, you will be able to close the file and later reconnect to the analysis by re-opening the file, as long as you haven't moved the file or those files involved in the "+ getProgramName() 
+				+ " search. \n" + getMessageIfCloseFileRequested());
+			else
+
+				return ("You will be able to close the file and later reconnect to the analysis by re-opening the file, as long as you haven't moved the file or those files involved in the "+ getProgramName() 
+				+ " search. \n" + getMessageIfCloseFileRequested());
 	}
 	/*-----------------------------------------------------------------------------------*/
 	boolean reconnectionDetailsSaved() {
@@ -476,16 +517,16 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 
 	/*-----------------------------------------------------------------------------------*/
 	public boolean queryWhetherToCloseFile(boolean fileIsDirty) {
-		boolean askContinue = externalProcRunner.askAboutKillingRun();
+		boolean askLetAnalysisContinue = externalProcRunner.askAboutKillingRun();
 
 		MesquiteInteger buttonPressed = new MesquiteInteger(1);
 		String title= "Close File?";
-		if (fileIsDirty && askContinue) //for some reason when not scripting, file is always dirty, but then later query will check on whether to save.
+		if (fileIsDirty && askLetAnalysisContinue) //for some reason when not scripting, file is always dirty, but then later query will check on whether to save.
 			title += " Save?";
-		if (askContinue)
+		if (askLetAnalysisContinue)
 			title += " Let Analysis Continue?";
 		ExtensibleDialog dialog = new ExtensibleDialog(containerOfModule(),  title ,buttonPressed); 
-		
+
 		if (reconnectionDetailsSaved())
 			dialog.addLabel("You have asked to close the file, and there is a run of "+ getProgramName() + " underway.");
 		else
@@ -494,10 +535,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		dialog.addLargeOrSmallTextLabel(getFileCloseNotification(fileIsDirty));
 		Checkbox sF = null;
 		dialog.addBlankLine();
-		if (fileIsDirty && askContinue)
+		if (fileIsDirty)   //DRM August 2025:  removed && askLetAnalysisContinue 
 			sF = dialog.addCheckBox("Save File Before Closing", !reconnectionDetailsSaved());
 		Checkbox lR = null;
-		if (askContinue)
+		if (askLetAnalysisContinue)
 			lR = dialog.addCheckBox("Let Analysis Continue", true);
 
 		dialog.addBlankLine();
@@ -513,7 +554,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 					getProject().setIgnoreDirtWhenCloseRequested(true);  
 
 			}
-			if (askContinue) {
+			if (askLetAnalysisContinue) {
 				if ( lR.getState())
 					externalProcRunner.setDontKill(true);
 			}
@@ -853,11 +894,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		this.taxa = taxa;
 		if (externalProcRunner!= null)
 			externalProcRunner.setMultipleMatrixMode(setMultipleMatrixMode());
-	/*	if (taxa!=currentTaxa && taxa!=null) {
+		/*	if (taxa!=currentTaxa && taxa!=null) {
 			if (!MesquiteThread.isScripting() && !queryTaxaOptions(taxa))
 				return false;
 		}
-		*/
+		 */
 		return initalizeTaxonNamer(taxa);
 	}
 
@@ -1049,7 +1090,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			logln(s + "\n");
 		}
 		if (statusResult!= null){
-		statusResult.setValue(ResultCodes.ERROR);  //Debugg.println -- give more informative error
+			statusResult.setValue(ResultCodes.ERROR);  //Debugg.println -- give more informative error
 		}
 	}
 	/*.................................................................................................................*/
@@ -1265,7 +1306,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public void addTaxaOptions(ExtensibleDialog dialog, Taxa taxa) {
 		taxonSetChoice = null;
-		 specifyOutgroupBox = null;
+		specifyOutgroupBox = null;
 		if (taxa==null)
 			return;
 		SpecsSetVector ssv  = taxa.getSpecSetsVector(TaxaSelectionSet.class);
@@ -1276,7 +1317,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			taxonSetChoice = dialog.addPopUpMenu ("Outgroups: ", ssv, 0);
 			specifyOutgroupBox = dialog.addCheckBox("specify outgroup", false);
 		}
-		 selectedOnlyBox = null;
+		selectedOnlyBox = null;
 		if (taxa.anySelected())
 			selectedOnlyBox = dialog.addCheckBox("selected taxa only", selectedTaxaOnly);
 		else

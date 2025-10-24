@@ -361,7 +361,8 @@ public abstract class PAUPSearchRunner extends PAUPRunner implements ItemListene
 	}
 	/*.................................................................................................................*/
 	public void setLabels(int style) {
-
+		if (resamplingSearchLabel == null || regularSearchLabel == null)
+			return;
 		if (style==BOOTSTRAPSEARCH || style==JACKKNIFESEARCH) {
 			regularSearchLabel.setForeground(Color.red);
 			resamplingSearchLabel.setForeground(Color.black);

@@ -991,6 +991,8 @@ public class ZephyrUtil {
 		return getStandardExtraTreeWindowCommands(doMajRule, isBootstrap, false, null, treeBlockID, branchLengthsProportional);
 	}
 
+	//FOR CONSENSUS intermediate tree window, see ZephyrRunner.prepareConsensusWindow
+
 	public static String getStandardExtraTreeWindowCommands (boolean doMajRule, boolean isBootstrap, boolean nodeValuesAsText, String nodeValueNameRef, long treeBlockID, boolean branchLengthsProportional){
 		String commands = "";//"setSize 400 600;  ";
 		if (doMajRule){  //DAVIDCHECK:  Temporary tree window can't handle this doMajRule, so an error is given when file reread.
@@ -1016,7 +1018,7 @@ public class ZephyrUtil {
 		commands += " endTell; resetTitle;"; //endTell for BasicTreeDrawCoordinator
 		commands += "getOwnerModule; tell It; getEmployee #mesquite.ornamental.ColorTreeByPartition.ColorTreeByPartition; tell It; colorByPartition on; endTell; endTell; ";
 
-//ZQ: the followign many not work in intermediatebecuase SimpleTreeWindow may not employ BranchPropertyDisplayControl
+//ZQ: the following many not work in intermediatebecuase SimpleTreeWindow may not employ BranchPropertyDisplayControl
 		if (isBootstrap){
 			commands += "getOwnerModule; tell It; getEmployee #BranchPropertyDisplayControl; tell It; showAssociate consensusFrequency; endTell; endTell; ";
 		}		
