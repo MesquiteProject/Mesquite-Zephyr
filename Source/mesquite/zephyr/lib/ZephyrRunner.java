@@ -929,6 +929,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
+		
+		
 		if (data != null)
 			temp.addLine("recoverData #" + data.getAssignedIDNumber());
 		temp.addLine("recoverSearchDetails " + ParseUtil.tokenize(searchDetails.toString()));
@@ -965,6 +967,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			else
 				return new MesquiteCommandAbsorber();
 
+		}
+		else if (checker.compare(this.getClass(), "Tells runner to behave as if options have been set", "[true/false]", commandName, "optionsHaveBeenSet")) {
+			optionsHaveBeenSet = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
 		}
 		else if (checker.compare(this.getClass(), "Nonfunctional ; eats up consenser", "null", commandName, "majRulesConsenser")) {
 			return new MesquiteCommandAbsorber();

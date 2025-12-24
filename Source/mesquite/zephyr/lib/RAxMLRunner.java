@@ -151,13 +151,50 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		return false;
 	}
 
+	/*.................................................................................................................*
+	public String preparePreferencesForXML () {
+		StringBuffer buffer = new StringBuffer(200);
+		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
+		StringUtil.appendXMLTag(buffer, 2, "numRuns", numRuns);  
+		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
+		StringUtil.appendXMLTag(buffer, 2, "partitionScheme", partitionScheme);  
+		StringUtil.appendXMLTag(buffer, 2, "doBootstrap", doBootstrap);  
+		StringUtil.appendXMLTag(buffer, 2, "nobfgs", nobfgs);  
+		StringUtil.appendXMLTag(buffer, 2, "bootstrapBranchLengths", bootstrapBranchLengths);  
+		//StringUtil.appendXMLTag(buffer, 2, "MPIsetupCommand", MPIsetupCommand);  
+		StringUtil.appendXMLTag(buffer, 2, "dnaModel", dnaModel);  
+		StringUtil.appendXMLTag(buffer, 2, "proteinModel", proteinModel);  
+		StringUtil.appendXMLTag(buffer, 2, "dnaModelMatrix", dnaModelMatrix);  
+		StringUtil.appendXMLTag(buffer, 2, "proteinModelMatrix", proteinModelMatrix);  
+		StringUtil.appendXMLTag(buffer, 2, "specifyPartByPartModels", specifyPartByPartModels);  
+
+		preferencesSet = true;
+		return buffer.toString();
+	}
 
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
+
+		//these are the old snapshot items
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		temp.addLine("setSearchStyle "+ searchStyleName(doBootstrap));  // this needs to be second so that search style isn't reset in starting the runner
 
+		//items added for parallelization Debugg.println("@
+		if (file == null){  //only for parallelization; not to be saved to file
+			temp.addLine("bootStrapReps " + bootstrapreps);  //int
+			temp.addLine("numRuns " + numRuns);  //int
+			temp.addLine("partitionScheme " + partitionScheme);  //int
+			temp.addLine("onlyBest " + onlyBest);    //boolean
+			temp.addLine("specifyPartByPartModels " + specifyPartByPartModels);  //boolean
+			//already covered by setSearchStyle temp.addLine("doBootstrap " + doBootstrap);    //boolean
+			temp.addLine("nobfgs " + nobfgs);    //boolean
+			temp.addLine("bootstrapBranchLengths " + bootstrapBranchLengths);  //boolean
+			temp.addLine("dnaModel " + StringUtil.tokenize(dnaModel));  //string
+			temp.addLine("proteinModel " + StringUtil.tokenize(proteinModel));  //string
+			temp.addLine("dnaModelMatrix " + StringUtil.tokenize(dnaModelMatrix));  //string
+			temp.addLine("proteinModelMatrix " + StringUtil.tokenize(proteinModelMatrix));  //string
+		}
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -170,10 +207,61 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
-		} else if (checker.compare(this.getClass(), "sets the searchStyle ", "[searchStyle]", commandName, "setSearchStyle")) {
+		} 
+		else if (checker.compare(this.getClass(), "sets the searchStyle ", "[searchStyle]", commandName, "setSearchStyle")) {
 			doBootstrap = getDoBootstrapFromName(parser.getFirstToken(arguments));
 			return null;
-
+		}
+		//THE FOLLOWING were added for parallelization (2025)
+		else if (checker.compare(this.getClass(), "Sets num bootstrapreps ", "[numreps]", commandName, "bootStrapReps")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				bootstrapreps = temp;
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets numRuns ", "[numRuns]", commandName, "numRuns")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				numRuns = temp;
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets partitionScheme ", "[partitionScheme]", commandName, "partitionScheme")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				partitionScheme = temp;
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets onlyBest  ", "[true/false]", commandName, "onlyBest")) {
+			onlyBest = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets specifyPartByPartModels  ", "[true/false]", commandName, "specifyPartByPartModels")) {
+			specifyPartByPartModels = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets nobfgs  ", "[true/false]", commandName, "nobfgs")) {
+			nobfgs = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets bootstrapBranchLengths  ", "[true/false]", commandName, "bootstrapBranchLengths")) {
+			bootstrapBranchLengths = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets dnaModel  ", "[true/false]", commandName, "dnaModel")) {
+			dnaModel = parser.getFirstToken(arguments);
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets proteinModel  ", "[true/false]", commandName, "proteinModel")) {
+			proteinModel = parser.getFirstToken(arguments);
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets dnaModelMatrix  ", "[true/false]", commandName, "dnaModelMatrix")) {
+			dnaModelMatrix = parser.getFirstToken(arguments);
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets proteinModelMatrix  ", "[true/false]", commandName, "proteinModelMatrix")) {
+			proteinModelMatrix = parser.getFirstToken(arguments);
+			return null;
 		}
 		else
 			return super.doCommand(commandName, arguments, checker);
@@ -449,11 +537,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			charPartitionButtons.setEnabled(2, (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysPrepareForAnyMatrices());
 		}
 		charPartitionButtons.setEnabled(1, data.hasCharacterGroups() || alwaysPrepareForAnyMatrices());
-		
+
 		//	charPartitionButtons.addItemListener(this);
 		dialog.addHorizontalLine(1);
 		addModelOptions(dialog);
-		
+
 		specifyPartByPartModelsBox = dialog.addCheckBox("specify different models for each part", specifyPartByPartModels);
 		if (data.hasCharacterGroups() || (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysPrepareForAnyMatrices()) 
 			specifyPartByPartModelsBox.setEnabled(true);
@@ -474,8 +562,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 		tabbedPanel.addPanel("Taxa & Outgroups", true);
 		addTaxaOptions(dialog,taxa);
-		
-		
+
+
 		tabbedPanel.addPanel("Other options", true);
 		if (!isRAxMLNG())
 			nobfgsCheckBox = dialog.addCheckBox("no bfgs option", nobfgs);
@@ -1154,13 +1242,13 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				MesquiteDouble s = new MesquiteDouble(-finalScore.getValue());
 				s.setName(ZephyrUtil.RAXMLSCORENAME);
 				if (t != null)
-				((Attachable)t).attachIfUniqueName(s);
+					((Attachable)t).attachIfUniqueName(s);
 			}
 			if (MesquiteDouble.isCombinable(optimizedValue)){
 				MesquiteDouble s = new MesquiteDouble(-optimizedValue);
 				s.setName(ZephyrUtil.RAXMLFINALSCORENAME);
 				if (t != null)
-				((Attachable)t).attachIfUniqueName(s);
+					((Attachable)t).attachIfUniqueName(s);
 			}
 
 		}
