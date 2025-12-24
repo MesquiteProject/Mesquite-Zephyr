@@ -18,7 +18,7 @@ import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.taxa.TaxonNamer;
 import mesquite.lib.tree.AdjustableTree;
 
-public abstract class RAxMLTrees extends ZephyrTreeSearcher implements LikelihoodAnalysis {
+public abstract class RAxMLTrees extends ZephyrTreeSearcher implements LikelihoodAnalysis {     //implements ParallelizableTreeSearcher
 	int rerootNode = 0;
 
 

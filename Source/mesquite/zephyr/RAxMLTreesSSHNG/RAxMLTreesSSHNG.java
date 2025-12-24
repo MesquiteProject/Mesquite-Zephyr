@@ -13,7 +13,7 @@ import mesquite.zephyr.RAxMLRunnerSSHNG.RAxMLRunnerSSHNG;
 import mesquite.zephyr.lib.RAxMLTreesNG;
 
 
-public class RAxMLTreesSSHNG extends RAxMLTreesNG {
+public class RAxMLTreesSSHNG extends RAxMLTreesNG {  
 
 	
 	/*.................................................................................................................*/

@@ -65,7 +65,7 @@ outgroups
 
 public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester, ConstrainedSearcherTreeScoreProvider  {
 
-	boolean onlyBest = true;
+	boolean onlyBest = true; //include in SNAPSHOT
 
 	protected	int randomIntSeed = (int)System.currentTimeMillis();   // convert to int as RAxML doesn't like really big numbers
 
@@ -177,7 +177,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (file == null){  //only for parallelization; not to be saved to file
 			temp.addLine("bootStrapReps " + bootstrapreps);  //int
 			temp.addLine("numRuns " + numRuns);  //int
-			temp.addLine("partitionScheme " + partitionScheme);  //int
 			temp.addLine("onlyBest " + onlyBest);    //boolean
 			temp.addLine("specifyPartByPartModels " + specifyPartByPartModels);  //boolean
 			//already covered by setSearchStyle temp.addLine("doBootstrap " + doBootstrap);    //boolean
@@ -224,12 +223,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
 			if (MesquiteInteger.isCombinable(temp))
 				useConstraintTree = temp;
-			return null;
-		}
-		else if (checker.compare(this.getClass(), "Sets partitionScheme ", "[partitionScheme]", commandName, "partitionScheme")) {
-			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
-			if (MesquiteInteger.isCombinable(temp))
-				partitionScheme = temp;
 			return null;
 		}
 		else if (checker.compare(this.getClass(), "Sets onlyBest  ", "[true/false]", commandName, "onlyBest")) {

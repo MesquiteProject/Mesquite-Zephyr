@@ -99,7 +99,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected static final int noPartition = 0;
 	protected static final int partitionByCharacterGroups = 1;
 	protected static final int partitionByCodonPosition = 2;
-	protected int partitionScheme = partitionByCharacterGroups;  
+	protected int partitionScheme = partitionByCharacterGroups;   // included in Snapshots for parallelization
 
 	protected int currentRun=0;
 	protected boolean[] completedRuns=null;
@@ -119,8 +119,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	boolean usingBuiltinApp = false;
 
 
-	protected String outgroupTaxSetString = "";
-	protected int outgroupTaxSetNumber = 0;
+	protected String outgroupTaxSetString = "";   // included in Snapshots for parallelization
+	//protected int outgroupTaxSetNumber = 0;
 
 	public abstract Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore, MesquiteInteger statusResult);
 	public  String getVersionAsReportedByProgram(String programCommand) {
@@ -945,6 +945,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			if (majRulesConsenser!= null)
 				temp.addLine("majRulesConsenser ", majRulesConsenser);
 		}
+		
+		if (file==null) {   // for parallelization
+			temp.addLine("outgroupTaxSetString " + StringUtil.tokenize(outgroupTaxSetString));   // String
+			temp.addLine("partitionScheme " + partitionScheme);  //int
+		}
 
 		return temp;
 	}
@@ -954,6 +959,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			searchDetails.setLength(0);
 			searchDetails.append(parser.getFirstToken(arguments));
 		}
+
 		else if (checker.compare(this.getClass(), "returns the window maker", "null", commandName, "getIntermTreeWindowMaker")) {
 			if (this instanceof RemoteProcessCommunicator) { //for some reason when remote, the window doesn's thow properly if not made here
 				if (tWindowMaker == null) 
@@ -997,6 +1003,17 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			String s = parser.getFirstToken(arguments);
 			if (StringUtil.notEmpty(s) && !s.equalsIgnoreCase("null"))
 				addendumToTreeBlockName.append(parser.getFirstToken(arguments));
+		}
+		else if (checker.compare(this.getClass(), "sets the outgroupTaxSetString ", "[outgroupTaxSetString]", commandName, "outgroupTaxSetString")) {
+			outgroupTaxSetString = parser.getFirstToken(arguments);
+			return null;
+
+		}
+		else if (checker.compare(this.getClass(), "Sets partitionScheme ", "[partitionScheme]", commandName, "partitionScheme")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				partitionScheme = temp;
+			return null;
 		}
 		else return super.doCommand(commandName, arguments, checker);
 		return null;
