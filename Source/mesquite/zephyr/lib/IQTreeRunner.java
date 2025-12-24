@@ -165,30 +165,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public void setUpRunner() { 
 
 	}
-
-	/*.................................................................................................................*
-	public String preparePreferencesForXML () {
-		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);   //•••••••
-		StringUtil.appendXMLTag(buffer, 2, "numRuns", numSearchRuns);    //•••••••
-		StringUtil.appendXMLTag(buffer, 2, "numUFBootRuns", numUFBootRuns);    //•••••••
-		StringUtil.appendXMLTag(buffer, 2, "partitionScheme", partitionScheme);    //•••••••
-		StringUtil.appendXMLTag(buffer, 2, "partitionLinkage", partitionLinkage);    //•••••••
-		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);     //•••••••
-		StringUtil.appendXMLTag(buffer, 2, "doALRT", doALRT);     //••••••• 
-		StringUtil.appendXMLTag(buffer, 2, "alrtReps", alrtReps);      //•••••••
-		StringUtil.appendXMLTag(buffer, 2, "searchStyle", searchStyle);       //•••••••
-		StringUtil.appendXMLTag(buffer, 2, "modelOption", modelOption);        //•••••••
-		StringUtil.appendXMLTag(buffer, 2, "substitutionModel", substitutionModel);         //•••••••
-
-		protected static String otherOptions = "";  //•••••••
-		protected boolean useConstraintTree = false;  //include in SNAPSHOT •••••••
-		protected String outgroupTaxSetString = "";  // used in subclasses; need to include in snapshots  ••••••
-
-		preferencesSet = true;
-		return buffer.toString();
-	}
-
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);

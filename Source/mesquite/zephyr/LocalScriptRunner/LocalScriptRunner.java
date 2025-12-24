@@ -813,7 +813,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public void finalCleanup() {
-		if (deleteAnalysisDirectory && !leaveAnalysisDirectoryIntact)
+		if ((deleteAnalysisDirectory || getMultipleMatrixMode()) && !leaveAnalysisDirectoryIntact)
 			MesquiteFile.deleteDirectory(localRootDir);
 		localRootDir=null;
 	}
