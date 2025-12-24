@@ -17,6 +17,7 @@ import mesquite.lib.MesquiteFile;
 import mesquite.lib.MesquiteFileUtil;
 import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteTrunk;
 import mesquite.lib.OutputTextListener;
 import mesquite.lib.StringUtil;
 import mesquite.lib.duties.TreeInferer;
@@ -215,11 +216,11 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 			myDirectory = base;
 			return myDirectory;
 		}
-		int count = 1;
-		while (MesquiteFile.fileOrDirectoryExists(dir + base+count)) {
-			count++;
+		String unique =  MesquiteFile.massageStringToFilePathSafe(MesquiteTrunk.getUniqueIDBase());
+		while (MesquiteFile.fileOrDirectoryExists(dir + base+ unique)) {
+			unique =  MesquiteFile.massageStringToFilePathSafe(MesquiteTrunk.getUniqueIDBase());
 		}
-		myDirectory = base + count;
+		myDirectory = base + unique;
 		return myDirectory;
 	}
 
