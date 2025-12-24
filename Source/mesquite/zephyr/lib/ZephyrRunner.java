@@ -929,21 +929,23 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
-		
-		
-		if (data != null)
-			temp.addLine("recoverData #" + data.getAssignedIDNumber());
-		temp.addLine("recoverSearchDetails " + ParseUtil.tokenize(searchDetails.toString()));
-		temp.addLine("recoverSearchStartedDetails " + ParseUtil.tokenize(searchStartedDetails));
-		temp.addLine("recoverExtraSearchDetails " + ParseUtil.tokenize(extraSearchDetails.toString()));
-		temp.addLine("recoverAddendumToTreeBlockName " + ParseUtil.tokenize(addendumToTreeBlockName.toString()));
-		if (externalProcRunner!=null)
-			if (externalProcRunner.isScriptBased() && !externalProcRunner.isVisibleTerminal())
-				temp.addLine("scriptBasedNoTerminal");
-		if (tWindowMaker!= null)
-			temp.addLine("getIntermTreeWindowMaker ", tWindowMaker);
-		if (majRulesConsenser!= null)
-			temp.addLine("majRulesConsenser ", majRulesConsenser);
+
+		if (file!=null) {
+			if (data != null)
+				temp.addLine("recoverData #" + data.getAssignedIDNumber());
+			temp.addLine("recoverSearchDetails " + ParseUtil.tokenize(searchDetails.toString()));
+			temp.addLine("recoverSearchStartedDetails " + ParseUtil.tokenize(searchStartedDetails));
+			temp.addLine("recoverExtraSearchDetails " + ParseUtil.tokenize(extraSearchDetails.toString()));
+			temp.addLine("recoverAddendumToTreeBlockName " + ParseUtil.tokenize(addendumToTreeBlockName.toString()));
+			if (externalProcRunner!=null)
+				if (externalProcRunner.isScriptBased() && !externalProcRunner.isVisibleTerminal())
+					temp.addLine("scriptBasedNoTerminal");
+			if (tWindowMaker!= null)
+				temp.addLine("getIntermTreeWindowMaker ", tWindowMaker);
+			if (majRulesConsenser!= null)
+				temp.addLine("majRulesConsenser ", majRulesConsenser);
+		}
+
 		return temp;
 	}
 	/*.................................................................................................................*/

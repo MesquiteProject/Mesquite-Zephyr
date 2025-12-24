@@ -238,10 +238,12 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = new Snapshot();
 		temp.addLine("getRunner ", runner);
-		temp.addLine("getMatrixSource ", matrixSourceTask);
-		if (isReconnectable())
-			temp.addLine("setTreeRecoveryTask ", treeRecoveryTask); 
-
+		
+		if (file!=null) {
+			temp.addLine("getMatrixSource ", matrixSourceTask);
+			if (isReconnectable())
+				temp.addLine("setTreeRecoveryTask ", treeRecoveryTask); 
+		}
 		return temp;
 	}
 	/*.................................................................................................................*/

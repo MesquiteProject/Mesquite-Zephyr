@@ -101,7 +101,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.4-1.6.12, 2.2.0–2.3.6, 3.01";
+		return "2.2.0 – 3.01";
 	}
 
 	/*.................................................................................................................*/
@@ -157,7 +157,8 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		numProcessorsField.getTextField().setEnabled(numProcessorsRadioButtons.getValue() == 1);
 		dialog.addHorizontalLine(1);
 
-	//	dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());
+		dialog.addLabelSmallText("This version of Zephyr requires IQTREE 2.0 or later");		
+		//dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());
 	}
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent e) {
