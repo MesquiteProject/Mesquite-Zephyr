@@ -17,11 +17,14 @@ import java.awt.event.KeyListener;
 
 //import org.apache.http.entity.mime.MultipartEntityBuilder;
 import mesquite.categ.lib.ProteinData;
+import mesquite.lib.CommandChecker;
 import mesquite.lib.IntegerField;
 import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteFile;
 import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteString;
 import mesquite.lib.ShellScriptUtil;
+import mesquite.lib.Snapshot;
 import mesquite.lib.StringUtil;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.ui.ExtensibleDialog;
@@ -78,6 +81,18 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	}
 
 	/*.................................................................................................................*/
+	public Snapshot getSnapshot(MesquiteFile file) { 
+		Snapshot temp = super.getSnapshot(file);
+
+		//items added for parallelization Debugg.println("@
+		if (file == null){  //only for parallelization; not to be saved to file
+			temp.addLine("autoNumBootstrapReps " + autoNumBootstrapReps);    //boolean
+			temp.addLine("otherModelOptions " + StringUtil.tokenize(otherModelOptions));  //string
+		}
+		return temp;
+	}
+
+	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("autoNumProcessors".equalsIgnoreCase(tag))
 			autoNumProcessors = MesquiteBoolean.fromTrueFalseString(content);
@@ -99,10 +114,10 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "autoNumProcessors", autoNumProcessors);  
-		StringUtil.appendXMLTag(buffer, 2, "autoNumBootstrapReps", autoNumBootstrapReps);  
-		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
-		StringUtil.appendXMLTag(buffer, 2, "otherModelOptions", otherModelOptions);  
+		StringUtil.appendXMLTag(buffer, 2, "autoNumProcessors", autoNumProcessors);   // boolean
+		StringUtil.appendXMLTag(buffer, 2, "autoNumBootstrapReps", autoNumBootstrapReps);    // boolean
+		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);    // int
+		StringUtil.appendXMLTag(buffer, 2, "otherModelOptions", otherModelOptions);    //String
 
 		buffer.append(super.preparePreferencesForXML());
 
@@ -110,7 +125,33 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		return buffer.toString();
 	}
 
-
+	/*.................................................................................................................*/
+	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
+		//THE FOLLOWING were added for parallelization (2025)
+		if (checker.compare(this.getClass(), "Sets number of processors ", "[numProcessors]", commandName, "numProcessors")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				numProcessors = temp;
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets autoNumProcessors  ", "[true/false]", commandName, "autoNumProcessors")) {
+			autoNumProcessors = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets autoNumBootstrapReps  ", "[true/false]", commandName, "autoNumBootstrapReps")) {
+			autoNumBootstrapReps = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets the other model options ", "[searchStyle]", otherModelOptions, "otherModelOptions")) {
+			String temp = parser.getFirstToken(arguments);
+			if (StringUtil.blank(temp))
+				otherModelOptions = "";
+			else otherModelOptions = temp;
+			return null;
+		}
+		else
+			return super.doCommand(commandName, arguments, checker);
+	}	
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
 		return "1.1.0";

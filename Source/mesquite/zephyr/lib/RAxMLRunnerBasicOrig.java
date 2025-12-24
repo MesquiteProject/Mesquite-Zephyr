@@ -21,9 +21,13 @@ import mesquite.categ.lib.ProteinData;
 import mesquite.externalCommunication.AppHarvester.AppHarvester;
 import mesquite.externalCommunication.lib.AppChooser;
 import mesquite.externalCommunication.lib.AppInformationFile;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteFile;
 import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteString;
 import mesquite.lib.ShellScriptUtil;
+import mesquite.lib.Snapshot;
 import mesquite.lib.StringUtil;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.ui.ExtensibleDialog;
@@ -77,6 +81,36 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		preferencesSet = true;
 		return buffer.toString();
 	}
+	/*.................................................................................................................*/
+	public Snapshot getSnapshot(MesquiteFile file) { 
+		Snapshot temp = super.getSnapshot(file);
+
+		//items added for parallelization Debugg.println("@
+		if (file == null){  //only for parallelization; not to be saved to file
+			temp.addLine("numProcessors " + numProcessors);  //int
+			temp.addLine("raxmlThreadingVersion " + threadingVersion);  //int
+		}
+		return temp;
+	}
+
+	/*.................................................................................................................*/
+	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
+		//THE FOLLOWING were added for parallelization (2025)
+		if (checker.compare(this.getClass(), "Sets numProcessors ", "[numProcessors]", commandName, "numProcessors")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				numProcessors = temp;
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets threadingVersion ", "[threadingVersion]", commandName, "threadingVersion")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				threadingVersion = temp;
+			return null;
+		}
+			else
+			return super.doCommand(commandName, arguments, checker);
+	}	
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
