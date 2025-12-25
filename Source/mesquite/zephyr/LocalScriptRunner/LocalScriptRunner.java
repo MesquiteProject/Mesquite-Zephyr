@@ -19,6 +19,7 @@ import java.util.Random;
 import mesquite.externalCommunication.lib.AppChooser;
 import mesquite.externalCommunication.lib.AppInformationFile;
 import mesquite.lib.CommandChecker;
+import mesquite.lib.Debugg;
 import mesquite.lib.ExternalProcessManager;
 import mesquite.lib.MesquiteBoolean;
 import mesquite.lib.MesquiteFile;
@@ -811,9 +812,11 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	public String[] modifyOutputPaths(String[] outputFilePaths){
 		return processRequester.modifyOutputPaths(outputFilePaths);
 	}
+	int cleanups = 1;
 	/*.................................................................................................................*/
 	public void finalCleanup() {
-		if ((deleteAnalysisDirectory || getMultipleMatrixMode()) && !leaveAnalysisDirectoryIntact)
+		if ((deleteAnalysisDirectory || getMultipleMatrixMode()) && !leaveAnalysisDirectoryIntact)   
+//			if ((deleteAnalysisDirectory) && !leaveAnalysisDirectoryIntact)
 			MesquiteFile.deleteDirectory(localRootDir);
 		localRootDir=null;
 	}
