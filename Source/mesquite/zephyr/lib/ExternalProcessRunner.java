@@ -256,11 +256,16 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	}
 
 	/*.................................................................................................................*/
-	public void removeCurrentAnalysisSubdirectoryPath() {
-		String path = localRootDir;
-		path = StringUtil.getAllButLastItem(path, MesquiteFile.fileSeparator);
-		if (MesquiteFile.fileOrDirectoryExists(path))
-			MesquiteFile.deleteDirectory(path);
+	public void removeCurrentAnalysisSubdirectory() {
+		if (StringUtil.notEmpty(myDirectory)) {
+			String path = analysisSuperDirectoryName();
+			if (StringUtil.notEmpty(path)) 
+				path = path + MesquiteFile.fileSeparator;
+			path = module.getProject().getHomeFile().getDirectoryName()+path+myDirectory;
+			if (MesquiteFile.fileOrDirectoryExists(path)) {
+				MesquiteFile.deleteDirectory(path);
+			}
+		}
 	}
 
 	/*.................................................................................................................*/
@@ -327,6 +332,11 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public abstract boolean stopExecution();  
 	/*.................................................................................................................*/
 	public void finalCleanup() {
+	}
+
+	public void endJob(){
+		removeCurrentAnalysisSubdirectory();
+		super.endJob();
 	}
 
 	public abstract String getStdErr();  
