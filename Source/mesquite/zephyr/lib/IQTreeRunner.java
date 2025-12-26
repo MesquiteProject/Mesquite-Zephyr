@@ -1031,7 +1031,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		if (externalProcRunner instanceof ScriptRunner){
 			String path =((ScriptRunner)externalProcRunner).getExecutablePath();	
-			if (path != null)
+			if (path != null && isVerbose()) //26Dec
 				logln("Running IQ-TREE version at " + path);
 		}
 		//	if (preFlightSuccessful(preflightCommand)) {

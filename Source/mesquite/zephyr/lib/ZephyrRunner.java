@@ -1007,7 +1007,10 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		else if (checker.compare(this.getClass(), "sets the outgroupTaxSetString ", "[outgroupTaxSetString]", commandName, "outgroupTaxSetString")) {
 			outgroupTaxSetString = parser.getFirstToken(arguments);
 			return null;
-
+		}
+		else if (checker.compare(this.getClass(), "sets whether to be verbose ", "[true/false]", commandName, "setVerbose")) {
+			setVerbose(MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments)));
+			return null;
 		}
 		else if (checker.compare(this.getClass(), "Sets partitionScheme ", "[partitionScheme]", commandName, "partitionScheme")) {
 			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
@@ -1224,7 +1227,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		logFileNames = getLogFileNames();
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
-		logln("Analysis on: " + externalProcRunner.getProgramLocation());
+		if (isVerbose()) //26Dec
+			logln("Analysis on: " + externalProcRunner.getProgramLocation());
 
 
 		if (!MesquiteThread.getHintToSuppressProgressIndicatorsCurrentThread())
@@ -1241,11 +1245,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		else
 			version="";
 
-		if (constrainedSearch) 
+		if (isVerbose()){ //26Dec
+			if (constrainedSearch) 
 			MesquiteMessage.logCurrentTime("\nStart of constrained "+getProgramName()+version+" analysis: ");
 		else 
 			MesquiteMessage.logCurrentTime("\nStart of unconstrained "+getProgramName()+version+" analysis: ");
-
+		}
 		timer.start();
 		timer.fullReset();
 
@@ -1408,11 +1413,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 			readTreeFileForCurrentMultipleTrees(trees, treeFilePath, readSuccess);
 
-			if (readSuccess.getValue())
+			if (isVerbose()){ //26Dec
+				if (readSuccess.getValue())
 				logln("  Reading of " + getProgramName() + " " + getResamplingKindName() + " trees succeeded.");
 			else
 				logln("  Reading of " + getProgramName() + " " + getResamplingKindName() + " trees failed.");
-
+			}
 			MesquiteThread.setCurrentCommandRecord(oldCR);
 			desuppressProjectPanelReset();
 			return trees;

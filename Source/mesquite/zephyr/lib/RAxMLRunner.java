@@ -743,10 +743,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	private Tree readRAxMLTreeFile(TreeVector trees, String treeFilePath, String treeName, MesquiteBoolean success, boolean lastTree) {
 		Tree t =null;
 		if (lastTree) {
-			logln("Zephyr obtaining trees from: " + treeFilePath);  //Debugg.println OK? DAVIDCHECK:
+			if (isVerbose()) //26Dec
+				logln("Zephyr obtaining trees from: " + treeFilePath);  //Debugg.println OK? DAVIDCHECK:
 			String s = MesquiteFile.getFileLastContents(treeFilePath);
 			if (StringUtil.blank(s))
-				logln("-- File not recovered; no trees found");
+				logln("-- File not recovered; no trees found at " + treeFilePath);
 			t =  ZephyrUtil.readPhylipTree(s,taxa,false,namer);
 
 			if (t!=null) {
@@ -1011,7 +1012,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		//programCommand += StringUtil.lineEnding();  
 		if (externalProcRunner instanceof ScriptRunner){
 			String path =((ScriptRunner)externalProcRunner).getExecutablePath();	
-			if (path != null)
+			if (path != null && isVerbose()) //26Dec
 				logln("Running RAxML version at " + path);
 		}
 

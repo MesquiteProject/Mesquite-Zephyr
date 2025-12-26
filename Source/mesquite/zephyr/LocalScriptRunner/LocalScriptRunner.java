@@ -293,7 +293,10 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 				//	temp.addLine("startMonitoring ");  this happens via reconnectToRequester so that it happens on the separate thread
 			}
 		} else if (externalProcessManager != null){
-			temp.addLine("reviveExternalRunner ");
+			if (file == null)
+				temp.addLine("startExternalRunner ");
+			else
+				temp.addLine("reviveExternalRunner ");
 			temp.addLine("tell It");
 			temp.incorporate(externalProcessManager.getSnapshot(file), true);
 			temp.addLine("endTell");
@@ -305,7 +308,15 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-		if (checker.compare(this.getClass(), "Sets the externalRunner", "[file path]", commandName, "reviveExternalRunner")) {
+		if (checker.compare(this.getClass(), "Sets the externalRunner", "[file path]", commandName, "startExternalRunner")) {
+			externalProcessManager = new ExternalProcessManager(this);
+			externalProcessManager.setOutputProcessor(this);
+			externalProcessManager.setWatcher(this);
+			if (visibleTerminalOptionAllowed())
+				externalProcessManager.setVisibleTerminal(visibleTerminal);
+			return externalProcessManager;
+		}
+		else if (checker.compare(this.getClass(), "Sets the externalRunner", "[file path]", commandName, "reviveExternalRunner")) {
 			logln("Reviving ExternalProcessRunner");
 			externalProcessManager = new ExternalProcessManager(this);
 			externalProcessManager.setOutputProcessor(this);

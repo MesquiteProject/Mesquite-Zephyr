@@ -822,7 +822,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 
 		if (externalProcRunner instanceof ScriptRunner){
 			String path =((ScriptRunner)externalProcRunner).getExecutablePath();	//programCommand += StringUtil.lineEnding();  
-			if (path != null)
+			if (path != null && isVerbose()) //26Dec
 				logln("Running TNT version at " + path);
 		}
 		if (StringUtil.blank(programCommand)) {
