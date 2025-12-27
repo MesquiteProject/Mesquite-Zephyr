@@ -71,7 +71,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 	//	boolean retainFiles = false;
 	//	String MPIsetupCommand = "";
-	boolean showIntermediateTrees = true;
 
 	protected int numRuns = 1;  //include in SNAPSHOT
 	protected int numRunsCompleted = 0;
@@ -155,6 +154,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 			return sorry("Couldn't hire an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
+		setShowIntermediateTrees(true);
 		setUpRunner();
 
 		return true;

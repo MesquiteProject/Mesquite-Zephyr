@@ -87,7 +87,6 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	//	boolean retainFiles = false;
 	//	String MPIsetupCommand = "";
-	boolean showIntermediateTrees = true;
 
 	protected int numUFBootRuns = 1;  //include in SNAPSHOT
 	protected int numSearchRuns = 1;  //include in SNAPSHOT
@@ -157,6 +156,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			return sorry("Couldn't hire an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
+		setShowIntermediateTrees(true);
 		setUpRunner();
 
 		return true;

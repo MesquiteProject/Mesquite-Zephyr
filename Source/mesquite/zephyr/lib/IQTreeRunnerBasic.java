@@ -34,7 +34,6 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 	protected boolean autoNumProcessors = true;
 
 
-	protected boolean showIntermediateTrees = true;
 
 
 

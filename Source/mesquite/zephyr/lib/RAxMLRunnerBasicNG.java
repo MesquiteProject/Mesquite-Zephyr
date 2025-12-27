@@ -45,7 +45,6 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 
 	protected String outputFilePrefix="file";
 
-	protected boolean showIntermediateTrees = true;
 
 
 

@@ -33,7 +33,6 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 	
 	protected int numProcessors = 2;
 
-	protected boolean showIntermediateTrees = true;
 
 
 	protected IntegerField numProcessorsField;

@@ -110,6 +110,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean beanWritten = false;
 	protected boolean onlySetUpRun = false;
 	boolean verbose=true;
+	protected boolean showIntermediateTrees = false;
+
 
 	protected Tree constraint = null;
 
@@ -796,6 +798,14 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		bootstrapAllowed=b;
 	}
 	/*.................................................................................................................*/
+	public boolean getShowIntermediateTrees() {
+		return showIntermediateTrees;
+	}
+	public void setShowIntermediateTrees(boolean showIntermediateTrees) {
+		this.showIntermediateTrees = showIntermediateTrees;
+	}
+
+	/*.................................................................................................................*/
 	public void appendMatrixInformation() {   
 		if (data!=null) {
 			appendToSearchDetails("\nMatrix: " + data.getName() + "\n");
@@ -975,6 +985,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			else
 				return new MesquiteCommandAbsorber();
 
+		}
+		else if (checker.compare(this.getClass(), "Tells runner to show intermediate trees or not", "[true/false]", commandName, "showIntermediateTrees")) {
+			setShowIntermediateTrees(MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments)));
 		}
 		else if (checker.compare(this.getClass(), "Tells runner to behave as if options have been set", "[true/false]", commandName, "optionsHaveBeenSet")) {
 			optionsHaveBeenSet = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));

@@ -48,7 +48,6 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 	protected int threadingVersion = THREADING_OTHER;
 	protected boolean RAxML814orLater = true;
 
-	protected boolean showIntermediateTrees = true;
 
 	protected RadioButtons threadingRadioButtons;
 
