@@ -155,6 +155,10 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		numProcessorsField = dialog.addIntegerField("Number of cores", numProcessors, 8, 1, MesquiteInteger.infinite);
 		numProcessorsField.getTextField().setEnabled(numProcessorsRadioButtons.getValue() == 1);
 		dialog.addHorizontalLine(1);
+		if (employerHasForcedNumberProcessors()) {
+			numProcessorsField.setEnabled(false);
+			numProcessorsRadioButtons.setEnabledCheckboxGroup(false);
+		}
 
 		dialog.addLabelSmallText("This version of Zephyr requires IQTREE 2.0 or later");		
 		//dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());

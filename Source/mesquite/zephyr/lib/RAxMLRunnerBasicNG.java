@@ -237,6 +237,10 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		if (numProcessors<getMinimumNumberOfCoresRequired())
 			numProcessors = getMinimumNumberOfCoresRequired();
 		numProcessorsField = dialog.addIntegerField("Specify number of processor cores", numProcessors, 8, getMinimumNumberOfCoresRequired(), MesquiteInteger.infinite);
+		if (employerHasForcedNumberProcessors()) {
+			numProcessorsField.setEnabled(false);
+			autoNumProcessorsCheckBox.setEnabled(false);
+		}
 		dialog.addHorizontalLine(1);
 
 		//dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s) of "+ getProgramName() + ": " + getTestedProgramVersions());

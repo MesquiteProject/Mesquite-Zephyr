@@ -203,6 +203,9 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 			pthreadsLabel.setEnabled(true);
 		}
 		numProcessorsField.getTextField().setEnabled(usingBuiltInApp || threadingRadioButtons.getValue() == THREADING_PTHREADS);
+		if(employerHasForcedNumberProcessors()) {
+			numProcessorsField.setEnabled(false);
+		}
 	}
 	public void itemStateChanged(ItemEvent e) {
 		if (threadingRadioButtons.isAButton(e.getItemSelectable())){
@@ -212,6 +215,9 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 			else
 					useBuiltIn = externalProcRunner.useAppInAppFolder();
 			numProcessorsField.getTextField().setEnabled(useBuiltIn || threadingRadioButtons.getValue() == THREADING_PTHREADS);
+			if(employerHasForcedNumberProcessors()) {
+				numProcessorsField.setEnabled(false);
+			}
 		}
 		super.itemStateChanged(e);
 	}
@@ -232,6 +238,9 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 			numProcessors = getMinimumNumberOfCoresRequired();
 		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, getMinimumNumberOfCoresRequired(), MesquiteInteger.infinite);
 		numProcessorsField.addKeyListener(this);
+		if(employerHasForcedNumberProcessors()) {
+			numProcessorsField.getTextField().setEnabled(false);
+		}
 		dialog.addHorizontalLine(1);
 		
 		//ZQ CheckOtherEnabled below had been passed here the module's memory of whether to use built in, 

@@ -153,7 +153,10 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 			MesquiteMessage.notifyUser("Number of processors used cannot exceed "+max +maxNumProcessorsMessage());			
 			numProcessorsField.setValue(max);
 		}
-		checkAdditionalFields();
+		if (employerHasForcedNumberProcessors()) {
+			numProcessorsField.setEnabled(false);
+		}
+	checkAdditionalFields();
 	}
 
 	/*.................................................................................................................*/

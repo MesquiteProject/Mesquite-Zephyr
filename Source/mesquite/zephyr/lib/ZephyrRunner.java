@@ -291,6 +291,9 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		return this;
 	}
 
+	public boolean employerHasForcedNumberProcessors() {
+		return MesquiteInteger.isCombinable(employerForcedNumberProcessors);
+	}
 	/*.................................................................................................................*/
 	// each Runner should have its own interpreter for re-entrancy and parameter setting issues
 	FileInterpreterI exporter = null;
