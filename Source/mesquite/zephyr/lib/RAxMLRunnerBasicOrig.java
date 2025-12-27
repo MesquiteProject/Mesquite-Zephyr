@@ -16,6 +16,8 @@ import java.awt.event.KeyListener;
 
 import javax.swing.JLabel;
 
+import mesquite.assoc.lib.AssociationSource;
+import mesquite.assoc.lib.ReconstructAssociation;
 //import org.apache.http.entity.mime.MultipartEntityBuilder;
 import mesquite.categ.lib.ProteinData;
 import mesquite.externalCommunication.AppHarvester.AppHarvester;
@@ -29,6 +31,9 @@ import mesquite.lib.MesquiteString;
 import mesquite.lib.ShellScriptUtil;
 import mesquite.lib.Snapshot;
 import mesquite.lib.StringUtil;
+import mesquite.lib.duties.OneTreeSource;
+import mesquite.lib.duties.TreeBlockSource;
+import mesquite.lib.duties.TreeSource;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.RadioButtons;
@@ -50,6 +55,11 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 
 
 	protected RadioButtons threadingRadioButtons;
+	/*.................................................................................................................*/
+	public boolean superStartJob(String arguments, Object condition, boolean hiredByName) {
+		requestExtraCores(2, MesquiteInteger.infinite);
+		return true;
+	}
 
 	public String getExecutableName() {
 		return "RAxML";

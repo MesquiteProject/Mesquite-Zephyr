@@ -132,6 +132,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public TreeVector retrieveCurrentMultipleTrees(Taxa taxa) {
 		return null;
 	}
+	/*.................................................................................................................*/
+	public boolean superStartJob(String arguments, Object condition, boolean hiredByName) {
+		requestExtraCores(1, MesquiteInteger.infinite); //minimal for external runners would be 1
+		return true;
+	}
 
 
 	public abstract boolean bootstrapOrJackknife();

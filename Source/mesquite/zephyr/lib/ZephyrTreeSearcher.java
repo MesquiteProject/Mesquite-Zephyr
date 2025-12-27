@@ -15,6 +15,7 @@ import mesquite.categ.lib.CategoricalData;
 import mesquite.categ.lib.CategoricalState;
 import mesquite.lib.CommandChecker;
 import mesquite.lib.CommandRecord;
+import mesquite.lib.CompatibilityTest;
 import mesquite.lib.Debugg;
 import mesquite.lib.MesquiteBoolean;
 import mesquite.lib.MesquiteCommand;
@@ -30,6 +31,7 @@ import mesquite.lib.OutputTextListener;
 import mesquite.lib.Reconnectable;
 import mesquite.lib.ResultCodes;
 import mesquite.lib.Snapshot;
+import mesquite.lib.StringArray;
 import mesquite.lib.StringUtil;
 import mesquite.lib.characters.CharacterData;
 import mesquite.lib.characters.MCharactersDistribution;
@@ -37,6 +39,7 @@ import mesquite.lib.duties.ExternalTreeSearcher;
 import mesquite.lib.duties.MatrixSourceCoord;
 import mesquite.lib.duties.TreeSource;
 import mesquite.lib.misc.CanRetrieveTreeBlock;
+import mesquite.lib.misc.KeywordsCompatibilityTest;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.tree.MesquiteTree;
@@ -59,7 +62,12 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences();
-		if (!(condition instanceof String && ((String)condition).equals("acceptImposedMatrixSource"))) {
+		boolean imposedMatrices = false;
+		if (condition instanceof String && ((String)condition).equalsIgnoreCase("acceptImposedMatrixSource"))
+			imposedMatrices = true;
+		if (condition instanceof String[] && StringArray.indexOfIgnoreCase((String[])condition,"acceptImposedMatrixSource")>=0)
+			imposedMatrices = true;
+		if (!imposedMatrices) {
 			matrixSourceTask = (MatrixSourceCoord)hireCompatibleEmployee(MatrixSourceCoord.class, getCharacterClass(), "Source of matrix (for " + getName() + ")");
 			if (matrixSourceTask == null)
 				return sorry(getName() + " couldn't start because no source of matrix (for " + getName() + ") was obtained");
@@ -73,7 +81,11 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 		return true;
 	}
 	
-	
+	/*.................................................................................................................*/
+	public CompatibilityTest getCompatibilityTest(){
+		return new KeywordsCompatibilityTest(new String[]{"acceptImposedMatrixSource"});
+	}
+
 	/*.................................................................................................................*/
 	 public void setMatrixSource(MatrixSourceCoord msource) {
 		 super.setMatrixSource(msource);

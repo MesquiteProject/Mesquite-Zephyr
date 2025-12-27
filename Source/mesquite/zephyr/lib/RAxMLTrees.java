@@ -10,10 +10,12 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 import mesquite.lib.CommandRecord;
+import mesquite.lib.CompatibilityTest;
 import mesquite.lib.MesquiteFile;
 import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteThread;
 import mesquite.lib.analysis.LikelihoodAnalysis;
+import mesquite.lib.misc.KeywordsCompatibilityTest;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.taxa.TaxonNamer;
 import mesquite.lib.tree.AdjustableTree;
@@ -31,7 +33,7 @@ public abstract class RAxMLTrees extends ZephyrTreeSearcher implements Likelihoo
 		return commands;
 	}
 
-	
+
 	/*.................................................................................................................*/
 	public abstract String getRunnerModuleName();
 	/*.................................................................................................................*/

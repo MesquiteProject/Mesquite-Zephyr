@@ -9,6 +9,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.RAxMLTreesLocalOrig;
 
+import mesquite.lib.CompatibilityTest;
+import mesquite.lib.misc.KeywordsCompatibilityTest;
 import mesquite.zephyr.RAxMLRunnerLocalOrig.RAxMLRunnerLocalOrig;
 import mesquite.zephyr.lib.RAxMLTreesOrig;
 
@@ -19,6 +21,12 @@ public class RAxMLTreesLocalOrig extends RAxMLTreesOrig {
 	public String getRunnerModuleName() {
 		return "#mesquite.zephyr.RAxMLRunnerLocalOrig.RAxMLRunnerLocalOrig";
 	}
+	
+	/*.................................................................................................................*/
+	public CompatibilityTest getCompatibilityTest(){
+		return new KeywordsCompatibilityTest(new String[]{"acceptImposedMatrixSource", "parallelReady"});
+	}
+
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
 		return RAxMLRunnerLocalOrig.class;
