@@ -134,8 +134,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 	/*.................................................................................................................*/
 	public boolean superStartJob(String arguments, Object condition, boolean hiredByName) {
-		requestExtraCores(1, MesquiteInteger.infinite); //minimal for external runners would be 1
-		return true;
+		requestExtraCores(getMinimumNumberOfCoresRequired(), MesquiteInteger.infinite); //minimal for external runners would be 1
+		return superStartJob(arguments,condition,hiredByName);
 	}
 
 
@@ -324,6 +324,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	public boolean mayHaveProblemsWithDeletingRunningOnReconnect() {
 		return false;
 	}
+	/*.................................................................................................................*/
+	public int getMinimumNumberOfCoresRequired() {
+		return 1;
+	}
+
 	/*.................................................................................................................*/
 	public boolean needsHarvestLink() { //Debugg.println: does this also need to check if MacOS?
 		return isReconnected() && isScriptBasedNoTerminal() && mayHaveProblemsWithDeletingRunningOnReconnect();

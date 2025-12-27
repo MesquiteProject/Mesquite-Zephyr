@@ -30,7 +30,7 @@ import mesquite.lib.ui.SingleLineTextField;
 
 public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
 
-	protected int numProcessors = 2;
+	protected int numProcessors = getMinimumNumberOfCoresRequired();
 	protected boolean autoNumProcessors = true;
 
 
@@ -319,7 +319,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		if (autoNumProcessors)
 			arguments.append(" -T AUTO ");   
 		else
-			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, 1) + " ");   
+			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, getMinimumNumberOfCoresRequired()) + " ");   
 
 		if (!isPreflight && isVerbose())
 			logln(getExecutableName() + " arguments: \n" + arguments.getValue() + "\n");

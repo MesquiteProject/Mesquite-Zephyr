@@ -241,9 +241,9 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		dialog.addHorizontalLine(1);
 		autoNumProcessorsCheckBox = dialog.addCheckBox("Let " + getProgramName() + " choose number of processor cores", autoNumProcessors);
 		autoNumProcessorsCheckBox.addItemListener(this);
-		if (numProcessors<minCoresRequiredByRAxML)
-			numProcessors = minCoresRequiredByRAxML;
-		numProcessorsField = dialog.addIntegerField("Specify number of processor cores", numProcessors, 8, minCoresRequiredByRAxML, MesquiteInteger.infinite);
+		if (numProcessors<getMinimumNumberOfCoresRequired())
+			numProcessors = getMinimumNumberOfCoresRequired();
+		numProcessorsField = dialog.addIntegerField("Specify number of processor cores", numProcessors, 8, getMinimumNumberOfCoresRequired(), MesquiteInteger.infinite);
 		dialog.addHorizontalLine(1);
 
 		//dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s) of "+ getProgramName() + ": " + getTestedProgramVersions());
@@ -456,7 +456,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		if (autoNumProcessorsCheckBox != null)
 			auto = autoNumProcessorsCheckBox.getState();
 		if (!auto)
-			return " --threads "+ MesquiteInteger.maximum(numProcessors, minCoresRequiredByRAxML) + " ";   // have to ensure that there are at least two threads requested
+			return " --threads "+ MesquiteInteger.maximum(numProcessors, getMinimumNumberOfCoresRequired()) + " ";   // have to ensure that there are at least two threads requested
 		return "";
 	}
 	/*.................................................................................................................*/

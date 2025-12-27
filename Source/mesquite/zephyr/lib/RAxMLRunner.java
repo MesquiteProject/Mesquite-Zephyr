@@ -166,6 +166,11 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 
 	/*.................................................................................................................*/
+	public int getMinimumNumberOfCoresRequired() {
+		return 2;
+	}
+
+	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
 

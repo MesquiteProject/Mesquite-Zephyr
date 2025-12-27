@@ -236,9 +236,9 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);	
 		threadingRadioButtons.addItemListener(this);
 		
-		if (numProcessors<minCoresRequiredByRAxML)
-			numProcessors = minCoresRequiredByRAxML;
-		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, minCoresRequiredByRAxML, MesquiteInteger.infinite);
+		if (numProcessors<getMinimumNumberOfCoresRequired())
+			numProcessors = getMinimumNumberOfCoresRequired();
+		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, getMinimumNumberOfCoresRequired(), MesquiteInteger.infinite);
 		numProcessorsField.addKeyListener(this);
 		dialog.addHorizontalLine(1);
 		
@@ -437,7 +437,7 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		if (threadingRadioButtons!=null)
 			thread = threadingRadioButtons.getValue()==THREADING_PTHREADS;
 		if (thread) {
-			return " -T "+ MesquiteInteger.maximum(numProcessors, minCoresRequiredByRAxML) + " ";   // have to ensure that there are at least two threads requested
+			return " -T "+ MesquiteInteger.maximum(numProcessors, getMinimumNumberOfCoresRequired()) + " ";   // have to ensure that there are at least two threads requested
 		}
 		return "";
 	}

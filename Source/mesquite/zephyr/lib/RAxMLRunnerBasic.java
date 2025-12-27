@@ -31,19 +31,13 @@ outgroups
 public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListener  {
 
 	
-	protected int numProcessors = minCoresRequiredByRAxML;
+	protected int numProcessors = getMinimumNumberOfCoresRequired();
 
 
 
 	protected IntegerField numProcessorsField;
 	protected RadioButtons threadingRadioButtons;
-	protected static final int minCoresRequiredByRAxML = 2;
 
-	/*.................................................................................................................*/
-	public boolean superStartJob(String arguments, Object condition, boolean hiredByName) {
-		requestExtraCores(minCoresRequiredByRAxML, MesquiteInteger.infinite);
-		return true;
-	}
 
 
 	public String getExecutableName() {
