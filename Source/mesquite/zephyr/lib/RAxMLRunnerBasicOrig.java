@@ -423,14 +423,17 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		return runPreflightCommand(preflightCommand);
 	}
 
-	//String arguments;
+	/*.................................................................................................................*/
+	public int minCoresIRequire() {
+		return 2;
+	}
 	/*.................................................................................................................*/
 	public String getAdditionalArguments() {
 		boolean thread = threadingVersion==THREADING_PTHREADS;
 		if (threadingRadioButtons!=null)
 			thread = threadingRadioButtons.getValue()==THREADING_PTHREADS;
 		if (thread) {
-			return " -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ";   // have to ensure that there are at least two threads requested
+			return " -T "+ MesquiteInteger.maximum(numProcessors, minCoresIRequire()) + " ";   // have to ensure that there are at least two threads requested
 		}
 		return "";
 	}
