@@ -1240,7 +1240,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		logFileNames = getLogFileNames();
 		externalProcRunner.setOutputFileNamesToWatch(logFileNames);
 
-		if (isVerbose()) //26Dec
+		if (isVerbose())
 			logln("Analysis on: " + externalProcRunner.getProgramLocation());
 
 
@@ -1258,11 +1258,11 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		else
 			version="";
 
-		if (isVerbose()){ //26Dec
+		if (isVerbose()){
 			if (constrainedSearch) 
-			MesquiteMessage.logCurrentTime("\nStart of constrained "+getProgramName()+version+" analysis: ");
-		else 
-			MesquiteMessage.logCurrentTime("\nStart of unconstrained "+getProgramName()+version+" analysis: ");
+				MesquiteMessage.logCurrentTime("\nStart of constrained "+getProgramName()+version+" analysis: ");
+			else 
+				MesquiteMessage.logCurrentTime("\nStart of unconstrained "+getProgramName()+version+" analysis: ");
 		}
 		timer.start();
 		timer.fullReset();
@@ -1426,7 +1426,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			MesquiteBoolean readSuccess = new MesquiteBoolean(false);
 			readTreeFileForCurrentMultipleTrees(trees, treeFilePath, readSuccess);
 
-			if (isVerbose()){ //26Dec
+			if (isVerbose()){
 				if (readSuccess.getValue())
 				logln("  Reading of " + getProgramName() + " " + getResamplingKindName() + " trees succeeded.");
 			else
