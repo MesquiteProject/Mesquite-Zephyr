@@ -178,7 +178,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		temp.addLine("setSearchStyle "+ searchStyleName(doBootstrap));  // this needs to be second so that search style isn't reset in starting the runner
 
-		//items added for parallelization Debugg.println("@
+		//items added for parallelization
 		if (file == null){  //only for parallelization; not to be saved to file
 			temp.addLine("bootStrapReps " + bootstrapreps);  //int
 			temp.addLine("numRuns " + numRuns);  //int
