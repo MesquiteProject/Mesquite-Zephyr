@@ -319,7 +319,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		if (autoNumProcessors)
 			arguments.append(" -T AUTO ");   
 		else
-			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, 1) + " ");   // have to ensure that there are at least two threads requested
+			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, 1) + " ");   
 
 		if (!isPreflight && isVerbose())
 			logln(getExecutableName() + " arguments: \n" + arguments.getValue() + "\n");

@@ -52,14 +52,10 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 	protected static final int THREADING_MPI = 2;
 	protected int threadingVersion = THREADING_OTHER;
 	protected boolean RAxML814orLater = true;
+	
 
 
 	protected RadioButtons threadingRadioButtons;
-	/*.................................................................................................................*/
-	public boolean superStartJob(String arguments, Object condition, boolean hiredByName) {
-		requestExtraCores(2, MesquiteInteger.infinite);
-		return true;
-	}
 
 	public String getExecutableName() {
 		return "RAxML";
@@ -240,7 +236,9 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);	
 		threadingRadioButtons.addItemListener(this);
 		
-		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, 1, MesquiteInteger.infinite);
+		if (numProcessors<minCoresRequiredByRAxML)
+			numProcessors = minCoresRequiredByRAxML;
+		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, minCoresRequiredByRAxML, MesquiteInteger.infinite);
 		numProcessorsField.addKeyListener(this);
 		dialog.addHorizontalLine(1);
 		
@@ -434,16 +432,12 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 	}
 
 	/*.................................................................................................................*/
-	public int minCoresIRequire() {
-		return 2;
-	}
-	/*.................................................................................................................*/
 	public String getAdditionalArguments() {
 		boolean thread = threadingVersion==THREADING_PTHREADS;
 		if (threadingRadioButtons!=null)
 			thread = threadingRadioButtons.getValue()==THREADING_PTHREADS;
 		if (thread) {
-			return " -T "+ MesquiteInteger.maximum(numProcessors, minCoresIRequire()) + " ";   // have to ensure that there are at least two threads requested
+			return " -T "+ MesquiteInteger.maximum(numProcessors, minCoresRequiredByRAxML) + " ";   // have to ensure that there are at least two threads requested
 		}
 		return "";
 	}
