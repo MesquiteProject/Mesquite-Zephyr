@@ -135,7 +135,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	/*.................................................................................................................*/
 	public boolean superStartJob(String arguments, Object condition, boolean hiredByName) {
 		requestExtraCores(getMinimumNumberOfCoresRequired(), MesquiteInteger.infinite); //minimal for external runners would be 1
-		return superStartJob(arguments,condition,hiredByName);
+		return super.superStartJob(arguments,condition,hiredByName);
 	}
 
 
