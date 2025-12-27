@@ -87,7 +87,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 
 
 	int bootstrapreps = 100;
-	long bootstrapSeed = System.currentTimeMillis();
+	//long bootstrapSeed = System.currentTimeMillis();
 	//	boolean doBootstrap= false;
 	String otherOptions = "";
 	String preLogReadOptions = "";

@@ -277,6 +277,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			localProteinModel += otherModelOptionsChoice.getText();
 		}
 		getArguments(arguments, "[fileName]", localProteinModel, localDNAModel, otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, localModelFileName, true, false);
+		bootstrapSeed++;
 		return externalProcRunner.getExecutableCommand() + arguments.getValue() + getAdditionalArguments();
 	}
 
@@ -474,7 +475,8 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
 		arguments.append(getAdditionalArguments());
-	
+		bootstrapSeed++;
+
 		return arguments; // + " | tee log.txt"; // + "> log.txt";
 
 	}

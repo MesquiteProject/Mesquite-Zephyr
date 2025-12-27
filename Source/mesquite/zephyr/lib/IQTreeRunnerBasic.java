@@ -186,6 +186,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 			String command = externalProcRunner.getExecutableCommand() + arguments.getValue();
 			commandLabel.setText("This command will be used to run IQ-TREE:");
 			commandField.setText(command);
+			bootstrapSeed++;
 		}
 		else	if (e.getActionCommand().equalsIgnoreCase("clearCommand")) {
 			commandField.setText("");
@@ -331,6 +332,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 		if (!isPreflight && isVerbose())
 			logln(getExecutableName() + " arguments: \n" + arguments.getValue() + "\n");
+		bootstrapSeed++;
 
 		return arguments; // + " | tee log.txt"; // + "> log.txt";
 

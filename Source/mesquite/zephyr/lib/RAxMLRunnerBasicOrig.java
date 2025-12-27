@@ -319,6 +319,8 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		else
 			localProteinModel = localProteinModel+proteinModelMatrixChoice.getSelectedItem();
 		getArguments(arguments, "[fileName]", localProteinModel, dnaModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, localModelFileName, nobfgsValue, false);
+		bootstrapSeed++;
+
 		return externalProcRunner.getExecutableCommand() + arguments.getValue() + getAdditionalArguments();
 	}
 /*.................................................................................................................*/
@@ -463,6 +465,7 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 			getArguments(arguments, dataFileName, localProteinModel, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
 		arguments.append(getAdditionalArguments());
+		bootstrapSeed++;
 		return arguments; // + " | tee log.txt"; // + "> log.txt";
 
 	}
