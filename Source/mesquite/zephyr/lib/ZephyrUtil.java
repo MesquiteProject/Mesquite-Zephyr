@@ -151,17 +151,26 @@ public class ZephyrUtil {
 		return readPhylipTree(line, taxa, permitTaxaBlockEnlarge, false, namer);
 	}
 	/*.................................................................................................................*/
+	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, TaxonNamer namer, boolean noWarn) {
+		return readPhylipTree(line, taxa, permitTaxaBlockEnlarge, false, namer, noWarn);
+	}
+	/*.................................................................................................................*/
 	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, boolean permitSpaceUnderscoreEquivalent, TaxonNamer namer) {
+	return readPhylipTree(line, taxa, permitTaxaBlockEnlarge, permitSpaceUnderscoreEquivalent, namer, false);
+	}
+	/*.................................................................................................................*/
+	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, boolean permitSpaceUnderscoreEquivalent, TaxonNamer namer, boolean noWarn) {
 		if (StringUtil.blank(line))
 			return null;
 		if (!validNewickEnds(line))
 			return null;
 		MesquiteTree t = new MesquiteTree(taxa);
+		t.setWarningSuppress(noWarn);
 		t.setPermitTaxaBlockEnlargement(permitTaxaBlockEnlarge);
 		t.readTree(line, namer, null, "():;,[]\'"); //tree reading adjusted to use Newick punctuation rather than NEXUS
 		return t;
 	}
-	
+
 	/*.................................................................................................................*/
 
 	public static final String RAXMLSCORENAME = "RAxMLScore";

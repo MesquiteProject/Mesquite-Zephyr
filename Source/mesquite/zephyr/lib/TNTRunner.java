@@ -87,7 +87,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 
 
 	int bootstrapreps = 100;
-	long bootstrapSeed = System.currentTimeMillis();
+	//long bootstrapSeed = System.currentTimeMillis();
 	//	boolean doBootstrap= false;
 	String otherOptions = "";
 	String preLogReadOptions = "";
@@ -822,7 +822,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 
 		if (externalProcRunner instanceof ScriptRunner){
 			String path =((ScriptRunner)externalProcRunner).getExecutablePath();	//programCommand += StringUtil.lineEnding();  
-			if (path != null)
+			if (path != null && isVerbose())
 				logln("Running TNT version at " + path);
 		}
 		if (StringUtil.blank(programCommand)) {

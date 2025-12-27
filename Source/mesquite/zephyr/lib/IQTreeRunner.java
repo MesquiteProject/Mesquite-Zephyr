@@ -71,7 +71,7 @@ outgroups
 
 public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListener, ItemListener, ExternalProcessRequester, ConstrainedSearcherTreeScoreProvider  {
 
-	boolean onlyBest = true;
+	boolean onlyBest = true;  //include in SNAPSHOT
 
 	protected	int randomIntSeed = (int)System.currentTimeMillis();  
 	protected long  randseed = -1;
@@ -82,39 +82,38 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected static final int qPartitionLinkage = 0;
 	protected static final int sppPartitionLinkage = 1;
 	protected static final int spPartitionLinkage = 2;
-	protected int partitionLinkage = sppPartitionLinkage;
+	protected int partitionLinkage = sppPartitionLinkage;  //include in SNAPSHOT
 	protected 	Choice partitionLinkageChoice;
 
 	//	boolean retainFiles = false;
 	//	String MPIsetupCommand = "";
-	boolean showIntermediateTrees = true;
 
-	protected int numUFBootRuns = 1;
-	protected int numSearchRuns = 1;
-	protected int numRuns = 1;
+	protected int numUFBootRuns = 1;  //include in SNAPSHOT
+	protected int numSearchRuns = 1;  //include in SNAPSHOT
+	protected int numRuns = 1;  //include in SNAPSHOT
 	protected int numRunsCompleted = 0;
 	protected int run = 0;
 	protected boolean preferencesSet = false;
 	protected boolean isProtein = false;
 
-	protected int bootstrapreps = 100;
+	protected int bootstrapreps = 100;  //include in SNAPSHOT
 	protected int bootstrapSeed = Math.abs((int)System.currentTimeMillis());
 	protected static int MFPOption=3;
-	protected static int modelOption = MFPOption;
-	protected static String substitutionModel = "MFP";
-	protected static String otherOptions = "";
-	protected boolean useConstraintTree = false;
-	protected static int minUFBootstrapReps=1000;
+	protected static int modelOption = MFPOption;  //include in SNAPSHOT
+	protected static String substitutionModel = "MFP";  //include in SNAPSHOT
+	protected static String otherOptions = "";  //include in SNAPSHOT
+	protected boolean useConstraintTree = false;  //include in SNAPSHOT
+	protected static int minUFBootstrapReps=1000; 
 	protected static String CONSTRAINTTREEFILENAME =  "constraintTree.tre";
 
 	protected static final int STANDARDBOOTSTRAP = 0;
 	protected static final int ULTRAFASTBOOTSTRAP = 1;
 	protected static final int STANDARDSEARCH = 2;
-	protected int searchStyle = STANDARDSEARCH;
+	protected int searchStyle = STANDARDSEARCH;  //include in SNAPSHOT
 	protected RadioButtons searchStyleButtons = null;
 
-	protected boolean doALRT = false;
-	protected int alrtReps=1000;
+	protected boolean doALRT = false;  //include in SNAPSHOT
+	protected int alrtReps=1000;  //include in SNAPSHOT
 
 
 	protected RadioButtons charPartitionButtons = null;
@@ -157,6 +156,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			return sorry("Couldn't hire an external process runner");
 		}
 		externalProcRunner.setProcessRequester(this);
+		setShowIntermediateTrees(true);
 		setUpRunner();
 
 		return true;
@@ -165,13 +165,26 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public void setUpRunner() { 
 
 	}
-
 	/*.................................................................................................................*/
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
 		temp.addLine("setExternalProcessRunner", externalProcRunner);
 		temp.addLine("setSearchStyle "+ searchStyleName(searchStyle));  // this needs to be second so that search style isn't reset in starting the runner
 
+		if (file==null) {
+			temp.addLine("bootstrapreps " +  bootstrapreps);   // int
+			temp.addLine("numRuns" + numSearchRuns);   // int
+			temp.addLine("numUFBootRuns " + numUFBootRuns);   // int
+			temp.addLine("partitionLinkage " + partitionLinkage);   // int
+			temp.addLine("onlyBest " + onlyBest);   // boolean
+			temp.addLine("doALRT " + doALRT);   // boolean
+			temp.addLine("alrtReps " + alrtReps);   // int
+			temp.addLine("modelOption " + modelOption);   // int
+			temp.addLine("substitutionModel " + StringUtil.tokenize(substitutionModel));   // String
+			temp.addLine("otherOptions " + StringUtil.tokenize(otherOptions));   // String
+			temp.addLine("useConstraintTree " + useConstraintTree);   // boolean
+		}
+		
 		return temp;
 	}
 	/*.................................................................................................................*/
@@ -188,6 +201,63 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			searchStyle = getSearchStyleFromName(parser.getFirstToken(arguments));
 			return null;
 
+		}
+		//THE FOLLOWING were added for parallelization (2025)
+		else if (checker.compare(this.getClass(), "Sets num bootstrapreps ", "[numreps]", commandName, "bootStrapReps")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				bootstrapreps = temp;
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets numSearchRuns ", "[numRuns]", commandName, "numRuns")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				numSearchRuns = temp;
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets numUFBootRuns ", "[numUFBootRuns]", commandName, "numUFBootRuns")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				numUFBootRuns = temp;
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets partitionLinkage ", "[partitionLinkage]", commandName, "partitionLinkage")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				partitionLinkage = temp;
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets onlyBest  ", "[true/false]", commandName, "onlyBest")) {
+			onlyBest = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets doALRT  ", "[true/false]", commandName, "doALRT")) {
+			doALRT = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets alrtReps ", "[alrtReps]", commandName, "alrtReps")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				alrtReps = temp;
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets modelOption ", "[modelOption]", commandName, "modelOption")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				modelOption = temp;
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets substitutionModel  ", "[string]", commandName, "substitutionModel")) {
+			substitutionModel = parser.getFirstToken(arguments);
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets otherOptions  ", "[string]", commandName, "otherOptions")) {
+			otherOptions = parser.getFirstToken(arguments);
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets useConstraintTree  ", "[true/false]", commandName, "useConstraintTree")) {
+			useConstraintTree = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+			return null;
 		}
 		else
 			return super.doCommand(commandName, arguments, checker);
@@ -262,6 +332,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		preferencesSet = true;
 		return buffer.toString();
 	}
+	
 	/*.................................................................................................................*/
 	public String searchStyleName(int searchStyle) {
 		switch (searchStyle) {
@@ -365,7 +436,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 	/*.................................................................................................................*
 	public String getTestedProgramVersions(){
-		return "1.6.4-1.6.12, 2.2.0–2.3.6";
+		return "2.2.0–2.3.6";
 	}
 	/*.................................................................................................................*/
 	public abstract void addRunnerOptions(ExtensibleDialog dialog);
@@ -960,7 +1031,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		if (externalProcRunner instanceof ScriptRunner){
 			String path =((ScriptRunner)externalProcRunner).getExecutablePath();	
-			if (path != null)
+			if (path != null && isVerbose())
 				logln("Running IQ-TREE version at " + path);
 		}
 		//	if (preFlightSuccessful(preflightCommand)) {

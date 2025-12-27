@@ -17,11 +17,14 @@ import java.awt.event.KeyListener;
 
 //import org.apache.http.entity.mime.MultipartEntityBuilder;
 import mesquite.categ.lib.ProteinData;
+import mesquite.lib.CommandChecker;
 import mesquite.lib.IntegerField;
 import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteFile;
 import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteString;
 import mesquite.lib.ShellScriptUtil;
+import mesquite.lib.Snapshot;
 import mesquite.lib.StringUtil;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.ui.ExtensibleDialog;
@@ -42,7 +45,6 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 
 	protected String outputFilePrefix="file";
 
-	protected boolean showIntermediateTrees = true;
 
 
 
@@ -78,6 +80,18 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	}
 
 	/*.................................................................................................................*/
+	public Snapshot getSnapshot(MesquiteFile file) { 
+		Snapshot temp = super.getSnapshot(file);
+
+		//items added for parallelization Debugg.println("@
+		if (file == null){  //only for parallelization; not to be saved to file
+			temp.addLine("autoNumBootstrapReps " + autoNumBootstrapReps);    //boolean
+			temp.addLine("otherModelOptions " + StringUtil.tokenize(otherModelOptions));  //string
+		}
+		return temp;
+	}
+
+	/*.................................................................................................................*/
 	public void processSingleXMLPreference (String tag, String content) {
 		if ("autoNumProcessors".equalsIgnoreCase(tag))
 			autoNumProcessors = MesquiteBoolean.fromTrueFalseString(content);
@@ -99,10 +113,10 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
-		StringUtil.appendXMLTag(buffer, 2, "autoNumProcessors", autoNumProcessors);  
-		StringUtil.appendXMLTag(buffer, 2, "autoNumBootstrapReps", autoNumBootstrapReps);  
-		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);  
-		StringUtil.appendXMLTag(buffer, 2, "otherModelOptions", otherModelOptions);  
+		StringUtil.appendXMLTag(buffer, 2, "autoNumProcessors", autoNumProcessors);   // boolean
+		StringUtil.appendXMLTag(buffer, 2, "autoNumBootstrapReps", autoNumBootstrapReps);    // boolean
+		StringUtil.appendXMLTag(buffer, 2, "numProcessors", numProcessors);    // int
+		StringUtil.appendXMLTag(buffer, 2, "otherModelOptions", otherModelOptions);    //String
 
 		buffer.append(super.preparePreferencesForXML());
 
@@ -110,7 +124,26 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		return buffer.toString();
 	}
 
-
+	/*.................................................................................................................*/
+	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
+		if (checker.compare(this.getClass(), "Sets autoNumProcessors  ", "[true/false]", commandName, "autoNumProcessors")) {
+			autoNumProcessors = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets autoNumBootstrapReps  ", "[true/false]", commandName, "autoNumBootstrapReps")) {
+			autoNumBootstrapReps = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Sets the other model options ", "[searchStyle]", otherModelOptions, "otherModelOptions")) {
+			String temp = parser.getFirstToken(arguments);
+			if (StringUtil.blank(temp))
+				otherModelOptions = "";
+			else otherModelOptions = temp;
+			return null;
+		}
+		else
+			return super.doCommand(commandName, arguments, checker);
+	}	
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
 		return "1.1.0";
@@ -201,7 +234,13 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 		dialog.addHorizontalLine(1);
 		autoNumProcessorsCheckBox = dialog.addCheckBox("Let " + getProgramName() + " choose number of processor cores", autoNumProcessors);
 		autoNumProcessorsCheckBox.addItemListener(this);
-		numProcessorsField = dialog.addIntegerField("Specify number of processor cores", numProcessors, 8, 1, MesquiteInteger.infinite);
+		if (numProcessors<getMinimumNumberOfCoresRequired())
+			numProcessors = getMinimumNumberOfCoresRequired();
+		numProcessorsField = dialog.addIntegerField("Specify number of processor cores", numProcessors, 8, getMinimumNumberOfCoresRequired(), MesquiteInteger.infinite);
+		if (employerHasForcedNumberProcessors()) {
+			numProcessorsField.setEnabled(false);
+			autoNumProcessorsCheckBox.setEnabled(false);
+		}
 		dialog.addHorizontalLine(1);
 
 		//dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s) of "+ getProgramName() + ": " + getTestedProgramVersions());
@@ -238,6 +277,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			localProteinModel += otherModelOptionsChoice.getText();
 		}
 		getArguments(arguments, "[fileName]", localProteinModel, localDNAModel, otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, localModelFileName, true, false);
+		bootstrapSeed++;
 		return externalProcRunner.getExecutableCommand() + arguments.getValue() + getAdditionalArguments();
 	}
 
@@ -410,11 +450,15 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	//String arguments;
 	/*.................................................................................................................*/
 	public String getAdditionalArguments() {
-		boolean auto = autoNumProcessors;
-		if (autoNumProcessorsCheckBox != null)
-			auto = autoNumProcessorsCheckBox.getState();
-		if (!auto)
-			return " --threads "+ MesquiteInteger.maximum(numProcessors, 2) + " ";   // have to ensure that there are at least two threads requested
+		if (MesquiteInteger.isCombinable(employerForcedNumberProcessors))   // employer has forced the issue
+			return " --threads "+ employerForcedNumberProcessors + " "; 
+		else {
+			boolean auto = autoNumProcessors;
+			if (autoNumProcessorsCheckBox != null)
+				auto = autoNumProcessorsCheckBox.getState();
+			if (!auto)
+				return " --threads "+ MesquiteInteger.maximum(numProcessors, getMinimumNumberOfCoresRequired()) + " ";   // have to ensure that there are at least two threads requested
+		}
 		return "";
 	}
 	/*.................................................................................................................*/
@@ -431,7 +475,8 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			getArguments(arguments, dataFileName, proteinModel, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
 		arguments.append(getAdditionalArguments());
-	
+		bootstrapSeed++;
+
 		return arguments; // + " | tee log.txt"; // + "> log.txt";
 
 	}

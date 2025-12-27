@@ -392,7 +392,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		//+ " " + arguments + StringUtil.lineEnding();  
 		if (externalProcRunner instanceof ScriptRunner){
 			String path =((ScriptRunner)externalProcRunner).getExecutablePath();	//programCommand += StringUtil.lineEnding();  
-			if (path != null)
+			if (path != null && isVerbose())
 				logln("Running PAUP version at " + path);
 		}
 
