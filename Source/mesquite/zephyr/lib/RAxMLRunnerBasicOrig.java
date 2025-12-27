@@ -92,7 +92,6 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 
 		//items added for parallelization Debugg.println("@
 		if (file == null){  //only for parallelization; not to be saved to file
-			temp.addLine("numProcessors " + numProcessors);  //int
 			temp.addLine("threadingVersion " + threadingVersion);  //int
 		}
 		return temp;
