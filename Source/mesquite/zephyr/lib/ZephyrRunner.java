@@ -93,6 +93,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	private String programVersion = "";
 	protected static String composeProgramCommand = "composeProgramCommand";
 	protected boolean hasApp = false;
+	protected int employerForcedNumberProcessors = MesquiteInteger.impossible;
 
 	protected NameReference freqRef = NameReference.getNameReference("consensusFrequency");
 
@@ -1039,6 +1040,12 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
 			if (MesquiteInteger.isCombinable(temp))
 				partitionScheme = temp;
+			return null;
+		}
+		else if (checker.compare(this.getClass(), "Forces the number of cores to be used to a specific number ", "[numProcessors]", commandName, "forceNumProcessors")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				employerForcedNumberProcessors = temp;
 			return null;
 		}
 		else return super.doCommand(commandName, arguments, checker);

@@ -126,14 +126,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-		//THE FOLLOWING were added for parallelization (2025)
-		if (checker.compare(this.getClass(), "Sets number of processors ", "[numProcessors]", commandName, "numProcessors")) {
-			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
-			if (MesquiteInteger.isCombinable(temp))
-				numProcessors = temp;
-			return null;
-		}
-		else if (checker.compare(this.getClass(), "Sets autoNumProcessors  ", "[true/false]", commandName, "autoNumProcessors")) {
+		if (checker.compare(this.getClass(), "Sets autoNumProcessors  ", "[true/false]", commandName, "autoNumProcessors")) {
 			autoNumProcessors = MesquiteBoolean.fromTrueFalseString(parser.getFirstToken(arguments));
 			return null;
 		}
@@ -452,11 +445,15 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 	//String arguments;
 	/*.................................................................................................................*/
 	public String getAdditionalArguments() {
-		boolean auto = autoNumProcessors;
-		if (autoNumProcessorsCheckBox != null)
-			auto = autoNumProcessorsCheckBox.getState();
-		if (!auto)
-			return " --threads "+ MesquiteInteger.maximum(numProcessors, getMinimumNumberOfCoresRequired()) + " ";   // have to ensure that there are at least two threads requested
+		if (MesquiteInteger.isCombinable(employerForcedNumberProcessors))   // employer has forced the issue
+			return " --threads "+ employerForcedNumberProcessors + " "; 
+		else {
+			boolean auto = autoNumProcessors;
+			if (autoNumProcessorsCheckBox != null)
+				auto = autoNumProcessorsCheckBox.getState();
+			if (!auto)
+				return " --threads "+ MesquiteInteger.maximum(numProcessors, getMinimumNumberOfCoresRequired()) + " ";   // have to ensure that there are at least two threads requested
+		}
 		return "";
 	}
 	/*.................................................................................................................*/

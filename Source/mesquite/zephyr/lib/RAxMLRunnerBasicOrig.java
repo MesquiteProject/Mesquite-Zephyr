@@ -100,14 +100,7 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-		//THE FOLLOWING were added for parallelization (2025)
-		if (checker.compare(this.getClass(), "Sets numProcessors ", "[numProcessors]", commandName, "numProcessors")) {
-			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
-			if (MesquiteInteger.isCombinable(temp))
-				numProcessors = temp;
-			return null;
-		}
-		else if (checker.compare(this.getClass(), "Sets threadingVersion ", "[threadingVersion]", commandName, "threadingVersion")) {
+		 if (checker.compare(this.getClass(), "Sets threadingVersion ", "[threadingVersion]", commandName, "threadingVersion")) {
 			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
 			if (MesquiteInteger.isCombinable(temp))
 				threadingVersion = temp;
@@ -437,7 +430,10 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		if (threadingRadioButtons!=null)
 			thread = threadingRadioButtons.getValue()==THREADING_PTHREADS;
 		if (thread) {
-			return " -T "+ MesquiteInteger.maximum(numProcessors, getMinimumNumberOfCoresRequired()) + " ";   // have to ensure that there are at least two threads requested
+			if (MesquiteInteger.isCombinable(employerForcedNumberProcessors))   // employer has forced the issue
+				return " -T "+ employerForcedNumberProcessors + " ";   
+			else 
+				return " -T "+ MesquiteInteger.maximum(numProcessors, getMinimumNumberOfCoresRequired()) + " ";  
 		}
 		return "";
 	}

@@ -316,10 +316,14 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		} else {
 			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, null, doALRT, alrtReps, true);
 		}
-		if (autoNumProcessors)
-			arguments.append(" -T AUTO ");   
-		else
-			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, getMinimumNumberOfCoresRequired()) + " ");   
+		if (MesquiteInteger.isCombinable(employerForcedNumberProcessors))   // employer has forced the issue
+			arguments.append(" -T "+ employerForcedNumberProcessors + " ");   
+		else {
+			if (autoNumProcessors)
+				arguments.append(" -T AUTO ");   
+			else
+				arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, getMinimumNumberOfCoresRequired()) + " ");   
+		}
 
 		if (!isPreflight && isVerbose())
 			logln(getExecutableName() + " arguments: \n" + arguments.getValue() + "\n");
