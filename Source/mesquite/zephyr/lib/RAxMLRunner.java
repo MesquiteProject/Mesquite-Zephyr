@@ -1585,7 +1585,6 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		if (fileNum==OUT_TREEFILE && outputFilePaths.length>OUT_TREEFILE && !StringUtil.blank(outputFilePaths[OUT_TREEFILE]) && !bootstrapOrJackknife() && showIntermediateTrees) {   // tree file
 			if (ownerModule instanceof NewTreeProcessor){ 
 				String treeFilePath = filePath;
-
 				if (taxa != null) {
 					TaxaSelectionSet outgroupSet = (TaxaSelectionSet) taxa.getSpecsSet(outgroupTaxSetString,TaxaSelectionSet.class);
 					((NewTreeProcessor)ownerModule).newTreeAvailable(treeFilePath, outgroupSet);

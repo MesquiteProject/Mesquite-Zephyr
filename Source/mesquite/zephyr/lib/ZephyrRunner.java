@@ -112,6 +112,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	protected boolean onlySetUpRun = false;
 	boolean verbose=true;
 	protected boolean showIntermediateTrees = false;
+	public static final boolean suppressIntermediateTreeReadingWarnings = true;
 
 
 	protected Tree constraint = null;

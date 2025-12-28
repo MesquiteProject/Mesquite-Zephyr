@@ -96,6 +96,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		rng = new Random(System.currentTimeMillis());
 		loadPreferences();
 		setUpRunner();
+		setShowIntermediateTrees(true);
 
 		return true;
 	}
