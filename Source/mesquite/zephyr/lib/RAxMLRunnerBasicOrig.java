@@ -90,7 +90,6 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 	public Snapshot getSnapshot(MesquiteFile file) { 
 		Snapshot temp = super.getSnapshot(file);
 
-		//items added for parallelization Debugg.println("@
 		if (file == null){  //only for parallelization; not to be saved to file
 			temp.addLine("threadingVersion " + threadingVersion);  //int
 		}
