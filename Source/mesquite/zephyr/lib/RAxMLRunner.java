@@ -1139,7 +1139,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				((AdjustableTree)t).setName(newName);
 		}
 		if (MesquiteDouble.isCombinable(bestScore)){
-			logln("Best score: " + bestScore);
+			if (isVerbose())
+				logln("Best score: " + bestScore);
 			if (!useOptimizedScoreAsBest)
 				finalScore.setValue(bestScore);
 			else

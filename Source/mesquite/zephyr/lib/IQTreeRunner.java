@@ -1503,7 +1503,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 					line = parser.getRawNextDarkLine();
 				}
 			}
-			logln("Best score: " + finalValue);
+			if (isVerbose())
+				logln("Best score: " + finalValue);
 		}
 
 		if (expectSchemeFile(substitutionModel) && importBestPartitionScheme) {
