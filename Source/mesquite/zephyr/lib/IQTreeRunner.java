@@ -173,7 +173,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		if (file==null) {
 			temp.addLine("bootstrapreps " +  bootstrapreps);   // int
-			temp.addLine("numRuns" + numSearchRuns);   // int
+			temp.addLine("numRuns " + numSearchRuns);   // int
 			temp.addLine("numUFBootRuns " + numUFBootRuns);   // int
 			temp.addLine("partitionLinkage " + partitionLinkage);   // int
 			temp.addLine("onlyBest " + onlyBest);   // boolean

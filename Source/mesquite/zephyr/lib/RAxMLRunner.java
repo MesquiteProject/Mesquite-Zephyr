@@ -1633,6 +1633,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 				//String s = MesquiteFile.getFileLastContents(filePath,fPOS);
 				String s = MesquiteFile.getFileContentsAsString(filePath);
+				if (StringUtil.blank(s))
+					return;
 				long lastLength = s.length();
 				if (summaryFilePosition<0 || summaryFilePosition >= s.length())
 					return;
