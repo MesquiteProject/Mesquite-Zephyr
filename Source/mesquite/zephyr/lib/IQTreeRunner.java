@@ -588,6 +588,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			dialog.addHorizontalLine(1);
 		}
 		otherOptionsField = dialog.addTextField("Other "+getExecutableName()+" options:", otherOptions, 60);
+		dialog.addLabel("(e.g., -allnni to ask IQ-TREE to do a more thorough and slower NNI search.)");
 
 		dialog.addHorizontalLine(1);
 

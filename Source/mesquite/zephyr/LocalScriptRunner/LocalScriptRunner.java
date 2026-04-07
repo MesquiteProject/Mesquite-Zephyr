@@ -55,7 +55,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	Random rng;
 	private String executablePath;
 	String arguments;
-	boolean useDefaultExecutablePath=true;
+	boolean useBuiltInExecutablePath=true;
 
 	String stdOutFileName;
 	String scriptPath = "";
@@ -110,7 +110,17 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		return scriptBased;
 	}
 	/*.................................................................................................................*/
-	public String getDefaultExecutablePath(){
+	public boolean externalProcessRequesterHasApp(){
+		if (appInfoFile==null) {
+			appInfoFile = getExternalProcessRequester().getAppInfoFile();
+		}
+		if (appInfoFile!=null) {
+			return true;
+		}
+		return false;
+	}
+	/*.................................................................................................................*/
+	public String getBuiltInExecutablePath(){
 		if (appInfoFile==null) {
 			appInfoFile = getExternalProcessRequester().getAppInfoFile();
 		}
@@ -122,7 +132,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public String getVersionFromAppInfo(){
-		if (!useDefaultExecutablePath || !getBuiltInExecutableAllowed()) 
+		if (!useBuiltInExecutablePath || !getBuiltInExecutableAllowed()) 
 			return null;
 		if (appInfoFile==null) {
 			appInfoFile = getExternalProcessRequester().getAppInfoFile();
@@ -134,7 +144,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public String getOtherPropertiesFromAppInfo(){
-		if (!useDefaultExecutablePath || !getBuiltInExecutableAllowed()) 
+		if (!useBuiltInExecutablePath || !getBuiltInExecutableAllowed()) 
 			return null;
 		if (appInfoFile==null) {
 			appInfoFile = getExternalProcessRequester().getAppInfoFile();
@@ -163,17 +173,17 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 	}
 	/*.................................................................................................................*/
 	public String getExecutablePath(){
-		if (useDefaultExecutablePath && getBuiltInExecutableAllowed()) 
-			return getDefaultExecutablePath();
+		if (useBuiltInExecutablePath && getBuiltInExecutableAllowed()) 
+			return getBuiltInExecutablePath();
 		else
 			return executablePath;
 	}
 
 	public boolean useAppInAppFolder() {
-		return useDefaultExecutablePath && getBuiltInExecutableAllowed();
+		return useBuiltInExecutablePath && getBuiltInExecutableAllowed();
 	}
 	
-	public void appChooserDialogBoxEntryChanged() {
+	public void appChooserDialogBoxEntryChanged() { //never called
 		if (processRequester!=null)
 			processRequester.appChooserDialogBoxEntryChanged();
 	}
@@ -239,7 +249,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 				if (flavor.equalsIgnoreCase(getExecutableName())) {   /// check to see if flavor is correct!!!
 					boolean temp = MesquiteBoolean.fromTrueFalseString(content);
 					//if (getDefaultExecutablePathAllowed())
-						useDefaultExecutablePath = temp;
+						useBuiltInExecutablePath = temp;
 				} else {
 					boolean use = MesquiteBoolean.fromTrueFalseString(content);
 					StringUtil.appendXMLTag(extraPreferences, 2, "useDefaultExecutablePath", flavor, use);  		// store for next time
@@ -275,7 +285,7 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		if (visibleTerminalOptionAllowed())
 			StringUtil.appendXMLTag(buffer, 2, "visibleTerminal", visibleTerminal);  
 		//if (getDefaultExecutablePathAllowed())
-		StringUtil.appendXMLTag(buffer, 2, "useDefaultExecutablePath", getExecutableName(), useDefaultExecutablePath);  
+		StringUtil.appendXMLTag(buffer, 2, "useDefaultExecutablePath", getExecutableName(), useBuiltInExecutablePath);  
 		StringUtil.appendXMLTag(buffer, 2, "analysisDirectoryHandling", analysisDirectoryHandling);  
 		StringUtil.appendXMLTag(buffer, 2, "scriptBased", scriptBased);  
 		StringUtil.appendXMLTag(buffer, 2, "addExitCommand", addExitCommand);  
@@ -390,6 +400,10 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 		setRootNameForDirectory(processRequester.getRootNameForDirectory());
 		this.processRequester = processRequester;
 		loadPreferences();
+		if (!useBuiltInExecutablePath && StringUtil.blank(executablePath)) { // we don't use built in but the executable path is blank
+			if (externalProcessRequesterHasApp())  // because an app exists overrule pref
+				useBuiltInExecutablePath = true;
+		}
 		processRequester.intializeAfterExternalProcessRunnerHired();
 	}
 
@@ -497,12 +511,12 @@ public class LocalScriptRunner extends ScriptRunner implements ActionListener, I
 
 	public boolean optionsChosen(){
 		executablePath = appChooser.getManualPath(); //for preference writing
-		useDefaultExecutablePath = appChooser.useBuiltInExecutable(); //for preference writing
-		if (StringUtil.blank(executablePath) && !useDefaultExecutablePath) {
+		useBuiltInExecutablePath = appChooser.useBuiltInExecutable(); //for preference writing
+		if (StringUtil.blank(executablePath) && !useBuiltInExecutablePath) {
 			MesquiteMessage.discreetNotifyUser("You must specify the path of " + processRequester.getProgramName() + " in order for Mesquite to be able to use it." );
 			return false;
 		}
-		if (useDefaultExecutablePath && !appChooser.builtInAppAvailableForUse()) {
+		if (useBuiltInExecutablePath && !appChooser.builtInAppAvailableForUse()) {
 			MesquiteMessage.discreetNotifyUser("There is no built in version of " + processRequester.getProgramName() + " available for use."
 					+ "  In the previous dialog box, press the \"App...\" button and specify the path to a copy of the program." );
 			return false;
