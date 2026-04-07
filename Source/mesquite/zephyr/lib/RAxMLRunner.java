@@ -44,6 +44,7 @@ import mesquite.lib.StringUtil;
 import mesquite.lib.characters.MCharactersDistribution;
 import mesquite.lib.duties.FileInterpreterI;
 import mesquite.lib.duties.OneTreeSource;
+import mesquite.lib.misc.AlertWithLinkToDirectory;
 import mesquite.lib.taxa.Taxa;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.tree.AdjustableTree;
@@ -1635,7 +1636,8 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 				//String s = MesquiteFile.getFileLastContents(filePath,fPOS);
 				String s = MesquiteFile.getFileContentsAsString(filePath);
 				if (s == null){
-					Debugg.println("@ Error: nothing in file " + filePath); //$DAVIDCHECK crashed because string empty on long bootstrap, because RAxML info file not found, maybe file path? Offer to show temp dir?
+					String message = "output file " + MesquiteFile.getFileNameFromFilePath(filePath)   + " is empty.  Please examine StandardOutputFile and StandardErrorFile in the analysis folder for information.";
+					AlertWithLinkToDirectory alert = new AlertWithLinkToDirectory(ownerModule.containerOfModule(),"Error:  output file is empty", message, MesquiteFile.getDirectoryPathFromFilePath(filePath));
 				}
 				if (summaryFilePosition<0 || s == null || summaryFilePosition >= s.length())
 					return;
