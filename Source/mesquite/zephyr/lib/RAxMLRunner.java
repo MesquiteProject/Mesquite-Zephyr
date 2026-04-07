@@ -25,6 +25,7 @@ import mesquite.io.lib.InterpretPhylip;
 import mesquite.lib.Attachable;
 import mesquite.lib.CommandChecker;
 import mesquite.lib.CommandRecord;
+import mesquite.lib.Debugg;
 import mesquite.lib.DoubleArray;
 import mesquite.lib.IntegerField;
 import mesquite.lib.MesquiteBoolean;
@@ -1633,11 +1634,12 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 
 				//String s = MesquiteFile.getFileLastContents(filePath,fPOS);
 				String s = MesquiteFile.getFileContentsAsString(filePath);
-				if (StringUtil.blank(s))
+				if (s == null){
+					Debugg.println("@ Error: nothing in file " + filePath); //$DAVIDCHECK crashed because string empty on long bootstrap, because RAxML info file not found, maybe file path? Offer to show temp dir?
+				}
+				if (summaryFilePosition<0 || s == null || summaryFilePosition >= s.length())
 					return;
-				long lastLength = s.length();
-				if (summaryFilePosition<0 || summaryFilePosition >= s.length())
-					return;
+				long lastLength = s.length(); 
 				s = s.substring((int)summaryFilePosition);
 				summaryFilePosition = lastLength;
 				if (!StringUtil.blank(s)) {

@@ -588,6 +588,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			dialog.addHorizontalLine(1);
 		}
 		otherOptionsField = dialog.addTextField("Other "+getExecutableName()+" options:", otherOptions, 60);
+		dialog.addLabel("(e.g., -allnni to ask IQ-TREE to do a more thorough and slower NNI search.)");
 
 		dialog.addHorizontalLine(1);
 
@@ -939,12 +940,18 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		isProtein = data instanceof ProteinData;
 
 		
-		String localFileDirectory = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+//		String localFileDirectory = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
+//		if (localFileDirectory==null)
+//			return null;
+
+		// create local version of data file; this will then be copied over to the running location		
+		String tempDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, "RAxML", "-Run.");  
+		if (tempDir==null)
+			return null;
+		//		externalProcRunner.setRootDir(tempDir);
 
 		
 	//	String presetDirectory = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUPPORT_DIR, getExecutableName(), "-Run.");  
-		if (localFileDirectory==null)
-			return null;
 		String dataFileName = getDataFileName();   //replace this with actual file name?
 		String setsFileName = getSetsFileName();   //replace this with actual file name?
 
@@ -952,17 +959,17 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		if (StringUtil.blank(dataFileName))
 			dataFileName = "dataMatrix.nex"; // replace this with actual file name?
 
-		String dataFilePath = localFileDirectory + dataFileName;
-		ZephyrUtil.writeNEXUSFile(taxa, localFileDirectory, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, false, false, false, false);
+		String dataFilePath = tempDir + dataFileName;
+		ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, false, false, false, false);
 
-		String setsFilePath = localFileDirectory + setsFileName;
+		String setsFilePath = tempDir + setsFileName;
 		MesquiteInteger numParts = new MesquiteInteger(1);
 
 		if (partitionScheme == partitionByCharacterGroups) {
-			ZephyrUtil.writeNEXUSSetsBlock(taxa, localFileDirectory, setsFileName, setsFilePath, data,  false,  false, false, numParts);
+			ZephyrUtil.writeNEXUSSetsBlock(taxa, tempDir, setsFileName, setsFilePath, data,  false,  false, false, numParts);
 		}
 		else if (partitionScheme == partitionByCodonPosition) {
-			ZephyrUtil.writeNEXUSSetsBlock(taxa, localFileDirectory, setsFileName, setsFilePath, data,  true,  false, false, numParts);
+			ZephyrUtil.writeNEXUSSetsBlock(taxa, tempDir, setsFileName, setsFilePath, data,  true,  false, false, numParts);
 		}
 
 
@@ -1086,9 +1093,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		summaryFilePosition=0;
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, localFileDirectory,  fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, null,  fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
 
-	//	MesquiteFile.deleteDirectory(tempDir);  //delete temp directory in Support Files
+		MesquiteFile.deleteDirectory(tempDir);  //delete temp directory in Support Files
 
 		if (!isDoomed()){
 
