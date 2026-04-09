@@ -445,7 +445,7 @@ public abstract class TNTRunner extends ZephyrRunner  implements ItemListener, A
 	static int QUERYSTORE = 1;
 	static int QUERYCANCEL = 2;
 	public boolean queryOptions() {
-		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
+		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debuggg.println needs to check that options set well enough to proceed anyway
 			return true;
 		boolean closeWizard = false;
 

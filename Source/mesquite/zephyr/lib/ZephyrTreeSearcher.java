@@ -505,7 +505,7 @@ public abstract class ZephyrTreeSearcher extends ExternalTreeSearcher implements
 
 	/*.................................................................................................................*/
 
-	//TEMPORARY Debugg.println  Should be only in disconnectable tree block fillers
+	//TEMPORARY Debuggg.println  Should be only in disconnectable tree block fillers
 	public void retrieveTreeBlock(TreeVector treeList){
 		if (runner != null){
 			MesquiteDouble finalScores = new MesquiteDouble();

@@ -148,8 +148,8 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	
 	
 	//temporarily here? until it can be merged with TreeInferer's version?
-	TWindowMaker tWindowMaker;//Debugg.println this should be fired after the run
-	BasicTreeConsenser majRulesConsenser; //Debugg.println this should be fired after the run
+	TWindowMaker tWindowMaker;//Debuggg.println this should be fired after the run
+	BasicTreeConsenser majRulesConsenser; //Debuggg.println this should be fired after the run
 	int repsInConsensus = 0;
 
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
@@ -335,7 +335,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 	}
 
 	/*.................................................................................................................*/
-	public boolean needsHarvestLink() { //Debugg.println: does this also need to check if MacOS?
+	public boolean needsHarvestLink() { //Debuggg.println: does this also need to check if MacOS?
 		return isReconnected() && isScriptBasedNoTerminal() && mayHaveProblemsWithDeletingRunningOnReconnect();
 	}
 	/*.................................................................................................................*/
@@ -679,7 +679,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 		if (treeInferer!=null)
 			treeInferer.storePreferences();
 	}
-	int projectPanelSuppressed = 0;  //Debugg.println are there other things that need bailing on????
+	int projectPanelSuppressed = 0;  //Debuggg.println are there other things that need bailing on????
 	protected void suppressProjectPanelReset(){
 		if (getProject()==null)
 			return;
@@ -1151,7 +1151,7 @@ public abstract class ZephyrRunner extends MesquiteModule implements ExternalPro
 			logln(s + "\n");
 		}
 		if (statusResult!= null){
-			statusResult.setValue(ResultCodes.ERROR);  //Debugg.println -- give more informative error
+			statusResult.setValue(ResultCodes.ERROR);  //Debuggg.println -- give more informative error
 		}
 	}
 	/*.................................................................................................................*/

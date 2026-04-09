@@ -458,7 +458,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 	}
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
-		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
+		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debuggg.println needs to check that options set well enough to proceed anyway
 			return true;
 
 		boolean closeWizard = false;
@@ -751,7 +751,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		Tree t =null;
 		if (lastTree) {
 			if (isVerbose()) 
-				logln("Zephyr obtaining trees from: " + treeFilePath);  //Debugg.println OK? DAVIDCHECK:
+				logln("Zephyr obtaining trees from: " + treeFilePath);  //Debuggg.println OK? DAVIDCHECK:
 			String s = MesquiteFile.getFileLastContents(treeFilePath);
 			if (StringUtil.blank(s))
 				logln("-- File not recovered; no trees found at " + treeFilePath);
@@ -948,7 +948,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		((InterpretPhylip)exporter).setTaxonNamer(namer);
 
 		boolean fileSaved = false;
-		//DANGER Debugg.println: Since the file interpreter here is the coordinator's, reentrancy could make a mess of things, including with writing hints
+		//DANGER Debuggg.println: Since the file interpreter here is the coordinator's, reentrancy could make a mess of things, including with writing hints
 		if (data instanceof DNAData)
 			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		else if (data instanceof ProteinData)
@@ -965,7 +965,7 @@ public abstract class RAxMLRunner extends ZephyrRunner  implements ActionListene
 		String constraintTree = "";
 
 		if ((useConstraintTree>NOCONSTRAINT || isConstrainedSearch())){
-			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debugg.println
+			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debuggg.println
 				useConstraintTree=MONOPHYLY;
 			if (constraint==null) { // we don't have one
 				getConstraintTreeSource();

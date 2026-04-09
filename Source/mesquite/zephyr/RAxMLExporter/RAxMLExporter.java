@@ -391,7 +391,7 @@ public class RAxMLExporter extends RAxMLRunnerLocalOrig {
 		prepareExportFile(exporter);
 
 		boolean fileSaved = false;
-		//DANGER Debugg.println: Since the file interpreter here is the coordinator's, reentrancy could make a mess of things, including with writing hints
+		//DANGER Debuggg.println: Since the file interpreter here is the coordinator's, reentrancy could make a mess of things, including with writing hints
 		if (data instanceof DNAData)
 			fileSaved = ZephyrUtil.saveExportFile(this,exporter,  dataFilePath,  data, selectedTaxaOnly);
 		else if (data instanceof ProteinData)

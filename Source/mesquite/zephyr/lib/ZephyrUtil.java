@@ -106,7 +106,7 @@ public class ZephyrUtil {
 				exporter.writeOnlySelectedTaxa = selectedTaxaOnly;
 			if (module instanceof ZephyrFilePreparer)
 				((ZephyrFilePreparer)module).prepareExportFile(exporter);
-			MesquiteStringBuffer msb = exporter.getDataAsFileText(file, data);  //Debugg.println use writeMatrixToFile instead, thoug this will require other rearrangements
+			MesquiteStringBuffer msb = exporter.getDataAsFileText(file, data);  //Debuggg.println use writeMatrixToFile instead, thoug this will require other rearrangements
 			if (msb!=null) {
 				MesquiteFile.putFileContents(path, msb, true);
 				module.decrementMenuResetSuppression();
