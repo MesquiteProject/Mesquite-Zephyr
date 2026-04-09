@@ -717,7 +717,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 	public abstract String queryOptionsDialogTitle();
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
-		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options")) // Debugg.println needs to check that options set well enough to proceed anyway
+		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options")) // Debuggg.println needs to check that options set well enough to proceed anyway
 
 			return true;
 
@@ -989,7 +989,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 		//getting constraint tree if requested
 		String constraintTree = "";
 		if (useConstraintTree>NOCONSTRAINT || isConstrainedSearch()){
-			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debugg.println
+			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debuggg.println
 				useConstraintTree=POSITIVECONSTRAINT;
 			getConstraintTreeSource();
 			constraint = null;
@@ -1137,7 +1137,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 						if (finalValues != null && i < finalValues.length
 								&& MesquiteDouble.isCombinable(finalValues[i]))
 							if (MesquiteDouble.isUnassigned(bestScore))
-								bestScore = finalValues[i]; // Debugg.println must refind final values, best score
+								bestScore = finalValues[i]; // Debuggg.println must refind final values, best score
 							else if (bestScore < finalValues[i])
 								bestScore = finalValues[i];
 					}
@@ -1527,7 +1527,7 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 				case 3: // Custom
 					if (customMatrix != null){
 						matrix = customMatrix.getText();
-						if (matrix == null || "1rate 2rate 6rate".indexOf(matrix) >= 0) // Debugg.println keep previous custom matrices remembered for users who switch back to them?
+						if (matrix == null || "1rate 2rate 6rate".indexOf(matrix) >= 0) // Debuggg.println keep previous custom matrices remembered for users who switch back to them?
 
 							matrix = "(a a a a a a)";
 					}

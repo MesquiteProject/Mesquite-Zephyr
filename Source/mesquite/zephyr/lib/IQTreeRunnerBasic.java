@@ -30,11 +30,10 @@ import mesquite.lib.ui.SingleLineTextField;
 
 public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionListener, ItemListener, ExternalProcessRequester  {
 
-	protected int numProcessors = 2;
+	protected int numProcessors = getMinimumNumberOfCoresRequired();
 	protected boolean autoNumProcessors = true;
 
 
-	protected boolean showIntermediateTrees = true;
 
 
 
@@ -101,7 +100,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
-		return "1.6.4-1.6.12, 2.2.0–2.3.6, 3.01";
+		return "2.2.0 – 3.01";
 	}
 
 	/*.................................................................................................................*/
@@ -156,8 +155,13 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		numProcessorsField = dialog.addIntegerField("Number of cores", numProcessors, 8, 1, MesquiteInteger.infinite);
 		numProcessorsField.getTextField().setEnabled(numProcessorsRadioButtons.getValue() == 1);
 		dialog.addHorizontalLine(1);
+		if (employerHasForcedNumberProcessors()) {
+			numProcessorsField.setEnabled(false);
+			numProcessorsRadioButtons.setEnabledCheckboxGroup(false);
+		}
 
-	//	dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());
+		dialog.addLabelSmallText("This version of Zephyr requires IQTREE 2.0 or later");		
+		//dialog.addLabelSmallText("This version of Zephyr tested on the following "+getExecutableName()+" version(s): " + getTestedProgramVersions());
 	}
 	/*.................................................................................................................*/
 	public void itemStateChanged(ItemEvent e) {
@@ -182,6 +186,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 			String command = externalProcRunner.getExecutableCommand() + arguments.getValue();
 			commandLabel.setText("This command will be used to run IQ-TREE:");
 			commandField.setText(command);
+			bootstrapSeed++;
 		}
 		else	if (e.getActionCommand().equalsIgnoreCase("clearCommand")) {
 			commandField.setText("");
@@ -316,13 +321,18 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		} else {
 			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, null, doALRT, alrtReps, true);
 		}
-		if (autoNumProcessors)
-			arguments.append(" -T AUTO ");   
-		else
-			arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, 1) + " ");   // have to ensure that there are at least two threads requested
+		if (MesquiteInteger.isCombinable(employerForcedNumberProcessors))   // employer has forced the issue
+			arguments.append(" -T "+ employerForcedNumberProcessors + " ");   
+		else {
+			if (autoNumProcessors)
+				arguments.append(" -T AUTO ");   
+			else
+				arguments.append(" -T "+ MesquiteInteger.maximum(numProcessors, getMinimumNumberOfCoresRequired()) + " ");   
+		}
 
 		if (!isPreflight && isVerbose())
 			logln(getExecutableName() + " arguments: \n" + arguments.getValue() + "\n");
+		bootstrapSeed++;
 
 		return arguments; // + " | tee log.txt"; // + "> log.txt";
 

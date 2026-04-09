@@ -106,7 +106,7 @@ public class ZephyrUtil {
 				exporter.writeOnlySelectedTaxa = selectedTaxaOnly;
 			if (module instanceof ZephyrFilePreparer)
 				((ZephyrFilePreparer)module).prepareExportFile(exporter);
-			MesquiteStringBuffer msb = exporter.getDataAsFileText(file, data);  //Debugg.println use writeMatrixToFile instead, thoug this will require other rearrangements
+			MesquiteStringBuffer msb = exporter.getDataAsFileText(file, data);  //Debuggg.println use writeMatrixToFile instead, thoug this will require other rearrangements
 			if (msb!=null) {
 				MesquiteFile.putFileContents(path, msb, true);
 				module.decrementMenuResetSuppression();
@@ -151,17 +151,26 @@ public class ZephyrUtil {
 		return readPhylipTree(line, taxa, permitTaxaBlockEnlarge, false, namer);
 	}
 	/*.................................................................................................................*/
+	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, TaxonNamer namer, boolean noWarn) {
+		return readPhylipTree(line, taxa, permitTaxaBlockEnlarge, false, namer, noWarn);
+	}
+	/*.................................................................................................................*/
 	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, boolean permitSpaceUnderscoreEquivalent, TaxonNamer namer) {
+	return readPhylipTree(line, taxa, permitTaxaBlockEnlarge, permitSpaceUnderscoreEquivalent, namer, false);
+	}
+	/*.................................................................................................................*/
+	public static Tree readPhylipTree (String line, Taxa taxa, boolean permitTaxaBlockEnlarge, boolean permitSpaceUnderscoreEquivalent, TaxonNamer namer, boolean noWarn) {
 		if (StringUtil.blank(line))
 			return null;
 		if (!validNewickEnds(line))
 			return null;
 		MesquiteTree t = new MesquiteTree(taxa);
+		t.setWarningSuppress(noWarn);
 		t.setPermitTaxaBlockEnlargement(permitTaxaBlockEnlarge);
 		t.readTree(line, namer, null, "():;,[]\'"); //tree reading adjusted to use Newick punctuation rather than NEXUS
 		return t;
 	}
-	
+
 	/*.................................................................................................................*/
 
 	public static final String RAXMLSCORENAME = "RAxMLScore";
@@ -996,9 +1005,11 @@ public class ZephyrUtil {
 	public static String getStandardExtraTreeWindowCommands (boolean doMajRule, boolean isBootstrap, boolean nodeValuesAsText, String nodeValueNameRef, long treeBlockID, boolean branchLengthsProportional){
 		String commands = "";//"setSize 400 600;  ";
 		if (doMajRule){  //DAVIDCHECK:  Temporary tree window can't handle this doMajRule, so an error is given when file reread.
-			commands += "getOwnerModule; tell It; setTreeSourceSuppressed  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; tell It;  ";  
-			commands += " setTreeBlockByID " + treeBlockID + ";";
-			commands += " toggleUseWeights off; endTell; setConsenser  #mesquite.consensus.MajRuleTree.MajRuleTree; endTell;  endTell;   setTreeNumber 1; ";
+			commands += "getOwnerModule; tell It; setTreeSourceSuppressed  #mesquite.consensus.ConsensusTree.ConsensusTree; tell It; "
+					+ "setTreeSource  #mesquite.trees.StoredTrees.StoredTrees; ";  
+			commands += " tell It;  setTreeBlockByID " + treeBlockID + ";  toggleUseWeights off; endTell; "
+					+ "setConsenser  #mesquite.consensus.MajRuleTree.MajRuleTree; "
+					+ " endTell;  endTell;   setTreeNumber 1; ";
 			commands += "getOwnerModule; tell It; desuppressTreeSource; endTell;  ";  
 		}
 	

@@ -10,15 +10,17 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 package mesquite.zephyr.lib;
 
 import mesquite.lib.CommandRecord;
+import mesquite.lib.CompatibilityTest;
 import mesquite.lib.MesquiteFile;
 import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteThread;
 import mesquite.lib.analysis.LikelihoodAnalysis;
+import mesquite.lib.misc.KeywordsCompatibilityTest;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.taxa.TaxonNamer;
 import mesquite.lib.tree.AdjustableTree;
 
-public abstract class RAxMLTrees extends ZephyrTreeSearcher implements LikelihoodAnalysis {
+public abstract class RAxMLTrees extends ZephyrTreeSearcher implements LikelihoodAnalysis {     //implements ParallelizableTreeSearcher
 	int rerootNode = 0;
 
 
@@ -31,7 +33,7 @@ public abstract class RAxMLTrees extends ZephyrTreeSearcher implements Likelihoo
 		return commands;
 	}
 
-	
+
 	/*.................................................................................................................*/
 	public abstract String getRunnerModuleName();
 	/*.................................................................................................................*/
@@ -62,7 +64,7 @@ public abstract class RAxMLTrees extends ZephyrTreeSearcher implements Likelihoo
 
 		String s = MesquiteFile.getFileLastDarkLine(path);
 		TaxonNamer namer = runner.getTaxonNamer();
-		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);    
+		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer, ZephyrRunner.suppressIntermediateTreeReadingWarnings);    
 		if (latestTree instanceof AdjustableTree) {
 			String name = "RAxML Tree";
 			if (runner.showMultipleRuns())

@@ -16,15 +16,24 @@ import java.awt.event.KeyListener;
 
 import javax.swing.JLabel;
 
+import mesquite.assoc.lib.AssociationSource;
+import mesquite.assoc.lib.ReconstructAssociation;
 //import org.apache.http.entity.mime.MultipartEntityBuilder;
 import mesquite.categ.lib.ProteinData;
 import mesquite.externalCommunication.AppHarvester.AppHarvester;
 import mesquite.externalCommunication.lib.AppChooser;
 import mesquite.externalCommunication.lib.AppInformationFile;
+import mesquite.lib.CommandChecker;
+import mesquite.lib.MesquiteBoolean;
+import mesquite.lib.MesquiteFile;
 import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteString;
 import mesquite.lib.ShellScriptUtil;
+import mesquite.lib.Snapshot;
 import mesquite.lib.StringUtil;
+import mesquite.lib.duties.OneTreeSource;
+import mesquite.lib.duties.TreeBlockSource;
+import mesquite.lib.duties.TreeSource;
 import mesquite.lib.taxa.TaxaSelectionSet;
 import mesquite.lib.ui.ExtensibleDialog;
 import mesquite.lib.ui.RadioButtons;
@@ -43,8 +52,8 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 	protected static final int THREADING_MPI = 2;
 	protected int threadingVersion = THREADING_OTHER;
 	protected boolean RAxML814orLater = true;
+	
 
-	protected boolean showIntermediateTrees = true;
 
 	protected RadioButtons threadingRadioButtons;
 
@@ -77,6 +86,27 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		preferencesSet = true;
 		return buffer.toString();
 	}
+	/*.................................................................................................................*/
+	public Snapshot getSnapshot(MesquiteFile file) { 
+		Snapshot temp = super.getSnapshot(file);
+
+		if (file == null){  //only for parallelization; not to be saved to file
+			temp.addLine("threadingVersion " + threadingVersion);  //int
+		}
+		return temp;
+	}
+
+	/*.................................................................................................................*/
+	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
+		 if (checker.compare(this.getClass(), "Sets threadingVersion ", "[threadingVersion]", commandName, "threadingVersion")) {
+			int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+			if (MesquiteInteger.isCombinable(temp))
+				threadingVersion = temp;
+			return null;
+		}
+			else
+			return super.doCommand(commandName, arguments, checker);
+	}	
 
 	/*.................................................................................................................*/
 	public String getTestedProgramVersions(){
@@ -172,6 +202,9 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 			pthreadsLabel.setEnabled(true);
 		}
 		numProcessorsField.getTextField().setEnabled(usingBuiltInApp || threadingRadioButtons.getValue() == THREADING_PTHREADS);
+		if(employerHasForcedNumberProcessors()) {
+			numProcessorsField.setEnabled(false);
+		}
 	}
 	public void itemStateChanged(ItemEvent e) {
 		if (threadingRadioButtons.isAButton(e.getItemSelectable())){
@@ -181,6 +214,9 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 			else
 					useBuiltIn = externalProcRunner.useAppInAppFolder();
 			numProcessorsField.getTextField().setEnabled(useBuiltIn || threadingRadioButtons.getValue() == THREADING_PTHREADS);
+			if(employerHasForcedNumberProcessors()) {
+				numProcessorsField.setEnabled(false);
+			}
 		}
 		super.itemStateChanged(e);
 	}
@@ -197,8 +233,13 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		threadingRadioButtons= dialog.addRadioButtons(new String[] {"non-PThreads", "PThreads"}, threadingVersion);	
 		threadingRadioButtons.addItemListener(this);
 		
-		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, 1, MesquiteInteger.infinite);
+		if (numProcessors<getMinimumNumberOfCoresRequired())
+			numProcessors = getMinimumNumberOfCoresRequired();
+		numProcessorsField = dialog.addIntegerField("Number of Processor Cores", numProcessors, 8, getMinimumNumberOfCoresRequired(), MesquiteInteger.infinite);
 		numProcessorsField.addKeyListener(this);
+		if(employerHasForcedNumberProcessors()) {
+			numProcessorsField.getTextField().setEnabled(false);
+		}
 		dialog.addHorizontalLine(1);
 		
 		//ZQ CheckOtherEnabled below had been passed here the module's memory of whether to use built in, 
@@ -277,6 +318,8 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		else
 			localProteinModel = localProteinModel+proteinModelMatrixChoice.getSelectedItem();
 		getArguments(arguments, "[fileName]", localProteinModel, dnaModelField.getText(), otherOptionsField.getText(), doBootstrapCheckbox.getState(), bootStrapRepsField.getValue(), bootstrapSeed, numRunsField.getValue(), outgroupTaxSetString, localModelFileName, nobfgsValue, false);
+		bootstrapSeed++;
+
 		return externalProcRunner.getExecutableCommand() + arguments.getValue() + getAdditionalArguments();
 	}
 /*.................................................................................................................*/
@@ -390,14 +433,16 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 		return runPreflightCommand(preflightCommand);
 	}
 
-	//String arguments;
 	/*.................................................................................................................*/
 	public String getAdditionalArguments() {
 		boolean thread = threadingVersion==THREADING_PTHREADS;
 		if (threadingRadioButtons!=null)
 			thread = threadingRadioButtons.getValue()==THREADING_PTHREADS;
 		if (thread) {
-			return " -T "+ MesquiteInteger.maximum(numProcessors, 2) + " ";   // have to ensure that there are at least two threads requested
+			if (MesquiteInteger.isCombinable(employerForcedNumberProcessors))   // employer has forced the issue
+				return " -T "+ employerForcedNumberProcessors + " ";   
+			else 
+				return " -T "+ MesquiteInteger.maximum(numProcessors, getMinimumNumberOfCoresRequired()) + " ";  
 		}
 		return "";
 	}
@@ -419,6 +464,7 @@ public abstract class RAxMLRunnerBasicOrig extends RAxMLRunnerBasic  implements 
 			getArguments(arguments, dataFileName, localProteinModel, dnaModel, otherOptions, doBootstrap,bootstrapreps, bootstrapSeed, numRuns, outgroupTaxSetString, multipleModelFileName, nobfgs, true);
 		}
 		arguments.append(getAdditionalArguments());
+		bootstrapSeed++;
 		return arguments; // + " | tee log.txt"; // + "> log.txt";
 
 	}

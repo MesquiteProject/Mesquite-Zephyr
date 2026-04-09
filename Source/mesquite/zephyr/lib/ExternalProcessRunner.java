@@ -17,6 +17,7 @@ import mesquite.lib.MesquiteFile;
 import mesquite.lib.MesquiteFileUtil;
 import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteModule;
+import mesquite.lib.MesquiteTrunk;
 import mesquite.lib.OutputTextListener;
 import mesquite.lib.StringUtil;
 import mesquite.lib.duties.TreeInferer;
@@ -37,6 +38,8 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	protected boolean scriptBased = false;
 	protected boolean visibleTerminal = false;
 	protected boolean reconnectionDetailsSaved=false;
+//	protected boolean useSuperDirectory = false;
+	protected static String analysisSuperDirectory = "Zephyr Directory for Analyses";
 
 
 	public Class getDutyClass() {
@@ -210,24 +213,66 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 		if (myDirectory != null)
 			return myDirectory;
 		String dir = module.getProject().getHomeFile().getDirectoryName();
-		String base = "Directory for Mesquite Zephyr Analyses";
-		if (!MesquiteFile.fileOrDirectoryExists(dir + base)) {
+		String base = "Zephyr Analysis ";
+/*		if (!MesquiteFile.fileOrDirectoryExists(dir + base)) {
 			myDirectory = base;
 			return myDirectory;
 		}
-		int count = 1;
-		while (MesquiteFile.fileOrDirectoryExists(dir + base+count)) {
-			count++;
+		*/
+		String unique =  MesquiteFile.massageStringToFilePathSafe(MesquiteTrunk.getUniqueIDBase());
+		while (MesquiteFile.fileOrDirectoryExists(dir + base+ unique)) {
+			unique =  MesquiteFile.massageStringToFilePathSafe(MesquiteTrunk.getUniqueIDBase());
 		}
-		myDirectory = base + count;
+		myDirectory = base + unique;
 		return myDirectory;
+	}
+	
+	
+	
+	/*.................................................................................................................*/
+//	String mySuperDirectory = null;
+	
+	/*.................................................................................................................*/
+	private String analysisSuperDirectoryName() {
+	if (getMultipleMatrixMode()) {
+			/*			if (mySuperDirectory != null)
+				return mySuperDirectory;
+			String dir = module.getProject().getHomeFile().getDirectoryName();
+			String base = analysisSuperDirectory;
+			if (!MesquiteFile.fileOrDirectoryExists(dir + base)) {
+				mySuperDirectory = base;
+				return mySuperDirectory;
+			}
+			int count = 1;
+			while (MesquiteFile.fileOrDirectoryExists(dir + base+ " " + count)) {
+				count++;
+			}
+			
+			mySuperDirectory = base +" " + count;
+*/
+			return analysisSuperDirectory;
+		} else
+			return "";
+	}
+
+	/*.................................................................................................................*/
+	public void removeCurrentAnalysisSubdirectory() {
+		if (StringUtil.notEmpty(myDirectory)) {
+			String path = analysisSuperDirectoryName();
+			if (StringUtil.notEmpty(path)) 
+				path = path + MesquiteFile.fileSeparator;
+			path = module.getProject().getHomeFile().getDirectoryName()+path+myDirectory;
+			if (MesquiteFile.fileOrDirectoryExists(path)) {
+				MesquiteFile.deleteDirectory(path);
+			}
+		}
 	}
 
 	/*.................................................................................................................*/
 	public boolean setRootDir() {
 		if (StringUtil.blank(localRootDir)) {
 			if (getMultipleMatrixMode())
-				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUBDIRECTORY_BESIDE_HOME_FILE, analysisSubdirectoryName(), getExecutableName(), "-Run.");
+				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUBDIRECTORY_BESIDE_HOME_FILE, analysisSuperDirectoryName(), analysisSubdirectoryName(), getExecutableName(), "-Run.");
 			else
 				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
 		}
@@ -239,7 +284,7 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 			localRootDir= presetDirectory;
 		else if (StringUtil.blank(localRootDir)) {
 			if (getMultipleMatrixMode())
-				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUBDIRECTORY_BESIDE_HOME_FILE, analysisSubdirectoryName(), getExecutableName(), "-Run.");
+				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.IN_SUBDIRECTORY_BESIDE_HOME_FILE, analysisSuperDirectoryName(), analysisSubdirectoryName(), getExecutableName(), "-Run.");
 			else
 				localRootDir = MesquiteFileUtil.createDirectoryForFiles(this, MesquiteFileUtil.BESIDE_HOME_FILE, getExecutableName(), "-Run.");
 		}
@@ -287,6 +332,11 @@ public abstract class ExternalProcessRunner extends MesquiteModule {
 	public abstract boolean stopExecution();  
 	/*.................................................................................................................*/
 	public void finalCleanup() {
+	}
+
+	public void endJob(){
+		removeCurrentAnalysisSubdirectory();
+		super.endJob();
 	}
 
 	public abstract String getStdErr();  

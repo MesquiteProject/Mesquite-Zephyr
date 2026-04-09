@@ -177,7 +177,7 @@ public abstract class ZephyrNumberForMatrix extends NumberForMatrix implements R
 
 	/*.................................................................................................................*/
 
-	//TEMPORARY Debugg.println  Should be only in disconnectable tree block fillers
+	//TEMPORARY Debuggg.println  Should be only in disconnectable tree block fillers
 	public void retrieveTreeBlock(TreeVector treeList){
 		if (runner != null){
 			MesquiteDouble finalScores = new MesquiteDouble();

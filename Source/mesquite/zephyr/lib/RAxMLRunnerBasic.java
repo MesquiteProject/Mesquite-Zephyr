@@ -31,9 +31,8 @@ outgroups
 public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListener  {
 
 	
-	protected int numProcessors = 2;
+	protected int numProcessors = getMinimumNumberOfCoresRequired();
 
-	protected boolean showIntermediateTrees = true;
 
 
 	protected IntegerField numProcessorsField;
@@ -56,7 +55,7 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 	}
 	/*.................................................................................................................*/
 	public Object doCommand(String commandName, String arguments, CommandChecker checker) {
-		if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner", "[name of module]", commandName, "setExternalProcessRunner")) {
+		 if (checker.compare(this.getClass(), "Hires the ExternalProcessRunner", "[name of module]", commandName, "setExternalProcessRunner")) {
 			ExternalProcessRunner temp = (ExternalProcessRunner)replaceEmployee(ExternalProcessRunner.class, arguments, "External Process Runner", externalProcRunner);
 			if (temp != null) {
 				externalProcRunner = temp;
@@ -154,7 +153,10 @@ public abstract class RAxMLRunnerBasic extends RAxMLRunner  implements KeyListen
 			MesquiteMessage.notifyUser("Number of processors used cannot exceed "+max +maxNumProcessorsMessage());			
 			numProcessorsField.setValue(max);
 		}
-		checkAdditionalFields();
+		if (employerHasForcedNumberProcessors()) {
+			numProcessorsField.setEnabled(false);
+		}
+	checkAdditionalFields();
 	}
 
 	/*.................................................................................................................*/

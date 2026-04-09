@@ -289,7 +289,7 @@ public class SSHServerProfile implements Listable, Explainable, UsernamePassword
 		SingleLineTextField usernameField = dialog.addTextField("Default username:", username,50, true);
 		IntegerField pollingIntervalField = dialog.addIntegerField("Interval (in seconds) between server checks", pollingInterval, 10, 1, Integer.MAX_VALUE);
 		IntegerField maxCoresField = dialog.addIntegerField("Maximum number of processor to use on server", maxCores, 10, 1, Integer.MAX_VALUE);
-		SingleLineTextField tempFileDirectoryField = dialog.addTextField("Path to temporary files directory:", tempFileDirectory, 60, true);
+		SingleLineTextField tempFileDirectoryField = dialog.addTextField("Full path to temporary files directory:", tempFileDirectory, 60, true);
 
 		SingleLineTextField[] pathsField = new SingleLineTextField[numProgramsSupported];
 		for (int i=0; i<numProgramsSupported; i++)

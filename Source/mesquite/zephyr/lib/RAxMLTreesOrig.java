@@ -55,15 +55,13 @@ public abstract class RAxMLTreesOrig extends RAxMLTrees {
 	}
 	
 
-
-
 	public void newTreeAvailable(String path, TaxaSelectionSet outgroupTaxSet){
 		CommandRecord cr = MesquiteThread.getCurrentCommandRecord();  		
 		MesquiteThread.setCurrentCommandRecord(new CommandRecord(true));
 		latestTree = null;
 		String s = MesquiteFile.getFileLastDarkLine(path);
 		TaxonNamer namer = runner.getTaxonNamer();
-		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);    
+		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer, ZephyrRunner.suppressIntermediateTreeReadingWarnings);   
 		if (latestTree instanceof AdjustableTree) {
 			String name = "RAxML Tree";
 			if (runner.showMultipleRuns())

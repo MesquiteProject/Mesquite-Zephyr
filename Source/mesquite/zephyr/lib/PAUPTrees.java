@@ -69,7 +69,7 @@ public abstract class PAUPTrees extends ZephyrTreeSearcher  {
 		String s = MesquiteFile.getFileLastDarkLine(path);
 		TaxonNamer namer = runner.getTaxonNamer();
 		
-		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer);    
+		latestTree = ZephyrUtil.readPhylipTree(s,taxa,false,namer, ZephyrRunner.suppressIntermediateTreeReadingWarnings);    
 
 		if (latestTree instanceof AdjustableTree) {
 			String name = "PAUP " + getMethodNameForTreeBlock() + " Tree";

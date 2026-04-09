@@ -9,6 +9,8 @@ GNU Lesser General Public License.  (http://www.gnu.org/copyleft/lesser.html)
 
 package mesquite.zephyr.IQTreeTreesLocal;
 
+import mesquite.lib.CompatibilityTest;
+import mesquite.lib.misc.KeywordsCompatibilityTest;
 import mesquite.zephyr.IQTreeRunnerLocal.IQTreeRunnerLocal;
 import mesquite.zephyr.lib.IQTreeTrees;
 
@@ -19,6 +21,12 @@ public class IQTreeTreesLocal extends IQTreeTrees {
 	public String getRunnerModuleName() {
 		return "#mesquite.zephyr.IQTreeRunner.IQTreeRunnerLocal";
 	}
+	
+	/*.................................................................................................................*/
+	public CompatibilityTest getCompatibilityTest(){
+		return new KeywordsCompatibilityTest(new String[]{"acceptImposedMatrixSource", "parallelReady"});
+	}
+
 	/*.................................................................................................................*/
 	public Class getRunnerClass() {
 		return IQTreeRunnerLocal.class;

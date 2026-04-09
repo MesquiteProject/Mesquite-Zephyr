@@ -96,6 +96,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		rng = new Random(System.currentTimeMillis());
 		loadPreferences();
 		setUpRunner();
+		setShowIntermediateTrees(true);
 
 		return true;
 	}
@@ -346,7 +347,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		String constraintTree = "";
 
 		if (useConstraintTree>NOCONSTRAINT || isConstrainedSearch()){
-			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debugg.println
+			if (isConstrainedSearch() && useConstraintTree==NOCONSTRAINT)  //TODO: change  Debuggg.println
 				useConstraintTree=MONOPHYLY;
 			if (constraint==null) { // we don't have one
 				getConstraintTreeSource();
@@ -392,7 +393,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		//+ " " + arguments + StringUtil.lineEnding();  
 		if (externalProcRunner instanceof ScriptRunner){
 			String path =((ScriptRunner)externalProcRunner).getExecutablePath();	//programCommand += StringUtil.lineEnding();  
-			if (path != null)
+			if (path != null && isVerbose())
 				logln("Running PAUP version at " + path);
 		}
 
@@ -419,7 +420,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 
 		//----------//
-		boolean success = runProgramOnExternalProcess (programCommand, arguments, null, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
+		boolean success = runProgramOnExternalProcess (programCommand, arguments, tempDir, fileContents, fileNames,  ownerModule.getName(), runInformationFileNumber);
 
 		if (!isDoomed()){
 			if (success){
@@ -719,7 +720,7 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 	/*.................................................................................................................*/
 	public boolean queryOptions() {
-		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debugg.println needs to check that options set well enough to proceed anyway
+		if (!okToInteractWithUser(CAN_PROCEED_ANYWAY, "Querying Options"))  //Debuggg.println needs to check that options set well enough to proceed anyway
 			return true;
 
 		boolean closeWizard = false;

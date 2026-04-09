@@ -397,6 +397,9 @@ abstract class FillerThread extends MesquiteThread {
 		setSpontaneousIndicator(false);
 	}
 	public abstract void stopFilling(boolean userAborted, boolean saveTrees);
+	public String toString(){
+		return "Tree inference thread (" + ownerModule.inferenceTask + ") " + super.toString();
+	}
 }
 
 /* ======================================================================== */
@@ -495,6 +498,9 @@ class ZephryTreeBlockThread extends FillerThread {
 	}
 	public  boolean optionsChosen(){
 		return false;
+	}
+	public String toString(){
+		return "Zephyr Tree inference thread (" + ownerModule.inferenceTask + ") " + super.toString();
 	}
 
 	//boolean abortedAccordingToFillerThread = false; //this used to be just "aborted", but I renamed it, but it was true iff userAborted was true, so redundant
