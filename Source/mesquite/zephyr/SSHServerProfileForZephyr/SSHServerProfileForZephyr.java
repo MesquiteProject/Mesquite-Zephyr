@@ -16,6 +16,7 @@ package mesquite.zephyr.SSHServerProfileForZephyr;
 import java.awt.event.WindowEvent;
 import java.io.File;
 
+import mesquite.lib.Debugg;
 import mesquite.lib.Listable;
 import mesquite.lib.ListableVector;
 import mesquite.lib.MesquiteBoolean;
@@ -40,6 +41,7 @@ public class SSHServerProfileForZephyr extends SSHServerProfileManager {
 
 	public boolean startJob(String arguments, Object condition, boolean hiredByName) {
 		loadPreferences();
+		Debugg.errln("@@@@@@SSHServerProfileForZephyr ");
 		checkForProfileDirectory();
 		sshServerProfileVector = new ListableVector();
 		loadServerProfiles();

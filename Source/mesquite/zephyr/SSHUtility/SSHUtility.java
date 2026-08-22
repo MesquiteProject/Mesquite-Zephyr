@@ -1,6 +1,7 @@
 package mesquite.zephyr.SSHUtility;
 
 import mesquite.lib.CommandChecker;
+import mesquite.lib.Debugg;
 import mesquite.lib.MesquiteString;
 import mesquite.lib.MesquiteTrunk;
 import mesquite.lib.duties.UtilitiesAssistant;
@@ -20,14 +21,16 @@ public class SSHUtility extends UtilitiesAssistant {
 		loadPreferences(xmlPrefs);
 		if (sshServerProfileManager == null)
 			sshServerProfileManager= (SSHServerProfileManager)MesquiteTrunk.mesquiteTrunk.findEmployeeWithDuty(SSHServerProfileManager.class);
+		Debugg.errln("sshServerProfileManager " + sshServerProfileManager);
 		if (sshServerProfileManager == null) {
 			return false;
 		} 
 		xmlPrefsString = xmlPrefs.getValue();
 
-		MesquiteSubmenuSpec mss = addSubmenu(null,"SSH Server Utility");
+		addMenuItemToUtilitiesSubmenu("Manage SSH Server Profiles...", makeCommand("manageServers", this));
+	//	MesquiteSubmenuSpec mss = addSubmenuToUtilitiesSubmenu("SSH Server Utility", null);
 
-		addItemToSubmenu(null, mss, "Manage SSH Server Profiles...", makeCommand("manageServers", this));
+	//	addItemToSubmenu(null, mss, "Manage SSH Server Profiles...", makeCommand("manageServers", this));
 	//	addLineToSubmenu(null, mss);
 		return true;
 	}
