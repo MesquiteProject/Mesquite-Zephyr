@@ -781,6 +781,7 @@ public class ZephyrUtil {
 	public static boolean writeNEXUSFile(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean writeSimplifiedNEXUS, boolean useStandardizedTaxonNames, boolean writeOnlySelectedTaxa, boolean writeSetsBlock, boolean writeAssumptionsBlock, boolean useCodPosIfAvailable, boolean writeExcludedCharacters) {
 		if (path != null) {
 			MesquiteFile f = MesquiteFile.newFile(dir, fileName);
+			f.suppressReadWriteLogging = true; //DAVIDCHECK: Debugg.println Moved away from static. Was only used by PAUPRunner. Find other way to suppress?
 			f.openWriting(true);
 			f.interleaveAllowed=false;
 			f.useSimplifiedNexus=writeSimplifiedNEXUS;

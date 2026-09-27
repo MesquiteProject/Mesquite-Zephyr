@@ -125,7 +125,8 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
-		MesquiteFile.suppressReadWriteLogging=!verbose;
+		//MesquiteFile.suppressReadWriteLogging=!verbose; 
+		//DAVIDCHECK: Debugg.println Moved away from static. Was only used by PAUPRunner, SOWHTest, and ZephyrConstraintDiffNumForMatrix. In last, was not resetting, so left changed for all files. Find other way to suppress?
 	}
 
 	/*.................................................................................................................*/
