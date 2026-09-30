@@ -700,14 +700,14 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	}
 	private String[] modelStrings() {
 		return new String[] {
-				"Standard model selection (like jModelTest, ProtTest)",
-				"Standard model selection followed by tree inference",
-				"Extended model selection with FreeRate heterogeneity",
-				"Extended model selection followed by tree inference",
-				"Find best partition scheme (like PartitionFinder)",
-				"Find best partition scheme followed by tree inference",
-				"Find best partition scheme inc FreeRate heterogeneity",
-				"Find best partition scheme inc FreeRate heterogeneity followed by tree inference",
+				"Standard model selection (like jModelTest, ProtTest) [TESTONLY]",
+				"Standard model selection followed by tree inference [TEST]",
+				"Extended model selection with FreeRate heterogeneity [MF]",
+				"Extended model selection followed by tree inference [MFP]",
+				"Find best partition scheme (like PartitionFinder) [TESTMERGEONLY]",
+				"Find best partition scheme followed by tree inference [TESTMERGE]",
+				"Find best partition scheme inc FreeRate heterogeneity [MF+MERGE]",
+				"Find best partition scheme inc FreeRate heterogeneity followed by tree inference [MFP+MERGE]",
 				"Please enter the model name yourself:"
 		};
 
