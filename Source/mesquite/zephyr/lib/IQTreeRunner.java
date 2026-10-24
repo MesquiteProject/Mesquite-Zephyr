@@ -111,6 +111,16 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected static final int STANDARDSEARCH = 2;
 	protected int searchStyle = STANDARDSEARCH;  //include in SNAPSHOT
 	protected RadioButtons searchStyleButtons = null;
+	
+//	protected static final int PARTITIONBOOTSTRAP = 2;
+
+	protected static final int BOOTRESAMPLESITES = 0;
+	protected static final int BOOTRESAMPLEPARTS = 1;
+	protected static final int BOOTRESAMPLEPARTSANDSITES = 2;
+	protected int bootResampleStyle = BOOTRESAMPLESITES;  //include in SNAPSHOT
+	protected Choice bootResampleStyleChoice = null;
+	
+
 
 	protected boolean doALRT = false;  //include in SNAPSHOT
 	protected int alrtReps=1000;  //include in SNAPSHOT
@@ -173,6 +183,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		if (file==null) {
 			temp.addLine("bootstrapreps " +  bootstrapreps);   // int
+			temp.addLine("bootResampleStyle " +  bootResampleStyle);   // int
 			temp.addLine("numRuns " + numSearchRuns);   // int
 			temp.addLine("numUFBootRuns " + numUFBootRuns);   // int
 			temp.addLine("partitionLinkage " + partitionLinkage);   // int
@@ -197,6 +208,12 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			}
 			externalProcRunner.setProcessRequester(this);
 			return externalProcRunner;
+		}
+			else if (checker.compare(this.getClass(), "Sets resampling strategy if partitioned ", "[integer]", commandName, "bootResampleStyle")) {
+				int temp = MesquiteInteger.fromString(parser.getFirstToken(arguments));
+				if (MesquiteInteger.isCombinable(temp))
+					bootResampleStyle = temp;
+				return null;
 		} else if (checker.compare(this.getClass(), "sets the searchStyle ", "[searchStyle]", commandName, "setSearchStyle")) {
 			searchStyle = getSearchStyleFromName(parser.getFirstToken(arguments));
 			return null;
@@ -282,11 +299,10 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			numUFBootRuns = MesquiteInteger.fromString(content);
 		if ("partitionScheme".equalsIgnoreCase(tag))
 			partitionScheme = MesquiteInteger.fromString(content);
+		if ("bootResampleStyle".equalsIgnoreCase(tag))
+			bootResampleStyle = MesquiteInteger.fromString(content);		
 		if ("partitionLinkage".equalsIgnoreCase(tag))
 			partitionLinkage = MesquiteInteger.fromString(content);		
-
-
-
 
 		if ("bootStrapReps".equalsIgnoreCase(tag)){
 			bootstrapreps = MesquiteInteger.fromString(content);
@@ -303,7 +319,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		if ("modelOption".equalsIgnoreCase(tag))
 			modelOption = MesquiteInteger.fromString(content);
 		if ("searchStyle".equalsIgnoreCase(tag))
-			searchStyle = MesquiteInteger.fromString(content);
+			searchStyle = getSearchStyleFromName(StringUtil.cleanXMLEscapeCharacters(content));
 		if ("substitutionModel".equalsIgnoreCase(tag))
 			substitutionModel = StringUtil.cleanXMLEscapeCharacters(content);
 		if ("importBestPartitionScheme".equalsIgnoreCase(tag))
@@ -312,19 +328,19 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		preferencesSet = true;
 	}
-
 	/*.................................................................................................................*/
 	public String preparePreferencesForXML () {
 		StringBuffer buffer = new StringBuffer(200);
 		StringUtil.appendXMLTag(buffer, 2, "bootStrapReps", bootstrapreps);  
 		StringUtil.appendXMLTag(buffer, 2, "numRuns", numSearchRuns);  
+		StringUtil.appendXMLTag(buffer, 2, "bootResampleStyle", bootResampleStyle);  
 		StringUtil.appendXMLTag(buffer, 2, "numUFBootRuns", numUFBootRuns);  
 		StringUtil.appendXMLTag(buffer, 2, "partitionScheme", partitionScheme);  
 		StringUtil.appendXMLTag(buffer, 2, "partitionLinkage", partitionLinkage);  
 		StringUtil.appendXMLTag(buffer, 2, "onlyBest", onlyBest);  
 		StringUtil.appendXMLTag(buffer, 2, "doALRT", doALRT);  
 		StringUtil.appendXMLTag(buffer, 2, "alrtReps", alrtReps);  
-		StringUtil.appendXMLTag(buffer, 2, "searchStyle", searchStyle);  
+		StringUtil.appendXMLTag(buffer, 2, "searchStyle", searchStyleName(searchStyle));  
 		StringUtil.appendXMLTag(buffer, 2, "modelOption", modelOption);  
 		StringUtil.appendXMLTag(buffer, 2, "substitutionModel", substitutionModel);  
 		StringUtil.appendXMLTag(buffer, 2, "importBestPartitionScheme", importBestPartitionScheme);  
@@ -340,6 +356,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			return "standardBootstrap";
 		case ULTRAFASTBOOTSTRAP:
 			return "ultrafastBootstrap";
+//		case PARTITIONBOOTSTRAP:
+//			return "partitionBootstrap";
 		case STANDARDSEARCH:
 			return "standardSearch";
 		default:
@@ -354,6 +372,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			return STANDARDBOOTSTRAP;
 		if (searchName.equalsIgnoreCase("ultrafastBootstrap"))
 			return ULTRAFASTBOOTSTRAP;
+//		if (searchName.equalsIgnoreCase("partitionBootstrap"))
+//			return PARTITIONBOOTSTRAP;
 		if (searchName.equalsIgnoreCase("standardSearch"))
 			return STANDARDSEARCH;			
 		return STANDARDSEARCH;
@@ -418,6 +438,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		if (searchStyle==STANDARDBOOTSTRAP){
 			appendToSearchDetails("   Standard bootstrap analysis\n");
 			appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
+		//}	else if (searchStyle==PARTITIONBOOTSTRAP){
+			//appendToSearchDetails("   Partition bootstrap analysis\n");
+			//appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
 		} else if (searchStyle==ULTRAFASTBOOTSTRAP){
 			appendToSearchDetails("   Ultrafast bootstrap analysis\n");
 			appendToSearchDetails("       "+bootstrapreps + " bootstrap replicates per run\n");
@@ -518,6 +541,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			if (bootstrapreps< minimumNumBootstrapReplicates())
 				bootstrapreps = minimumNumBootstrapReplicates();
 			bootStrapRepsField = dialog.addIntegerField("Bootstrap Replicates", bootstrapreps, 8, minimumNumBootstrapReplicates(), MesquiteInteger.infinite);
+			bootResampleStyleChoice = dialog.addPopUpMenu("Resampling strategy when partitioned: ", new String[] {"resample sites within parts", "resample whole parts","resample whole parts and sites within parts"}, bootResampleStyle);
+			bootResampleStyleChoice.setEnabled(data.hasCharacterGroups() || alwaysPrepareForAnyMatrices());
 			numUFBootRunsField = dialog.addIntegerField("Number of Runs for Ultrafast Bootstrap", numUFBootRuns, 8, 1, MesquiteInteger.infinite);
 			alrtBox = dialog.addCheckBox("do SH-aLRT analysis", doALRT);
 			alrtBox.addItemListener(this);
@@ -625,6 +650,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 					numUFBootRuns = numUFBootRunsField.getValue();
 					doALRT = alrtBox.getState();
 					alrtReps = alrtRepsField.getValue();
+					bootResampleStyle = bootResampleStyleChoice.getSelectedIndex();
 					if (searchStyle==ULTRAFASTBOOTSTRAP && bootstrapreps<minUFBootstrapReps) {
 						bootstrapreps = minUFBootstrapReps;
 						MesquiteMessage.discreetNotifyUser("Minimum number of bootstrap replicates for ultrafast bootstrap is " + minUFBootstrapReps + ". Number of replicates reset to " + minUFBootstrapReps);
@@ -660,6 +686,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	public void checkEnabled(int searchStyle) {
 		onlyBestBox.setEnabled(searchStyle==STANDARDSEARCH || !bootstrapAllowed);
 		numSearchRunsField.getTextField().setEnabled(searchStyle==STANDARDSEARCH || !bootstrapAllowed);
+		bootResampleStyleChoice.setEnabled(searchStyle!=STANDARDSEARCH && (data.hasCharacterGroups() || alwaysPrepareForAnyMatrices()));
 		if (alrtBox!=null) {
 			alrtBox.setEnabled(searchStyle==ULTRAFASTBOOTSTRAP);
 		}

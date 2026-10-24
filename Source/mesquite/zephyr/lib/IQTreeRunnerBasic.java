@@ -180,7 +180,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 
 			MesquiteString arguments = new MesquiteString();
 			getArguments(arguments, "[fileName]", "[setsBlockFileName]", substitutionModelField.getText(), otherOptionsField.getText(), 
-					searchStyleButtons.getValue(), bootStrapRepsField.getValue(), bootstrapSeed, numSearchRunsField.getValue(),
+					searchStyleButtons.getValue(), bootResampleStyleChoice.getSelectedIndex(), bootStrapRepsField.getValue(), bootstrapSeed, numSearchRunsField.getValue(),
 					numUFBootRunsField.getValue(), charPartitionButtons.getValue(), partitionLinkageChoice.getSelectedIndex(), 
 					outgroupTaxSetString, null,  alrtBox.getState(), alrtRepsField.getValue(),false);
 			String command = externalProcRunner.getExecutableCommand() + arguments.getValue();
@@ -205,7 +205,9 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 	void getArguments(MesquiteString arguments, String fileName, 
 			String setsFileName,
 			String LOCSubstitutionModel, String LOCotherOptions, 
-			int LOCsearchStyle, int LOCbootstrapreps, int LOCbootstrapSeed, 
+			int LOCsearchStyle, 
+			int LOCbootResampleStyle,
+			int LOCbootstrapreps, int LOCbootstrapSeed, 
 			int LOCnumSearchRuns, 
 			int LOCnumUFBootRuns, 
 			int LOCPartitionScheme,
@@ -229,7 +231,7 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		if (LOCsearchStyle==STANDARDSEARCH) {
 			if (LOCnumSearchRuns>1)
 				localArguments += " --runs " + LOCnumSearchRuns; 
-		} else {
+		} else {  // is bootstrap
 			if (LOCsearchStyle==ULTRAFASTBOOTSTRAP) {
 				if (LOCbootstrapreps>0)
 					localArguments += " -bb " + LOCbootstrapreps+" -wbt "; 
@@ -251,6 +253,11 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 			}
 			localArguments += " -seed " + LOCbootstrapSeed;
 
+			if (LOCPartitionScheme!=noPartition)  // only do this if partitioned
+				if (LOCbootResampleStyle==BOOTRESAMPLEPARTS)
+					localArguments += " -bsam GENE ";
+				else if (LOCbootResampleStyle==BOOTRESAMPLEPARTSANDSITES)
+					localArguments += " -bsam GENESITE ";
 		}
 
 
@@ -317,9 +324,9 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		MesquiteString arguments = new MesquiteString();
 
 		if (!isPreflight) {
-			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, null, doALRT, alrtReps, false);
+			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootResampleStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, null, doALRT, alrtReps, false);
 		} else {
-			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, null, doALRT, alrtReps, true);
+			getArguments(arguments, dataFileName, setsFileName, substitutionModel, otherOptions, searchStyle, bootResampleStyle, bootstrapreps, bootstrapSeed, numSearchRuns, numUFBootRuns, partitionScheme, partitionLinkage, outgroupTaxSetString, null, doALRT, alrtReps, true);
 		}
 		if (MesquiteInteger.isCombinable(employerForcedNumberProcessors))   // employer has forced the issue
 			arguments.append(" -T "+ employerForcedNumberProcessors + " ");   
