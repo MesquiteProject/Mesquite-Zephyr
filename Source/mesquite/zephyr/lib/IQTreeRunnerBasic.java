@@ -253,11 +253,17 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 			}
 			localArguments += " -seed " + LOCbootstrapSeed;
 
-			if (LOCPartitionScheme!=noPartition)  // only do this if partitioned
+			if (LOCPartitionScheme!=noPartition) {  // only do this if partitioned
 				if (LOCbootResampleStyle==BOOTRESAMPLEPARTS)
 					localArguments += " -bsam GENE ";
 				else if (LOCbootResampleStyle==BOOTRESAMPLEPARTSANDSITES)
 					localArguments += " -bsam GENESITE ";
+				else 
+					localArguments += " -bsam SITE ";
+				}
+			else 
+				localArguments += " -bsam SITE ";
+
 		}
 
 

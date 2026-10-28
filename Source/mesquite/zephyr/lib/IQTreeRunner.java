@@ -571,6 +571,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		tabbedPanel.addPanel("Character Models", true);
 		
 		
+		dialog.addLabel("Initial Partition Options", Label.LEFT, false, true);
 		if (!data.hasCharacterGroups() && !alwaysPrepareForAnyMatrices()) {
 			if (partitionScheme == partitionByCharacterGroups)
 				partitionScheme = noPartition;
@@ -590,13 +591,14 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		
 		charPartitionButtons.addItemListener(this);
 
+		dialog.addHorizontalLine(1);
+		dialog.addLabel("Character Model Options", Label.LEFT, false, true);
 		partitionLinkageChoice = dialog.addPopUpMenu("Partition linkages", partitionLinkageStrings(), partitionLinkage); 
 		
 		partitionLinkageAllowed = (data.hasCharacterGroups() || (data instanceof DNAData && ((DNAData) data).someCoding()) || alwaysPrepareForAnyMatrices()) ;
 		partitionLinkageChoice.setEnabled(partitionLinkageAllowed && (partitionScheme!=partitionNone));
 
 
-		dialog.addHorizontalLine(1);
 
 		modelOptionChoice = dialog.addPopUpMenu("Model option", modelStrings(), modelOption); 
 		modelOptionChoice.addItemListener(this);
