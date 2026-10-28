@@ -818,6 +818,7 @@ public class ZephyrUtil {
 	public static boolean writeNEXUSSetsBlock(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters, boolean includeAsterisk, MesquiteInteger numParts) {
 		if (path != null) {
 			MesquiteFile f = MesquiteFile.newFile(dir, fileName);
+			f.suppressReadWriteLogging = true;
 			f.openWriting(true);
 			f.writeLine("#NEXUS" + StringUtil.lineEnding());
 			String setsBlock = getNEXUSSetsBlock(data,useCodPosIfAvailable, writeExcludedCharacters, includeAsterisk, numParts);

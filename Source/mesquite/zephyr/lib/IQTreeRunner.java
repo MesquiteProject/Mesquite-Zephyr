@@ -433,20 +433,28 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		return s;
 	}
 	/*.................................................................................................................*/
+	public void appendResamplingDetails() {
+		if (bootResampleStyle==BOOTRESAMPLESITES)
+			appendToSearchDetails("       Resampling of sites.\n");
+		else if (bootResampleStyle==BOOTRESAMPLEPARTS)
+			appendToSearchDetails("       Resampling of parts of the partition.\n");
+		else if (bootResampleStyle==BOOTRESAMPLEPARTSANDSITES)
+			appendToSearchDetails("       Resampling of parts of the partition and sites within parts.\n");
+	}
+	/*.................................................................................................................*/
 	public void appendAdditionalSearchDetails() {
 		appendToSearchDetails("Search details: \n");
 		if (searchStyle==STANDARDBOOTSTRAP){
 			appendToSearchDetails("   Standard bootstrap analysis\n");
 			appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
-		//}	else if (searchStyle==PARTITIONBOOTSTRAP){
-			//appendToSearchDetails("   Partition bootstrap analysis\n");
-			//appendToSearchDetails("   "+bootstrapreps + " bootstrap replicates");
+			appendResamplingDetails();
 		} else if (searchStyle==ULTRAFASTBOOTSTRAP){
 			appendToSearchDetails("   Ultrafast bootstrap analysis\n");
 			appendToSearchDetails("       "+bootstrapreps + " bootstrap replicates per run\n");
 			appendToSearchDetails("       "+numUFBootRuns + " run");
 			if (numUFBootRuns>1)
 				appendToSearchDetails("s");
+			appendResamplingDetails();
 			if (doALRT)
 				appendToSearchDetails("\n       SH-aLRT run with " + alrtReps + " replicates");
 		} else {
