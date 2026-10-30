@@ -258,11 +258,14 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 					localArguments += " -bsam GENE ";
 				else if (LOCbootResampleStyle==BOOTRESAMPLEPARTSANDSITES)
 					localArguments += " -bsam GENESITE ";
-				else 
-					localArguments += " -bsam SITE ";
-				}
-			else 
-				localArguments += " -bsam SITE ";
+			}
+			//	else 
+				//	if (LOCsearchStyle==ULTRAFASTBOOTSTRAP)
+				//		localArguments += " -bsam SITE ";
+		//		}
+		//	else 
+		//		localArguments += " -bsam SITE ";
+			
 
 		}
 
