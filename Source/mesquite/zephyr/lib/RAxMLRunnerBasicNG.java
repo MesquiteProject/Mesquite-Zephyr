@@ -398,7 +398,7 @@ public abstract class RAxMLRunnerBasicNG extends RAxMLRunnerBasic  implements Ke
 			treeFileName = outputFilePrefix+".raxml.bootstraps";
 			workingTreeFileName= outputFilePrefix+".raxml.bootstraps.TMP";
 		} else {
-			if (onlyBest)
+			if (onlyBest || numRuns==1)
 				treeFileName = outputFilePrefix+".raxml.bestTree";
 			else
 				treeFileName = outputFilePrefix+".raxml.mlTrees";
