@@ -581,7 +581,7 @@ public class ZephyrUtil {
 		}
 		return -1;
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public static String getStandardPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters, boolean includeAsterisk, MesquiteInteger numParts){
 		String standardPartitionSection = "";
 		String standardPartition = "";
@@ -627,7 +627,7 @@ public class ZephyrUtil {
 		}	
 		return standardPartitionSection;
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public static String getCodPosPartitionNEXUSCommands(CharacterData data, boolean writeExcludedCharacters, boolean includeAsterisk, MesquiteInteger numParts){
 		//codon positions if nucleotide
 		String codPosPartitionSection = "";
@@ -666,7 +666,7 @@ public class ZephyrUtil {
 		return codPosPartitionSection;
 	}
 	
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 
 	public static String nexusStringForInclusionSet(CharSpecsSet specsSet, CharacterData data){
 		if (specsSet ==null || !(specsSet instanceof CharInclusionSet))
@@ -684,7 +684,7 @@ public class ZephyrUtil {
 		}
 		return s;
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 
 	public static String nexusStringForTypeSet(CharSpecsSet specsSet, CharacterData data){
 		if (specsSet ==null || !(specsSet instanceof ParsimonyModelSet))
@@ -702,7 +702,7 @@ public class ZephyrUtil {
 		}
 		return s;
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 
 	public static String nexusStringForWeightSet(CharSpecsSet specsSet, CharacterData data){
 		if (specsSet ==null || !(specsSet instanceof CharWeightSet))
@@ -721,7 +721,7 @@ public class ZephyrUtil {
 		return s;
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 
 	public static  String getNEXUSAssumptionBlock(CategoricalData data){
 		StringBuffer sb = new StringBuffer();
@@ -758,7 +758,7 @@ public class ZephyrUtil {
 		}
 		return sb.toString();
 	}
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 
 	public static  String getNEXUSSetsBlock(CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters, boolean includeAsterisk, MesquiteInteger numParts){
 		StringBuffer sb = new StringBuffer();
@@ -777,7 +777,7 @@ public class ZephyrUtil {
 		return sb.toString();
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public static boolean writeNEXUSFile(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean writeSimplifiedNEXUS, boolean useStandardizedTaxonNames, boolean writeOnlySelectedTaxa, boolean writeSetsBlock, boolean writeAssumptionsBlock, boolean useCodPosIfAvailable, boolean writeExcludedCharacters) {
 		if (path != null) {
 			MesquiteFile f = MesquiteFile.newFile(dir, fileName);
@@ -814,7 +814,7 @@ public class ZephyrUtil {
 		return false;
 	}
 
-	/*.................................................................................................................*/
+	/*.................................................................................................................*
 	public static boolean writeNEXUSSetsBlock(Taxa taxa, String dir, String fileName, String path, CategoricalData data, boolean useCodPosIfAvailable, boolean writeExcludedCharacters, boolean includeAsterisk, MesquiteInteger numParts) {
 		if (path != null) {
 			MesquiteFile f = MesquiteFile.newFile(dir, fileName);

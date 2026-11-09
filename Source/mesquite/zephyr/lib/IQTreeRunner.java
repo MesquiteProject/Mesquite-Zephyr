@@ -38,6 +38,7 @@ import mesquite.lib.MesquiteMessage;
 import mesquite.lib.MesquiteModule;
 import mesquite.lib.MesquiteThread;
 import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.NEXUSFileUtil;
 import mesquite.lib.NameReference;
 import mesquite.lib.ParseUtil;
 import mesquite.lib.Parser;
@@ -997,16 +998,16 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			dataFileName = "dataMatrix.nex"; // replace this with actual file name?
 
 		String dataFilePath = tempDir + dataFileName;
-		ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, false, false, false, false);
+		NEXUSFileUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, false, false, false, false);
 
 		String setsFilePath = tempDir + setsFileName;
 		MesquiteInteger numParts = new MesquiteInteger(1);
 
 		if (partitionScheme == partitionByCharacterGroups) {
-			ZephyrUtil.writeNEXUSSetsBlock(taxa, tempDir, setsFileName, setsFilePath, data,  false,  false, false, numParts);
+			NEXUSFileUtil.writeNEXUSSetsBlock(taxa, tempDir, setsFileName, setsFilePath, data,  false,  false, false, numParts);
 		}
 		else if (partitionScheme == partitionByCodonPosition) {
-			ZephyrUtil.writeNEXUSSetsBlock(taxa, tempDir, setsFileName, setsFilePath, data,  true,  false, false, numParts);
+			NEXUSFileUtil.writeNEXUSSetsBlock(taxa, tempDir, setsFileName, setsFilePath, data,  true,  false, false, numParts);
 		}
 
 
@@ -1034,7 +1035,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 
 		setFileNames();
 
-		String constraintTree = "";
+		String constraintTreeDescription = "";
 
 		if ( isConstrainedSearch()){
 			if (constraint==null) { // we don't have one
@@ -1050,7 +1051,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			else if (useConstraintTree){
 				//DAVIDCHECK: IQTree does skeletal constraints now, apparently. I commented this stuff oiut, and it worked.
 				//if (constraint.hasPolytomies(constraint.getRoot())){
-				constraintTree = constraint.writeTreeByT0Names(false) + ";";
+				constraintTreeDescription = constraint.writeTreeByT0Names(false) + ";";
 				appendToExtraSearchDetails("\nPartial resolution constraint using tree \"" + constraint.getName() + "\"");
 				appendToAddendumToTreeBlockName("Constrained by tree \"" + constraint.getName() + "\"");
 				/*}
@@ -1106,7 +1107,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		}
 		//fileContents[2] = translationTable;
 		//fileNames[2] = translationFileName;
-		fileContents[CONSTRAINTFILENUMBER] = constraintTree;
+		fileContents[CONSTRAINTFILENUMBER] = constraintTreeDescription;
 		fileNames[CONSTRAINTFILENUMBER] = CONSTRAINTTREEFILENAME;
 		fileContents[3] = getRunInformation(arguments);
 		fileNames[3] = runInformationFileName;

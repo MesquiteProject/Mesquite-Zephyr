@@ -42,6 +42,7 @@ import mesquite.lib.MesquiteModule;
 import mesquite.lib.MesquiteString;
 import mesquite.lib.MesquiteThread;
 import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.NEXUSFileUtil;
 import mesquite.lib.ResultCodes;
 import mesquite.lib.Snapshot;
 import mesquite.lib.StringUtil;
@@ -969,11 +970,11 @@ public abstract class GarliRunner extends ZephyrRunner implements ItemListener, 
 
 		String dataFilePath = tempDir + dataFileName;
 		if (partitionScheme == noPartition)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, false, false, false, false);
+			NEXUSFileUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, false, false, false, false);
 		else if (partitionScheme == partitionByCharacterGroups)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, true, false, false, false);
+			NEXUSFileUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, true, false, false, false);
 		else if (partitionScheme == partitionByCodonPosition)
-			ZephyrUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, true, false, true, false);
+			NEXUSFileUtil.writeNEXUSFile(taxa, tempDir, dataFileName, dataFilePath, data, true, true, selectedTaxaOnly, true, false, true, false);
 
 		setFileNames();
 

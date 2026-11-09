@@ -26,6 +26,7 @@ import mesquite.lib.MesquiteInteger;
 import mesquite.lib.MesquiteMessage;
 import mesquite.lib.MesquiteThread;
 import mesquite.lib.MesquiteTrunk;
+import mesquite.lib.NEXUSFileUtil;
 import mesquite.lib.Parser;
 import mesquite.lib.Snapshot;
 import mesquite.lib.StringUtil;
@@ -335,11 +336,11 @@ public abstract class PAUPRunner extends ZephyrRunner implements ItemListener, E
 		String dataFilePath = tempDir +  dataFileName;
 		boolean fileSaved = false;
 		if (partitionScheme == partitionByCharacterGroups)
-			fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, true, true, false, true);
+			fileSaved = NEXUSFileUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, true, true, false, true);
 		else if (partitionScheme == partitionByCodonPosition)
-			fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, true, true, true, true);
+			fileSaved = NEXUSFileUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, true, true, true, true);
 		else
-			fileSaved = ZephyrUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, false, true, false, true);  // no partition
+			fileSaved = NEXUSFileUtil.writeNEXUSFile(taxa,  tempDir,  dataFileName,  dataFilePath,  data,false, false, selectedTaxaOnly, false, true, false, true);  // no partition
 		if (!fileSaved) return null;
 
 		setFileNames();
