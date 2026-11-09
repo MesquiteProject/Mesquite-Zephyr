@@ -106,6 +106,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected boolean useConstraintTree = false;  //include in SNAPSHOT
 	protected static int minUFBootstrapReps=1000; 
 	protected static String CONSTRAINTTREEFILENAME =  "constraintTree.tre";
+	protected static String GUIDETREEFILENAME =  "guideTree.tre";
 
 	protected static final int STANDARDBOOTSTRAP = 0;
 	protected static final int ULTRAFASTBOOTSTRAP = 1;
@@ -121,7 +122,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected int bootResampleStyle = BOOTRESAMPLESITES;  //include in SNAPSHOT
 	protected Choice bootResampleStyleChoice = null;
 	
-
+	boolean useGuideTree = false;
+	Tree guideTree=null;
 
 	protected boolean doALRT = false;  //include in SNAPSHOT
 	protected int alrtReps=1000;  //include in SNAPSHOT
@@ -148,7 +150,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	protected javax.swing.JLabel commandLabel;
 	protected SingleLineTextArea commandField;
 	protected IntegerField numSearchRunsField,numUFBootRunsField, bootStrapRepsField, alrtRepsField;
-	protected Checkbox onlyBestBox, retainFilescheckBox, useConstraintTreeCheckbox, importBestPartitionSchemeCheckbox, alrtBox;
+	protected Checkbox onlyBestBox, retainFilescheckBox, useConstraintTreeCheckbox, useGuideTreeBox, importBestPartitionSchemeCheckbox, alrtBox;
 	//	int count=0;
 
 	protected double finalValue = MesquiteDouble.unassigned;
@@ -325,6 +327,8 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			substitutionModel = StringUtil.cleanXMLEscapeCharacters(content);
 		if ("importBestPartitionScheme".equalsIgnoreCase(tag))
 			importBestPartitionScheme = MesquiteBoolean.fromTrueFalseString(content);
+		if ("useGuideTree".equalsIgnoreCase(tag))
+			useGuideTree = MesquiteBoolean.fromTrueFalseString(content);
 
 
 		preferencesSet = true;
@@ -345,6 +349,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		StringUtil.appendXMLTag(buffer, 2, "modelOption", modelOption);  
 		StringUtil.appendXMLTag(buffer, 2, "substitutionModel", substitutionModel);  
 		StringUtil.appendXMLTag(buffer, 2, "importBestPartitionScheme", importBestPartitionScheme);  
+		StringUtil.appendXMLTag(buffer, 2, "useGuideTree", useGuideTree);  
 
 		preferencesSet = true;
 		return buffer.toString();
@@ -621,8 +626,9 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			tabbedPanel.addPanel("Other options", true);
 		if (getConstrainedSearchAllowed()) {
 			useConstraintTreeCheckbox = dialog.addCheckBox("use topological constraint", useConstraintTree);
-			dialog.addHorizontalLine(1);
 		}
+		useGuideTreeBox= dialog.addCheckBox("use guide tree", useGuideTree);
+		dialog.addHorizontalLine(1);
 		otherOptionsField = dialog.addTextField("Other "+getExecutableName()+" options:", otherOptions, 60);
 		dialog.addLabel("(e.g., -allnni to ask IQ-TREE to do a more thorough and slower NNI search.)");
 
@@ -676,6 +682,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 					if (useConstraintTree)
 						setConstrainedSearch(true);
 				}
+				useGuideTree = useGuideTreeBox.getState();
 				partitionScheme = charPartitionButtons.getValue();
 				importBestPartitionScheme = importBestPartitionSchemeCheckbox.getState();
 				otherOptions = otherOptionsField.getText();
@@ -715,9 +722,17 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 	/** Returns the purpose for which the employee was hired (e.g., "to reconstruct ancestral states" or "for X axis"). */
 	public String purposeOfEmployee(MesquiteModule employee) {
 		if (employee instanceof OneTreeSource){
-			return "for a source of a constraint tree for " + getExecutableName(); // to be overridden
+			return "for a source of a constraint or guide tree for " + getExecutableName(); // to be overridden
 		}
 		return "for " + getName(); // to be overridden
+	}
+
+	protected OneTreeSource guideTreeTask = null;
+	protected OneTreeSource getGuideTreeSource(){
+		if (guideTreeTask == null){
+			guideTreeTask = (OneTreeSource)hireEmployee(OneTreeSource.class, "Source of guide tree");
+		}
+		return guideTreeTask;
 	}
 
 	protected OneTreeSource constraintTreeTask = null;
@@ -794,6 +809,11 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		else if (e.getItemSelectable() == useConstraintTreeCheckbox && useConstraintTreeCheckbox.getState()){
 
 			getConstraintTreeSource();
+
+		} 
+		else if (e.getItemSelectable() == useGuideTreeBox && useGuideTreeBox.getState()){
+
+			getGuideTreeSource();
 
 		} 
 		else if (charPartitionButtons.isAButton(e.getItemSelectable())) {
@@ -961,11 +981,12 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		this.constrainedSearch = constrainedSearch;
 	}
 
-
+	protected boolean guideTreeAcceptable=false;
 
 	protected static final int DATAFILENUMBER = 0;
 	protected static final int PARTITIONFILENUMBER = 1;
 	protected static final int CONSTRAINTFILENUMBER = 2;
+	protected static final int GUIDETREEFILENUMBER = 3;
 
 	/*.................................................................................................................*/
 	public synchronized Tree getTrees(TreeVector trees, Taxa taxa, MCharactersDistribution matrix, long seed, MesquiteDouble finalScore, MesquiteInteger statusResult) {
@@ -1064,6 +1085,31 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 				}*/
 			}
 		}
+
+		String guideTreeDescription ="";
+		guideTreeAcceptable = useGuideTree;
+
+		if (useGuideTree){
+			if (guideTree==null) { // we don't have one
+				getGuideTreeSource();
+				if (guideTreeTask != null){
+					guideTree = guideTreeTask.getTree(taxa, "This will be the guide tree");
+				}
+			}
+			if (guideTree == null){
+				discreetAlert("Guide tree is not available.");
+				guideTreeAcceptable = false;
+			}
+			else if (guideTree.hasBranchLengths()){
+				guideTreeDescription = guideTree.writeTreeByT0Names(true) + ";";
+			} else {
+				discreetAlert("Guide tree must have branch lengths specified.");
+				guideTreeAcceptable = false;
+			}
+
+				
+		}
+
 		setRootNameForDirectoryInProcRunner();
 		//now establish the commands for invoking IQ-TREE
 
@@ -1092,7 +1138,7 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 			parametersChanged(); //just a way to ping the coordinator to update the window
 
 		//setting up the arrays of input file names and contents
-		int numInputFiles = 4;
+		int numInputFiles = 5;
 		String[] fileContents = new String[numInputFiles];
 		String[] fileNames = new String[numInputFiles];
 		for (int i=0; i<numInputFiles; i++){
@@ -1109,8 +1155,12 @@ public abstract class IQTreeRunner extends ZephyrRunner  implements ActionListen
 		//fileNames[2] = translationFileName;
 		fileContents[CONSTRAINTFILENUMBER] = constraintTreeDescription;
 		fileNames[CONSTRAINTFILENUMBER] = CONSTRAINTTREEFILENAME;
-		fileContents[3] = getRunInformation(arguments);
-		fileNames[3] = runInformationFileName;
+		if (guideTreeAcceptable) {
+			fileContents[GUIDETREEFILENUMBER] = guideTreeDescription;
+			fileNames[GUIDETREEFILENUMBER] = GUIDETREEFILENAME;
+		}
+		fileContents[4] = getRunInformation(arguments);
+		fileNames[4] = runInformationFileName;
 		int runInformationFileNumber = 3;
 
 		switch (searchStyle) {

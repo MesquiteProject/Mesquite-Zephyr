@@ -211,12 +211,13 @@ public class ExportMatricesForIQTREE extends FileInterpreterI {
 			return false;
 		if (!directory.endsWith(MesquiteFile.fileSeparator))
 			directory+=MesquiteFile.fileSeparator;
-		String guideTreeDescription ="";
 
 
 		StringBuffer listOfFilesBuffer = new StringBuffer(0);
 		StringBuffer commandBuffer = new StringBuffer(0);
 		int count = 0;
+		
+		String guideTreeDescription ="";
 		boolean guideTreeAcceptable = useGuideTree;
 
 		Taxa taxa = getProject().chooseTaxa(containerOfModule(), "What block of taxa?");
@@ -228,12 +229,17 @@ public class ExportMatricesForIQTREE extends FileInterpreterI {
 				}
 			}
 			if (guideTree == null){
-				discreetAlert("Constraint tree is not available.");
+				discreetAlert("Guide tree is not available.");
 				guideTreeAcceptable = false;
 			}
-			else if (useGuideTree){
-				guideTreeDescription = guideTree.writeTreeByT0Names(false) + ";";
+			else if (guideTree.hasBranchLengths()){
+				guideTreeDescription = guideTree.writeTreeByT0Names(true) + ";";
+			} else {
+				discreetAlert("Guide tree must have branch lengths specified.");
+				guideTreeAcceptable = false;
 			}
+
+				
 		}
 
 		int numMatrices = getProject().getNumberCharMatrices(null, taxa, MolecularState.class, true);

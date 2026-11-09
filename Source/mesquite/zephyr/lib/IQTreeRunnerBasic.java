@@ -276,6 +276,9 @@ public abstract class IQTreeRunnerBasic extends IQTreeRunner  implements ActionL
 		if (useConstraintTree)
 			localArguments += " -g constraintTree.tre "; 
 
+		if (guideTreeAcceptable)
+			localArguments += " -ft guideTree.tre "; 
+
 		if (LOCPartitionScheme!=noPartition) {
 			if (LOCPartitionLinkage==qPartitionLinkage)
 				localArguments += " -q " + setsFileName;
